@@ -1,4 +1,5 @@
 import type { VideoStream } from "../types/stream";
+import { bilibiliFlvMediaSrc, selectBilibiliFlvUrl } from "./bilibili-flv-source";
 import { buildBilibiliDashManifest } from "./bilibili-manifest";
 import { API_BASE as BASE, toApiUrl } from "./env";
 import { buildNicoHlsManifest } from "./nico-hls-manifest";
@@ -91,6 +92,9 @@ export function resolveManifestSrc(
       options?.bilibiliVariant,
     );
     if (built) return { src: built, type: "application/dash+xml" };
+    const flvUrl = selectBilibiliFlvUrl(stream, isLive, options?.hlsFailed ?? false);
+    if (flvUrl) return bilibiliFlvMediaSrc(flvUrl);
+
     if (allowServerManifests) {
       return {
         src: proxyDashManifest(`${BASE}/streams/manifest?url=${encodeURIComponent(stream.id)}`),

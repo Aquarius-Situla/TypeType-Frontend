@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { bilibiliVariantCount } from "../lib/bilibili-manifest";
 import { recordClientEvent } from "../lib/client-debug-log";
 import { sanitizeVideoContext } from "../lib/debug-sanitize";
@@ -62,14 +62,28 @@ export function usePlayerError(stream: VideoStream, isLive: boolean): UsePlayerE
   const sabrSelected = provider === "youtube" && !isLive;
   const sabrEnabled = sabrSelected && hasSabrPlayback(stream);
 
-  const fallbackSrc = resolveManifestSrc(stream, isLive, qualityFailed, {
-    compatibilityMode: compatibilityFallback,
-    enableHighQualityPlayback: highQualityEnabled,
-    highQualityFailed,
-    hlsFailed,
-    allowServerManifests: preferServerManifests,
-    bilibiliVariant,
-  });
+  const fallbackSrc = useMemo(
+    () =>
+      resolveManifestSrc(stream, isLive, qualityFailed, {
+        compatibilityMode: compatibilityFallback,
+        enableHighQualityPlayback: highQualityEnabled,
+        highQualityFailed,
+        hlsFailed,
+        allowServerManifests: preferServerManifests,
+        bilibiliVariant,
+      }),
+    [
+      stream,
+      isLive,
+      qualityFailed,
+      compatibilityFallback,
+      highQualityEnabled,
+      highQualityFailed,
+      hlsFailed,
+      preferServerManifests,
+      bilibiliVariant,
+    ],
+  );
   const manifestSrc: MediaSrc = sabrSelected ? { src: "", type: "video/mp4" } : fallbackSrc;
   const missingYoutubeLiveHls = isYoutubeLive && !stream.hlsUrl;
   const handleError = useCallback(() => {
