@@ -66,6 +66,32 @@ test("extracts metadata from multiple ZIP parts and excludes media", async () =>
   }
 });
 
+test("extracts metadata from ZIP parts nested inside a folder", async () => {
+  const part = new ZipWriter(new BlobWriter());
+  await part.add(
+    "Takeout/YouTube y YouTube Music/suscripciones/suscripciones.csv",
+    new TextReader(
+      "ID de canal,URL del canal,Título del canal\nUC1,https://www.youtube.com/channel/UC1,Canal",
+    ),
+  );
+  const outer = new ZipWriter(new BlobWriter());
+  await outer.add(
+    "downloads/takeout-20260905T223911Z-2-001.zip",
+    new BlobReader(await part.close()),
+  );
+
+  const result = await prepareYoutubeTakeout(new File([await outer.close()], "takeout.zip"));
+  const reader = new ZipReader(new BlobReader(result));
+  try {
+    const entries = await reader.getEntries();
+    expect(entries.map((entry) => entry.filename)).toEqual([
+      "Takeout/YouTube y YouTube Music/suscripciones/suscripciones.csv",
+    ]);
+  } finally {
+    await reader.close();
+  }
+});
+
 test("rejects a video-only part instead of starting an empty import", async () => {
   const writer = new ZipWriter(new BlobWriter());
   await writer.add("Takeout/YouTube/videos/upload.mp4", new TextReader("video"));

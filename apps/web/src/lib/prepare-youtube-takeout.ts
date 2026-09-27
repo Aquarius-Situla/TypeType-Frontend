@@ -3,7 +3,7 @@ import { m } from "../paraglide/messages.js";
 import type { PortabilityPreparationProgress } from "./portability-preparation-progress";
 import { isTakeoutStorageQuotaError } from "./takeout-errors";
 import { TakeoutZipReader } from "./takeout-zip-reader";
-import { isRootZipPart, isTakeoutMetadata, streamTakeoutPart } from "./youtube-takeout-archive";
+import { isNestedZipPart, isTakeoutMetadata, streamTakeoutPart } from "./youtube-takeout-archive";
 import {
   MAX_IN_MEMORY_BYTES,
   MAX_METADATA_BYTES,
@@ -54,7 +54,7 @@ export async function prepareYoutubeTakeout(
       if (entry.directory) continue;
       sourceReader.registerEntry(entry);
       if (isTakeoutMetadata(entry.filename)) metadata.push(entry);
-      else if (isRootZipPart(entry.filename)) {
+      else if (isNestedZipPart(entry.filename)) {
         if (entry.encrypted || entry.uncompressedSize > MAX_NESTED_BYTES) {
           throw new Error(m.portability_takeout_metadata_limit());
         }
