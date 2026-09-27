@@ -3,8 +3,8 @@ import { bilibiliVariantCount } from "../lib/bilibili-manifest";
 import { recordClientEvent } from "../lib/client-debug-log";
 import { sanitizeVideoContext } from "../lib/debug-sanitize";
 import { isIosDevice } from "../lib/ios-device";
-import { detectProvider } from "../lib/provider";
 import { OfflinePlayerRecovery } from "../lib/offline-player-recovery";
+import { detectProvider } from "../lib/provider";
 import { claimAutomaticSabrRecovery, resetAutomaticSabrRecovery } from "../lib/sabr-error-recovery";
 import {
   directProgressiveStreams,
