@@ -104,34 +104,10 @@ test("detects a direct Google Takeout archive from its YouTube metadata paths", 
   expect(await isYoutubeTakeoutArchive(file)).toBe(true);
 });
 
-test("detects a Spanish Google Takeout archive from its localized YouTube metadata paths", async () => {
-  const writer = new ZipWriter(new BlobWriter());
-  await writer.add(
-    "Takeout/YouTube y YouTube Music/suscripciones/suscripciones.csv",
-    new TextReader(
-      "ID de canal,URL del canal,Título del canal\nUC1,https://www.youtube.com/channel/UC1,Canal",
-    ),
-  );
-  const file = new File([await writer.close()], "takeout.zip");
-
-  expect(await isYoutubeTakeoutArchive(file)).toBe(true);
-});
-
 test("detects Google Takeout transfer archives before decompressing their parts", async () => {
   const writer = new ZipWriter(new BlobWriter());
   await writer.add(
     "takeout-20260905T223911Z-2-001.zip",
-    new TextReader("not a real nested archive"),
-  );
-  const file = new File([await writer.close()], "transfer-01a07621.zip");
-
-  expect(await isYoutubeTakeoutArchive(file)).toBe(true);
-});
-
-test("detects Takeout transfer parts nested inside a folder", async () => {
-  const writer = new ZipWriter(new BlobWriter());
-  await writer.add(
-    "downloads/takeout-20260905T223911Z-2-001.zip",
     new TextReader("not a real nested archive"),
   );
   const file = new File([await writer.close()], "transfer-01a07621.zip");

@@ -7,12 +7,8 @@ export function isTakeoutMetadata(name: string): boolean {
   return /youtube.*\.(csv|html|json)$/i.test(name);
 }
 
-export function isNestedZipPart(name: string): boolean {
-  return /\.zip$/i.test(name);
-}
-
-export function isTakeoutZipPart(name: string): boolean {
-  return /(?:^|\/)takeout-\d{8}t\d{6}z-\d+-\d+\.zip$/i.test(name);
+export function isRootZipPart(name: string): boolean {
+  return !name.includes("/") && /\.zip$/i.test(name);
 }
 
 export async function isYoutubeTakeoutArchive(file: Blob): Promise<boolean> {
@@ -25,7 +21,7 @@ export async function isYoutubeTakeoutArchive(file: Blob): Promise<boolean> {
       sourceReader.registerEntry(entry);
       const name = entry.filename.replaceAll("\\", "/");
       if (name.toLowerCase().startsWith("takeout/") && isTakeoutMetadata(name)) return true;
-      if (isTakeoutZipPart(name)) return true;
+      if (/^takeout-\d{8}t\d{6}z-\d+-\d+\.zip$/i.test(name)) return true;
     }
   } catch {
     return false;
