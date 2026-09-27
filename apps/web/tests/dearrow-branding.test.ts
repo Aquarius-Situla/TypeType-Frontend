@@ -58,6 +58,32 @@ test("supports original branding and locked-only confidence", () => {
   ).toBe("Locked");
 });
 
+test("skips an original candidate when a later community candidate is trusted", () => {
+  const originalFirst = {
+    ...item,
+    titles: [
+      { title: "Original", original: true, votes: 0, locked: false, uuid: "6" },
+      { title: "Community", original: false, votes: 1, locked: false, uuid: "7" },
+    ],
+    thumbnails: [
+      { timestamp: null, thumbnailUrl: null, original: true, votes: 0, locked: false, uuid: "8" },
+      {
+        timestamp: 30,
+        thumbnailUrl: "/community.jpg",
+        original: false,
+        votes: 1,
+        locked: false,
+        uuid: "9",
+      },
+    ],
+  };
+
+  expect(resolveDeArrowBranding(originalFirst, fallback)).toEqual({
+    title: "Community",
+    thumbnail: "/community.jpg",
+  });
+});
+
 test("uses a neutral frame when requested or when no community thumbnail exists", () => {
   const withoutThumbnail = { ...item, thumbnails: [] };
   const random = "/api/dearrow/thumbnail?videoId=dQw4w9WgXcQ&time=40";

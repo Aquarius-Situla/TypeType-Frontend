@@ -11,7 +11,8 @@ function useDeArrow(sourceUrl: string, enabled: boolean) {
     enabled: enabled && videoId !== null,
     staleTime: 24 * 60 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
-    retry: false,
+    retry: 2,
+    retryDelay: (attempt) => Math.min(1_000 * 2 ** attempt, 5_000),
   });
 }
 
