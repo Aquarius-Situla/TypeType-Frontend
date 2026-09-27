@@ -4,6 +4,7 @@ import { recordClientEvent } from "../lib/client-debug-log";
 import { sanitizeVideoContext } from "../lib/debug-sanitize";
 import { isIosDevice } from "../lib/ios-device";
 import { detectProvider } from "../lib/provider";
+import { OfflinePlayerRecovery } from "../lib/offline-player-recovery";
 import { claimAutomaticSabrRecovery, resetAutomaticSabrRecovery } from "../lib/sabr-error-recovery";
 import {
   directProgressiveStreams,
@@ -54,6 +55,10 @@ export function usePlayerError(stream: VideoStream, isLive: boolean): UsePlayerE
   const [playerFailed, setPlayerFailed] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
   const sabrRecoveryRef = useRef(false);
+  const offlineRecoveryRef = useRef<OfflinePlayerRecovery | null>(null);
+  if (!offlineRecoveryRef.current) {
+    offlineRecoveryRef.current = new OfflinePlayerRecovery();
+  }
   const bilibiliVariants =
     provider === "bilibili"
       ? bilibiliVariantCount(stream.videoOnlyStreams ?? [], stream.audioStreams ?? [])
@@ -87,6 +92,11 @@ export function usePlayerError(stream: VideoStream, isLive: boolean): UsePlayerE
   const manifestSrc: MediaSrc = sabrSelected ? { src: "", type: "video/mp4" } : fallbackSrc;
   const missingYoutubeLiveHls = isYoutubeLive && !stream.hlsUrl;
   const handleError = useCallback(() => {
+    if (!sabrEnabled && typeof navigator !== "undefined" && !navigator.onLine) {
+      offlineRecoveryRef.current?.waitForOnline();
+      recordClientEvent("player.network_retry_waiting", { video: debugVideo });
+      return;
+    }
     if (isYoutubeLive) {
       recordClientEvent("player.hls_failed", { video: debugVideo });
       setPlayerFailed(true);
@@ -128,6 +138,7 @@ export function usePlayerError(stream: VideoStream, isLive: boolean): UsePlayerE
     }
   }, [
     debugVideo,
+    sabrEnabled,
     hlsEnabled,
     hlsFailed,
     isYoutubeLive,
@@ -144,7 +155,19 @@ export function usePlayerError(stream: VideoStream, isLive: boolean): UsePlayerE
     isLive,
   ]);
 
+  useEffect(() => {
+    const handleOnline = () => {
+      if (!offlineRecoveryRef.current?.resumeIfOnline(navigator.onLine)) return;
+      recordClientEvent("player.network_recovered", { video: debugVideo });
+      setPlayerFailed(false);
+      setRetryKey((key) => key + 1);
+    };
+    window.addEventListener("online", handleOnline);
+    return () => window.removeEventListener("online", handleOnline);
+  }, [debugVideo]);
+
   const reset = useCallback(() => {
+    offlineRecoveryRef.current?.reset();
     setHlsFailed(false);
     setHighQualityFailed(false);
     setQualityFailed(false);
@@ -156,11 +179,13 @@ export function usePlayerError(stream: VideoStream, isLive: boolean): UsePlayerE
   }, []);
 
   const clearFailed = useCallback(() => {
+    offlineRecoveryRef.current?.reset();
     setPlayerFailed(false);
     resetAutomaticSabrRecovery(sabrRecoveryRef);
   }, []);
   useEffect(() => {
     if (playbackSourceId.length === 0) return;
+    offlineRecoveryRef.current?.reset();
     setHlsFailed(false);
     setHighQualityFailed(false);
     setQualityFailed(false);
