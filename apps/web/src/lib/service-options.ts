@@ -14,6 +14,10 @@ export const SERVICE_OPTIONS: ServiceOption[] = [
   { id: 5, label: "BiliBili", path: siBilibili.path, color: "#00A1D6" },
 ];
 
+export function serviceAlternatives(activeService: ServiceId): ServiceOption[] {
+  return SERVICE_OPTIONS.filter((service) => service.id !== activeService);
+}
+
 export type ServiceNavigation =
   | { to: "/search"; search: { q: string; service: ServiceId } }
   | { to: "/bilibili-session" }

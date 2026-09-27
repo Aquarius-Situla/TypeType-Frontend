@@ -1,8 +1,12 @@
 import { expect, test } from "bun:test";
-import { nextServiceRoute, SERVICE_OPTIONS } from "../src/lib/service-options";
+import { nextServiceRoute, SERVICE_OPTIONS, serviceAlternatives } from "../src/lib/service-options";
 
 test("exposes YouTube, NicoNico and BiliBili in the navbar order", () => {
   expect(SERVICE_OPTIONS.map((service) => service.id)).toEqual([0, 6, 5]);
+});
+
+test("excludes the active service from navbar alternatives", () => {
+  expect(serviceAlternatives(6).map((service) => service.label)).toEqual(["YouTube", "BiliBili"]);
 });
 
 test("keeps the current search query when switching service", () => {

@@ -1,8 +1,8 @@
 import { useNavigate, useRouterState } from "@tanstack/react-router";
-import { Check, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useSettings } from "../hooks/use-settings";
-import { nextServiceRoute, SERVICE_OPTIONS } from "../lib/service-options";
+import { nextServiceRoute, SERVICE_OPTIONS, serviceAlternatives } from "../lib/service-options";
 import { m } from "../paraglide/messages.js";
 import type { ServiceId } from "../types/user";
 import { ServiceIcon } from "./service-icon";
@@ -74,25 +74,19 @@ export function NavbarServicePicker({ compact = false }: Props) {
             : "pointer-events-none -translate-y-1 opacity-0"
         }`}
       >
-        {SERVICE_OPTIONS.map((service) => {
-          const selected = service.id === settings.defaultService;
-          return (
-            <button
-              key={service.id}
-              type="button"
-              role="option"
-              aria-selected={selected}
-              onClick={() => selectService(service.id)}
-              className={`flex min-h-10 w-full items-center gap-2 rounded-sm px-2 text-left text-xs transition-colors ${
-                selected ? "bg-surface text-fg" : "text-fg-muted hover:bg-surface hover:text-fg"
-              }`}
-            >
-              <ServiceIcon path={service.path} color={service.color} label={service.label} />
-              <span className="flex-1">{service.label}</span>
-              {selected && <Check className="size-3.5" aria-hidden="true" />}
-            </button>
-          );
-        })}
+        {serviceAlternatives(settings.defaultService).map((service) => (
+          <button
+            key={service.id}
+            type="button"
+            role="option"
+            aria-selected={false}
+            onClick={() => selectService(service.id)}
+            className="flex min-h-10 w-full items-center gap-2 rounded-sm px-2 text-left text-xs text-fg-muted transition-colors hover:bg-surface hover:text-fg"
+          >
+            <ServiceIcon path={service.path} color={service.color} label={service.label} />
+            <span className="flex-1">{service.label}</span>
+          </button>
+        ))}
       </div>
     </div>
   );
