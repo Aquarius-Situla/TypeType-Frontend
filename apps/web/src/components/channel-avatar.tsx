@@ -7,6 +7,7 @@ type Props = {
   name: string;
   className?: string;
   pending?: boolean;
+  priority?: boolean;
 };
 
 function getInitial(name: string): string {
@@ -23,13 +24,15 @@ function getInitial(name: string): string {
   return name[0].toUpperCase();
 }
 
-export function ChannelAvatar({ src, name, className = "w-8 h-8", pending }: Props) {
+export function ChannelAvatar({ src, name, className = "w-8 h-8", pending, priority }: Props) {
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
   const [missingExpired, setMissingExpired] = useState(false);
+  const [retryState, setRetryState] = useState({ src, count: 0 });
   const hasSource = src.trim().length > 0;
   const failed = failedSrc === src;
   const loaded = loadedSrc === src;
+  const retryCount = retryState.src === src ? retryState.count : 0;
   useEffect(() => {
     if (hasSource || pending === false) {
       setMissingExpired(false);
@@ -61,18 +64,34 @@ export function ChannelAvatar({ src, name, className = "w-8 h-8", pending }: Pro
         ))}
       {hasSource && !failed && (
         <img
-          src={src}
+          key={retryCount}
+          src={avatarRetrySrc(src, retryCount)}
           alt=""
           aria-hidden="true"
           className="absolute inset-0 h-full w-full object-cover"
-          loading="lazy"
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
           decoding="async"
           onLoad={() => setLoadedSrc(src)}
-          onError={() => setFailedSrc(src)}
+          onError={() => {
+            if (retryCount < MAX_AVATAR_RETRIES) {
+              setRetryState({ src, count: retryCount + 1 });
+              return;
+            }
+            setFailedSrc(src);
+          }}
         />
       )}
     </div>
   );
 }
 
+function avatarRetrySrc(src: string, retryCount: number): string {
+  if (retryCount === 0) return src;
+  const url = new URL(src, window.location.href);
+  url.searchParams.set("_tt_avatar_retry", String(retryCount));
+  return url.toString();
+}
+
+const MAX_AVATAR_RETRIES = 2;
 const MISSING_AVATAR_GRACE_MS = 1_500;

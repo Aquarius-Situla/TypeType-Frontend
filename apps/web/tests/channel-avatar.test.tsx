@@ -15,6 +15,20 @@ describe("channel avatar", () => {
     expect(html).toContain('loading="lazy"');
   });
 
+  test("loads primary watch avatars eagerly", () => {
+    const html = renderToStaticMarkup(
+      <ChannelAvatar
+        src="/api/proxy?url=https%3A%2F%2Fexample.test%2Favatar.jpg"
+        name="Channel"
+        priority
+      />,
+    );
+
+    expect(html).toContain('loading="eager"');
+    expect(html).toContain('fetchPriority="high"');
+    expect(html).toContain('rel="preload"');
+  });
+
   test("renders the channel initial when no avatar URL exists", () => {
     const html = renderToStaticMarkup(<ChannelAvatar src="" name="Channel" pending={false} />);
 

@@ -85,6 +85,7 @@ export function WatchInfo({ stream }: Props) {
                 src={stream.channelAvatar}
                 name={stream.channelName}
                 className="w-9 h-9"
+                priority
               />
               <div className="flex flex-col min-w-0">
                 <p className="text-sm font-medium text-fg truncate group-hover:underline flex items-center gap-1">
@@ -103,6 +104,7 @@ export function WatchInfo({ stream }: Props) {
                 src={stream.channelAvatar}
                 name={stream.channelName}
                 className="w-9 h-9"
+                priority
               />
               {channelMeta}
             </div>
