@@ -14,7 +14,7 @@ when:
 
 steps:
   - name: quality
-    image: oven/bun:1.4.2-alpine@sha256:d73746a3e6cd8de6d7abff1c4c678028b6fe25e0c39808f9a71214589fa8b023
+    image: oven/bun:1.4.2-slim@sha256:debbe76858f2e398d2937c1eceeb82c571ac1fcd78aadf00e9634578ac2b5ef7
     commands:
       - |
         set -eu
