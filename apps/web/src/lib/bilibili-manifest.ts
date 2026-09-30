@@ -125,13 +125,24 @@ function audioCandidates(streams: AudioStreamItem[]): AudioCandidate[] {
     });
 }
 
+function videoVariants(streams: VideoStreamItem[]): VideoCandidate[][] {
+  const groups = videoCodecGroups(streams);
+  const variants: VideoCandidate[][] = [];
+  for (const group of groups) {
+    for (let i = 0; i < group.length; i++) {
+      variants.push(group.slice(i));
+    }
+  }
+  return variants;
+}
+
 export function bilibiliVariantCount(
   videoStreams: VideoStreamItem[],
   audioStreams: AudioStreamItem[],
 ): number {
-  const groups = videoCodecGroups(videoStreams);
+  const variants = videoVariants(videoStreams);
   const audios = audioCandidates(audioStreams);
-  return Math.max(1, groups.length * Math.max(1, audios.length));
+  return Math.max(1, variants.length * Math.max(1, audios.length));
 }
 
 function videoRepresentation(stream: VideoCandidate, index: number): string | null {
@@ -179,11 +190,11 @@ export function buildBilibiliDashManifest(
   variant = 0,
 ): string | null {
   if (duration <= 0) return null;
-  const groups = videoCodecGroups(videoStreams);
+  const variants = videoVariants(videoStreams);
   const audios = audioCandidates(audioStreams);
-  if (groups.length === 0 || audios.length === 0) return null;
-  const videoGroup = groups[variant % groups.length];
-  const audio = audios[Math.floor(variant / groups.length) % audios.length];
+  if (variants.length === 0 || audios.length === 0) return null;
+  const videoGroup = variants[variant % variants.length];
+  const audio = audios[Math.floor(variant / variants.length) % audios.length];
   if (!videoGroup || videoGroup.length === 0 || !audio) return null;
 
   const videoReps = videoGroup
