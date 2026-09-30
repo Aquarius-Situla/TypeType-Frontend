@@ -1,10 +1,12 @@
 import { ArrowUpRight, X } from "lucide-react";
 import { useState } from "react";
+import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { m } from "../paraglide/messages.js";
 import { BiliBiliIcon } from "./bilibili-icon";
 import { useBiliBiliSessionGate } from "./bilibili-session-gate";
 
 export function BiliBiliSessionBanner() {
+  const { locale } = useInterfaceLocale();
   const { connectHref, requiresConnection } = useBiliBiliSessionGate();
   const [dismissed, setDismissed] = useState(false);
 
@@ -17,9 +19,11 @@ export function BiliBiliSessionBanner() {
           <BiliBiliIcon className="size-4 text-[#00a1d6]" />
         </span>
         <div className="min-w-0">
-          <p className="text-sm font-medium text-fg">{m.ui_bilibili_quality_unlock_title()}</p>
+          <p className="text-sm font-medium text-fg">
+            {m.ui_bilibili_quality_unlock_title({}, { locale })}
+          </p>
           <p className="mt-0.5 text-xs leading-5 text-fg-muted">
-            {m.ui_bilibili_quality_unlock_description()}
+            {m.ui_bilibili_quality_unlock_description({}, { locale })}
           </p>
         </div>
       </div>
@@ -28,14 +32,14 @@ export function BiliBiliSessionBanner() {
           href={connectHref}
           className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-fg px-3 text-xs font-medium text-app transition-colors hover:bg-fg-strong"
         >
-          {m.ui_bilibili_session_connect()}
+          {m.ui_bilibili_session_connect({}, { locale })}
           <ArrowUpRight className="size-3.5" />
         </a>
         <button
           type="button"
           onClick={() => setDismissed(true)}
-          aria-label={m.ui_bilibili_quality_unlock_dismiss()}
-          title={m.ui_bilibili_quality_unlock_dismiss()}
+          aria-label={m.ui_bilibili_quality_unlock_dismiss({}, { locale })}
+          title={m.ui_bilibili_quality_unlock_dismiss({}, { locale })}
           className="flex size-9 items-center justify-center rounded-lg text-fg-soft transition-colors hover:bg-surface-strong hover:text-fg"
         >
           <X className="size-4" />

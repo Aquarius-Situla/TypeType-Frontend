@@ -65,8 +65,10 @@ export function QualitySelector() {
     >
       <LockKeyhole className="size-4 shrink-0 text-[#00a1d6]" aria-hidden="true" />
       <span className="min-w-0 flex-1">
-        <span className="block text-sm">{m.ui_bilibili_quality_unlock_menu()}</span>
-        <span className="block text-xs text-fg-soft">{m.ui_bilibili_session_connect()}</span>
+        <span className="block text-sm">{m.ui_bilibili_quality_unlock_menu({}, { locale })}</span>
+        <span className="block text-xs text-fg-soft">
+          {m.ui_bilibili_session_connect({}, { locale })}
+        </span>
       </span>
       <ArrowUpRight className="size-4 shrink-0 text-fg-soft" aria-hidden="true" />
     </a>
