@@ -38,17 +38,15 @@ function videoDimensions(stream: VideoStreamItem): { width: number; height: numb
   return { width, height };
 }
 
-function videoScore(stream: VideoCandidate): number {
-  const dimensions = videoDimensions(stream);
-  const height = dimensions?.height ?? 0;
-  const codecPenalty = stream.codec.startsWith("avc1")
-    ? 0
-    : stream.codec.startsWith("av01")
-      ? 10000
-      : 20000;
-  if (height === 480) return codecPenalty;
-  if (height > 480) return codecPenalty + 1000 + height;
-  return codecPenalty + 2000 + (480 - height);
+function codecPrefix(codec: string): string {
+  return codec.split(".")[0]?.toLowerCase() ?? "";
+}
+
+function codecPriority(prefix: string): number {
+  if (prefix.startsWith("avc1")) return 0;
+  if (prefix.startsWith("av01")) return 1;
+  if (prefix.startsWith("hev1") || prefix.startsWith("hvc1")) return 2;
+  return 3;
 }
 
 function isSupportedCodec(mimeType: string, codec: string): boolean {
@@ -72,11 +70,46 @@ function audioCodec(codec: string): string {
   return codec === "mp4a" ? "mp4a.40.2" : codec;
 }
 
-function videoCandidates(streams: VideoStreamItem[]): VideoCandidate[] {
-  return [...streams]
+function videoCodecGroups(streams: VideoStreamItem[]): VideoCandidate[][] {
+  const supported = streams
     .filter(isVideoCandidate)
-    .filter((stream) => isSupportedCodec(mimeType(stream.mimeType, "video/mp4"), stream.codec))
-    .sort((left, right) => videoScore(left) - videoScore(right));
+    .filter((stream) => isSupportedCodec(mimeType(stream.mimeType, "video/mp4"), stream.codec));
+
+  const groups = new Map<string, VideoCandidate[]>();
+  for (const stream of supported) {
+    const prefix = codecPrefix(stream.codec);
+    const existing = groups.get(prefix);
+    if (existing) {
+      existing.push(stream);
+    } else {
+      groups.set(prefix, [stream]);
+    }
+  }
+
+  const sortedPrefixes = [...groups.keys()].sort((a, b) => codecPriority(a) - codecPriority(b));
+
+  return sortedPrefixes
+    .map((prefix) => {
+      const list = groups.get(prefix) ?? [];
+      const byHeight = new Map<number, VideoCandidate>();
+      for (const item of list) {
+        const dim = videoDimensions(item);
+        const h = dim?.height ?? 0;
+        if (h <= 0) continue;
+        const existing = byHeight.get(h);
+        const itemBw = item.bitrate ?? bandwidthFromUrl(item.url) ?? 0;
+        const existingBw = existing ? (existing.bitrate ?? bandwidthFromUrl(existing.url) ?? 0) : 0;
+        if (!existing || itemBw > existingBw) {
+          byHeight.set(h, item);
+        }
+      }
+      return [...byHeight.values()].sort((a, b) => {
+        const ha = videoDimensions(a)?.height ?? 0;
+        const hb = videoDimensions(b)?.height ?? 0;
+        return hb - ha;
+      });
+    })
+    .filter((group) => group.length > 0);
 }
 
 function audioCandidates(streams: AudioStreamItem[]): AudioCandidate[] {
@@ -84,23 +117,30 @@ function audioCandidates(streams: AudioStreamItem[]): AudioCandidate[] {
     .filter(isAudioCandidate)
     .filter((stream) =>
       isSupportedCodec(mimeType(stream.mimeType, "audio/mp4"), audioCodec(stream.codec)),
-    );
+    )
+    .sort((a, b) => {
+      const bwA = a.bitrate ?? bandwidthFromUrl(a.url) ?? 0;
+      const bwB = b.bitrate ?? bandwidthFromUrl(b.url) ?? 0;
+      return bwB - bwA;
+    });
 }
 
 export function bilibiliVariantCount(
   videoStreams: VideoStreamItem[],
   audioStreams: AudioStreamItem[],
 ): number {
-  return videoCandidates(videoStreams).length * audioCandidates(audioStreams).length;
+  const groups = videoCodecGroups(videoStreams);
+  const audios = audioCandidates(audioStreams);
+  return Math.max(1, groups.length * Math.max(1, audios.length));
 }
 
-function videoRepresentation(stream: VideoCandidate): string | null {
+function videoRepresentation(stream: VideoCandidate, index: number): string | null {
   const dimensions = videoDimensions(stream);
   if (dimensions === null) return null;
   const bandwidth = Math.max(1, stream.bitrate ?? bandwidthFromUrl(stream.url) ?? 1);
   const frameRate = stream.fps > 0 ? ` frameRate="${stream.fps}"` : "";
   return (
-    `<Representation id="v0" bandwidth="${bandwidth}"` +
+    `<Representation id="v${index}" bandwidth="${bandwidth}"` +
     ` width="${dimensions.width}" height="${dimensions.height}"${frameRate}` +
     ` codecs="${escapeXml(stream.codec)}">` +
     `<BaseURL>${escapeXml(proxyUrl(stream.url))}</BaseURL>` +
@@ -111,10 +151,10 @@ function videoRepresentation(stream: VideoCandidate): string | null {
   );
 }
 
-function audioRepresentation(stream: AudioCandidate): string {
+function audioRepresentation(stream: AudioCandidate, index = 0): string {
   const bandwidth = Math.max(1, bandwidthFromUrl(stream.url) ?? stream.bitrate ?? 128000);
   return (
-    `<Representation id="a0" bandwidth="${bandwidth}" codecs="${escapeXml(audioCodec(stream.codec))}">` +
+    `<Representation id="a${index}" bandwidth="${bandwidth}" codecs="${escapeXml(audioCodec(stream.codec))}">` +
     `<AudioChannelConfiguration` +
     ` schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011"` +
     ` value="2"/>` +
@@ -139,23 +179,28 @@ export function buildBilibiliDashManifest(
   variant = 0,
 ): string | null {
   if (duration <= 0) return null;
-  const videos = videoCandidates(videoStreams);
+  const groups = videoCodecGroups(videoStreams);
   const audios = audioCandidates(audioStreams);
-  if (videos.length === 0 || audios.length === 0) return null;
-  const video = videos[variant % videos.length];
-  const audio = audios[Math.floor(variant / videos.length) % audios.length];
-  if (!video || !audio) return null;
-  const videoXml = videoRepresentation(video);
-  if (videoXml === null) return null;
-  const audioXml = audioRepresentation(audio);
+  if (groups.length === 0 || audios.length === 0) return null;
+  const videoGroup = groups[variant % groups.length];
+  const audio = audios[Math.floor(variant / groups.length) % audios.length];
+  if (!videoGroup || videoGroup.length === 0 || !audio) return null;
+
+  const videoReps = videoGroup
+    .map((v, i) => videoRepresentation(v, i))
+    .filter((xml): xml is string => xml !== null);
+  if (videoReps.length === 0) return null;
+
+  const audioXml = audioRepresentation(audio, 0);
+  const primaryVideo = videoGroup[0];
   const mpd = [
     `<?xml version="1.0" encoding="UTF-8"?>`,
     `<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"`,
     ` profiles="urn:mpeg:dash:profile:full:2011"`,
     ` type="static" mediaPresentationDuration="PT${duration}S" minBufferTime="PT4S">`,
     `<Period>`,
-    `<AdaptationSet mimeType="${escapeXml(mimeType(video.mimeType, "video/mp4"))}" startWithSAP="1">`,
-    videoXml,
+    `<AdaptationSet mimeType="${escapeXml(mimeType(primaryVideo.mimeType, "video/mp4"))}" startWithSAP="1">`,
+    ...videoReps,
     `</AdaptationSet>`,
     `<AdaptationSet mimeType="${escapeXml(mimeType(audio.mimeType, "audio/mp4"))}" lang="und" startWithSAP="1">`,
     audioXml,
