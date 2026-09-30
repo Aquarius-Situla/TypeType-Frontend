@@ -17,7 +17,10 @@ test("keeps the current search query when switching service", () => {
 });
 
 test("routes between the dedicated session pages", () => {
-  expect(nextServiceRoute("/youtube-session", "", 5)).toEqual({ to: "/bilibili-session" });
+  expect(nextServiceRoute("/youtube-session", "", 5)).toEqual({
+    to: "/bilibili-session",
+    search: { redirect: undefined },
+  });
   expect(nextServiceRoute("/bilibili-session", "?returnTo=%2Fwatch", 0)).toEqual({
     to: "/youtube-session",
     search: { returnTo: undefined },

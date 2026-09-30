@@ -1,4 +1,5 @@
 import type * as dashjs from "dashjs";
+import { ArrowUpRight, LockKeyhole } from "lucide-react";
 import { useRef } from "react";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { useDashPlayerSnapshot } from "../lib/dash-player-store";
@@ -15,6 +16,7 @@ import {
 } from "../lib/vidstack";
 import { m } from "../paraglide/messages.js";
 import { useSabrQualityStore } from "../stores/sabr-quality-store";
+import { useBiliBiliSessionGate } from "./bilibili-session-gate";
 
 const qualityIcon: DefaultLayoutIcon = (props) => <ClipIcon {...props} />;
 const MENU_ITEMS_CLASS =
@@ -55,6 +57,20 @@ export function QualitySelector() {
   const sabrOptions = useSabrQualityStore((state) => state.options);
   const sabrSelectedItag = useSabrQualityStore((state) => state.selectedItag);
   const selectSabrQuality = useSabrQualityStore((state) => state.selectQuality);
+  const { connectHref, requiresConnection } = useBiliBiliSessionGate();
+  const unlockLink = requiresConnection ? (
+    <a
+      href={connectHref}
+      className="mt-1 flex min-h-11 items-center gap-3 border-border border-t px-3 py-2 text-left text-fg hover:bg-surface-strong"
+    >
+      <LockKeyhole className="size-4 shrink-0 text-[#00a1d6]" aria-hidden="true" />
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm">{m.ui_bilibili_quality_unlock_menu()}</span>
+        <span className="block text-xs text-fg-soft">{m.ui_bilibili_session_connect()}</span>
+      </span>
+      <ArrowUpRight className="size-4 shrink-0 text-fg-soft" aria-hidden="true" />
+    </a>
+  ) : null;
 
   if (sabrStreamId && sabrOptions.length > 0) {
     const streamId = sabrStreamId;
@@ -84,6 +100,7 @@ export function QualitySelector() {
             }))}
             onChange={onSabrChange}
           />
+          {unlockLink}
         </Menu.Items>
       </Menu.Root>
     );
@@ -121,6 +138,7 @@ export function QualitySelector() {
               }))}
               onChange={onDashChange}
             />
+            {unlockLink}
           </Menu.Items>
         </Menu.Root>
       );
@@ -156,6 +174,7 @@ export function QualitySelector() {
           options={radioOptions}
           onChange={onChange}
         />
+        {unlockLink}
       </Menu.Items>
     </Menu.Root>
   );

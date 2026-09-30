@@ -20,7 +20,7 @@ export function serviceAlternatives(activeService: ServiceId): ServiceOption[] {
 
 export type ServiceNavigation =
   | { to: "/search"; search: { q: string; service: ServiceId } }
-  | { to: "/bilibili-session" }
+  | { to: "/bilibili-session"; search: { redirect: undefined } }
   | { to: "/youtube-session"; search: { returnTo: undefined } };
 
 export function nextServiceRoute(
@@ -28,7 +28,9 @@ export function nextServiceRoute(
   searchStr: string,
   service: ServiceId,
 ): ServiceNavigation | null {
-  if (pathname === "/youtube-session" && service === 5) return { to: "/bilibili-session" };
+  if (pathname === "/youtube-session" && service === 5) {
+    return { to: "/bilibili-session", search: { redirect: undefined } };
+  }
   if (pathname === "/bilibili-session" && service === 0) {
     return { to: "/youtube-session", search: { returnTo: undefined } };
   }
