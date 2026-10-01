@@ -32,7 +32,60 @@ const COPYCAT_KEYWORDS = [
   "爱玩",
   "野生",
   "非官方",
+  "字幕组",
 ];
+
+const OFFICIAL_REGEX = /官方|公式|official/i;
+
+function isOfficialChannel(channel: ChannelResultItem): boolean {
+  return Boolean(channel.isVerified || OFFICIAL_REGEX.test(channel.name));
+}
+
+export function getBilibiliQueryVariations(q: string): string[] {
+  const trimmed = q.trim();
+  const words = trimmed.split(/\s+/);
+  if (words.length <= 1 || !/^[a-zA-Z0-9\s_-]+$/.test(trimmed)) {
+    return [];
+  }
+  const variations: string[] = [];
+  const firstWord = words[0];
+  if (!firstWord.toLowerCase().endsWith("s")) {
+    variations.push([`${firstWord}s`, ...words.slice(1)].join(" "));
+  }
+  variations.push(words.join(""));
+  if (!firstWord.toLowerCase().endsWith("s")) {
+    variations.push([`${firstWord}s`, ...words.slice(1)].join(""));
+  }
+  return variations;
+}
+
+export async function fetchBilibiliCandidateChannels(
+  q: string,
+  service: number,
+): Promise<ChannelResultItem[]> {
+  try {
+    const res = await fetchSearch(q, service, undefined, "|2|channels");
+    if (res.channels && res.channels.length > 0) {
+      return res.channels;
+    }
+  } catch {
+    // ignore
+  }
+
+  const variations = getBilibiliQueryVariations(q);
+  for (const v of variations) {
+    try {
+      const vRes = await fetchSearch(v, service, undefined, "|2|channels");
+      if (vRes.channels && vRes.channels.length > 0) {
+        return vRes.channels;
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  return [];
+}
 
 export function pickTopBilibiliChannels(
   channels: readonly ChannelResultItem[],
@@ -44,8 +97,12 @@ export function pickTopBilibiliChannels(
   if (!normalizedQuery) return channels.slice(0, limit);
 
   const scored = channels
-    .map((channel) => {
+    .map((channel, index) => {
       const normalizedName = channel.name.replace(/\s+/g, "").toLowerCase();
+      const normalizedDesc = (channel.description ?? "").replace(/\s+/g, "").toLowerCase();
+      const subs = Math.max(channel.subscriberCount ?? 0, 0);
+      const isOfficial = isOfficialChannel(channel);
+
       let matchScore = 0;
       if (normalizedName === normalizedQuery) {
         matchScore = 100;
@@ -57,25 +114,34 @@ export function pickTopBilibiliChannels(
         matchScore = 45;
       } else if (normalizedQuery.includes(normalizedName)) {
         matchScore = 35;
+      } else if (normalizedQuery.length >= 2 && normalizedDesc.includes(normalizedQuery)) {
+        matchScore = 60;
+      } else if (index === 0 && isOfficial && subs >= 5000) {
+        // Bilibili rank #1 official / 公式 channel for alias/translation (e.g. "水果拉链" -> FRUITSZIPPER_公式)
+        matchScore = 80;
+      } else if (index === 0 && subs >= 1000000) {
+        // Dominant creator ranked #1 by Bilibili algorithm for known community alias (e.g. "蕾丝" -> LexBurner)
+        matchScore = 70;
       } else {
         return null;
       }
 
-      const subs = Math.max(channel.subscriberCount ?? 0, 0);
       const subsScore = Math.log10(subs + 1) * 15;
 
       const hasCopycat = COPYCAT_KEYWORDS.some(
         (kw) => normalizedName.includes(kw) && !normalizedQuery.includes(kw),
       );
+      if (hasCopycat && matchScore <= 60) {
+        return null;
+      }
       const copycatPenalty = hasCopycat ? 60 : 0;
-      const verifiedBonus = channel.isVerified ? 25 : 0;
+      const verifiedBonus = isOfficial ? 25 : 0;
+      const indexBonus = index === 0 ? 15 : 0;
 
-      const totalScore = matchScore + subsScore + verifiedBonus - copycatPenalty;
+      const totalScore = matchScore + subsScore + verifiedBonus + indexBonus - copycatPenalty;
 
       const isExact = matchScore === 100;
-      const hasEnoughSubs = isExact
-        ? subs >= 1000 || channel.isVerified
-        : subs >= 50000 || channel.isVerified;
+      const hasEnoughSubs = isOfficial ? subs >= 3000 : isExact ? subs >= 1000 : subs >= 25000;
 
       if (!hasEnoughSubs) {
         return null;
@@ -103,16 +169,14 @@ export function useSearch(
     queryFn: async ({ pageParam }: { pageParam: string | undefined }) => {
       const isBilibiliDefaultSearch = service === 5 && !contentFilter && !pageParam;
 
-      const [response, bilibiliChannelResp] = await Promise.all([
+      const [response, bilibiliChannels] = await Promise.all([
         fetchSearch(q, service, pageParam, contentFilter, filters),
-        isBilibiliDefaultSearch
-          ? fetchSearch(q, service, undefined, "|2|channels").catch(() => null)
-          : Promise.resolve(null),
+        isBilibiliDefaultSearch ? fetchBilibiliCandidateChannels(q, service) : Promise.resolve([]),
       ]);
 
       let channels = response.channels ?? [];
-      if (channels.length === 0 && bilibiliChannelResp?.channels) {
-        channels = pickTopBilibiliChannels(bilibiliChannelResp.channels, q, 1);
+      if (channels.length === 0 && bilibiliChannels.length > 0) {
+        channels = pickTopBilibiliChannels(bilibiliChannels, q, 1);
       }
 
       return {

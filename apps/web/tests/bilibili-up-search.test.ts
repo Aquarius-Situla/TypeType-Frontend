@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { pickTopBilibiliChannels } from "../src/hooks/use-search";
+import { getBilibiliQueryVariations, pickTopBilibiliChannels } from "../src/hooks/use-search";
 import { toCanonicalChannelRoute } from "../src/lib/channel-route-url";
 import { searchFilterLabel } from "../src/lib/search-filter-selection";
 import type { ChannelResultItem } from "../src/types/api";
@@ -132,6 +132,125 @@ test("handles whitespace and case insensitivity in channel query", () => {
   const result = pickTopBilibiliChannels([testv], "  testv  ", 2);
   expect(result.length).toBe(1);
   expect(result[0].name).toBe("TESTV官方频道");
+});
+
+test("picks creator with pinyin handle and signature mention (HuangFuRen for 黄夫人)", () => {
+  const huangfuren: ChannelResultItem = {
+    name: "HuangFuRen",
+    url: "https://space.bilibili.com/23630128",
+    thumbnailUrl: "https://example.com/hfr.jpg",
+    subscriberCount: 12744054,
+    description: "讲义在主页橱窗  公众号：黄夫人物理  小作文邮箱hfr0812@qq.com",
+    isVerified: false,
+  };
+  const fanAccount: ChannelResultItem = {
+    name: "为了黄夫人学物理",
+    url: "https://space.bilibili.com/999111",
+    thumbnailUrl: "https://example.com/fan_hfr.jpg",
+    subscriberCount: 782,
+    description: "",
+    isVerified: false,
+  };
+  const lowSubAccount: ChannelResultItem = {
+    name: "黄夫人物理课_",
+    url: "https://space.bilibili.com/999222",
+    thumbnailUrl: "https://example.com/hfr_lesson.jpg",
+    subscriberCount: 1152,
+    description: "",
+    isVerified: false,
+  };
+
+  const result = pickTopBilibiliChannels([huangfuren, fanAccount, lowSubAccount], "黄夫人");
+  expect(result.length).toBe(1);
+  expect(result[0].name).toBe("HuangFuRen");
+  expect(result[0].url).toBe("https://space.bilibili.com/23630128");
+});
+
+test("picks algorithmic top creator for community alias (LexBurner for 蕾丝)", () => {
+  const lexBurner: ChannelResultItem = {
+    name: "LexBurner",
+    url: "https://space.bilibili.com/777536",
+    thumbnailUrl: "https://example.com/lex.jpg",
+    subscriberCount: 6079545,
+    description: "商务vx:hyqiuqiu19；商务q:445591408 合作邮箱：lexkaixin@163.com",
+    isVerified: false,
+  };
+  const anleisi: ChannelResultItem = {
+    name: "安蕾丝丝",
+    url: "https://space.bilibili.com/554433",
+    thumbnailUrl: "https://example.com/anleisi.jpg",
+    subscriberCount: 152617,
+    description: "这个不是大哥，是萌妹子！",
+    isVerified: false,
+  };
+
+  const result = pickTopBilibiliChannels([lexBurner, anleisi], "蕾丝");
+  expect(result.length).toBe(1);
+  expect(result[0].name).toBe("LexBurner");
+  expect(result[0].url).toBe("https://space.bilibili.com/777536");
+});
+
+test("picks official foreign idol creator for Chinese translation (FRUITSZIPPER_公式 for 水果拉链)", () => {
+  const officialGroup: ChannelResultItem = {
+    name: "FRUITSZIPPER_公式",
+    url: "https://space.bilibili.com/3546857915550439",
+    thumbnailUrl: "https://example.com/fz.jpg",
+    subscriberCount: 37298,
+    description:
+      "FRUITS ZIPPER “FRUITS”（“成果”）“ZIP”（“注入能量”） 让我们一同从原宿走向更广阔的世界",
+    isVerified: false,
+  };
+  const subtitleGroup: ChannelResultItem = {
+    name: "水果拉链字幕组",
+    url: "https://space.bilibili.com/3546666741270925",
+    thumbnailUrl: "https://example.com/sub.jpg",
+    subscriberCount: 12823,
+    description: "内容请勿转载至其他平台",
+    isVerified: false,
+  };
+  const fanAccount: ChannelResultItem = {
+    name: "水果拉链可爱征服世界",
+    url: "https://space.bilibili.com/19063822",
+    thumbnailUrl: "https://example.com/fan.jpg",
+    subscriberCount: 113,
+    description: "KAWAII LAB姐妹团向世界传递可爱",
+    isVerified: false,
+  };
+
+  const result = pickTopBilibiliChannels([officialGroup, subtitleGroup, fanAccount], "水果拉链");
+  expect(result.length).toBe(1);
+  expect(result[0].name).toBe("FRUITSZIPPER_公式");
+  expect(result[0].url).toBe("https://space.bilibili.com/3546857915550439");
+});
+
+test("generates plural and joined variations for English query (fruit zipper)", () => {
+  const vars = getBilibiliQueryVariations("fruit zipper");
+  expect(vars).toContain("fruits zipper");
+  expect(vars).toContain("fruitzipper");
+  expect(vars).toContain("fruitszipper");
+});
+
+test("matches official account when searching fruit zipper through candidate fallback", () => {
+  const officialGroup: ChannelResultItem = {
+    name: "FRUITSZIPPER_公式",
+    url: "https://space.bilibili.com/3546857915550439",
+    thumbnailUrl: "https://example.com/fz.jpg",
+    subscriberCount: 37298,
+    description: "FRUITS ZIPPER【Official】",
+    isVerified: false,
+  };
+  const fanGroup: ChannelResultItem = {
+    name: "Fruits_Zipper",
+    url: "https://space.bilibili.com/3546387696323480",
+    thumbnailUrl: "https://example.com/fz2.jpg",
+    subscriberCount: 25,
+    description: "",
+    isVerified: false,
+  };
+
+  const result = pickTopBilibiliChannels([officialGroup, fanGroup], "fruit zipper");
+  expect(result.length).toBe(1);
+  expect(result[0].name).toBe("FRUITSZIPPER_公式");
 });
 
 test("resolves canonical channel routes from space URLs with or without protocol", () => {
