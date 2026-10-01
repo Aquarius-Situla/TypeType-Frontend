@@ -46,25 +46,43 @@ export function SearchResultsGrid({ items }: Props) {
     [items],
   );
   const progressByUrl = useVideoProgressMap(relatedStreams);
+
+  const hasTopChannelBanner =
+    items.length > 0 &&
+    items[0]?.kind === "channel" &&
+    items.some((item) => item.kind === "video" || item.kind === "playlist");
+
+  const topChannel = hasTopChannelBanner && items[0]?.kind === "channel" ? items[0].channel : null;
+  const remainingItems = hasTopChannelBanner ? items.slice(1) : items;
+
   return (
-    <div className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2 sm:gap-y-8 md:grid-cols-3 lg:grid-cols-4">
-      {items.map((item, index) => (
-        <div
-          key={itemKey(item)}
-          className="animate-card-pop-in"
-          style={{ animationDelay: `${Math.min(index * 45, 270)}ms` }}
-        >
-          <ItemCard
-            item={item}
-            relatedStreams={relatedStreams}
-            progressMs={
-              item.kind === "video"
-                ? progressByUrl.get(videoProgressUrl(item.stream))?.position
-                : undefined
-            }
-          />
+    <div className="space-y-6">
+      {topChannel && (
+        <div className="animate-card-pop-in">
+          <SearchChannelCard channel={topChannel} banner />
         </div>
-      ))}
+      )}
+      {remainingItems.length > 0 && (
+        <div className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2 sm:gap-y-8 md:grid-cols-3 lg:grid-cols-4">
+          {remainingItems.map((item, index) => (
+            <div
+              key={itemKey(item)}
+              className="animate-card-pop-in"
+              style={{ animationDelay: `${Math.min(index * 45, 270)}ms` }}
+            >
+              <ItemCard
+                item={item}
+                relatedStreams={relatedStreams}
+                progressMs={
+                  item.kind === "video"
+                    ? progressByUrl.get(videoProgressUrl(item.stream))?.position
+                    : undefined
+                }
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

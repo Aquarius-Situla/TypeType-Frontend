@@ -2,38 +2,36 @@ import { m } from "../paraglide/messages.js";
 import type { SearchFilterGroup, SearchFilterOption, SearchFiltersResponse } from "../types/api";
 
 const LABELS: Record<string, () => string> = {
-  sortby: () => m.search_filter_sort_by(),
-  upload_date: () => m.search_filter_upload_date(),
-  sort_relevance: () => m.search_filter_relevance(),
-  sort_rating: () => m.search_filter_rating(),
-  sort_view: () => m.search_filter_view_count(),
-  past_hour: () => m.search_filter_past_hour(),
-  past_day: () => m.search_filter_today(),
-  past_week: () => m.search_filter_this_week(),
-  past_month: () => m.ui_this_month(),
-  past_year: () => m.search_filter_this_year(),
-  short_video: () => m.search_filter_short(),
-  long_video: () => m.search_filter_long(),
-  Ccommons: () => m.search_filter_creative_commons(),
+  all: () => m.search_filter_all(),
+  short_video: () => m.search_filter_short_video(),
+  medium_length: () => m.search_filter_medium_length(),
+  long_video: () => m.search_filter_long_video(),
+  extra_long: () => m.search_filter_extra_long(),
+  sort_overall: () => m.search_filter_sort_relevance(),
+  sort_publish_time: () => m.search_filter_sort_upload_date(),
+  sort_view: () => m.search_filter_sort_view_count(),
+  sort_rating: () => m.search_filter_sort_rating(),
   Hdr: () => "HDR",
   "3d": () => "3D",
   "4k": () => "4K",
+  channels: () => "Channels",
+  videos: () => "Videos",
+  lives: () => "Live",
+  animes: () => "Anime",
+  movies_and_tv: () => "Movies & TV",
 };
 
 export function searchFilterLabel(raw: string): string {
-  const afterColon = raw.includes(":") ? raw.slice(raw.indexOf(":") + 1) : raw;
-  const value = afterColon.trim();
-  if (LABELS[value]) return LABELS[value]();
-  return value
-    .split(/[_\s]+/)
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+  const clean = raw.includes(":") ? (raw.split(":").pop()?.trim() ?? raw) : raw;
+  return LABELS[clean]?.() ?? clean;
 }
 
-export function searchFilterGroups(filters: SearchFiltersResponse): SearchFilterGroup[] {
+export function filterGroupsFromResponse(
+  filters: SearchFiltersResponse | undefined,
+): readonly SearchFilterGroup[] {
+  if (!filters) return [];
   if (filters.filterGroups && filters.filterGroups.length > 0) return filters.filterGroups;
-  if (filters.sortFilters.length === 0) return [];
+  if (!filters.sortFilters || filters.sortFilters.length === 0) return [];
   const hasDefault = filters.sortFilters.some((option) => option.isDefault);
   return [
     {
