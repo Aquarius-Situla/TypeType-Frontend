@@ -1,0 +1,26 @@
+clone:
+  git:
+    image: woodpeckerci/plugin-git:2.10.0
+    settings:
+      partial: false
+      depth: 0
+      fetch-target-branch: true
+
+when:
+  - event: push
+    branch: [dev, main]
+  - event: pull_request
+  - event: manual
+
+steps:
+  - name: quality
+    image: oven/bun:1.4.2-slim@sha256:debbe76858f2e398d2937c1eceeb82c571ac1fcd78aadf00e9634578ac2b5ef7
+    commands:
+      - |
+        set -eu
+        bun install --frozen-lockfile
+        bun run check
+        bun run test:coverage
+        bun run knip
+        bun run sherif
+        bun run build
