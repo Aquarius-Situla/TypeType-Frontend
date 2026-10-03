@@ -55,6 +55,9 @@ export function SearchResultsGrid({ items }: Props) {
   const topChannel = hasTopChannelBanner && items[0]?.kind === "channel" ? items[0].channel : null;
   const remainingItems = hasTopChannelBanner ? items.slice(1) : items;
 
+  const isChannelOnlyList =
+    remainingItems.length > 0 && remainingItems.every((item) => item.kind === "channel");
+
   return (
     <div className="space-y-6">
       {topChannel && (
@@ -62,27 +65,40 @@ export function SearchResultsGrid({ items }: Props) {
           <SearchChannelCard channel={topChannel} banner />
         </div>
       )}
-      {remainingItems.length > 0 && (
-        <div className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2 sm:gap-y-8 md:grid-cols-3 lg:grid-cols-4">
-          {remainingItems.map((item, index) => (
-            <div
-              key={itemKey(item)}
-              className="animate-card-pop-in"
-              style={{ animationDelay: `${Math.min(index * 45, 270)}ms` }}
-            >
-              <ItemCard
-                item={item}
-                relatedStreams={relatedStreams}
-                progressMs={
-                  item.kind === "video"
-                    ? progressByUrl.get(videoProgressUrl(item.stream))?.position
-                    : undefined
-                }
-              />
-            </div>
-          ))}
-        </div>
-      )}
+      {remainingItems.length > 0 &&
+        (isChannelOnlyList ? (
+          <div className="space-y-3 max-w-4xl">
+            {remainingItems.map((item, index) => (
+              <div
+                key={itemKey(item)}
+                className="animate-card-pop-in"
+                style={{ animationDelay: `${Math.min(index * 45, 270)}ms` }}
+              >
+                <ItemCard item={item} relatedStreams={relatedStreams} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2 sm:gap-y-8 md:grid-cols-3 lg:grid-cols-4">
+            {remainingItems.map((item, index) => (
+              <div
+                key={itemKey(item)}
+                className={`animate-card-pop-in ${item.kind === "channel" ? "col-span-full" : ""}`}
+                style={{ animationDelay: `${Math.min(index * 45, 270)}ms` }}
+              >
+                <ItemCard
+                  item={item}
+                  relatedStreams={relatedStreams}
+                  progressMs={
+                    item.kind === "video"
+                      ? progressByUrl.get(videoProgressUrl(item.stream))?.position
+                      : undefined
+                  }
+                />
+              </div>
+            ))}
+          </div>
+        ))}
     </div>
   );
 }

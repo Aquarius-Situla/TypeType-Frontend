@@ -60,26 +60,36 @@ export function SearchChannelCard({ channel, banner }: Props) {
   }
 
   return (
-    <article className="flex flex-col items-center gap-2 text-center">
-      <ChannelRouteLink url={channel.url} className="group flex w-full flex-col items-center gap-2">
-        <div className="flex aspect-video w-full items-center justify-center">
-          <ChannelAvatar
-            src={proxyImage(channel.thumbnailUrl)}
-            name={channel.name}
-            className="h-24 w-24 transition-transform duration-200 group-hover:scale-105"
-          />
-        </div>
-        <div className="min-w-0 px-1">
-          <p className="flex items-center justify-center gap-1 text-sm font-medium text-fg group-hover:text-fg-strong">
-            <span className="line-clamp-1">{channel.name}</span>
+    <article className="flex items-center justify-between gap-4 rounded-xl border border-border/70 bg-card/40 p-3 sm:p-4 transition-colors hover:border-border-strong hover:bg-card/70">
+      <ChannelRouteLink
+        url={channel.url}
+        className="group flex min-w-0 flex-1 items-center gap-3 sm:gap-4"
+      >
+        <ChannelAvatar
+          src={proxyImage(channel.thumbnailUrl)}
+          name={channel.name}
+          className="h-12 w-12 shrink-0 transition-transform duration-200 group-hover:scale-105 sm:h-14 sm:w-14"
+        />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <span className="truncate text-sm font-semibold text-fg transition-colors group-hover:text-accent sm:text-base">
+              {channel.name}
+            </span>
             {channel.isVerified && (
-              <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-fg-muted" aria-hidden="true" />
+              <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-accent" aria-hidden="true" />
             )}
+          </div>
+          <p className="mt-0.5 text-xs text-fg-muted">
+            {formatSubscribers(channel.subscriberCount)}
           </p>
-          <p className="mt-1 text-xs text-fg-muted">{formatSubscribers(channel.subscriberCount)}</p>
+          {channel.description && (
+            <p className="mt-1 line-clamp-1 text-xs text-fg-muted/90 sm:line-clamp-2">
+              {channel.description}
+            </p>
+          )}
         </div>
       </ChannelRouteLink>
-      <div className="min-h-7">
+      <div className="shrink-0">
         <AllowChannelButton
           url={channel.url}
           name={channel.name}
