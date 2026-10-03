@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
+import { useSettings } from "../hooks/use-settings";
+import { shouldHideHomeNavigation } from "../lib/default-landing";
 import { m } from "../paraglide/messages.js";
 import { useUiStore } from "../stores/ui-store";
 import { NAV_ITEMS } from "./nav-items";
@@ -34,9 +36,17 @@ function TabIcon({ children, label }: { children: React.ReactNode; label: string
 
 export function MobileTabBar() {
   useInterfaceLocale();
+  const { settings } = useSettings();
   const openMobileSidebar = useUiStore((s) => s.openMobileSidebar);
   const mobileOpen = useUiStore((s) => s.mobileSidebarOpen);
-  const items = NAV_ITEMS.filter((item) => BOTTOM_NAV_PATHS.includes(item.to));
+  const hideHome = shouldHideHomeNavigation(
+    settings.defaultLandingPage,
+    settings.hideHomeRecommendations,
+  );
+  const items = NAV_ITEMS.filter((item) => {
+    if (item.to === "/" && hideHome) return false;
+    return BOTTOM_NAV_PATHS.includes(item.to);
+  });
 
   return (
     <nav

@@ -6,10 +6,16 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { fetchSettings, updateSettings } from "../lib/api-user";
 import { EMPTY_CAPTION_STYLES } from "../lib/caption-styles";
 import { SettingsWriteQueue } from "../lib/settings-write-queue";
 import { DEFAULT_SPONSORBLOCK_CATEGORY_ACTIONS } from "../lib/sponsorblock-settings";
+import {
+  DEFAULT_LANDING_STORAGE_KEY,
+  HIDE_HOME_STORAGE_KEY,
+  syncStoredLandingSettings,
+} from "../lib/default-landing";
 import type { SettingsItem } from "../types/user";
 import { useAuth } from "./use-auth";
 
@@ -109,6 +115,8 @@ const DEFAULTS: SettingsItem = {
   captionStyles: EMPTY_CAPTION_STYLES,
 };
 
+export const SETTINGS_CACHE_KEY = "typetype-settings-cache";
+
 function readAudioOnlyPlayback(): boolean | null {
   const stored = localStorage.getItem(AUDIO_ONLY_STORAGE_KEY);
   if (stored === "true") return true;
@@ -120,9 +128,38 @@ function writeAudioOnlyPlayback(value: boolean): void {
   localStorage.setItem(AUDIO_ONLY_STORAGE_KEY, String(value));
 }
 
-function withLocalAudioOnly(settings: SettingsItem): SettingsItem {
+export function readCachedSettings(): SettingsItem {
+  if (typeof window === "undefined") return DEFAULTS;
+  try {
+    const raw = localStorage.getItem(SETTINGS_CACHE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") {
+        return { ...DEFAULTS, ...parsed };
+      }
+    }
+  } catch {}
+  return DEFAULTS;
+}
+
+export function writeCachedSettings(settings: SettingsItem): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(settings));
+    syncStoredLandingSettings(settings.defaultLandingPage, settings.hideHomeRecommendations);
+  } catch {}
+}
+
+function withLocalSettings(settings: SettingsItem): SettingsItem {
   const audioOnlyPlayback = readAudioOnlyPlayback();
-  return audioOnlyPlayback === null ? settings : { ...settings, audioOnlyPlayback };
+  const storedLanding = localStorage.getItem(DEFAULT_LANDING_STORAGE_KEY);
+  const storedHideHome = localStorage.getItem(HIDE_HOME_STORAGE_KEY);
+  return {
+    ...settings,
+    ...(audioOnlyPlayback !== null ? { audioOnlyPlayback } : {}),
+    ...(storedLanding ? { defaultLandingPage: storedLanding } : {}),
+    ...(storedHideHome !== null ? { hideHomeRecommendations: storedHideHome === "true" } : {}),
+  };
 }
 
 export function useSettings({ forceAnonymous = false }: UseSettingsOptions = {}) {
@@ -133,11 +170,22 @@ export function useSettings({ forceAnonymous = false }: UseSettingsOptions = {})
 
   const query = useQuery({
     queryKey: KEY,
-    queryFn: () => fetchSettings(),
+    queryFn: async () => {
+      const data = await fetchSettings();
+      writeCachedSettings(data);
+      return data;
+    },
     enabled: authReady && useAccountSettings,
-    placeholderData: DEFAULTS,
+    placeholderData: () => readCachedSettings(),
     staleTime: 5 * 60 * 1000,
   });
+
+  useEffect(() => {
+    if (query.data && !query.isPlaceholderData) {
+      writeCachedSettings(query.data);
+    }
+  }, [query.data, query.isPlaceholderData]);
+
   const settingsReady =
     forceAnonymous ||
     (authReady && !isAuthed) ||
@@ -150,19 +198,29 @@ export function useSettings({ forceAnonymous = false }: UseSettingsOptions = {})
         id,
         (settings) => (useAccountSettings ? updateSettings(settings) : Promise.resolve(settings)),
         () => base,
-        (settings) => qc.setQueryData<SettingsItem>(KEY, settings),
+        (settings) => {
+          writeCachedSettings(settings);
+          qc.setQueryData<SettingsItem>(KEY, settings);
+        },
       ),
     onMutate: async ({ patch }) => {
       await qc.cancelQueries({ queryKey: KEY });
       if (typeof patch.audioOnlyPlayback === "boolean")
         writeAudioOnlyPlayback(patch.audioOnlyPlayback);
-      const previous = qc.getQueryData<SettingsItem>(KEY);
-      qc.setQueryData<SettingsItem>(KEY, { ...DEFAULTS, ...previous, ...patch });
+      if (patch.defaultLandingPage !== undefined || patch.hideHomeRecommendations !== undefined) {
+        syncStoredLandingSettings(patch.defaultLandingPage, patch.hideHomeRecommendations);
+      }
+      const previous = qc.getQueryData<SettingsItem>(KEY) ?? readCachedSettings();
+      const next = { ...DEFAULTS, ...previous, ...patch };
+      writeCachedSettings(next);
+      qc.setQueryData<SettingsItem>(KEY, next);
       return { patch };
     },
     onSuccess: (data, _variables, context) => {
       const current = qc.getQueryData<SettingsItem>(KEY);
-      qc.setQueryData<SettingsItem>(KEY, { ...DEFAULTS, ...data, ...context?.patch, ...current });
+      const next = { ...DEFAULTS, ...data, ...context?.patch, ...current };
+      writeCachedSettings(next);
+      qc.setQueryData<SettingsItem>(KEY, next);
       if (
         context?.patch.hideSubscriptionLiveStreams !== undefined ||
         context?.patch.hideMembersOnlyContent !== undefined
@@ -200,7 +258,8 @@ export function useSettings({ forceAnonymous = false }: UseSettingsOptions = {})
     mutateAsync: (patch, options) => mutation.mutateAsync(queuePatch(patch), mapOptions(options)),
   };
 
-  const settings = withLocalAudioOnly(query.data ? { ...DEFAULTS, ...query.data } : DEFAULTS);
+  const baseSettings = query.data ?? readCachedSettings();
+  const settings = withLocalSettings(baseSettings ? { ...DEFAULTS, ...baseSettings } : DEFAULTS);
 
   return { query, update, settings, settingsReady };
 }
