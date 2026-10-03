@@ -13,6 +13,7 @@ import { useFavoriteStreams } from "../hooks/use-favorite-streams";
 import { usePlaylists } from "../hooks/use-playlists";
 import { useSavedPlaylists } from "../hooks/use-saved-playlists";
 import { useWatchLaterStreams } from "../hooks/use-watch-later-streams";
+import { filterPlaylistSummaries } from "../lib/playlist-summary";
 import { m } from "../paraglide/messages.js";
 import type { SavedPlaylistItem } from "../types/playlist";
 
@@ -26,11 +27,7 @@ function PlaylistsPage() {
   const visibleFavorites = useMemo(() => filter(favorites.videos), [favorites.videos, filter]);
   const visibleWatchLater = useMemo(() => filter(watchLater.videos), [filter, watchLater.videos]);
   const visiblePlaylists = useMemo(
-    () =>
-      playlists.map((playlist) => {
-        const videos = filter(playlist.videos ?? []);
-        return { ...playlist, videos, videoCount: videos.length };
-      }),
+    () => filterPlaylistSummaries(playlists, filter),
     [filter, playlists],
   );
   const saved = savedPlaylists.items.filter((playlist) => !isPlaylistBlocked(playlist));

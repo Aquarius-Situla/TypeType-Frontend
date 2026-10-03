@@ -15,6 +15,16 @@ export function portabilityImportGuide(
   format: string,
   locale: Locale = "en",
 ): PortabilityImportGuide {
+  if (format === "auto") {
+    return {
+      description: m.portability_guide_auto_description({}, { locale }),
+      steps: [
+        m.portability_guide_auto_step_one({}, { locale }),
+        m.portability_guide_auto_step_two({}, { locale }),
+        m.portability_guide_auto_step_three({}, { locale }),
+      ],
+    };
+  }
   if (format === "typetype") {
     return {
       description: m.portability_guide_typetype_description({}, { locale }),

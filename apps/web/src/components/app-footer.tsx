@@ -1,9 +1,8 @@
 import { DollarSign } from "lucide-react";
 import { siGithub, siLemmy } from "simple-icons";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
-import { LEMMY_COMMUNITY_URL } from "../lib/community-announcement";
+import { LEMMY_COMMUNITY_URL } from "../lib/lemmy";
 import { m } from "../paraglide/messages.js";
-import { CommunityAnnouncement } from "./community-announcement";
 import { ServiceIcon } from "./service-icon";
 
 const COMMUNITY_URL = "https://github.com/TypeType-Video";
@@ -13,7 +12,6 @@ export function AppFooter() {
   useInterfaceLocale();
   return (
     <footer className="mt-12 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-t border-border px-3 py-5 text-xs text-fg-soft">
-      <CommunityAnnouncement />
       <a
         href={COMMUNITY_URL}
         target="_blank"

@@ -1,10 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchSubscriptions, subscribe, unsubscribe } from "../lib/api-user";
+import { subscribe, unsubscribe } from "../lib/api-user";
 import { normalizeChannelUrl } from "../lib/channel-url";
+import {
+  invalidateSubscriptionQueries,
+  subscriptionsQueryOptions,
+} from "../lib/subscription-queries";
 import type { SubscriptionItem } from "../types/user";
 import { useAuth } from "./use-auth";
-
-export const SUBSCRIPTIONS_KEY = ["subscriptions"];
 
 function hasSubscription(data: SubscriptionItem[] | undefined, channelUrl: string): boolean {
   const target = normalizeChannelUrl(channelUrl);
@@ -23,16 +25,14 @@ function dedupeSubscriptions(data: SubscriptionItem[]): SubscriptionItem[] {
   return output;
 }
 
-export function useSubscriptions() {
+export function useSubscriptions(filter = "all") {
   const qc = useQueryClient();
   const { authReady, isAuthed } = useAuth();
 
   const query = useQuery({
-    queryKey: SUBSCRIPTIONS_KEY,
-    queryFn: fetchSubscriptions,
+    ...subscriptionsQueryOptions(filter),
     enabled: authReady && isAuthed,
     select: dedupeSubscriptions,
-    staleTime: 5 * 60 * 1000,
   });
 
   const add = useMutation({
@@ -44,12 +44,12 @@ export function useSubscriptions() {
         channelUrl: normalizeChannelUrl(item.channelUrl),
       });
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: SUBSCRIPTIONS_KEY }),
+    onSuccess: () => invalidateSubscriptionQueries(qc),
   });
 
   const remove = useMutation({
     mutationFn: (channelUrl: string) => (isAuthed ? unsubscribe(channelUrl) : Promise.resolve()),
-    onSuccess: () => qc.invalidateQueries({ queryKey: SUBSCRIPTIONS_KEY }),
+    onSuccess: () => invalidateSubscriptionQueries(qc),
   });
 
   function isSubscribed(channelUrl: string): boolean {

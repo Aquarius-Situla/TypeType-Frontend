@@ -1,33 +1,17 @@
 import { RefreshCw } from "lucide-react";
 import type { PortabilityCategory, PortabilityPreview } from "../lib/api-portability";
-import { FORMAT_NAMES } from "../lib/portability-catalog";
+import { categoryLabel, FORMAT_NAMES } from "../lib/portability-catalog";
 import { m } from "../paraglide/messages.js";
-import { PortabilityCategorySelector } from "./portability-category-selector";
 import { PortabilityFormatIcon } from "./portability-format-icon";
-
-type DuplicatePolicy = "skip" | "replace";
 
 type Props = {
   preview: PortabilityPreview;
-  selected: Set<PortabilityCategory>;
-  duplicatePolicy: DuplicatePolicy;
   applying: boolean;
   onReset: () => void;
-  onToggle: (category: PortabilityCategory) => void;
-  onDuplicatePolicy: (policy: DuplicatePolicy) => void;
-  onApply: () => void;
 };
 
-export function PortabilityImportPreview({
-  preview,
-  selected,
-  duplicatePolicy,
-  applying,
-  onReset,
-  onToggle,
-  onDuplicatePolicy,
-  onApply,
-}: Props) {
+export function PortabilityImportPreview({ preview, applying, onReset }: Props) {
+  const counts = Object.entries(preview.counts) as [PortabilityCategory, number][];
   return (
     <section className="flex flex-col gap-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -51,49 +35,33 @@ export function PortabilityImportPreview({
           <RefreshCw size={13} /> {m.portability_different_file()}
         </button>
       </div>
-      <PortabilityCategorySelector
-        available={new Set(Object.keys(preview.counts) as PortabilityCategory[])}
-        selected={selected}
-        counts={preview.counts}
-        onToggle={onToggle}
-      />
+      {counts.length > 0 && (
+        <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {counts.map(([category, count]) => (
+            <div key={category} className="border border-border bg-surface px-3 py-2">
+              <dt className="truncate text-xs text-fg-soft">{categoryLabel(category)}</dt>
+              <dd className="mt-0.5 font-mono text-sm text-fg">{count.toLocaleString()}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
       {preview.issues.length > 0 && (
         <div className="border border-warning/40 bg-warning/5 px-3 py-3">
           <p className="text-xs font-medium text-fg">{m.portability_compatibility_notes()}</p>
           <ul className="mt-2 space-y-1 text-xs text-fg-muted">
             {preview.issues.map((issue) => (
               <li key={`${issue.category}-${issue.code}`}>
-                {m.portability_issue_detected({ code: issue.code })}
+                {issue.message}
                 {issue.count > 1 ? ` (${issue.count})` : ""}
               </li>
             ))}
           </ul>
         </div>
       )}
-      <div className="flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-end sm:justify-between">
-        <fieldset>
-          <legend className="mb-2 text-xs text-fg-soft">{m.portability_duplicate_policy()}</legend>
-          <div className="inline-flex border border-border bg-surface">
-            {(["skip", "replace"] as const).map((policy) => (
-              <button
-                key={policy}
-                type="button"
-                onClick={() => onDuplicatePolicy(policy)}
-                className={`h-8 px-3 text-xs capitalize ${duplicatePolicy === policy ? "bg-fg text-app" : "text-fg-muted hover:text-fg"}`}
-              >
-                {policy === "skip" ? m.portability_skip() : m.portability_replace()}
-              </button>
-            ))}
-          </div>
-        </fieldset>
-        <button
-          type="button"
-          disabled={selected.size === 0 || applying}
-          onClick={onApply}
-          className="h-9 bg-fg px-4 text-xs font-medium text-app hover:opacity-90 disabled:opacity-40"
-        >
-          {m.portability_import_selected()}
-        </button>
+      <div className="border-t border-border pt-4 text-xs text-fg-muted">
+        <span className={applying ? "animate-pulse" : undefined}>
+          {m.portability_auto_import_starting()}
+        </span>
       </div>
     </section>
   );

@@ -1,4 +1,6 @@
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
+import { recordClientEvent } from "../lib/client-debug-log";
+import { useMediaPlayer, useMediaState } from "../lib/vidstack";
 import { m } from "../paraglide/messages.js";
 import { useWatchLayoutStore } from "../stores/watch-layout-store";
 
@@ -22,16 +24,32 @@ function CinemaModeIcon() {
 
 export function CinemaModeControl() {
   const { locale } = useInterfaceLocale();
+  const player = useMediaPlayer();
+  const pictureInPicture = useMediaState("pictureInPicture");
   const cinemaMode = useWatchLayoutStore((state) => state.cinemaMode);
   const toggleCinemaMode = useWatchLayoutStore((state) => state.toggleCinemaMode);
   const label = cinemaMode
     ? m.player_disable_cinema_mode({}, { locale })
     : m.player_enable_cinema_mode({}, { locale });
 
+  const toggleMode = async () => {
+    if (pictureInPicture) {
+      if (!player) return;
+      await player.exitPictureInPicture();
+    }
+    toggleCinemaMode();
+  };
+
   return (
     <button
       type="button"
-      onClick={toggleCinemaMode}
+      onClick={() => {
+        void toggleMode().catch((error: unknown) => {
+          recordClientEvent("player.cinema_mode_error", {
+            message: error instanceof Error ? error.message : null,
+          });
+        });
+      }}
       className="vds-cinema-button vds-button"
       aria-label={label}
       title={label}

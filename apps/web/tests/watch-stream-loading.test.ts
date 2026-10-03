@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import {
+  isWatchStreamPending,
   shouldLoadFullWatchStream,
   shouldLoadSabrBootstrap,
 } from "../src/lib/watch-stream-loading";
@@ -26,4 +27,12 @@ test("keeps the SABR bootstrap for videos without a confirmed live preview", () 
 
 test("keeps the SABR bootstrap disabled until watch access is ready", () => {
   expect(shouldLoadSabrBootstrap(false, false)).toBe(false);
+});
+
+test("keeps the loading screen while React Query holds the previous stream", () => {
+  expect(isWatchStreamPending(false, false, true)).toBe(true);
+});
+
+test("does not keep loading once the current stream is ready", () => {
+  expect(isWatchStreamPending(false, false, false)).toBe(false);
 });

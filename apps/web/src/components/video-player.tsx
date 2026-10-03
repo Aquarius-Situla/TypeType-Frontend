@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useSabrPlayerState } from "../hooks/use-sabr-player-state";
+import { BILIBILI_FLV_VIDEO_PROVIDER_LOADERS } from "../lib/bilibili-flv-loader";
 import { isIosDevice } from "../lib/ios-device";
 import { mediaSourceViewType } from "../lib/media-source-view-type";
 import { SABR_VIDEO_PROVIDER_LOADERS, sabrMediaSrc } from "../lib/sabr-vidstack-loader";
@@ -109,7 +110,7 @@ export function VideoPlayer({
       data-sabr-seeking={sabrState.seeking ? "true" : undefined}
     >
       <MediaProvider
-        loaders={sabrConfig ? SABR_VIDEO_PROVIDER_LOADERS : undefined}
+        loaders={sabrConfig ? SABR_VIDEO_PROVIDER_LOADERS : BILIBILI_FLV_VIDEO_PROVIDER_LOADERS}
         className={mediaClassName ?? "h-full w-full"}
         mediaProps={mediaClassName ? { className: mediaClassName } : undefined}
       >

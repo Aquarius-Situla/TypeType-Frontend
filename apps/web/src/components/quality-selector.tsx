@@ -1,8 +1,10 @@
 import type * as dashjs from "dashjs";
+import { ArrowUpRight, LockKeyhole } from "lucide-react";
 import { useRef } from "react";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { useDashPlayerSnapshot } from "../lib/dash-player-store";
 import { dashQualityOptions, selectDashTrack, selectedDashHeight } from "../lib/dash-video";
+import { qualityOptionHeight } from "../lib/player-quality";
 import { sabrResolutionOptions } from "../lib/sabr-quality-selection";
 import type { DefaultLayoutIcon, MenuInstance } from "../lib/vidstack";
 import {
@@ -14,6 +16,7 @@ import {
 } from "../lib/vidstack";
 import { m } from "../paraglide/messages.js";
 import { useSabrQualityStore } from "../stores/sabr-quality-store";
+import { useBiliBiliSessionGate } from "./bilibili-session-gate";
 
 const qualityIcon: DefaultLayoutIcon = (props) => <ClipIcon {...props} />;
 const MENU_ITEMS_CLASS =
@@ -23,7 +26,8 @@ const QUALITY_OPTIONS = { sort: "descending" } as const;
 type QualityOption = ReturnType<typeof useVideoQualityOptions>[number];
 
 function qualityValue(option: QualityOption): string {
-  return String(option.quality?.height ?? option.label);
+  const height = qualityOptionHeight(option);
+  return height !== null ? String(height) : option.label;
 }
 
 function collectResolutionOptions(options: QualityOption[]): QualityOption[] {
@@ -53,6 +57,22 @@ export function QualitySelector() {
   const sabrOptions = useSabrQualityStore((state) => state.options);
   const sabrSelectedItag = useSabrQualityStore((state) => state.selectedItag);
   const selectSabrQuality = useSabrQualityStore((state) => state.selectQuality);
+  const { connectHref, requiresConnection } = useBiliBiliSessionGate();
+  const unlockLink = requiresConnection ? (
+    <a
+      href={connectHref}
+      className="mt-1 flex min-h-11 items-center gap-3 border-border border-t px-3 py-2 text-left text-fg hover:bg-surface-strong"
+    >
+      <LockKeyhole className="size-4 shrink-0 text-[#00a1d6]" aria-hidden="true" />
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm">{m.ui_bilibili_quality_unlock_menu({}, { locale })}</span>
+        <span className="block text-xs text-fg-soft">
+          {m.ui_bilibili_session_connect({}, { locale })}
+        </span>
+      </span>
+      <ArrowUpRight className="size-4 shrink-0 text-fg-soft" aria-hidden="true" />
+    </a>
+  ) : null;
 
   if (sabrStreamId && sabrOptions.length > 0) {
     const streamId = sabrStreamId;
@@ -82,6 +102,7 @@ export function QualitySelector() {
             }))}
             onChange={onSabrChange}
           />
+          {unlockLink}
         </Menu.Items>
       </Menu.Root>
     );
@@ -119,6 +140,7 @@ export function QualitySelector() {
               }))}
               onChange={onDashChange}
             />
+            {unlockLink}
           </Menu.Items>
         </Menu.Root>
       );
@@ -131,7 +153,7 @@ export function QualitySelector() {
   const radioOptions = filteredOptions.map((o) => ({ label: o.label, value: qualityValue(o) }));
 
   if (filteredOptions.length <= 1) return null;
-  if (filteredOptions.every((o) => (o.quality?.height ?? 0) === 0)) return null;
+  if (filteredOptions.every((o) => (qualityOptionHeight(o) ?? 0) === 0)) return null;
 
   if (!selected) return null;
   const current = selected.label;
@@ -154,6 +176,7 @@ export function QualitySelector() {
           options={radioOptions}
           onChange={onChange}
         />
+        {unlockLink}
       </Menu.Items>
     </Menu.Root>
   );

@@ -17,6 +17,7 @@
     "localize": "bun run --cwd apps/web localize",
     "localization:report": "node scripts/localization-report.mjs",
     "dev": "bun run --cwd apps/web dev",
+    "dev:groups-fixture": "bun scripts/fixtures/subscription-groups.ts",
     "build": "bun run --cwd apps/web build",
     "check": "bun run localize && node scripts/check-localization.mjs && biome check .",
     "format": "biome format --write .",

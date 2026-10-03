@@ -12,6 +12,10 @@ function isYoutubeHost(hostname: string): boolean {
   return hostname === "youtube.com" || hostname.endsWith(".youtube.com");
 }
 
+function isNiconicoHost(hostname: string): boolean {
+  return hostname === "nicovideo.jp" || hostname.endsWith(".nicovideo.jp");
+}
+
 function toCleanChannelUrl(parsed: URL, pathSegments: string[]): string {
   parsed.pathname = `/${pathSegments.join("/")}`;
   parsed.search = "";
@@ -42,8 +46,12 @@ export function buildChannelRequestUrl(channelUrl: string, query: string, live: 
   if (!live && trimmedQuery.length === 0) return channelUrl;
   try {
     const parsed = new URL(splitChannelSearchUrl(channelUrl).channelUrl);
-    if (!isYoutubeHost(parsed.hostname)) return channelUrl;
-    parsed.pathname = `${parsed.pathname.replace(/\/+$/, "")}/${live ? "streams" : "search"}`;
+    if (!live && !isYoutubeHost(parsed.hostname)) return channelUrl;
+    if (live && !isYoutubeHost(parsed.hostname) && !isNiconicoHost(parsed.hostname)) {
+      return channelUrl;
+    }
+    const suffix = live ? (isYoutubeHost(parsed.hostname) ? "streams" : "livestreams") : "search";
+    parsed.pathname = `${parsed.pathname.replace(/\/+$/, "")}/${suffix}`;
     parsed.search = "";
     if (!live) parsed.searchParams.set("query", trimmedQuery);
     parsed.hash = "";

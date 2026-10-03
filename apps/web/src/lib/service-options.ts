@@ -14,9 +14,13 @@ export const SERVICE_OPTIONS: ServiceOption[] = [
   { id: 5, label: "BiliBili", path: siBilibili.path, color: "#00A1D6" },
 ];
 
+export function serviceAlternatives(activeService: ServiceId): ServiceOption[] {
+  return SERVICE_OPTIONS.filter((service) => service.id !== activeService);
+}
+
 export type ServiceNavigation =
   | { to: "/search"; search: { q: string; service: ServiceId } }
-  | { to: "/bilibili-session" }
+  | { to: "/bilibili-session"; search: { redirect: undefined } }
   | { to: "/youtube-session"; search: { returnTo: undefined } };
 
 export function nextServiceRoute(
@@ -24,7 +28,9 @@ export function nextServiceRoute(
   searchStr: string,
   service: ServiceId,
 ): ServiceNavigation | null {
-  if (pathname === "/youtube-session" && service === 5) return { to: "/bilibili-session" };
+  if (pathname === "/youtube-session" && service === 5) {
+    return { to: "/bilibili-session", search: { redirect: undefined } };
+  }
   if (pathname === "/bilibili-session" && service === 0) {
     return { to: "/youtube-session", search: { returnTo: undefined } };
   }

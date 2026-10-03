@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { normalizeDefaultPlaybackSpeed } from "../lib/playback-speed";
+import { qualityLabelHeight, qualityOptionHeight } from "../lib/player-quality";
 import type { SabrPlaybackRatePreference } from "../lib/sabr-playback-rate-preference";
 import {
   useAudioOptions,
@@ -7,7 +8,11 @@ import {
   useMediaState,
   useVideoQualityOptions,
 } from "../lib/vidstack";
-import { includesOriginal, normalizeLanguageTag } from "./player-language";
+import {
+  hasMultipleLanguageTracks,
+  includesOriginal,
+  normalizeLanguageTag,
+} from "./player-language";
 
 const QUALITY_OPTIONS = { sort: "descending" } as const;
 
@@ -29,13 +34,6 @@ type PlaybackSpeedDefaultProps = {
   defaultPlaybackSpeed: number;
   preference?: SabrPlaybackRatePreference;
 };
-
-function qualityLabelHeight(label: string): number | null {
-  const match = label.match(/(\d+)/);
-  if (!match) return null;
-  const height = Number(match[1]);
-  return Number.isFinite(height) ? height : null;
-}
 
 export function PlayerDefaults({
   defaultQuality,
@@ -74,7 +72,7 @@ export function PlayerDefaults({
     const defaultHeight = qualityLabelHeight(defaultQuality);
     const exactMatch = qualityOptions.find((o) => o.label === defaultQuality);
     const heightMatch = qualityOptions.find(
-      (o) => defaultHeight !== null && o.quality?.height === defaultHeight,
+      (o) => defaultHeight !== null && qualityOptionHeight(o) === defaultHeight,
     );
     const match = exactMatch ?? heightMatch;
     if (!match) return;
@@ -114,11 +112,14 @@ export function PlayerDefaults({
       : (audioOptions.find((option) => option.track.id === preferredDefaultAudioTrackId) ??
         audioOptions.find((option) => option.track.id === originalAudioTrackId));
 
+    const hasMultipleLanguages = hasMultipleLanguageTracks(audioOptions);
+
     const missingOriginalByContract = forceOriginal && originalAudioTrackId === null;
     const missingOriginalByHeuristic =
-      forceOriginal && originalAudioTrackId === undefined && !match;
+      forceOriginal && originalAudioTrackId === undefined && hasMultipleLanguages && !match;
     if (
       (missingOriginalByContract || missingOriginalByHeuristic) &&
+      hasMultipleLanguages &&
       !originalMissingNotified.current
     ) {
       originalMissingNotified.current = true;

@@ -10,12 +10,12 @@ import { WatchPlaylistRow } from "./watch-playlist-row";
 type Props = {
   name: string;
   videos: WatchPlaylistItem[];
-  listId: string;
+  listId?: string;
   currentParam: string;
   shuffle: string | undefined;
   isLoadingMore?: boolean;
   onLoadMore?: () => void;
-  onToggleShuffle: () => void;
+  onToggleShuffle?: () => void;
   onReorder?: (videos: WatchPlaylistItem[]) => void;
 };
 
@@ -92,17 +92,19 @@ export function WatchPlaylistPanel({
             {currentIndex >= 0 ? currentIndex + 1 : "-"} / {videos.length}
           </span>
         </button>
-        <button
-          type="button"
-          onClick={onToggleShuffle}
-          aria-label={m.ui_shuffle_playlist()}
-          className={`inline-flex h-8 w-8 shrink-0 items-center justify-center gap-1.5 rounded-full font-medium text-xs transition-colors sm:w-auto sm:rounded-lg sm:px-2.5 sm:py-1.5 ${
-            shuffle ? "bg-fg text-app" : "text-fg-muted hover:bg-surface-strong hover:text-fg"
-          }`}
-        >
-          <Shuffle className="h-3.5 w-3.5" aria-hidden="true" />
-          <span className="hidden sm:inline">{m.ui_shuffle()}</span>
-        </button>
+        {onToggleShuffle && (
+          <button
+            type="button"
+            onClick={onToggleShuffle}
+            aria-label={m.ui_shuffle_playlist()}
+            className={`inline-flex h-8 w-8 shrink-0 items-center justify-center gap-1.5 rounded-full font-medium text-xs transition-colors sm:w-auto sm:rounded-lg sm:px-2.5 sm:py-1.5 ${
+              shuffle ? "bg-fg text-app" : "text-fg-muted hover:bg-surface-strong hover:text-fg"
+            }`}
+          >
+            <Shuffle className="h-3.5 w-3.5" aria-hidden="true" />
+            <span className="hidden sm:inline">{m.ui_shuffle()}</span>
+          </button>
+        )}
         <button
           type="button"
           onClick={() => setCollapsed((value) => !value)}

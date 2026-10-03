@@ -5,6 +5,7 @@ import {
   toCanonicalChannelRoute,
   toChannelPathParam,
 } from "../src/lib/channel-route-url";
+import { buildChannelRequestUrl } from "../src/lib/channel-search-url";
 
 describe("channel route URLs", () => {
   test("canonicalizes YouTube channel ids", () => {
@@ -44,6 +45,12 @@ describe("channel route URLs", () => {
     expect(channelRoutePath(sourceUrl)).toBe("/channel/niconico/3343223");
     expect(canonicalChannelSourceUrl({ provider: "niconico", id: "3343223" })).toBe(
       "https://www.nicovideo.jp/user/3343223",
+    );
+  });
+
+  test("builds the NicoNico livestream tab URL", () => {
+    expect(buildChannelRequestUrl("https://www.nicovideo.jp/user/3343223", "", true)).toBe(
+      "https://www.nicovideo.jp/user/3343223/livestreams",
     );
   });
 

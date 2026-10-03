@@ -7,6 +7,7 @@ type Props = {
   count: number;
   onVideosIntent?: () => void;
   onChannelsIntent?: () => void;
+  group?: string;
 };
 
 function linkClass(active: boolean): string {
@@ -15,7 +16,13 @@ function linkClass(active: boolean): string {
     : "border-transparent text-fg-muted hover:border-border-strong hover:text-fg";
 }
 
-export function SubscriptionsHeader({ active, count, onVideosIntent, onChannelsIntent }: Props) {
+export function SubscriptionsHeader({
+  active,
+  count,
+  group = "all",
+  onVideosIntent,
+  onChannelsIntent,
+}: Props) {
   return (
     <header className="flex flex-col gap-5 border-border border-b pt-3 pb-5 sm:flex-row sm:items-end sm:justify-between sm:pt-4">
       <div className="min-w-0">
@@ -30,6 +37,7 @@ export function SubscriptionsHeader({ active, count, onVideosIntent, onChannelsI
       <nav className="flex items-center gap-6" aria-label={m.ui_subscription_views()}>
         <Link
           to="/subscriptions"
+          search={{ group }}
           preload="intent"
           onFocus={onVideosIntent}
           onMouseEnter={onVideosIntent}
@@ -40,6 +48,7 @@ export function SubscriptionsHeader({ active, count, onVideosIntent, onChannelsI
         </Link>
         <Link
           to="/subscriptions/channels"
+          search={{ group }}
           preload="intent"
           onFocus={onChannelsIntent}
           onMouseEnter={onChannelsIntent}

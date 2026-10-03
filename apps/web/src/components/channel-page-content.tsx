@@ -47,7 +47,9 @@ export function ChannelPageContent({ sourceUrl, sort, searchQuery, tab, onNaviga
   useDocumentTitle(meta?.name);
 
   const subscribed = isSubscribed(sourceUrl);
-  const searchAvailable = detectProvider(sourceUrl) === "youtube";
+  const provider = detectProvider(sourceUrl);
+  const searchAvailable = provider === "youtube";
+  const tabsAvailable = provider === "youtube" || provider === "nicovideo";
   const visibleVideos = useMemo(() => filter(videos), [filter, videos]);
   const progressByUrl = useVideoProgressMap(visibleVideos);
   const isInitialLoading = isLoading && !meta;
@@ -128,6 +130,7 @@ export function ChannelPageContent({ sourceUrl, sort, searchQuery, tab, onNaviga
         sort={sort}
         query={searchQuery}
         tab={tab}
+        tabsAvailable={tabsAvailable}
         searchAvailable={searchAvailable}
         onSearch={searchChannel}
         onTabChange={selectTab}

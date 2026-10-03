@@ -15,12 +15,18 @@ test("refreshes mounted subscriptions without replacing their observer or media 
   const media = { url: "playing-video" };
   client.setQueryData(["stream", "playing-video"], media);
   client.setQueryData(["history"], ["original-video"]);
+  client.setQueryData(["subscription-groups", "original-profile"], ["old-group"]);
+  client.setQueryData(["subscription-group-memberships", "original-profile"], ["old-membership"]);
   client.setQueryData(["search-panel-videos", 0], ["original-recommendation"]);
   profile = "Test";
 
   const refresh = resetProfileQueries(client);
   expect(observer.getCurrentResult().data).toBeUndefined();
   expect(client.getQueryData(["history"])).toBeUndefined();
+  expect(client.getQueryData(["subscription-groups", "original-profile"])).toBeUndefined();
+  expect(
+    client.getQueryData(["subscription-group-memberships", "original-profile"]),
+  ).toBeUndefined();
   expect(client.getQueryData(["search-panel-videos", 0])).toBeUndefined();
   expect(client.getQueryData(["stream", "playing-video"])).toBe(media);
   await refresh;

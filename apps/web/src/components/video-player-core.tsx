@@ -3,6 +3,7 @@ import type * as dashjs from "dashjs";
 import type Hls from "hls.js";
 import { recordClientEvent } from "../lib/client-debug-log";
 import { notifyDashPlayer, setDashPlayer } from "../lib/dash-player-store";
+import { installDashQualityCompat } from "../lib/dash-quality-compat";
 import type { MediaProviderAdapter } from "../lib/vidstack";
 import { isDASHProvider, isHLSProvider, Track, useMediaState } from "../lib/vidstack";
 import { useAuthStore } from "../stores/auth-store";
@@ -36,6 +37,7 @@ const loadHlsLibrary = (): Promise<HlsLibraryModule> => {
 };
 
 function configureDashPlayer(player: dashjs.MediaPlayerClass, library: typeof dashjs): void {
+  installDashQualityCompat(player);
   const onDashUpdate = () => notifyDashPlayer();
   player.on(library.MediaPlayer.events.STREAM_INITIALIZED, onDashUpdate);
   player.on(library.MediaPlayer.events.TRACK_CHANGE_RENDERED, onDashUpdate);

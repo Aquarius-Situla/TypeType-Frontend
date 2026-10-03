@@ -14,11 +14,18 @@ import { normalizeApiPayload } from "./text-normalize";
 export class ApiError extends Error {
   status: number;
   code: string | null;
-  constructor(message: string, status: number, code: string | null = null) {
+  requestId: string | null;
+  constructor(
+    message: string,
+    status: number,
+    code: string | null = null,
+    requestId: string | null = null,
+  ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.code = code;
+    this.requestId = requestId;
   }
 }
 
@@ -64,6 +71,19 @@ function toErrorCode(body: unknown): string | null {
   return typeof candidate.code === "string" && candidate.code.length > 0 ? candidate.code : null;
 }
 
+export function apiErrorFromResponse(response: Response, body: unknown): ApiError {
+  const bodyRequestId =
+    body && typeof body === "object" && "requestId" in body && typeof body.requestId === "string"
+      ? body.requestId
+      : null;
+  return new ApiError(
+    toErrorMessage(response.status, response.statusText, body),
+    response.status,
+    toErrorCode(body),
+    extractRequestId(response.headers) ?? bodyRequestId,
+  );
+}
+
 export async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const method = init?.method ?? "GET";
   let res: Response;
@@ -106,7 +126,7 @@ export async function request<T>(url: string, init?: RequestInit): Promise<T> {
       requestId,
       message: sanitizeDebugText(errorMessage),
     });
-    throw new ApiError(errorMessage, res.status, errorCode);
+    throw apiErrorFromResponse(res, body);
   }
   return body as T;
 }

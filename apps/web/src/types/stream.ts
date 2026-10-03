@@ -6,6 +6,8 @@ import type {
   SubtitleItem,
   VideoStreamItem,
 } from "./api";
+import type { StreamCollectionItem } from "./stream-collection";
+import type { StreamPartItem } from "./stream-parts";
 
 export type VideoStream = {
   id: string;
@@ -46,4 +48,6 @@ export type VideoStream = {
   subtitles?: SubtitleItem[];
   previewFrames?: PreviewFrameItem[];
   sponsorBlockSegments?: SponsorBlockSegmentItem[];
+  collections?: StreamCollectionItem[];
+  parts?: StreamPartItem[];
 };

@@ -202,7 +202,10 @@ function RootLayoutContent() {
         <Navbar />
       </div>
       {watchCinemaPage ? !isMobile && <Sidebar overlay /> : <Sidebar />}
-      <main className={mainClasses} style={topPadding}>
+      <main
+        className={`${mainClasses} ${pathname === "/subscriptions/groups" ? "sg-page" : ""}`}
+        style={topPadding}
+      >
         <Outlet />
         <AppFooter />
       </main>

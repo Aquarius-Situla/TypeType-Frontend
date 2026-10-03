@@ -41,6 +41,14 @@ function trusted(candidate: DeArrowCandidate, mode: DeArrowTrustMode): boolean {
   return mode === "locked" ? candidate.locked : candidate.locked || candidate.votes >= 0;
 }
 
+function communityCandidate<T extends DeArrowCandidate>(
+  candidates: T[] | undefined,
+  mode: DeArrowTrustMode,
+): T | undefined {
+  const trustedCandidates = candidates?.filter((candidate) => trusted(candidate, mode)) ?? [];
+  return trustedCandidates.find((candidate) => !candidate.original) ?? trustedCandidates[0];
+}
+
 function randomThumbnail(item: DeArrowItem, duration?: number): string | null {
   const videoDuration =
     item.videoDuration && item.videoDuration > 0 ? item.videoDuration : duration;
@@ -59,12 +67,8 @@ export function resolveDeArrowBranding(
   },
 ): DeArrowBranding {
   if (!item) return fallback;
-  const titleCandidate = item.titles?.find((candidate) =>
-    trusted(candidate, preferences.trustMode),
-  );
-  const thumbnailCandidate = item.thumbnails?.find((candidate) =>
-    trusted(candidate, preferences.trustMode),
-  );
+  const titleCandidate = communityCandidate(item.titles, preferences.trustMode);
+  const thumbnailCandidate = communityCandidate(item.thumbnails, preferences.trustMode);
   const title =
     preferences.titleMode === "original"
       ? fallback.title

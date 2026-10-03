@@ -1,26 +1,29 @@
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 import { ApiError } from "../lib/api";
-import { fetchSubscriptionFeed } from "../lib/api-user";
 import { mapVideoItem } from "../lib/mappers";
 import { proxyImage } from "../lib/proxy";
+import { subscriptionFeedQueryOptions } from "../lib/subscription-queries";
 import type { VideoStream } from "../types/stream";
 import { useAuth } from "./use-auth";
 import { useSubscriptions } from "./use-subscriptions";
 
-export const SUBSCRIPTION_FEED_KEY = ["subscription-feed"];
-
 type Result = {
   streams: VideoStream[];
   isLoading: boolean;
+  isLoadingError: boolean;
+  isFetchNextPageError: boolean;
   isFetchingNextPage: boolean;
   hasNextPage: boolean;
   fetchNextPage: () => void;
+  refetch: () => void;
+  error: Error | null;
 };
 
-export function useSubscriptionFeed(): Result {
+export function useSubscriptionFeed(filter = "all"): Result {
   const { authReady, isAuthed } = useAuth();
-  const { query: subsQuery } = useSubscriptions();
+  const { query: subsQuery } = useSubscriptions(filter);
+  const empty = subsQuery.isSuccess && subsQuery.data.length === 0;
   const queryClient = useQueryClient();
   const avatarMap = useMemo(
     () => new Map((subsQuery.data ?? []).map((s) => [s.channelUrl, proxyImage(s.avatarUrl)])),
@@ -28,12 +31,8 @@ export function useSubscriptionFeed(): Result {
   );
 
   const query = useInfiniteQuery({
-    queryKey: SUBSCRIPTION_FEED_KEY,
-    queryFn: ({ pageParam, signal }) => fetchSubscriptionFeed(pageParam as string | null, signal),
-    initialPageParam: null as string | null,
-    getNextPageParam: (last) => last.nextpage ?? undefined,
-    staleTime: 5 * 60 * 1000,
-    enabled: authReady && isAuthed,
+    ...subscriptionFeedQueryOptions(filter),
+    enabled: authReady && isAuthed && subsQuery.isSuccess && !empty,
   });
 
   useEffect(() => {
@@ -43,9 +42,12 @@ export function useSubscriptionFeed(): Result {
         query.error.code ?? "",
       )
     ) {
-      void queryClient.resetQueries({ queryKey: SUBSCRIPTION_FEED_KEY, exact: true });
+      void queryClient.resetQueries({
+        queryKey: subscriptionFeedQueryOptions(filter).queryKey,
+        exact: true,
+      });
     }
-  }, [query.error, queryClient]);
+  }, [query.error, queryClient, filter]);
 
   const streams = useMemo(
     () =>
@@ -63,10 +65,14 @@ export function useSubscriptionFeed(): Result {
   );
 
   return {
-    streams,
-    isLoading: query.isLoading,
+    streams: empty ? [] : streams,
+    isLoading: !empty && query.isLoading,
+    isLoadingError: !empty && query.isLoadingError,
+    isFetchNextPageError: !empty && query.isFetchNextPageError,
     isFetchingNextPage: query.isFetchingNextPage,
-    hasNextPage: query.hasNextPage,
+    hasNextPage: !empty && query.hasNextPage,
     fetchNextPage: query.fetchNextPage,
+    refetch: query.refetch,
+    error: empty ? null : query.error,
   };
 }

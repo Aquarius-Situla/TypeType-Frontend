@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { QRCodeSVG } from "qrcode.react";
+import { useEffect } from "react";
 import { BiliBiliIcon } from "../components/bilibili-icon";
 import { Toast } from "../components/toast";
 import { useAuth } from "../hooks/use-auth";
 import { useBiliBiliSession } from "../hooks/use-bilibili-session";
+import { sanitizeBilibiliSessionReturnTo } from "../lib/bilibili-session-route";
 import { m } from "../paraglide/messages.js";
 
 const SIDE_LABEL = "font-mono text-fg-soft text-[11px] uppercase tracking-[0.22em]";
@@ -22,6 +24,8 @@ function formatSessionTime(timestamp?: number): string {
 function BiliBiliSessionPage() {
   const { authReady, isAuthed } = useAuth();
   const session = useBiliBiliSession();
+  const { redirect } = Route.useSearch();
+  const returnTo = sanitizeBilibiliSessionReturnTo(redirect);
   const state = session.status.data;
   const connected = state?.status === "connected";
   const daysLeft =
@@ -36,6 +40,12 @@ function BiliBiliSessionPage() {
   const statusDescription = connected ? m.ui_bilibili_session_description() : "";
   const qrActive = session.qrPhase === "waiting" || session.qrPhase === "scanned";
   const canStartQr = !connected && !qrActive && session.qrPhase !== "confirmed";
+
+  useEffect(() => {
+    if (session.qrPhase !== "confirmed" || !returnTo) return;
+    const id = window.setTimeout(() => window.location.assign(returnTo), 900);
+    return () => window.clearTimeout(id);
+  }, [returnTo, session.qrPhase]);
 
   return (
     <div className="flex w-full max-w-none flex-col gap-8 pt-2 [animation:page-fade-in_0.2s_ease-out]">
@@ -195,5 +205,8 @@ function BiliBiliSessionPage() {
 }
 
 export const Route = createFileRoute("/bilibili-session")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    redirect: typeof search.redirect === "string" ? search.redirect : undefined,
+  }),
   component: BiliBiliSessionPage,
 });

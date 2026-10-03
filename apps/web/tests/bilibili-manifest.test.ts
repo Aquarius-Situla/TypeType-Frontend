@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { buildBilibiliDashManifest } from "../src/lib/bilibili-manifest";
+import { bilibiliVariantCount, buildBilibiliDashManifest } from "../src/lib/bilibili-manifest";
 import type { AudioStreamItem, VideoStreamItem } from "../src/types/api";
 
 const video = {
@@ -62,4 +62,151 @@ test("keeps the audio bandwidth in bits per second", () => {
   const xml = atob(source?.split(",")[1] ?? "");
   expect(xml).toContain('bandwidth="66923"');
   expect(xml).not.toContain('bandwidth="64762000"');
+});
+
+test("includes all available video resolutions in descending order in a single AdaptationSet", () => {
+  Object.assign(globalThis, { window: { location: { origin: "https://typetype.test" } } });
+  const video1080: VideoStreamItem = {
+    ...video,
+    resolution: "1080P",
+    width: 1920,
+    height: 1080,
+    bitrate: 3000000,
+    url: "https://example.com/video_1080.m4s",
+  };
+  const video720: VideoStreamItem = {
+    ...video,
+    resolution: "720P",
+    width: 1280,
+    height: 720,
+    bitrate: 1500000,
+    url: "https://example.com/video_720.m4s",
+  };
+  const video360: VideoStreamItem = {
+    ...video,
+    resolution: "360P",
+    width: 640,
+    height: 360,
+    bitrate: 400000,
+    url: "https://example.com/video_360.m4s",
+  };
+
+  const source = buildBilibiliDashManifest([video, video1080, video720, video360], [audio], 179);
+  expect(source).not.toBeNull();
+  const xml = atob(source?.split(",")[1] ?? "");
+
+  // All 4 resolutions should be present
+  expect(xml).toContain('id="v0" bandwidth="3000000" width="1920" height="1080"');
+  expect(xml).toContain('id="v1" bandwidth="1500000" width="1280" height="720"');
+  expect(xml).toContain('id="v2" bandwidth="790090" width="852" height="480"');
+  expect(xml).toContain('id="v3" bandwidth="400000" width="640" height="360"');
+
+  // Verify order: 1080 -> 720 -> 480 -> 360
+  const pos1080 = xml.indexOf('height="1080"');
+  const pos720 = xml.indexOf('height="720"');
+  const pos480 = xml.indexOf('height="480"');
+  const pos360 = xml.indexOf('height="360"');
+  expect(pos1080).toBeLessThan(pos720);
+  expect(pos720).toBeLessThan(pos480);
+  expect(pos480).toBeLessThan(pos360);
+});
+
+test("counts resolution fallback variants per codec group", () => {
+  const video1080: VideoStreamItem = {
+    ...video,
+    resolution: "1080P",
+    width: 1920,
+    height: 1080,
+    bitrate: 3000000,
+    url: "https://example.com/video_1080.m4s",
+  };
+  const video720: VideoStreamItem = {
+    ...video,
+    resolution: "720P",
+    width: 1280,
+    height: 720,
+    bitrate: 1500000,
+    url: "https://example.com/video_720.m4s",
+  };
+  const video360: VideoStreamItem = {
+    ...video,
+    resolution: "360P",
+    width: 640,
+    height: 360,
+    bitrate: 400000,
+    url: "https://example.com/video_360.m4s",
+  };
+
+  // 1 codec group with 4 resolutions (1080, 720, 480, 360) and 1 audio -> 4 variants
+  expect(bilibiliVariantCount([video, video1080, video720, video360], [audio])).toBe(4);
+
+  // With a second audio stream -> 4 * 2 = 8 variants
+  const audio2: AudioStreamItem = { ...audio, url: "https://example.com/audio2.m4s" };
+  expect(bilibiliVariantCount([video, video1080, video720, video360], [audio, audio2])).toBe(8);
+});
+
+test("falls back to lower resolutions when variant increments", () => {
+  Object.assign(globalThis, { window: { location: { origin: "https://typetype.test" } } });
+  const video1080: VideoStreamItem = {
+    ...video,
+    resolution: "1080P",
+    width: 1920,
+    height: 1080,
+    bitrate: 3000000,
+    url: "https://example.com/video_1080.m4s",
+  };
+  const video720: VideoStreamItem = {
+    ...video,
+    resolution: "720P",
+    width: 1280,
+    height: 720,
+    bitrate: 1500000,
+    url: "https://example.com/video_720.m4s",
+  };
+  const video360: VideoStreamItem = {
+    ...video,
+    resolution: "360P",
+    width: 640,
+    height: 360,
+    bitrate: 400000,
+    url: "https://example.com/video_360.m4s",
+  };
+
+  const allVideos = [video, video1080, video720, video360];
+
+  // Variant 0: all 4 resolutions
+  const manifest0 = buildBilibiliDashManifest(allVideos, [audio], 179, 0);
+  expect(manifest0).not.toBeNull();
+  const xml0 = atob(manifest0?.split(",")[1] ?? "");
+  expect(xml0).toContain('height="1080"');
+  expect(xml0).toContain('height="720"');
+  expect(xml0).toContain('height="480"');
+  expect(xml0).toContain('height="360"');
+
+  // Variant 1: excludes 1080P, starts at 720P
+  const manifest1 = buildBilibiliDashManifest(allVideos, [audio], 179, 1);
+  expect(manifest1).not.toBeNull();
+  const xml1 = atob(manifest1?.split(",")[1] ?? "");
+  expect(xml1).not.toContain('height="1080"');
+  expect(xml1).toContain('height="720"');
+  expect(xml1).toContain('height="480"');
+  expect(xml1).toContain('height="360"');
+
+  // Variant 2: excludes 1080P and 720P, starts at 480P
+  const manifest2 = buildBilibiliDashManifest(allVideos, [audio], 179, 2);
+  expect(manifest2).not.toBeNull();
+  const xml2 = atob(manifest2?.split(",")[1] ?? "");
+  expect(xml2).not.toContain('height="1080"');
+  expect(xml2).not.toContain('height="720"');
+  expect(xml2).toContain('height="480"');
+  expect(xml2).toContain('height="360"');
+
+  // Variant 3: lowest resolution only (360P)
+  const manifest3 = buildBilibiliDashManifest(allVideos, [audio], 179, 3);
+  expect(manifest3).not.toBeNull();
+  const xml3 = atob(manifest3?.split(",")[1] ?? "");
+  expect(xml3).not.toContain('height="1080"');
+  expect(xml3).not.toContain('height="720"');
+  expect(xml3).not.toContain('height="480"');
+  expect(xml3).toContain('height="360"');
 });

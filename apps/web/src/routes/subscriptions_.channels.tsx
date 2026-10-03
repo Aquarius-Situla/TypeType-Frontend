@@ -1,52 +1,34 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { SubscriptionChannelList } from "../components/subscription-channel-list";
+import { SubscriptionGroupFilter } from "../components/subscription-group-filter";
 import { SubscriptionsHeader } from "../components/subscriptions-header";
 import { VideoGridSkeleton } from "../components/video-grid-skeleton";
 import { useBlockedFilter } from "../hooks/use-blocked-filter";
-import { SUBSCRIPTION_FEED_KEY } from "../hooks/use-subscription-feed";
-import { SUBSCRIPTIONS_KEY, useSubscriptions } from "../hooks/use-subscriptions";
-import { fetchSubscriptionFeed, fetchSubscriptions } from "../lib/api-user";
+import { useSubscriptions } from "../hooks/use-subscriptions";
+import {
+  subscriptionFeedQueryOptions,
+  subscriptionsQueryOptions,
+} from "../lib/subscription-queries";
 import { m } from "../paraglide/messages.js";
-
-const SUBSCRIPTION_STALE_MS = 5 * 60 * 1000;
-
-function nextSubscriptionPage(last: Awaited<ReturnType<typeof fetchSubscriptionFeed>>) {
-  return last.nextpage ?? undefined;
-}
 
 function SubscriptionChannelsPage() {
   const queryClient = useQueryClient();
-  const { query } = useSubscriptions();
+  const { group = "all" } = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const { query } = useSubscriptions(group);
   const { isChannelIdentityBlocked } = useBlockedFilter();
   const subscriptions = (query.data ?? []).filter(
     (item) => !isChannelIdentityBlocked({ url: item.channelUrl, name: item.name }),
   );
 
   function prefetchChannels() {
-    void queryClient.prefetchQuery({
-      queryKey: SUBSCRIPTIONS_KEY,
-      queryFn: fetchSubscriptions,
-      staleTime: SUBSCRIPTION_STALE_MS,
-    });
+    void queryClient.prefetchQuery(subscriptionsQueryOptions(group));
   }
 
   function prefetchVideos() {
-    void queryClient.prefetchInfiniteQuery({
-      queryKey: SUBSCRIPTION_FEED_KEY,
-      queryFn: ({ pageParam, signal }) => fetchSubscriptionFeed(pageParam as string | null, signal),
-      initialPageParam: null as string | null,
-      getNextPageParam: nextSubscriptionPage,
-      staleTime: SUBSCRIPTION_STALE_MS,
-    });
-  }
-
-  if (query.isSuccess && subscriptions.length === 0) {
-    return (
-      <div className="flex items-center justify-center pt-32">
-        <p className="text-sm text-fg-muted">{m.ui_no_subscriptions_yet_2()}</p>
-      </div>
-    );
+    if (!query.data?.length) return;
+    void queryClient.prefetchInfiniteQuery(subscriptionFeedQueryOptions(group));
   }
 
   return (
@@ -54,11 +36,41 @@ function SubscriptionChannelsPage() {
       <SubscriptionsHeader
         active="channels"
         count={subscriptions.length}
+        group={group}
         onVideosIntent={prefetchVideos}
         onChannelsIntent={prefetchChannels}
       />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <SubscriptionGroupFilter
+          value={group}
+          error={query.error}
+          onChange={(value, replace) => void navigate({ search: { group: value }, replace })}
+        />
+        <Link
+          to="/subscriptions/groups"
+          className="inline-flex h-9 items-center border border-border-strong px-3 text-sm hover:bg-surface"
+        >
+          {m.sg_manage_groups()}
+        </Link>
+      </div>
       {query.isLoading ? (
         <VideoGridSkeleton idPrefix="subscription-channels" />
+      ) : query.isError ? (
+        <div role="alert" className="flex flex-col items-center gap-3 py-10 text-sm text-fg-muted">
+          <p>{m.sg_channels_load_error()}</p>
+          <button
+            type="button"
+            disabled={query.isFetching}
+            onClick={() => void query.refetch()}
+            className="min-h-9 border border-border-strong px-3 text-fg hover:bg-surface disabled:opacity-40"
+          >
+            {m.ui_retry()}
+          </button>
+        </div>
+      ) : subscriptions.length === 0 ? (
+        <p className="py-10 text-center text-sm text-fg-muted">
+          {group === "all" ? m.ui_no_subscriptions_yet_2() : m.sg_no_channel_match()}
+        </p>
       ) : (
         <SubscriptionChannelList subscriptions={subscriptions} />
       )}
@@ -67,5 +79,8 @@ function SubscriptionChannelsPage() {
 }
 
 export const Route = createFileRoute("/subscriptions_/channels")({
+  validateSearch: (search: Record<string, unknown>): { group?: string } => ({
+    group: typeof search.group === "string" && search.group ? search.group : "all",
+  }),
   component: SubscriptionChannelsPage,
 });

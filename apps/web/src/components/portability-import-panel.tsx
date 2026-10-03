@@ -1,6 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArchiveRestore, FileUp } from "lucide-react";
-import { type DragEvent, useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { ArchiveRestore } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useAuth } from "../hooks/use-auth";
+import { usePendingYoutubeTakeout } from "../hooks/use-pending-youtube-takeout";
 import { usePersistedPortabilityJob } from "../hooks/use-persisted-portability-job";
 import { usePortabilityJob } from "../hooks/use-portability-job";
 import {
@@ -11,15 +14,19 @@ import {
   type PortabilityJob,
   startPortabilityImport,
 } from "../lib/api-portability";
+import { invalidateSubscriptionQueries } from "../lib/subscription-queries";
 import { m } from "../paraglide/messages.js";
 import { PortabilityFormatPicker } from "./portability-format-picker";
 import { PortabilityImportGuide } from "./portability-import-guide";
 import { PortabilityImportPreview } from "./portability-import-preview";
+import { PortabilityImportSourcePicker } from "./portability-import-source-picker";
 import { PortabilityJobStatus } from "./portability-job-status";
 import { Toast } from "./toast";
 
 export function PortabilityImportPanel({ formats }: { formats: PortabilityFormatDescriptor[] }) {
-  const input = useRef<HTMLInputElement>(null);
+  const { me } = useAuth();
+  const ownerId = me?.id;
+  const [pendingTakeout, setPendingTakeout] = usePendingYoutubeTakeout(ownerId);
   const queryClient = useQueryClient();
   const importFormats = useMemo(
     () =>
@@ -28,48 +35,59 @@ export function PortabilityImportPanel({ formats }: { formats: PortabilityFormat
       ),
     [formats],
   );
-  const [formatName, setFormatName] = useState(
-    importFormats.find((format) => format.format === "typetype")?.format ??
-      importFormats[0]?.format ??
-      "typetype",
-  );
+  const [formatName, setFormatName] = useState("auto");
   const [jobId, setJobId] = usePersistedPortabilityJob("typetype-portability-import-job");
-  const [selected, setSelected] = useState<Set<PortabilityCategory>>(new Set());
-  const [duplicatePolicy, setDuplicatePolicy] = useState<"skip" | "replace">("skip");
-  const [dragging, setDragging] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const previousState = useRef<string | null>(null);
+  const autoAppliedJobId = useRef<string | null>(null);
   const job = usePortabilityJob(jobId);
-  const format = importFormats.find((item) => item.format === formatName) ?? importFormats[0];
+  const selectedFormat = importFormats.find((item) => item.format === formatName);
   const upload = useMutation({
-    mutationFn: (file: File) => startPortabilityImport(file, format.format),
-    onSuccess: (started) => {
-      setJobId(started.id);
-      queryClient.setQueryData(["portability-job", started.id], started);
-    },
+    mutationFn: ({ file, prepared }: { file: File; prepared: boolean }) =>
+      startPortabilityImport(file, formatName, {
+        ownerId,
+        preparedFile: prepared ? file : undefined,
+        onPrepared: setPendingTakeout,
+        onAccepted: (started) => {
+          setJobId(started.id);
+          queryClient.setQueryData(["portability-job", started.id], started);
+        },
+      }),
+    onSuccess: (started) => queryClient.setQueryData(["portability-job", started.id], started),
   });
   const apply = useMutation({
-    mutationFn: () => applyPortabilityImport(jobId as string, [...selected], duplicatePolicy),
+    mutationFn: (categories: PortabilityCategory[]) =>
+      applyPortabilityImport(jobId as string, categories, "skip"),
     onSuccess: (updated) =>
       queryClient.setQueryData<PortabilityJob>(["portability-job", jobId], updated),
+    onError: () => {
+      autoAppliedJobId.current = null;
+    },
   });
   const report = useMutation({ mutationFn: () => downloadPortabilityReport(jobId as string) });
 
   useEffect(() => {
-    if (!job.data?.preview || selected.size > 0) return;
-    setSelected(new Set(Object.keys(job.data.preview.counts) as PortabilityCategory[]));
-  }, [job.data?.preview, selected.size]);
+    const data = job.data;
+    if (data?.state !== "ready" || !data.preview || autoAppliedJobId.current === data.id) {
+      return;
+    }
+    const categories = Object.keys(data.preview.counts) as PortabilityCategory[];
+    if (categories.length === 0) return;
+    autoAppliedJobId.current = data.id;
+    apply.mutate(categories);
+  }, [apply.mutate, job.data]);
 
   useEffect(() => {
     const state = job.data?.state ?? null;
     if (state === "completed" && previousState.current !== "completed") {
+      void invalidateSubscriptionQueries(queryClient);
       const count = Object.values(job.data?.result ?? {}).reduce((sum, value) => sum + value, 0);
       setToast(
         `${m.portability_import_completed()}: ${count.toLocaleString()} ${m.portability_items()}`,
       );
     }
     previousState.current = state;
-  }, [job.data?.result, job.data?.state]);
+  }, [job.data?.result, job.data?.state, queryClient]);
 
   useEffect(() => {
     if (!job.missing || !jobId) return;
@@ -84,25 +102,20 @@ export function PortabilityImportPanel({ formats }: { formats: PortabilityFormat
     return () => window.clearTimeout(timer);
   }, [toast]);
 
-  function choose(file: File | undefined) {
-    if (file && !upload.isPending) upload.mutate(file);
-  }
-
-  function drop(event: DragEvent<HTMLButtonElement>) {
-    event.preventDefault();
-    setDragging(false);
-    choose(event.dataTransfer.files[0]);
+  function choose(file: File | undefined, prepared = false) {
+    if (file && !upload.isPending) upload.mutate({ file, prepared });
   }
 
   function reset() {
     if (jobId) void job.remove.mutateAsync().catch(() => undefined);
     setJobId(null);
-    setSelected(new Set());
+    autoAppliedJobId.current = null;
     upload.reset();
     apply.reset();
   }
 
-  if (!format) return <p className="text-sm text-fg-muted">{m.portability_no_import_format()}</p>;
+  if (importFormats.length === 0)
+    return <p className="text-sm text-fg-muted">{m.portability_no_import_format()}</p>;
 
   const preview = job.data?.preview;
   const failure = upload.error ?? job.error ?? apply.error ?? report.error;
@@ -119,42 +132,35 @@ export function PortabilityImportPanel({ formats }: { formats: PortabilityFormat
         <>
           <PortabilityFormatPicker
             label={m.portability_import_from()}
-            formats={importFormats}
-            value={format.format}
+            formats={[{ format: "auto", defaultExtension: "" }, ...importFormats]}
+            value={formatName}
             onChange={setFormatName}
           />
-          <PortabilityImportGuide format={format.format} />
-          <button
-            type="button"
-            disabled={upload.isPending}
-            aria-busy={upload.isPending}
-            onClick={() => input.current?.click()}
-            onDragEnter={(event) => {
-              event.preventDefault();
-              setDragging(true);
-            }}
-            onDragOver={(event) => event.preventDefault()}
-            onDragLeave={() => setDragging(false)}
-            onDrop={drop}
-            className={`flex min-h-44 w-full flex-col items-center justify-center border border-dashed px-5 text-center transition-colors ${dragging ? "border-fg bg-surface-strong" : "border-border-strong bg-surface hover:border-fg-soft"}`}
-          >
-            <FileUp size={24} className="text-fg" />
-            <span className="mt-3 text-sm font-medium text-fg">
-              {upload.isPending ? m.portability_preparing_upload() : m.portability_choose_or_drop()}
-            </span>
-            <span className="mt-1 max-w-md text-xs text-fg-soft">
-              {m.portability_drop_original_prefix()} .{format.defaultExtension}{" "}
-              {m.portability_drop_original_suffix()}
-            </span>
-          </button>
-          <input
-            ref={input}
-            type="file"
-            className="hidden"
-            onChange={(event) => {
-              choose(event.target.files?.[0]);
-              event.target.value = "";
-            }}
+          <PortabilityImportGuide format={formatName} />
+          {pendingTakeout && (formatName === "auto" || formatName === "youtube-takeout") && (
+            <button
+              type="button"
+              disabled={upload.isPending}
+              onClick={() => choose(pendingTakeout, true)}
+              className="h-9 self-start border border-border px-3 text-xs text-fg-muted hover:text-fg disabled:opacity-40"
+            >
+              {m.portability_resume_prepared_upload()}
+            </button>
+          )}
+          <PortabilityImportSourcePicker
+            key={formatName}
+            busy={upload.isPending}
+            extension={selectedFormat?.defaultExtension}
+            label={
+              upload.isPending ? m.portability_preparing_upload() : m.portability_choose_or_drop()
+            }
+            hint={
+              m.portability_drop_original_prefix() +
+              (selectedFormat ? ` .${selectedFormat.defaultExtension}` : "") +
+              " " +
+              m.portability_drop_original_suffix()
+            }
+            onFile={choose}
           />
         </>
       )}
@@ -162,27 +168,21 @@ export function PortabilityImportPanel({ formats }: { formats: PortabilityFormat
       {job.data && <PortabilityJobStatus job={job.data} onCancel={() => job.cancel.mutate()} />}
 
       {preview && job.data?.state === "ready" && (
-        <PortabilityImportPreview
-          preview={preview}
-          selected={selected}
-          duplicatePolicy={duplicatePolicy}
-          applying={apply.isPending}
-          onReset={reset}
-          onToggle={(category) =>
-            setSelected((current) => {
-              const next = new Set(current);
-              if (next.has(category)) next.delete(category);
-              else next.add(category);
-              return next;
-            })
-          }
-          onDuplicatePolicy={setDuplicatePolicy}
-          onApply={() => apply.mutate()}
-        />
+        <PortabilityImportPreview preview={preview} applying={apply.isPending} onReset={reset} />
       )}
 
       {job.data && ["completed", "failed", "cancelled"].includes(job.data.state) && (
         <div className="flex flex-col gap-2 sm:flex-row">
+          {job.data.state === "completed" &&
+            ((job.data.result?.subscriptions ?? 0) > 0 ||
+              (job.data.result?.subscriptionGroups ?? 0) > 0) && (
+              <Link
+                to="/subscriptions/groups"
+                className="inline-flex h-9 items-center border border-border px-3 text-xs text-fg hover:bg-surface-strong"
+              >
+                {m.sg_manage_groups()}
+              </Link>
+            )}
           <button
             type="button"
             onClick={reset}

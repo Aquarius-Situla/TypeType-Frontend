@@ -16,16 +16,17 @@ export function usePersistedPortabilityJob(
   const eventName = `typetype:persisted-portability-job:${storageKey}`;
   const updateJobId = useCallback(
     (next: string | null) => {
+      try {
+        if (next) window.localStorage.setItem(storageKey, next);
+        else window.localStorage.removeItem(storageKey);
+      } catch {
+        // Keep the active tab usable when browser storage is unavailable.
+      }
       setJobId(next);
       window.dispatchEvent(new CustomEvent(eventName, { detail: next }));
     },
-    [eventName],
+    [eventName, storageKey],
   );
-
-  useEffect(() => {
-    if (jobId) window.localStorage.setItem(storageKey, jobId);
-    else window.localStorage.removeItem(storageKey);
-  }, [jobId, storageKey]);
 
   useEffect(() => {
     const onCustomChange = (event: Event) => {

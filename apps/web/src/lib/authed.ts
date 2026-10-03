@@ -1,5 +1,5 @@
 import { useAuthStore } from "../stores/auth-store";
-import { ApiError } from "./api";
+import { ApiError, apiErrorFromResponse } from "./api";
 import { recordApiError } from "./api-error-log";
 import { isRefreshSessionRejected, refreshSession } from "./auth-session";
 import { extractRequestId, recordClientEvent } from "./client-debug-log";
@@ -125,16 +125,6 @@ export async function authed(
 
 export async function authedJson<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await authed(url, init);
-  const body = normalizeApiPayload(await res.json());
-  if (!res.ok) {
-    const errorBody =
-      body && typeof body === "object" ? (body as { error?: unknown; code?: unknown }) : {};
-    const message =
-      typeof errorBody.error === "string" && errorBody.error.length > 0
-        ? errorBody.error
-        : `Request failed with status ${res.status}`;
-    const code = typeof errorBody.code === "string" ? errorBody.code : null;
-    throw new ApiError(message, res.status, code);
-  }
-  return body as T;
+  if (!res.ok) throw apiErrorFromResponse(res, await res.json().catch(() => null));
+  return normalizeApiPayload(await res.json()) as T;
 }

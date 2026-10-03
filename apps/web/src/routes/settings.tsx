@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   Ban,
+  Bell,
   CircleHelp,
   Download,
   Gauge,
@@ -30,6 +31,7 @@ import { SettingsBackup } from "../settings/settings-backup";
 import { SettingsBlocked } from "../settings/settings-blocked";
 import { SettingsLandingPage } from "../settings/settings-landing-page";
 import { SettingsLanguage } from "../settings/settings-language";
+import { SettingsNotifications } from "../settings/settings-notifications";
 import { SettingsPlayback } from "../settings/settings-playback";
 import { SettingsPrivacy } from "../settings/settings-privacy";
 import { SettingsRss } from "../settings/settings-rss";
@@ -69,6 +71,12 @@ function baseItems(): Item[] {
       label: m.settings_services_label(),
       description: m.settings_services_description(),
       icon: Server,
+    },
+    {
+      key: "notifications",
+      label: m.ui_notifications(),
+      description: m.settings_notifications_description(),
+      icon: Bell,
     },
     {
       key: "import",
@@ -164,6 +172,7 @@ function SettingsPage() {
       {activeSection === "home" && <SettingsLandingPage />}
       {activeSection === "language" && <SettingsLanguage />}
       {activeSection === "service" && <SettingsService />}
+      {activeSection === "notifications" && <SettingsNotifications />}
       {activeSection === "import" && <SettingsBackup />}
       {activeSection === "api" && <SettingsApi />}
       {activeSection === "privacy" && <SettingsPrivacy />}

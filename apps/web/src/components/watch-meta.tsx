@@ -1,5 +1,6 @@
 import type { WatchAudioOnlyControls } from "../hooks/use-watch-audio-only-playback";
 import type { VideoStream } from "../types/stream";
+import { BiliBiliSessionBanner } from "./bilibili-session-banner";
 import { WatchActions } from "./watch-actions";
 import { WatchComments } from "./watch-comments";
 import { WatchDescription } from "./watch-description";
@@ -16,6 +17,7 @@ export function WatchMeta({ stream, showComments = true, onSeekTimestamp, audioO
   return (
     <>
       <WatchInfo stream={stream} />
+      <BiliBiliSessionBanner key={stream.id} />
       <WatchActions stream={stream} audioOnly={audioOnly} />
       {stream.description && (
         <WatchDescription

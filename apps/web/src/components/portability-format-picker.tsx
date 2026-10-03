@@ -2,11 +2,14 @@ import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { PortabilityFormatDescriptor } from "../lib/api-portability";
 import { FORMAT_NAMES } from "../lib/portability-catalog";
+import { m } from "../paraglide/messages.js";
 import { PortabilityFormatIcon } from "./portability-format-icon";
+
+type FormatOption = Pick<PortabilityFormatDescriptor, "format" | "defaultExtension">;
 
 type Props = {
   label: string;
-  formats: PortabilityFormatDescriptor[];
+  formats: FormatOption[];
   value: string;
   onChange: (format: string) => void;
 };
@@ -15,6 +18,8 @@ export function PortabilityFormatPicker({ label, formats, value, onChange }: Pro
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const selected = formats.find((format) => format.format === value) ?? formats[0];
+  const formatName = (format: string) =>
+    format === "auto" ? m.portability_auto_detect() : (FORMAT_NAMES[format] ?? format);
 
   useEffect(() => {
     if (!open) return;
@@ -45,9 +50,11 @@ export function PortabilityFormatPicker({ label, formats, value, onChange }: Pro
       >
         <PortabilityFormatIcon format={selected.format} className="h-6 w-6 shrink-0" />
         <span className="min-w-0 flex-1 truncate text-sm text-fg">
-          {FORMAT_NAMES[selected.format] ?? selected.format}
+          {formatName(selected.format)}
         </span>
-        <span className="text-xs text-fg-soft">.{selected.defaultExtension}</span>
+        {selected.defaultExtension && (
+          <span className="text-xs text-fg-soft">.{selected.defaultExtension}</span>
+        )}
         <ChevronDown size={15} className="shrink-0 text-fg-soft" aria-hidden="true" />
       </button>
       {open && (
@@ -74,9 +81,11 @@ export function PortabilityFormatPicker({ label, formats, value, onChange }: Pro
                   <PortabilityFormatIcon format={format.format} className="h-6 w-6 shrink-0" />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-medium">
-                      {FORMAT_NAMES[format.format] ?? format.format}
+                      {formatName(format.format)}
                     </span>
-                    <span className="block text-xs text-fg-soft">.{format.defaultExtension}</span>
+                    {format.defaultExtension && (
+                      <span className="block text-xs text-fg-soft">.{format.defaultExtension}</span>
+                    )}
                   </span>
                   {active && <Check size={15} className="shrink-0" aria-hidden="true" />}
                 </button>

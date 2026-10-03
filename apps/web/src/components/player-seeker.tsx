@@ -3,9 +3,10 @@ import { recordClientEvent } from "../lib/client-debug-log";
 import { useMediaPlayer, useMediaRemote, useMediaState } from "../lib/vidstack";
 
 const SEEK_SETTLE_DELAY_MS = 750;
+const MAX_SEEK_APPLIES = 12;
 
 function seekable(media: HTMLMediaElement, target: number) {
-  if (media.readyState === 0 && !Number.isFinite(media.duration)) return false;
+  if (media.readyState < 2) return false;
   if (media.seekable.length === 0) return true;
   for (let index = 0; index < media.seekable.length; index += 1) {
     if (target >= media.seekable.start(index) && target <= media.seekable.end(index)) return true;
@@ -30,9 +31,10 @@ export function PlayerSeeker({ startTime }: { startTime: number }) {
     const root = player?.el;
     let timeout = 0;
     let applying = false;
+    let attempts = 0;
 
     function seekMedia(media: HTMLMediaElement) {
-      if (seeked.current || applying) return;
+      if (!canPlay || seeked.current || applying || attempts >= MAX_SEEK_APPLIES) return;
       if (!seekable(media, target)) {
         recordClientEvent("player.seek_wait", {
           targetMs: Math.round(target * 1000),
@@ -42,6 +44,7 @@ export function PlayerSeeker({ startTime }: { startTime: number }) {
         return;
       }
       applying = true;
+      attempts += 1;
       remote.seek(target);
       recordClientEvent("player.seek_apply", {
         targetMs: Math.round(target * 1000),
@@ -63,7 +66,6 @@ export function PlayerSeeker({ startTime }: { startTime: number }) {
       }, SEEK_SETTLE_DELAY_MS);
     }
 
-    if (canPlay) remote.seek(target);
     if (!root) return;
     const rootElement = root;
     let cleanup: (() => void) | null = null;

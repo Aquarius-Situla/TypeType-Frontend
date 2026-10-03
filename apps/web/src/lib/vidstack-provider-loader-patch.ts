@@ -5,6 +5,7 @@ import {
   HLSProviderLoader,
   VideoProviderLoader,
 } from "@vidstack/react";
+import { BILIBILI_FLV_BLOB_TYPE } from "./bilibili-flv-source";
 import { SABR_BLOB_TYPE } from "./sabr-vidstack-loader";
 
 type Loader = AudioProviderLoader | VideoProviderLoader | HLSProviderLoader | DASHProviderLoader;
@@ -30,7 +31,12 @@ function patchVideoCanPlay() {
   VideoProviderLoader.prototype.canPlay = function canPlay(
     src: Parameters<VideoProviderLoader["canPlay"]>[0],
   ): boolean {
-    if (src.src instanceof Blob && src.src.type === SABR_BLOB_TYPE) return false;
+    if (
+      src.src instanceof Blob &&
+      (src.src.type === SABR_BLOB_TYPE || src.src.type === BILIBILI_FLV_BLOB_TYPE)
+    ) {
+      return false;
+    }
     return originalCanPlay.call(this, src);
   };
 }

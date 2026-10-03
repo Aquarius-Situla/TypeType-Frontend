@@ -1,9 +1,10 @@
 import type { SubscriptionFeedPage } from "../types/api";
 import type { HistoryItem, SearchHistoryItem, SettingsItem, SubscriptionItem } from "../types/user";
-import { ApiError } from "./api";
+import { ApiError, apiErrorFromResponse } from "./api";
 import { authed, authedJson } from "./authed";
 import { channelUrlVariants, normalizeChannelUrl } from "./channel-url";
 import { API_BASE as BASE } from "./env";
+import { subscriptionFilterParams } from "./subscription-group-selection";
 import { normalizeApiPayload } from "./text-normalize";
 
 type HistoryParams = {
@@ -59,8 +60,12 @@ export async function clearHistory(): Promise<void> {
   if (!res.ok) throw new ApiError("Failed to clear history", res.status);
 }
 
-export function fetchSubscriptions(): Promise<SubscriptionItem[]> {
-  return authedJson(`${BASE}/subscriptions`);
+export function fetchSubscriptions(
+  filter = "all",
+  signal?: AbortSignal,
+): Promise<SubscriptionItem[]> {
+  const search = subscriptionFilterParams(filter).toString();
+  return authedJson(`${BASE}/subscriptions${search ? `?${search}` : ""}`, { signal });
 }
 
 export async function subscribe(item: Omit<SubscriptionItem, "subscribedAt">): Promise<void> {
@@ -136,8 +141,10 @@ export async function clearSearchHistory(): Promise<void> {
 export async function fetchSubscriptionFeed(
   cursor: string | null = null,
   signal?: AbortSignal,
+  filter = "all",
 ): Promise<SubscriptionFeedPage> {
-  const search = new URLSearchParams({ limit: "30" });
+  const search = subscriptionFilterParams(filter);
+  search.set("limit", "30");
   if (cursor !== null) search.set("cursor", cursor);
   const url = `${BASE}/subscriptions/feed?${search.toString()}`;
   while (true) {
@@ -148,12 +155,7 @@ export async function fetchSubscriptionFeed(
       continue;
     }
     if (!res.ok) {
-      const error = body as { code?: string; error?: string };
-      throw new ApiError(
-        error.error ?? "Subscription feed request failed",
-        res.status,
-        error.code ?? null,
-      );
+      throw apiErrorFromResponse(res, body);
     }
     return body as SubscriptionFeedPage;
   }

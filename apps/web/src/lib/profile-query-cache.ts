@@ -30,6 +30,8 @@ const PROFILE_QUERIES = new Set([
   "shorts-recommendations",
   "shorts-subscriptions-fallback",
   "subscription-feed",
+  "subscription-groups",
+  "subscription-group-memberships",
   "subscriptions",
   "watch-later",
   "watch-recommendations",

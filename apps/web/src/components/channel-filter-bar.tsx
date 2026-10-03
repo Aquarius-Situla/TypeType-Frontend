@@ -17,6 +17,7 @@ type Props = {
   sort: ChannelSort;
   query: string;
   tab: ChannelTab;
+  tabsAvailable: boolean;
   searchAvailable: boolean;
   onSearch: (query: string) => void;
   onTabChange: (tab: ChannelTab) => void;
@@ -27,6 +28,7 @@ export function ChannelFilterBar({
   sort,
   query,
   tab,
+  tabsAvailable,
   searchAvailable,
   onSearch,
   onTabChange,
@@ -53,7 +55,7 @@ export function ChannelFilterBar({
   return (
     <section className="border-y border-border py-3">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        {searchAvailable && (
+        {tabsAvailable && (
           <div className="flex max-w-full flex-wrap items-center gap-2 text-sm">
             {channelTabs().map((item) => (
               <button
