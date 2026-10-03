@@ -7,7 +7,7 @@ import { m } from "../paraglide/messages.js";
 import type { WatchPlaylistItem } from "../types/playlist";
 import { WatchPlaylistRow } from "./watch-playlist-row";
 
-export type WatchPlaylistSection = {
+type WatchPlaylistSection = {
   id: string;
   title: string;
   videos: WatchPlaylistItem[];
@@ -47,19 +47,20 @@ export function WatchPlaylistPanel({
   const sectionWithCurrent = sections?.find((sec) =>
     sec.videos.some((video) => toPublicWatchParam(video.url) === currentParam),
   );
+  const sectionWithCurrentId = sectionWithCurrent?.id;
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
-    sectionWithCurrent?.id ?? sections?.[0]?.id ?? null,
+    sectionWithCurrentId ?? sections?.[0]?.id ?? null,
   );
 
   useEffect(() => {
-    if (sectionWithCurrent) {
-      setSelectedSectionId(sectionWithCurrent.id);
+    if (sectionWithCurrentId) {
+      setSelectedSectionId(sectionWithCurrentId);
     }
-  }, [sectionWithCurrent?.id]);
+  }, [sectionWithCurrentId]);
 
   const activeSection =
     sections && sections.length > 1
-      ? sections.find((sec) => sec.id === selectedSectionId) ?? sections[0]
+      ? (sections.find((sec) => sec.id === selectedSectionId) ?? sections[0])
       : null;
   const displayVideos = activeSection ? activeSection.videos : videos;
   const currentIndex = displayVideos.findIndex(
