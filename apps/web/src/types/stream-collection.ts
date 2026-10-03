@@ -1,10 +1,10 @@
-export type StreamCollectionEpisodeItem = {
+type StreamCollectionEpisodeItem = {
   videoId: string;
   title: string;
   url: string;
 };
 
-export type StreamCollectionSectionItem = {
+type StreamCollectionSectionItem = {
   id: string;
   title: string;
   episodes: StreamCollectionEpisodeItem[];
