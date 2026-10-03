@@ -8,6 +8,7 @@ import type {
   SubtitleItem,
   VideoStreamItem,
 } from "./stream-items";
+import type { StreamPartItem } from "./stream-parts";
 
 export type {
   AudioStreamItem,
@@ -83,6 +84,7 @@ export type StreamResponse = {
   previewFrames: PreviewFrameItem[];
   relatedStreams: VideoItem[];
   collections?: StreamCollectionItem[];
+  parts?: StreamPartItem[];
 };
 
 export type ChannelResultItem = {
