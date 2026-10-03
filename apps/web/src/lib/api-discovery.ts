@@ -8,10 +8,11 @@ export type ChannelSort = "latest" | "popular" | "oldest";
 export function fetchSearchFilters(
   service: number,
   contentFilter?: string,
+  signal?: AbortSignal,
 ): Promise<SearchFiltersResponse> {
   const params = new URLSearchParams({ service: String(service) });
   if (contentFilter) params.set("contentFilter", contentFilter);
-  return request(`${BASE}/search/filters?${params}`);
+  return request(`${BASE}/search/filters?${params}`, optionalBearer({ signal }));
 }
 
 export function fetchSearch(
