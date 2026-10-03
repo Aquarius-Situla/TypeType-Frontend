@@ -56,20 +56,19 @@ function HomePage() {
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
-    let target = readStoredDefaultLandingPath();
+    const { token, me } = useAuthStore.getState();
+    const userId = me?.id ?? null;
+    let target = readStoredDefaultLandingPath(userId);
     if (!target) {
-      const cached = readCachedSettings();
+      const cached = readCachedSettings(userId);
       target = defaultLandingPath(cached.defaultLandingPage);
     }
-    if (!target) {
-      const token = useAuthStore.getState().token;
-      if (token) {
-        try {
-          const settings = await fetchSettings();
-          writeCachedSettings(settings);
-          target = defaultLandingPath(settings.defaultLandingPage);
-        } catch {}
-      }
+    if (!target && token && userId) {
+      try {
+        const settings = await fetchSettings();
+        writeCachedSettings(settings, userId);
+        target = defaultLandingPath(settings.defaultLandingPage);
+      } catch {}
     }
     if (target) {
       throw redirect({ to: target, replace: true });

@@ -46,7 +46,7 @@ export function Sidebar({ overlay = false }: Props) {
   const mobileOpen = useUiStore((s) => s.mobileSidebarOpen);
   const closeMobileSidebar = useUiStore((s) => s.closeMobileSidebar);
   const visualCollapsed = overlay ? false : collapsed;
-  const { isAdmin, isAuthed, signOut } = useAuth();
+  const { isAdmin, isAuthed, me, signOut } = useAuth();
   const { settings } = useSettings();
   const loc = useRouterState({ select: (s) => s.location });
 
@@ -54,6 +54,7 @@ export function Sidebar({ overlay = false }: Props) {
   const hideHome = shouldHideHomeNavigation(
     settings.defaultLandingPage,
     settings.hideHomeRecommendations,
+    me?.id,
   );
   const navItems = NAV_ITEMS.filter((item) => {
     if (item.adminOnly && !isAdmin) return false;

@@ -9,17 +9,13 @@ import {
 import { useEffect } from "react";
 import { fetchSettings, updateSettings } from "../lib/api-user";
 import { EMPTY_CAPTION_STYLES } from "../lib/caption-styles";
-import {
-  DEFAULT_LANDING_STORAGE_KEY,
-  HIDE_HOME_STORAGE_KEY,
-  syncStoredLandingSettings,
-} from "../lib/default-landing";
+import { readStoredLandingSettings, syncStoredLandingSettings } from "../lib/default-landing";
+import { readSettingsCache, writeSettingsCache } from "../lib/settings-cache";
 import { SettingsWriteQueue } from "../lib/settings-write-queue";
 import { DEFAULT_SPONSORBLOCK_CATEGORY_ACTIONS } from "../lib/sponsorblock-settings";
 import type { SettingsItem } from "../types/user";
 import { useAuth } from "./use-auth";
 
-const KEY = ["settings"];
 const AUDIO_ONLY_STORAGE_KEY = "typetype-audio-only-playback";
 const writeQueues = new WeakMap<QueryClient, SettingsWriteQueue>();
 
@@ -115,8 +111,6 @@ const DEFAULTS: SettingsItem = {
   captionStyles: EMPTY_CAPTION_STYLES,
 };
 
-const SETTINGS_CACHE_KEY = "typetype-settings-cache";
-
 function readAudioOnlyPlayback(): boolean | null {
   const stored = localStorage.getItem(AUDIO_ONLY_STORAGE_KEY);
   if (stored === "true") return true;
@@ -128,63 +122,50 @@ function writeAudioOnlyPlayback(value: boolean): void {
   localStorage.setItem(AUDIO_ONLY_STORAGE_KEY, String(value));
 }
 
-export function readCachedSettings(): SettingsItem {
-  if (typeof window === "undefined") return DEFAULTS;
-  try {
-    const raw = localStorage.getItem(SETTINGS_CACHE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === "object") {
-        return { ...DEFAULTS, ...parsed };
-      }
-    }
-  } catch {}
-  return DEFAULTS;
+export function readCachedSettings(userId?: string | null): SettingsItem {
+  return { ...DEFAULTS, ...readSettingsCache(userId) };
 }
 
-export function writeCachedSettings(settings: SettingsItem): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(settings));
-    syncStoredLandingSettings(settings.defaultLandingPage, settings.hideHomeRecommendations);
-  } catch {}
+export function writeCachedSettings(settings: SettingsItem, userId?: string | null): void {
+  writeSettingsCache(settings, userId);
+  syncStoredLandingSettings(settings.defaultLandingPage, settings.hideHomeRecommendations, userId);
 }
 
-function withLocalSettings(settings: SettingsItem): SettingsItem {
+function withLocalSettings(settings: SettingsItem, userId?: string | null): SettingsItem {
   const audioOnlyPlayback = readAudioOnlyPlayback();
-  const storedLanding = localStorage.getItem(DEFAULT_LANDING_STORAGE_KEY);
-  const storedHideHome = localStorage.getItem(HIDE_HOME_STORAGE_KEY);
+  const storedLanding = readStoredLandingSettings(userId);
   return {
     ...settings,
     ...(audioOnlyPlayback !== null ? { audioOnlyPlayback } : {}),
-    ...(storedLanding ? { defaultLandingPage: storedLanding } : {}),
-    ...(storedHideHome !== null ? { hideHomeRecommendations: storedHideHome === "true" } : {}),
+    ...storedLanding,
   };
 }
 
 export function useSettings({ forceAnonymous = false }: UseSettingsOptions = {}) {
   const qc = useQueryClient();
   const writeQueue = getWriteQueue(qc);
-  const { authReady, isAuthed } = useAuth();
+  const { authReady, isAuthed, me } = useAuth();
+  const userId = me?.id ?? null;
   const useAccountSettings = isAuthed && !forceAnonymous;
+  const queryKey = ["settings", userId] as const;
 
   const query = useQuery({
-    queryKey: KEY,
+    queryKey,
     queryFn: async () => {
       const data = await fetchSettings();
-      writeCachedSettings(data);
+      writeCachedSettings(data, userId);
       return data;
     },
     enabled: authReady && useAccountSettings,
-    placeholderData: () => readCachedSettings(),
+    placeholderData: () => readCachedSettings(userId),
     staleTime: 5 * 60 * 1000,
   });
 
   useEffect(() => {
     if (query.data && !query.isPlaceholderData) {
-      writeCachedSettings(query.data);
+      writeCachedSettings(query.data, userId);
     }
-  }, [query.data, query.isPlaceholderData]);
+  }, [query.data, query.isPlaceholderData, userId]);
 
   const settingsReady =
     forceAnonymous ||
@@ -199,28 +180,28 @@ export function useSettings({ forceAnonymous = false }: UseSettingsOptions = {})
         (settings) => (useAccountSettings ? updateSettings(settings) : Promise.resolve(settings)),
         () => base,
         (settings) => {
-          writeCachedSettings(settings);
-          qc.setQueryData<SettingsItem>(KEY, settings);
+          writeCachedSettings(settings, userId);
+          qc.setQueryData<SettingsItem>(queryKey, settings);
         },
       ),
     onMutate: async ({ patch }) => {
-      await qc.cancelQueries({ queryKey: KEY });
+      await qc.cancelQueries({ queryKey });
       if (typeof patch.audioOnlyPlayback === "boolean")
         writeAudioOnlyPlayback(patch.audioOnlyPlayback);
       if (patch.defaultLandingPage !== undefined || patch.hideHomeRecommendations !== undefined) {
-        syncStoredLandingSettings(patch.defaultLandingPage, patch.hideHomeRecommendations);
+        syncStoredLandingSettings(patch.defaultLandingPage, patch.hideHomeRecommendations, userId);
       }
-      const previous = qc.getQueryData<SettingsItem>(KEY) ?? readCachedSettings();
+      const previous = qc.getQueryData<SettingsItem>(queryKey) ?? readCachedSettings(userId);
       const next = { ...DEFAULTS, ...previous, ...patch };
-      writeCachedSettings(next);
-      qc.setQueryData<SettingsItem>(KEY, next);
+      writeCachedSettings(next, userId);
+      qc.setQueryData<SettingsItem>(queryKey, next);
       return { patch };
     },
     onSuccess: (data, _variables, context) => {
-      const current = qc.getQueryData<SettingsItem>(KEY);
+      const current = qc.getQueryData<SettingsItem>(queryKey);
       const next = { ...DEFAULTS, ...data, ...context?.patch, ...current };
-      writeCachedSettings(next);
-      qc.setQueryData<SettingsItem>(KEY, next);
+      writeCachedSettings(next, userId);
+      qc.setQueryData<SettingsItem>(queryKey, next);
       if (
         context?.patch.hideSubscriptionLiveStreams !== undefined ||
         context?.patch.hideMembersOnlyContent !== undefined
@@ -235,7 +216,7 @@ export function useSettings({ forceAnonymous = false }: UseSettingsOptions = {})
 
   function queuePatch(patch: Partial<SettingsItem>): QueuedSettingsPatch {
     const normalizedPatch = { ...patch };
-    const base = { ...DEFAULTS, ...qc.getQueryData<SettingsItem>(KEY) };
+    const base = { ...DEFAULTS, ...qc.getQueryData<SettingsItem>(queryKey) };
     const id = writeQueue.stage(normalizedPatch, base);
     return { id, base, patch: normalizedPatch };
   }
@@ -258,8 +239,11 @@ export function useSettings({ forceAnonymous = false }: UseSettingsOptions = {})
     mutateAsync: (patch, options) => mutation.mutateAsync(queuePatch(patch), mapOptions(options)),
   };
 
-  const baseSettings = query.data ?? readCachedSettings();
-  const settings = withLocalSettings(baseSettings ? { ...DEFAULTS, ...baseSettings } : DEFAULTS);
+  const baseSettings = query.data ?? readCachedSettings(userId);
+  const settings = withLocalSettings(
+    baseSettings ? { ...DEFAULTS, ...baseSettings } : DEFAULTS,
+    userId,
+  );
 
   return { query, update, settings, settingsReady };
 }

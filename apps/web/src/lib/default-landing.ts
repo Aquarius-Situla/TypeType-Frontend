@@ -1,5 +1,26 @@
-export const DEFAULT_LANDING_STORAGE_KEY = "typetype-default-landing-page";
-export const HIDE_HOME_STORAGE_KEY = "typetype-hide-home-recommendations";
+const DEFAULT_LANDING_STORAGE_KEY = "typetype-default-landing-page";
+const HIDE_HOME_STORAGE_KEY = "typetype-hide-home-recommendations";
+
+function scopedStorageKey(key: string, userId?: string | null): string {
+  const normalized = userId?.trim();
+  return `${key}:${normalized ? encodeURIComponent(normalized) : "anonymous"}`;
+}
+
+function storage(): Storage | null {
+  try {
+    if (typeof window !== "undefined" && window.localStorage) return window.localStorage;
+    if (typeof localStorage !== "undefined") return localStorage;
+  } catch {}
+  return null;
+}
+
+function readStorageValue(key: string, userId?: string | null): string | null {
+  try {
+    return storage()?.getItem(scopedStorageKey(key, userId)) ?? null;
+  } catch {
+    return null;
+  }
+}
 
 export function defaultLandingPath(value: string): string | null {
   switch (value) {
@@ -21,41 +42,63 @@ export function defaultLandingPath(value: string): string | null {
 export function shouldHideHomeNavigation(
   defaultLandingPage?: string,
   hideHomeRecommendations?: boolean,
+  userId?: string | null,
 ): boolean {
   let landing = defaultLandingPage;
   let hide = hideHomeRecommendations;
-  if ((landing === undefined || landing === "home") && typeof window !== "undefined") {
-    const stored = window.localStorage.getItem(DEFAULT_LANDING_STORAGE_KEY);
+  if (landing === undefined || landing === "home") {
+    const stored = readStorageValue(DEFAULT_LANDING_STORAGE_KEY, userId);
     if (stored) landing = stored;
   }
-  if ((hide === undefined || hide === false) && typeof window !== "undefined") {
-    const stored = window.localStorage.getItem(HIDE_HOME_STORAGE_KEY);
+  if (hide === undefined || hide === false) {
+    const stored = readStorageValue(HIDE_HOME_STORAGE_KEY, userId);
     if (stored !== null) hide = stored === "true";
   }
   return Boolean(hide) && Boolean(defaultLandingPath(landing ?? ""));
 }
 
-export function readStoredDefaultLandingPath(): string | null {
-  try {
-    if (typeof window === "undefined") return null;
-    const stored = window.localStorage.getItem(DEFAULT_LANDING_STORAGE_KEY);
-    return stored ? defaultLandingPath(stored) : null;
-  } catch {
-    return null;
-  }
+export function readStoredLandingSettings(userId?: string | null): {
+  defaultLandingPage?: string;
+  hideHomeRecommendations?: boolean;
+} {
+  const defaultLandingPage = readStorageValue(DEFAULT_LANDING_STORAGE_KEY, userId);
+  const storedHideHome = readStorageValue(HIDE_HOME_STORAGE_KEY, userId);
+  return {
+    ...(defaultLandingPage ? { defaultLandingPage } : {}),
+    ...(storedHideHome !== null ? { hideHomeRecommendations: storedHideHome === "true" } : {}),
+  };
+}
+
+export function readStoredDefaultLandingPath(userId?: string | null): string | null {
+  const { defaultLandingPage } = readStoredLandingSettings(userId);
+  return defaultLandingPage ? defaultLandingPath(defaultLandingPage) : null;
 }
 
 export function syncStoredLandingSettings(
   defaultLandingPage?: string,
   hideHomeRecommendations?: boolean,
+  userId?: string | null,
 ): void {
   try {
-    if (typeof window === "undefined") return;
+    const target = storage();
+    if (!target) return;
     if (defaultLandingPage !== undefined) {
-      window.localStorage.setItem(DEFAULT_LANDING_STORAGE_KEY, defaultLandingPage);
+      target.setItem(scopedStorageKey(DEFAULT_LANDING_STORAGE_KEY, userId), defaultLandingPage);
     }
     if (hideHomeRecommendations !== undefined) {
-      window.localStorage.setItem(HIDE_HOME_STORAGE_KEY, String(hideHomeRecommendations));
+      target.setItem(
+        scopedStorageKey(HIDE_HOME_STORAGE_KEY, userId),
+        String(hideHomeRecommendations),
+      );
     }
   } catch {}
+}
+
+export function clearStoredLandingSettings(userId?: string | null): void {
+  const target = storage();
+  if (!target) return;
+  target.removeItem(scopedStorageKey(DEFAULT_LANDING_STORAGE_KEY, userId));
+  target.removeItem(scopedStorageKey(HIDE_HOME_STORAGE_KEY, userId));
+  target.removeItem(DEFAULT_LANDING_STORAGE_KEY);
+  target.removeItem(HIDE_HOME_STORAGE_KEY);
 }

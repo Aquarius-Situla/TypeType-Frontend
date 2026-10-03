@@ -1,12 +1,14 @@
 import { beforeEach, expect, test } from "bun:test";
 import {
-  DEFAULT_LANDING_STORAGE_KEY,
+  clearStoredLandingSettings,
   defaultLandingPath,
-  HIDE_HOME_STORAGE_KEY,
   readStoredDefaultLandingPath,
+  readStoredLandingSettings,
   shouldHideHomeNavigation,
   syncStoredLandingSettings,
 } from "../src/lib/default-landing";
+import { clearUserCaches, readSettingsCache, writeSettingsCache } from "../src/lib/settings-cache";
+import type { SettingsItem } from "../src/types/user";
 
 const store: Record<string, string> = {};
 
@@ -45,33 +47,47 @@ test("maps landing page values to corresponding routes", () => {
 
 test("determines when home navigation should be hidden", () => {
   // If home recommendations are hidden AND landing page is not home, hide home button
-  expect(shouldHideHomeNavigation("subscriptions", true)).toBe(true);
-  expect(shouldHideHomeNavigation("history", true)).toBe(true);
+  expect(shouldHideHomeNavigation("subscriptions", true, "user-a")).toBe(true);
+  expect(shouldHideHomeNavigation("history", true, "user-a")).toBe(true);
 
   // If home is the landing page, never hide home button even if recommendations are hidden
-  expect(shouldHideHomeNavigation("home", true)).toBe(false);
+  expect(shouldHideHomeNavigation("home", true, "user-a")).toBe(false);
 
   // If recommendations are NOT hidden, do not hide home button
-  expect(shouldHideHomeNavigation("subscriptions", false)).toBe(false);
-  expect(shouldHideHomeNavigation("home", false)).toBe(false);
+  expect(shouldHideHomeNavigation("subscriptions", false, "user-a")).toBe(false);
+  expect(shouldHideHomeNavigation("home", false, "user-a")).toBe(false);
 });
 
-test("reads stored default landing path from localStorage", () => {
-  expect(readStoredDefaultLandingPath()).toBeNull();
+test("scopes stored landing settings by user", () => {
+  expect(readStoredDefaultLandingPath("user-a")).toBeNull();
 
-  store[DEFAULT_LANDING_STORAGE_KEY] = "subscriptions";
-  expect(readStoredDefaultLandingPath()).toBe("/subscriptions");
+  syncStoredLandingSettings("subscriptions", true, "user-a");
+  syncStoredLandingSettings("history", false, "user-b");
 
-  store[DEFAULT_LANDING_STORAGE_KEY] = "home";
-  expect(readStoredDefaultLandingPath()).toBeNull();
+  expect(readStoredDefaultLandingPath("user-a")).toBe("/subscriptions");
+  expect(readStoredDefaultLandingPath("user-b")).toBe("/history");
+  expect(readStoredLandingSettings("user-a")).toEqual({
+    defaultLandingPage: "subscriptions",
+    hideHomeRecommendations: true,
+  });
 });
 
-test("syncs landing settings to localStorage", () => {
-  syncStoredLandingSettings("subscriptions", true);
-  expect(store[DEFAULT_LANDING_STORAGE_KEY]).toBe("subscriptions");
-  expect(store[HIDE_HOME_STORAGE_KEY]).toBe("true");
+test("clears cached settings for a user", () => {
+  const settings = {
+    defaultLandingPage: "history",
+    hideHomeRecommendations: true,
+  } as SettingsItem;
+  syncStoredLandingSettings("subscriptions", true, "user-a");
+  writeSettingsCache(settings, "user-a");
 
-  syncStoredLandingSettings("home", false);
-  expect(store[DEFAULT_LANDING_STORAGE_KEY]).toBe("home");
-  expect(store[HIDE_HOME_STORAGE_KEY]).toBe("false");
+  clearUserCaches("user-a");
+
+  expect(readStoredDefaultLandingPath("user-a")).toBeNull();
+  expect(readSettingsCache("user-a")).toBeNull();
+});
+
+test("clears stored landing settings for a user", () => {
+  syncStoredLandingSettings("subscriptions", true, "user-a");
+  clearStoredLandingSettings("user-a");
+  expect(readStoredLandingSettings("user-a")).toEqual({});
 });

@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
+import { useAuth } from "../hooks/use-auth";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { useSettings } from "../hooks/use-settings";
 import { shouldHideHomeNavigation } from "../lib/default-landing";
@@ -36,12 +37,14 @@ function TabIcon({ children, label }: { children: React.ReactNode; label: string
 
 export function MobileTabBar() {
   useInterfaceLocale();
+  const { me } = useAuth();
   const { settings } = useSettings();
   const openMobileSidebar = useUiStore((s) => s.openMobileSidebar);
   const mobileOpen = useUiStore((s) => s.mobileSidebarOpen);
   const hideHome = shouldHideHomeNavigation(
     settings.defaultLandingPage,
     settings.hideHomeRecommendations,
+    me?.id,
   );
   const items = NAV_ITEMS.filter((item) => {
     if (item.to === "/" && hideHome) return false;
