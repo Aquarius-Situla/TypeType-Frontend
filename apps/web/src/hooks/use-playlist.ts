@@ -7,7 +7,7 @@ const KEY = ["playlists"];
 function needsMetadata(video: PlaylistVideoItem): boolean {
   return (
     video.title.startsWith("YouTube video ") ||
-    video.thumbnail.startsWith("https://i.ytimg.com/vi/") ||
+    video.thumbnail === "" ||
     video.duration <= 0 ||
     video.channelName === "" ||
     video.channelUrl === "" ||
