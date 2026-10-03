@@ -14,6 +14,7 @@ type Props = {
   relatedStreams?: VideoStream[];
   videoUrl?: string;
   showComments?: boolean;
+  showRelated?: boolean;
 };
 
 export function WatchPageSkeleton({
@@ -21,6 +22,7 @@ export function WatchPageSkeleton({
   relatedStreams = [],
   videoUrl,
   showComments = true,
+  showRelated = true,
 }: Props) {
   return (
     <div className="flex flex-col gap-6 lg:flex-row lg:items-start [animation:page-fade-in_0.2s_ease-out]">
@@ -55,13 +57,15 @@ export function WatchPageSkeleton({
             </div>
           ))}
       </div>
-      <aside className="flex w-full flex-col gap-3 lg:min-w-64 lg:flex-1">
-        {relatedStreams.length > 0 ? (
-          <RelatedVideos streams={relatedStreams} />
-        ) : (
-          RELATED_KEYS.map((key) => <RelatedCardSkeleton key={key} />)
-        )}
-      </aside>
+      {showRelated && (
+        <aside className="flex w-full flex-col gap-3 lg:min-w-64 lg:flex-1">
+          {relatedStreams.length > 0 ? (
+            <RelatedVideos streams={relatedStreams} />
+          ) : (
+            RELATED_KEYS.map((key) => <RelatedCardSkeleton key={key} />)
+          )}
+        </aside>
+      )}
     </div>
   );
 }
