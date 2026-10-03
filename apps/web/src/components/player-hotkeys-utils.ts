@@ -1,6 +1,6 @@
 export function isInteractiveTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) return false;
-  if (target.isContentEditable) return true;
+  if (!(target instanceof Element)) return false;
+  if (target instanceof HTMLElement && target.isContentEditable) return true;
   return Boolean(
     target.closest(
       "a, button, input, textarea, select, summary, [contenteditable='true'], [role='button'], [role='menuitem'], [role='slider']",
@@ -13,7 +13,7 @@ export function isPlayerSeekShortcutTarget(
   player: HTMLElement | null,
 ): boolean {
   if (!isInteractiveTarget(target)) return true;
-  if (!(target instanceof HTMLElement) || !player?.contains(target)) return false;
+  if (!(target instanceof Element) || !player?.contains(target)) return false;
   const slider = target.closest<HTMLElement>("[role='slider']");
   if (slider && !slider.classList.contains("vds-time-slider")) return false;
   return !target.closest(
