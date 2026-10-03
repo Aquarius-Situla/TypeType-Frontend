@@ -46,7 +46,7 @@ export function CinemaModeControl() {
       onClick={() => {
         void toggleMode().catch((error: unknown) => {
           recordClientEvent("player.cinema_mode_error", {
-            message: error instanceof Error ? error.message : "Unknown error",
+            message: error instanceof Error ? error.message : null,
           });
         });
       }}
