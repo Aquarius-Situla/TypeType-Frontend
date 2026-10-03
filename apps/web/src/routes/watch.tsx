@@ -19,7 +19,11 @@ import { proxyImage } from "../lib/proxy";
 import { hasSabrPlayback } from "../lib/stream-delivery";
 import { videoAvailabilityCopy } from "../lib/video-availability";
 import { resolveWatchStartTime, shouldWaitForWatchProgress } from "../lib/watch-resume";
-import { shouldLoadFullWatchStream, shouldLoadSabrBootstrap } from "../lib/watch-stream-loading";
+import {
+  isWatchStreamPending,
+  shouldLoadFullWatchStream,
+  shouldLoadSabrBootstrap,
+} from "../lib/watch-stream-loading";
 import {
   isYoutubeShortShareUrl,
   toPublicWatchParam,
@@ -139,7 +143,11 @@ function WatchPage() {
     });
   }, [activeStream, progressFetch.data?.position, resumePending]);
 
-  const pending = streamQuery.isLoading || bootstrap.isLoading;
+  const pending = isWatchStreamPending(
+    streamQuery.isLoading,
+    bootstrap.isLoading,
+    streamQuery.isPlaceholderData,
+  );
   if (resumePending) return loadingPage;
   if (!activeStream && (!streamEnabled || pending)) return loadingPage;
 
