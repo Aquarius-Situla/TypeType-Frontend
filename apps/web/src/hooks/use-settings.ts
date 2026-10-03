@@ -6,14 +6,16 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { fetchSettings, updateSettings } from "../lib/api-user";
 import { EMPTY_CAPTION_STYLES } from "../lib/caption-styles";
+import { readStoredLandingSettings, syncStoredLandingSettings } from "../lib/default-landing";
+import { readSettingsCache, writeSettingsCache } from "../lib/settings-cache";
 import { SettingsWriteQueue } from "../lib/settings-write-queue";
 import { DEFAULT_SPONSORBLOCK_CATEGORY_ACTIONS } from "../lib/sponsorblock-settings";
 import type { SettingsItem } from "../types/user";
 import { useAuth } from "./use-auth";
 
-const KEY = ["settings"];
 const AUDIO_ONLY_STORAGE_KEY = "typetype-audio-only-playback";
 const writeQueues = new WeakMap<QueryClient, SettingsWriteQueue>();
 
@@ -120,24 +122,51 @@ function writeAudioOnlyPlayback(value: boolean): void {
   localStorage.setItem(AUDIO_ONLY_STORAGE_KEY, String(value));
 }
 
-function withLocalAudioOnly(settings: SettingsItem): SettingsItem {
+export function readCachedSettings(userId?: string | null): SettingsItem {
+  return { ...DEFAULTS, ...readSettingsCache(userId) };
+}
+
+export function writeCachedSettings(settings: SettingsItem, userId?: string | null): void {
+  writeSettingsCache(settings, userId);
+  syncStoredLandingSettings(settings.defaultLandingPage, settings.hideHomeRecommendations, userId);
+}
+
+function withLocalSettings(settings: SettingsItem, userId?: string | null): SettingsItem {
   const audioOnlyPlayback = readAudioOnlyPlayback();
-  return audioOnlyPlayback === null ? settings : { ...settings, audioOnlyPlayback };
+  const storedLanding = readStoredLandingSettings(userId);
+  return {
+    ...settings,
+    ...(audioOnlyPlayback !== null ? { audioOnlyPlayback } : {}),
+    ...storedLanding,
+  };
 }
 
 export function useSettings({ forceAnonymous = false }: UseSettingsOptions = {}) {
   const qc = useQueryClient();
   const writeQueue = getWriteQueue(qc);
-  const { authReady, isAuthed } = useAuth();
+  const { authReady, isAuthed, me } = useAuth();
+  const userId = me?.id ?? null;
   const useAccountSettings = isAuthed && !forceAnonymous;
+  const queryKey = ["settings", userId] as const;
 
   const query = useQuery({
-    queryKey: KEY,
-    queryFn: () => fetchSettings(),
+    queryKey,
+    queryFn: async () => {
+      const data = await fetchSettings();
+      writeCachedSettings(data, userId);
+      return data;
+    },
     enabled: authReady && useAccountSettings,
-    placeholderData: DEFAULTS,
+    placeholderData: () => readCachedSettings(userId),
     staleTime: 5 * 60 * 1000,
   });
+
+  useEffect(() => {
+    if (query.data && !query.isPlaceholderData) {
+      writeCachedSettings(query.data, userId);
+    }
+  }, [query.data, query.isPlaceholderData, userId]);
+
   const settingsReady =
     forceAnonymous ||
     (authReady && !isAuthed) ||
@@ -150,19 +179,29 @@ export function useSettings({ forceAnonymous = false }: UseSettingsOptions = {})
         id,
         (settings) => (useAccountSettings ? updateSettings(settings) : Promise.resolve(settings)),
         () => base,
-        (settings) => qc.setQueryData<SettingsItem>(KEY, settings),
+        (settings) => {
+          writeCachedSettings(settings, userId);
+          qc.setQueryData<SettingsItem>(queryKey, settings);
+        },
       ),
     onMutate: async ({ patch }) => {
-      await qc.cancelQueries({ queryKey: KEY });
+      await qc.cancelQueries({ queryKey });
       if (typeof patch.audioOnlyPlayback === "boolean")
         writeAudioOnlyPlayback(patch.audioOnlyPlayback);
-      const previous = qc.getQueryData<SettingsItem>(KEY);
-      qc.setQueryData<SettingsItem>(KEY, { ...DEFAULTS, ...previous, ...patch });
+      if (patch.defaultLandingPage !== undefined || patch.hideHomeRecommendations !== undefined) {
+        syncStoredLandingSettings(patch.defaultLandingPage, patch.hideHomeRecommendations, userId);
+      }
+      const previous = qc.getQueryData<SettingsItem>(queryKey) ?? readCachedSettings(userId);
+      const next = { ...DEFAULTS, ...previous, ...patch };
+      writeCachedSettings(next, userId);
+      qc.setQueryData<SettingsItem>(queryKey, next);
       return { patch };
     },
     onSuccess: (data, _variables, context) => {
-      const current = qc.getQueryData<SettingsItem>(KEY);
-      qc.setQueryData<SettingsItem>(KEY, { ...DEFAULTS, ...data, ...context?.patch, ...current });
+      const current = qc.getQueryData<SettingsItem>(queryKey);
+      const next = { ...DEFAULTS, ...data, ...context?.patch, ...current };
+      writeCachedSettings(next, userId);
+      qc.setQueryData<SettingsItem>(queryKey, next);
       if (
         context?.patch.hideSubscriptionLiveStreams !== undefined ||
         context?.patch.hideMembersOnlyContent !== undefined
@@ -177,7 +216,7 @@ export function useSettings({ forceAnonymous = false }: UseSettingsOptions = {})
 
   function queuePatch(patch: Partial<SettingsItem>): QueuedSettingsPatch {
     const normalizedPatch = { ...patch };
-    const base = { ...DEFAULTS, ...qc.getQueryData<SettingsItem>(KEY) };
+    const base = { ...DEFAULTS, ...qc.getQueryData<SettingsItem>(queryKey) };
     const id = writeQueue.stage(normalizedPatch, base);
     return { id, base, patch: normalizedPatch };
   }
@@ -200,7 +239,11 @@ export function useSettings({ forceAnonymous = false }: UseSettingsOptions = {})
     mutateAsync: (patch, options) => mutation.mutateAsync(queuePatch(patch), mapOptions(options)),
   };
 
-  const settings = withLocalAudioOnly(query.data ? { ...DEFAULTS, ...query.data } : DEFAULTS);
+  const baseSettings = query.data ?? readCachedSettings(userId);
+  const settings = withLocalSettings(
+    baseSettings ? { ...DEFAULTS, ...baseSettings } : DEFAULTS,
+    userId,
+  );
 
   return { query, update, settings, settingsReady };
 }

@@ -5,6 +5,7 @@ import { useMobile } from "../hooks/use-mobile";
 import { useSettings } from "../hooks/use-settings";
 import { getStoredAdminSection } from "../lib/admin-console-section";
 import { logoutSession } from "../lib/auth-session";
+import { shouldHideHomeNavigation } from "../lib/default-landing";
 import { m } from "../paraglide/messages.js";
 import { useUiStore } from "../stores/ui-store";
 import { NAV_ITEMS } from "./nav-items";
@@ -45,14 +46,20 @@ export function Sidebar({ overlay = false }: Props) {
   const mobileOpen = useUiStore((s) => s.mobileSidebarOpen);
   const closeMobileSidebar = useUiStore((s) => s.closeMobileSidebar);
   const visualCollapsed = overlay ? false : collapsed;
-  const { isAdmin, isAuthed, signOut } = useAuth();
+  const { isAdmin, isAuthed, me, signOut } = useAuth();
   const { settings } = useSettings();
   const loc = useRouterState({ select: (s) => s.location });
 
   const adminSearch = { section: getStoredAdminSection() };
+  const hideHome = shouldHideHomeNavigation(
+    settings.defaultLandingPage,
+    settings.hideHomeRecommendations,
+    me?.id,
+  );
   const navItems = NAV_ITEMS.filter((item) => {
     if (item.adminOnly && !isAdmin) return false;
     if (item.to === "/shorts" && settings.hideShorts) return false;
+    if (item.to === "/" && hideHome) return false;
     return true;
   });
 
