@@ -14,7 +14,6 @@ type Props = {
   relatedStreams?: VideoStream[];
   videoUrl?: string;
   showComments?: boolean;
-  showRelated?: boolean;
 };
 
 export function WatchPageSkeleton({
@@ -22,20 +21,11 @@ export function WatchPageSkeleton({
   relatedStreams = [],
   videoUrl,
   showComments = true,
-  showRelated = true,
 }: Props) {
-  const containerClass = `watch-layout-container flex flex-col gap-6 pt-2 sm:pt-3 ${
-    showRelated ? "lg:flex-row lg:items-start" : "lg:items-center"
-  } [animation:page-fade-in_0.2s_ease-out]`;
-
-  const mainWrapClass = `watch-player-wrap min-w-0 flex flex-col gap-5 ${
-    showRelated ? "flex-[2] lg:max-w-[133.333vh]" : "mx-auto w-full max-w-[1600px]"
-  }`;
-
   return (
-    <div className={containerClass}>
-      <div className={mainWrapClass}>
-        <div className="watch-player-box relative aspect-video w-full overflow-hidden rounded-lg bg-black">
+    <div className="flex flex-col gap-6 lg:flex-row lg:items-start [animation:page-fade-in_0.2s_ease-out]">
+      <div className="flex min-w-0 flex-[2] flex-col gap-5 lg:max-w-[133.333vh]">
+        <div className="aspect-video w-full overflow-hidden rounded-lg bg-black">
           <PageSpinner fullScreen={false} />
         </div>
         {stream ? (
@@ -65,15 +55,13 @@ export function WatchPageSkeleton({
             </div>
           ))}
       </div>
-      {showRelated && (
-        <aside className="flex w-full flex-col gap-3 lg:min-w-64 lg:flex-1">
-          {relatedStreams.length > 0 ? (
-            <RelatedVideos streams={relatedStreams} />
-          ) : (
-            RELATED_KEYS.map((key) => <RelatedCardSkeleton key={key} />)
-          )}
-        </aside>
-      )}
+      <aside className="flex w-full flex-col gap-3 lg:min-w-64 lg:flex-1">
+        {relatedStreams.length > 0 ? (
+          <RelatedVideos streams={relatedStreams} />
+        ) : (
+          RELATED_KEYS.map((key) => <RelatedCardSkeleton key={key} />)
+        )}
+      </aside>
     </div>
   );
 }

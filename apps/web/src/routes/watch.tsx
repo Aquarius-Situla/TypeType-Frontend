@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { lazy, Suspense, useEffect, useRef } from "react";
-import { BiliBiliSessionBanner } from "../components/bilibili-session-banner";
+import { BiliBiliSessionGateProvider } from "../components/bilibili-session-gate";
 import { StreamError } from "../components/stream-error";
 import { WatchPageSkeleton } from "../components/watch-page-skeleton";
 import { WatchStreamError } from "../components/watch-stream-error";
@@ -11,6 +11,7 @@ import { useInstance } from "../hooks/use-instance";
 import { useProgress } from "../hooks/use-progress";
 import { useSettings } from "../hooks/use-settings";
 import { useSabrBootstrap, useStream } from "../hooks/use-stream";
+import { bilibiliSessionReturnToForWatch } from "../lib/bilibili-session-route";
 import { preloadPlaybackRuntime } from "../lib/playback-runtime-preload";
 import { beginPlaybackTrace, playbackTraceEvent } from "../lib/playback-trace";
 import { selectProgressiveWatchStream } from "../lib/progressive-watch-stream";
@@ -66,9 +67,7 @@ function WatchPage() {
   );
   const { add } = useHistory();
   const progressFetch = useProgress(sourceUrl);
-  const hasSecondaryContent = Boolean(list || !settings.hideRelatedVideos);
-  const previewRelated =
-    hasSecondaryContent && previewMatches ? navigationSnapshot.relatedStreams : [];
+  const previewRelated = previewMatches ? navigationSnapshot.relatedStreams : [];
   const availabilityPoster = proxyImage(
     previewStream?.rawThumbnail ?? youtubeThumbnailUrl(publicParam) ?? "",
   );
@@ -85,7 +84,6 @@ function WatchPage() {
       relatedStreams={previewRelated}
       videoUrl={sourceUrl}
       showComments={!settings.hideComments}
-      showRelated={hasSecondaryContent}
     />
   );
 
@@ -181,18 +179,17 @@ function WatchPage() {
       durationSeconds: activeStream.duration,
     }) ?? 0;
   const navigating = toPublicWatchParam(activeStream.id) !== publicParam;
+  const bilibiliReturnTo = bilibiliSessionReturnToForWatch(publicParam, list, shuffle);
 
   return (
-    <>
-      <BiliBiliSessionBanner sourceUrl={sourceUrl} />
+    <BiliBiliSessionGateProvider sourceUrl={sourceUrl} returnTo={bilibiliReturnTo}>
       <Suspense
         fallback={
           <WatchPageSkeleton
             stream={activeStream}
-            relatedStreams={hasSecondaryContent ? activeStream.related : []}
+            relatedStreams={activeStream.related}
             videoUrl={sourceUrl}
             showComments={!settings.hideComments}
-            showRelated={hasSecondaryContent}
           />
         }
       >
@@ -206,7 +203,7 @@ function WatchPage() {
           shuffle={shuffle}
         />
       </Suspense>
-    </>
+    </BiliBiliSessionGateProvider>
   );
 }
 
