@@ -3,6 +3,7 @@ import {
   activeStreamCollection,
   streamCollectionPlaylistItems,
 } from "../src/lib/stream-collections";
+import { proxyImage } from "../src/lib/proxy";
 import type { StreamCollectionItem } from "../src/types/stream-collection";
 
 const collection: StreamCollectionItem = {
@@ -48,19 +49,19 @@ test("flattens collection sections into playlist rows in extractor order", () =>
       key: "BV1first",
       url: "https://www.bilibili.com/video/BV1first",
       title: "P1",
-      thumbnail: "https://typetype.test/api/proxy?url=https%3A%2F%2Fi0.hdslb.com%2Ffirst.jpg",
+      thumbnail: proxyImage("https://i0.hdslb.com/first.jpg"),
     },
     {
       key: "BV1second",
       url: "https://www.bilibili.com/video/BV1second?p=2",
       title: "P2",
-      thumbnail: "https://typetype.test/api/proxy?url=https%3A%2F%2Fi0.hdslb.com%2Fsecond.jpg",
+      thumbnail: proxyImage("https://i0.hdslb.com/second.jpg"),
     },
     {
       key: "BV1bonus",
       url: "https://www.bilibili.com/video/BV1bonus",
       title: "Bonus",
-      thumbnail: "https://typetype.test/api/proxy?url=https%3A%2F%2Fi0.hdslb.com%2Fbonus.jpg",
+      thumbnail: proxyImage("https://i0.hdslb.com/bonus.jpg"),
     },
   ]);
 });
