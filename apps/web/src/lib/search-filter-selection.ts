@@ -18,11 +18,11 @@ const LABELS: Record<string, () => string> = {
   Hdr: () => "HDR",
   "3d": () => "3D",
   "4k": () => "4K",
-  channels: () => "Channels",
-  videos: () => "Videos",
-  lives: () => "Live",
-  animes: () => "Anime",
-  movies_and_tv: () => "Movies & TV",
+  channels: () => m.search_filter_channels(),
+  videos: () => m.search_filter_videos(),
+  lives: () => m.search_filter_live(),
+  animes: () => m.search_filter_anime(),
+  movies_and_tv: () => m.search_filter_movies_and_tv(),
 };
 
 export function searchFilterLabel(raw: string): string {
