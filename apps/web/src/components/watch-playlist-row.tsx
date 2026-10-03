@@ -14,7 +14,7 @@ type Props = {
   isCurrent: boolean;
   reorderable: boolean;
   isMobile: boolean;
-  listId: string;
+  listId?: string;
   shuffle: string | undefined;
   onDragStart: (event: DragEvent) => void;
   onMove: (direction: number) => void;
@@ -47,7 +47,7 @@ export function WatchPlaylistRow({
         to="/watch"
         search={{
           v: toPublicWatchParam(video.url),
-          list: listId,
+          ...(listId ? { list: listId } : {}),
           ...(shuffle ? { shuffle } : {}),
         }}
         className="flex min-w-0 flex-1 items-center gap-2 py-1.5"

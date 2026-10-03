@@ -55,7 +55,7 @@ export function WatchLayout({
     settings.hideRelatedVideos,
   );
   const relatedStreams = useMemo(() => filter(recommendations), [filter, recommendations]);
-  const playlist = useWatchPlaylist(list, shuffle, currentParam);
+  const playlist = useWatchPlaylist(list, shuffle, currentParam, stream.collections);
   const cinemaMode = useWatchLayoutStore((state) => state.cinemaMode);
   const seekRef = useRef<((seconds: number) => void) | null>(null);
   const positionReaderRef = useRef<(() => number | null) | null>(null);

@@ -3,10 +3,12 @@ import { type ReactNode, useCallback, useEffect } from "react";
 import { WatchPlaylistPanel } from "../components/watch-playlist-panel";
 import { applyCustomOrder, randomShuffleSeed, shuffleByKey } from "../lib/playlist-shuffle";
 import { isManagedPlaylistId } from "../lib/playlist-url";
+import { activeStreamCollection, streamCollectionPlaylistItems } from "../lib/stream-collections";
 import { markWatchAutoplayIntent } from "../lib/watch-autoplay-intent";
 import { toPublicWatchParam } from "../lib/watch-url";
 import { usePlaylistOrderStore } from "../stores/playlist-order-store";
 import type { WatchPlaylistItem } from "../types/playlist";
+import type { StreamCollectionItem } from "../types/stream-collection";
 import { useBlockedFilter } from "./use-blocked-filter";
 import { usePlaylist } from "./use-playlist";
 import { usePlaylists } from "./use-playlists";
@@ -27,6 +29,7 @@ export function useWatchPlaylist(
   list: string | undefined,
   shuffle: string | undefined,
   currentParam: string,
+  collections?: StreamCollectionItem[],
 ): WatchPlaylist {
   const navigate = useNavigate();
   const { filter } = useBlockedFilter();
@@ -39,9 +42,11 @@ export function useWatchPlaylist(
   const setOrder = usePlaylistOrderStore((state) => state.setOrder);
   const customOrder = usePlaylistOrderStore((state) => (list ? state.orders[list] : undefined));
   const isManaged = managedList.length > 0;
+  const collection = activeStreamCollection(collections, currentParam);
+  const collectionVideos = streamCollectionPlaylistItems(collection);
   const name = isManaged
     ? (managedPlaylist.data?.name ?? "")
-    : (publicPlaylist.data?.pages[0]?.playlist.title ?? "");
+    : (publicPlaylist.data?.pages[0]?.playlist.title ?? collection?.title ?? "");
   const base: WatchPlaylistItem[] = isManaged
     ? (managedPlaylist.data?.videos ?? []).map((item) => ({
         key: item.id,
@@ -51,19 +56,21 @@ export function useWatchPlaylist(
         channelName: item.channelName,
         channelUrl: item.channelUrl,
       }))
-    : (publicPlaylist.data?.pages.flatMap((page) => page.streams) ?? []).map((item, index) => ({
-        key: `${index}-${item.id}`,
-        url: item.id,
-        title: item.title,
-        thumbnail: item.thumbnail,
-        channelName: item.channelName,
-        channelUrl: item.channelUrl,
-      }));
+    : (publicPlaylist.data?.pages.flatMap((page) => page.streams) ?? []).length > 0
+      ? (publicPlaylist.data?.pages.flatMap((page) => page.streams) ?? []).map((item, index) => ({
+          key: `${index}-${item.id}`,
+          url: item.id,
+          title: item.title,
+          thumbnail: item.thumbnail,
+          channelName: item.channelName,
+          channelUrl: item.channelUrl,
+        }))
+      : collectionVideos;
   const visibleBase = filter(base);
   const arranged =
     !isManaged && customOrder ? applyCustomOrder(visibleBase, customOrder) : visibleBase;
   const videos = shuffle ? shuffleByKey(arranged, shuffle) : arranged;
-  const inPlaylist = Boolean(list) && videos.length > 0;
+  const inPlaylist = (Boolean(list) || Boolean(collection)) && videos.length > 0;
   const currentIdx = inPlaylist
     ? videos.findIndex((video) => toPublicWatchParam(video.url) === currentParam)
     : -1;
@@ -110,7 +117,7 @@ export function useWatchPlaylist(
   ]);
 
   const panel =
-    inPlaylist && list ? (
+    inPlaylist && (list || collection) ? (
       <WatchPlaylistPanel
         name={name}
         videos={videos}

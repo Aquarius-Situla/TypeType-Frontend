@@ -10,7 +10,7 @@ import { WatchPlaylistRow } from "./watch-playlist-row";
 type Props = {
   name: string;
   videos: WatchPlaylistItem[];
-  listId: string;
+  listId?: string;
   currentParam: string;
   shuffle: string | undefined;
   isLoadingMore?: boolean;

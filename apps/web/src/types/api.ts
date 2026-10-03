@@ -1,4 +1,5 @@
 import type { PublicPlaylistInfo } from "./playlist";
+import type { StreamCollectionItem } from "./stream-collection";
 import type {
   AudioStreamItem,
   PreviewFrameItem,
@@ -81,6 +82,7 @@ export type StreamResponse = {
   subtitles: SubtitleItem[];
   previewFrames: PreviewFrameItem[];
   relatedStreams: VideoItem[];
+  collections?: StreamCollectionItem[];
 };
 
 export type ChannelResultItem = {
