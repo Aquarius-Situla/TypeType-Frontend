@@ -24,10 +24,18 @@ export function WatchPageSkeleton({
   showComments = true,
   showRelated = true,
 }: Props) {
+  const containerClass = `watch-layout-container flex flex-col gap-6 pt-2 sm:pt-3 ${
+    showRelated ? "lg:flex-row lg:items-start" : "lg:items-center"
+  } [animation:page-fade-in_0.2s_ease-out]`;
+
+  const mainWrapClass = `watch-player-wrap min-w-0 flex flex-col gap-5 ${
+    showRelated ? "flex-[2] lg:max-w-[133.333vh]" : "mx-auto w-full max-w-[1600px]"
+  }`;
+
   return (
-    <div className="flex flex-col gap-6 lg:flex-row lg:items-start [animation:page-fade-in_0.2s_ease-out]">
-      <div className="flex min-w-0 flex-[2] flex-col gap-5 lg:max-w-[133.333vh]">
-        <div className="aspect-video w-full overflow-hidden rounded-lg bg-black">
+    <div className={containerClass}>
+      <div className={mainWrapClass}>
+        <div className="watch-player-box relative aspect-video w-full overflow-hidden rounded-lg bg-black">
           <PageSpinner fullScreen={false} />
         </div>
         {stream ? (

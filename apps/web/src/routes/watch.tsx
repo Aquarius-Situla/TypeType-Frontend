@@ -66,8 +66,9 @@ function WatchPage() {
   );
   const { add } = useHistory();
   const progressFetch = useProgress(sourceUrl);
+  const hasSecondaryContent = Boolean(list || !settings.hideRelatedVideos);
   const previewRelated =
-    !settings.hideRelatedVideos && previewMatches ? navigationSnapshot.relatedStreams : [];
+    hasSecondaryContent && previewMatches ? navigationSnapshot.relatedStreams : [];
   const availabilityPoster = proxyImage(
     previewStream?.rawThumbnail ?? youtubeThumbnailUrl(publicParam) ?? "",
   );
@@ -84,7 +85,7 @@ function WatchPage() {
       relatedStreams={previewRelated}
       videoUrl={sourceUrl}
       showComments={!settings.hideComments}
-      showRelated={!settings.hideRelatedVideos}
+      showRelated={hasSecondaryContent}
     />
   );
 
@@ -188,10 +189,10 @@ function WatchPage() {
         fallback={
           <WatchPageSkeleton
             stream={activeStream}
-            relatedStreams={settings.hideRelatedVideos ? [] : activeStream.related}
+            relatedStreams={hasSecondaryContent ? activeStream.related : []}
             videoUrl={sourceUrl}
             showComments={!settings.hideComments}
-            showRelated={!settings.hideRelatedVideos}
+            showRelated={hasSecondaryContent}
           />
         }
       >
