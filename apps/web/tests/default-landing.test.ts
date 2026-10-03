@@ -1,8 +1,8 @@
 import { beforeEach, expect, test } from "bun:test";
 import {
   DEFAULT_LANDING_STORAGE_KEY,
-  HIDE_HOME_STORAGE_KEY,
   defaultLandingPath,
+  HIDE_HOME_STORAGE_KEY,
   readStoredDefaultLandingPath,
   shouldHideHomeNavigation,
   syncStoredLandingSettings,

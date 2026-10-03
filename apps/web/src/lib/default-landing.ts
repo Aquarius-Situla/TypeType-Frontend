@@ -35,18 +35,6 @@ export function shouldHideHomeNavigation(
   return Boolean(hide) && Boolean(defaultLandingPath(landing ?? ""));
 }
 
-export function readStoredHideHome(): boolean | null {
-  try {
-    if (typeof window === "undefined") return null;
-    const stored = window.localStorage.getItem(HIDE_HOME_STORAGE_KEY);
-    if (stored === "true") return true;
-    if (stored === "false") return false;
-    return null;
-  } catch {
-    return null;
-  }
-}
-
 export function readStoredDefaultLandingPath(): string | null {
   try {
     if (typeof window === "undefined") return null;

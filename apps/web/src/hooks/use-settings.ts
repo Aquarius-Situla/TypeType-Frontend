@@ -9,13 +9,13 @@ import {
 import { useEffect } from "react";
 import { fetchSettings, updateSettings } from "../lib/api-user";
 import { EMPTY_CAPTION_STYLES } from "../lib/caption-styles";
-import { SettingsWriteQueue } from "../lib/settings-write-queue";
-import { DEFAULT_SPONSORBLOCK_CATEGORY_ACTIONS } from "../lib/sponsorblock-settings";
 import {
   DEFAULT_LANDING_STORAGE_KEY,
   HIDE_HOME_STORAGE_KEY,
   syncStoredLandingSettings,
 } from "../lib/default-landing";
+import { SettingsWriteQueue } from "../lib/settings-write-queue";
+import { DEFAULT_SPONSORBLOCK_CATEGORY_ACTIONS } from "../lib/sponsorblock-settings";
 import type { SettingsItem } from "../types/user";
 import { useAuth } from "./use-auth";
 
@@ -115,7 +115,7 @@ const DEFAULTS: SettingsItem = {
   captionStyles: EMPTY_CAPTION_STYLES,
 };
 
-export const SETTINGS_CACHE_KEY = "typetype-settings-cache";
+const SETTINGS_CACHE_KEY = "typetype-settings-cache";
 
 function readAudioOnlyPlayback(): boolean | null {
   const stored = localStorage.getItem(AUDIO_ONLY_STORAGE_KEY);
