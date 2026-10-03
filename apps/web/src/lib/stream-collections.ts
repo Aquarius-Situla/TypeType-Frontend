@@ -1,5 +1,6 @@
 import type { WatchPlaylistItem } from "../types/playlist";
 import type { StreamCollectionItem } from "../types/stream-collection";
+import { proxyImage } from "./proxy";
 import { toPublicWatchParam } from "./watch-url";
 
 export function streamCollectionPlaylistItems(
@@ -18,7 +19,7 @@ export function streamCollectionPlaylistItems(
         key: episode.videoId || url,
         url,
         title: episode.title,
-        thumbnail: "",
+        thumbnail: proxyImage(episode.thumbnailUrl),
       });
     }
   }

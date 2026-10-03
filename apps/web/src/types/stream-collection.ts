@@ -2,6 +2,7 @@ type StreamCollectionEpisodeItem = {
   videoId: string;
   title: string;
   url: string;
+  thumbnailUrl: string;
 };
 
 type StreamCollectionSectionItem = {
