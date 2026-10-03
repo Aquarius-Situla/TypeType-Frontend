@@ -7,9 +7,16 @@ import { m } from "../paraglide/messages.js";
 import type { WatchPlaylistItem } from "../types/playlist";
 import { WatchPlaylistRow } from "./watch-playlist-row";
 
+export type WatchPlaylistSection = {
+  id: string;
+  title: string;
+  videos: WatchPlaylistItem[];
+};
+
 type Props = {
   name: string;
   videos: WatchPlaylistItem[];
+  sections?: WatchPlaylistSection[];
   listId?: string;
   currentParam: string;
   shuffle: string | undefined;
@@ -22,6 +29,7 @@ type Props = {
 export function WatchPlaylistPanel({
   name,
   videos,
+  sections,
   listId,
   currentParam,
   shuffle,
@@ -35,9 +43,30 @@ export function WatchPlaylistPanel({
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
   const currentElement = useRef<HTMLLIElement | null>(null);
-  const currentIndex = videos.findIndex((video) => toPublicWatchParam(video.url) === currentParam);
-  const reorderable = Boolean(onReorder);
-  const register = useFlipList(videos.map((video) => video.key).join("|"));
+
+  const sectionWithCurrent = sections?.find((sec) =>
+    sec.videos.some((video) => toPublicWatchParam(video.url) === currentParam),
+  );
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
+    sectionWithCurrent?.id ?? sections?.[0]?.id ?? null,
+  );
+
+  useEffect(() => {
+    if (sectionWithCurrent) {
+      setSelectedSectionId(sectionWithCurrent.id);
+    }
+  }, [sectionWithCurrent?.id]);
+
+  const activeSection =
+    sections && sections.length > 1
+      ? sections.find((sec) => sec.id === selectedSectionId) ?? sections[0]
+      : null;
+  const displayVideos = activeSection ? activeSection.videos : videos;
+  const currentIndex = displayVideos.findIndex(
+    (video) => toPublicWatchParam(video.url) === currentParam,
+  );
+  const reorderable = Boolean(onReorder) && !activeSection;
+  const register = useFlipList(displayVideos.map((video) => video.key).join("|"));
 
   useEffect(() => {
     if (!collapsed && currentIndex >= 0) {
@@ -89,7 +118,7 @@ export function WatchPlaylistPanel({
         >
           <span className="truncate font-medium text-fg text-sm">{name}</span>
           <span className="text-fg-soft text-xs">
-            {currentIndex >= 0 ? currentIndex + 1 : "-"} / {videos.length}
+            {currentIndex >= 0 ? currentIndex + 1 : "-"} / {displayVideos.length}
           </span>
         </button>
         {onToggleShuffle && (
@@ -117,9 +146,33 @@ export function WatchPlaylistPanel({
           />
         </button>
       </div>
+      {!collapsed && sections && sections.length > 1 && (
+        <div className="flex items-center gap-1.5 overflow-x-auto border-border border-b px-3 py-2 no-scrollbar">
+          {sections.map((section) => {
+            const isSelected = (activeSection?.id ?? sections[0].id) === section.id;
+            return (
+              <button
+                key={section.id}
+                type="button"
+                onClick={() => setSelectedSectionId(section.id)}
+                className={`inline-flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+                  isSelected
+                    ? "bg-fg text-app"
+                    : "bg-surface-strong/70 text-fg-muted hover:bg-surface-strong hover:text-fg"
+                }`}
+              >
+                <span>{section.title}</span>
+                <span className={`text-[10px] ${isSelected ? "opacity-80" : "text-fg-soft"}`}>
+                  ({section.videos.length})
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
       {!collapsed && (
         <ul className="max-h-[24rem] list-none overflow-y-auto py-1" onScroll={handleScroll}>
-          {videos.map((video, index) => {
+          {displayVideos.map((video, index) => {
             const isCurrent = index === currentIndex;
 
             return (
@@ -148,7 +201,7 @@ export function WatchPlaylistPanel({
                 <WatchPlaylistRow
                   video={video}
                   index={index}
-                  total={videos.length}
+                  total={displayVideos.length}
                   isCurrent={isCurrent}
                   reorderable={reorderable}
                   isMobile={isMobile}
