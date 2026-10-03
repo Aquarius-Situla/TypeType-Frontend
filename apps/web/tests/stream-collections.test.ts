@@ -1,9 +1,9 @@
 import { expect, test } from "bun:test";
+import { proxyImage } from "../src/lib/proxy";
 import {
   activeStreamCollection,
   streamCollectionPlaylistItems,
 } from "../src/lib/stream-collections";
-import { proxyImage } from "../src/lib/proxy";
 import type { StreamCollectionItem } from "../src/types/stream-collection";
 
 const collection: StreamCollectionItem = {
