@@ -10,16 +10,16 @@ type Params = {
 
 export function useSearchOverlayNavigation({ onClose }: Params) {
   const navigate = useNavigate();
-  const { add } = useSearchHistory();
   const { settings } = useSettings();
-  const selectedService = settings.preferredService;
+  const service = settings.defaultService;
+  const { add } = useSearchHistory();
 
-  function handleSelect(rawQuery: string) {
-    const trimmed = rawQuery.trim();
+  function navigateAndClose(term: string, selectedService = service) {
+    const trimmed = term.trim();
     if (!trimmed) return;
-    const directUrl = toDirectWatchUrl(trimmed);
-    if (directUrl) {
-      navigate({ to: directUrl.to, params: directUrl.params, search: {} });
+    const directWatchUrl = toDirectWatchUrl(trimmed);
+    if (directWatchUrl) {
+      navigate({ to: "/watch", search: { v: directWatchUrl } });
       onClose();
       return;
     }
@@ -48,5 +48,5 @@ export function useSearchOverlayNavigation({ onClose }: Params) {
     onClose();
   }
 
-  return { handleSelect };
+  return { service, navigateAndClose };
 }

@@ -1,6 +1,7 @@
 import { BadgeCheck } from "lucide-react";
 import { formatSubscribers } from "../lib/format";
 import { proxyImage } from "../lib/proxy";
+import { m } from "../paraglide/messages.js";
 import type { ChannelResultItem } from "../types/api";
 import { AllowChannelButton } from "./allow-channel-button";
 import { ChannelAvatar } from "./channel-avatar";
@@ -13,7 +14,6 @@ type Props = {
 
 export function SearchChannelCard({ channel, banner }: Props) {
   if (banner) {
-    const isBilibili = channel.url.includes("bilibili") || channel.url.includes("space.");
     return (
       <article className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-border bg-card/60 p-4 sm:p-5 backdrop-blur-sm transition-all hover:border-border-strong">
         <ChannelRouteLink
@@ -34,7 +34,7 @@ export function SearchChannelCard({ channel, banner }: Props) {
                 <BadgeCheck className="h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
               )}
               <span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">
-                {isBilibili ? "UP主" : "Channel"}
+                {m.ui_channel()}
               </span>
             </div>
             <p className="mt-1 text-xs font-medium text-fg-muted sm:text-sm">
@@ -48,12 +48,6 @@ export function SearchChannelCard({ channel, banner }: Props) {
           </div>
         </ChannelRouteLink>
         <div className="flex shrink-0 items-center gap-2 self-end sm:self-center">
-          <ChannelRouteLink
-            url={channel.url}
-            className="inline-flex items-center justify-center rounded-lg border border-border px-3.5 py-1.5 text-xs font-medium text-fg transition-colors hover:bg-hover hover:text-fg-strong"
-          >
-            {isBilibili ? "进入空间" : "View channel"}
-          </ChannelRouteLink>
           <AllowChannelButton
             url={channel.url}
             name={channel.name}
