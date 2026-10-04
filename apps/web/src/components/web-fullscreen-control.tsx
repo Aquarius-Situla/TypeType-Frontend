@@ -17,12 +17,9 @@ function WebFullscreenIcon({ active }: { active: boolean }) {
         strokeLinejoin="round"
         aria-hidden="true"
       >
-        <rect x="2" y="3" width="20" height="18" rx="2" />
-        <path d="M2 8h20" />
-        <path d="M9 13l-2 2" />
-        <path d="M7 13h2v2" />
-        <path d="M15 17l2-2" />
-        <path d="M17 17h-2v-2" />
+        <rect x="3" y="6" width="18" height="12" rx="2" />
+        <path d="M3 10h18" strokeWidth="1.5" />
+        <rect x="6.5" y="12" width="11" height="4" rx="0.5" fill="currentColor" stroke="none" />
       </svg>
     );
   }
@@ -37,9 +34,9 @@ function WebFullscreenIcon({ active }: { active: boolean }) {
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      <rect x="2" y="3" width="20" height="18" rx="2" />
-      <path d="M2 8h20" />
-      <rect x="5" y="11" width="14" height="7" rx="1" />
+      <rect x="3" y="6" width="18" height="12" rx="2" />
+      <path d="M3 10h18" strokeWidth="1.5" />
+      <rect x="6.5" y="12" width="11" height="4" rx="0.5" strokeWidth="1.5" />
     </svg>
   );
 }
