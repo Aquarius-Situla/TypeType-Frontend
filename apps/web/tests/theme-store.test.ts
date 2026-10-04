@@ -88,14 +88,14 @@ describe("Theme system and system theme following", () => {
     expect(resolveEffectiveTheme("system")).toBe("light");
   });
 
-  it("cycles through light -> dark -> system -> light", () => {
+  it("cycles through light -> dark -> system -> light with cycleTheme and toggleTheme", () => {
     useThemeStore.getState().setTheme("light");
     expect(useThemeStore.getState().theme).toBe("light");
 
     useThemeStore.getState().cycleTheme();
     expect(useThemeStore.getState().theme).toBe("dark");
 
-    useThemeStore.getState().cycleTheme();
+    useThemeStore.getState().toggleTheme();
     expect(useThemeStore.getState().theme).toBe("system");
 
     useThemeStore.getState().cycleTheme();

@@ -40,6 +40,7 @@ type ThemeStore = {
   theme: AppTheme;
   setTheme: (theme: AppTheme) => void;
   cycleTheme: () => void;
+  toggleTheme: () => void;
 };
 
 export const useThemeStore = create<ThemeStore>()(
@@ -48,6 +49,12 @@ export const useThemeStore = create<ThemeStore>()(
       theme: resolveInitialTheme(),
       setTheme: (theme) => set({ theme }),
       cycleTheme: () =>
+        set((state) => {
+          if (state.theme === "light") return { theme: "dark" };
+          if (state.theme === "dark") return { theme: "system" };
+          return { theme: "light" };
+        }),
+      toggleTheme: () =>
         set((state) => {
           if (state.theme === "light") return { theme: "dark" };
           if (state.theme === "dark") return { theme: "system" };
