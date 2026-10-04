@@ -43,7 +43,7 @@ function RootLayoutContent() {
   const closeMobileSidebar = useUiStore((s) => s.closeMobileSidebar);
   const theme = useThemeStore((s) => s.theme);
   const cinemaMode = useWatchLayoutStore((s) => s.cinemaMode);
-  const { isAuthed, isAdmin, isGuest, status } = useAuth();
+  const { isAuthed, isAdmin, isGuest, status, authReady } = useAuth();
   const setSignedOut = useAuthStore((s) => s.setSignedOut);
   const { data: instance } = useInstance();
   const location = useRouterState({ select: (state) => state.location });
@@ -140,7 +140,7 @@ function RootLayoutContent() {
     return <NotFoundPage />;
   }
 
-  if (instance?.guestAllowed === false && (!isAuthed || isGuest) && !authPage && !embedPage) {
+  if (instance?.guestAllowed === false && authReady && (!isAuthed || isGuest) && !authPage && !embedPage) {
     return <GuestDisabledScreen />;
   }
 
