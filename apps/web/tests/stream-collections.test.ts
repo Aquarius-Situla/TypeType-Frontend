@@ -3,6 +3,7 @@ import { proxyImage } from "../src/lib/proxy";
 import {
   activeStreamCollection,
   streamCollectionPlaylistItems,
+  streamCollectionSectionGroups,
 } from "../src/lib/stream-collections";
 import type { StreamCollectionItem } from "../src/types/stream-collection";
 
@@ -84,4 +85,39 @@ test("falls back to the first non-empty collection", () => {
   };
 
   expect(activeStreamCollection([empty, collection], "BV1unknown")?.id).toBe("season-1");
+});
+
+test("groups collection sections with proxy thumbnails", () => {
+  const groups = streamCollectionSectionGroups(collection);
+  expect(groups).toHaveLength(2);
+  expect(groups[0]).toEqual({
+    id: "main",
+    title: "Main",
+    videos: [
+      {
+        key: "BV1first",
+        url: "https://www.bilibili.com/video/BV1first",
+        title: "P1",
+        thumbnail: proxyImage("https://i0.hdslb.com/first.jpg"),
+      },
+      {
+        key: "BV1second",
+        url: "https://www.bilibili.com/video/BV1second?p=2",
+        title: "P2",
+        thumbnail: proxyImage("https://i0.hdslb.com/second.jpg"),
+      },
+    ],
+  });
+  expect(groups[1]).toEqual({
+    id: "extras",
+    title: "Extras",
+    videos: [
+      {
+        key: "BV1bonus",
+        url: "https://www.bilibili.com/video/BV1bonus",
+        title: "Bonus",
+        thumbnail: proxyImage("https://i0.hdslb.com/bonus.jpg"),
+      },
+    ],
+  });
 });

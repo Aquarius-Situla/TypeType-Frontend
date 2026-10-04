@@ -3,7 +3,11 @@ import { type ReactNode, useCallback, useEffect } from "react";
 import { WatchPlaylistPanel } from "../components/watch-playlist-panel";
 import { applyCustomOrder, randomShuffleSeed, shuffleByKey } from "../lib/playlist-shuffle";
 import { isManagedPlaylistId } from "../lib/playlist-url";
-import { activeStreamCollection, streamCollectionPlaylistItems } from "../lib/stream-collections";
+import {
+  activeStreamCollection,
+  streamCollectionPlaylistItems,
+  streamCollectionSectionGroups,
+} from "../lib/stream-collections";
 import { streamPartPlaylistItems } from "../lib/stream-parts";
 import { markWatchAutoplayIntent } from "../lib/watch-autoplay-intent";
 import { toPublicWatchParam } from "../lib/watch-url";
@@ -48,6 +52,10 @@ export function useWatchPlaylist(
   const isManaged = managedList.length > 0;
   const collection = activeStreamCollection(collections, currentParam);
   const collectionVideos = streamCollectionPlaylistItems(collection);
+  const collectionSections = streamCollectionSectionGroups(collection).map((sec) => ({
+    ...sec,
+    videos: filter(sec.videos),
+  }));
   const partVideos = streamPartPlaylistItems(parts);
   const name = isManaged
     ? (managedPlaylist.data?.name ?? "")
@@ -131,6 +139,7 @@ export function useWatchPlaylist(
       <WatchPlaylistPanel
         name={name}
         videos={videos}
+        sections={collectionSections.length > 1 && !shuffle ? collectionSections : undefined}
         listId={list}
         currentParam={currentParam}
         shuffle={shuffle}

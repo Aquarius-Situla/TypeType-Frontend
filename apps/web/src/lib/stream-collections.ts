@@ -26,6 +26,37 @@ export function streamCollectionPlaylistItems(
   return items;
 }
 
+export type StreamCollectionSectionGroup = {
+  id: string;
+  title: string;
+  videos: WatchPlaylistItem[];
+};
+
+export function streamCollectionSectionGroups(
+  collection: StreamCollectionItem | undefined,
+): StreamCollectionSectionGroup[] {
+  if (!collection) return [];
+
+  return collection.sections
+    .map((section) => ({
+      id: section.id,
+      title: section.title,
+      videos: section.episodes
+        .map((episode) => {
+          const url = episode.url.trim();
+          if (!url) return null;
+          return {
+            key: episode.videoId || url,
+            url,
+            title: episode.title,
+            thumbnail: proxyImage(episode.thumbnailUrl),
+          };
+        })
+        .filter((item): item is WatchPlaylistItem => item !== null),
+    }))
+    .filter((group) => group.videos.length > 0);
+}
+
 export function activeStreamCollection(
   collections: StreamCollectionItem[] | undefined,
   currentParam: string,

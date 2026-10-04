@@ -1,12 +1,14 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { ContinueWatching } from "../components/continue-watching";
 import { HomeFallbackSection } from "../components/home-fallback-section";
 import { HomeRecommendationsSection } from "../components/home-recommendations-section";
 import { useAuth } from "../hooks/use-auth";
-import { useSettings } from "../hooks/use-settings";
-import { defaultLandingPath } from "../lib/default-landing";
+import { readCachedSettings, useSettings, writeCachedSettings } from "../hooks/use-settings";
+import { fetchSettings } from "../lib/api-user";
+import { defaultLandingPath, readStoredDefaultLandingPath } from "../lib/default-landing";
 import { m } from "../paraglide/messages.js";
+import { useAuthStore } from "../stores/auth-store";
 
 let landingApplied = false;
 
@@ -14,15 +16,22 @@ function HomePage() {
   const { authReady, isAuthed } = useAuth();
   const { settings, settingsReady } = useSettings();
   const navigate = useNavigate();
+  const target = defaultLandingPath(settings.defaultLandingPage);
 
   useEffect(() => {
     if (landingApplied || !settingsReady) return;
-    landingApplied = true;
-    const target = defaultLandingPath(settings.defaultLandingPage);
-    if (target) navigate({ to: target, replace: true });
-  }, [settingsReady, settings.defaultLandingPage, navigate]);
+    if (target) {
+      landingApplied = true;
+      navigate({ to: target, replace: true });
+    }
+  }, [settingsReady, target, navigate]);
 
-  if (!authReady) {
+  // If a non-home landing page is active, do not render homepage contents to avoid flash
+  if (target) {
+    return null;
+  }
+
+  if (!authReady || !settingsReady) {
     return (
       <div className="min-h-[40vh] flex items-center justify-center">
         <p className="text-sm text-fg-muted">{m.ui_loading_session()}</p>
@@ -45,4 +54,25 @@ function HomePage() {
   );
 }
 
-export const Route = createFileRoute("/")({ component: HomePage });
+export const Route = createFileRoute("/")({
+  beforeLoad: async () => {
+    const { token, me } = useAuthStore.getState();
+    const userId = me?.id ?? null;
+    let target = readStoredDefaultLandingPath(userId);
+    if (!target) {
+      const cached = readCachedSettings(userId);
+      target = defaultLandingPath(cached.defaultLandingPage);
+    }
+    if (!target && token && userId) {
+      try {
+        const settings = await fetchSettings();
+        writeCachedSettings(settings, userId);
+        target = defaultLandingPath(settings.defaultLandingPage);
+      } catch {}
+    }
+    if (target) {
+      throw redirect({ to: target, replace: true });
+    }
+  },
+  component: HomePage,
+});
