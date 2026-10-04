@@ -4,15 +4,33 @@ import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { m } from "../paraglide/messages.js";
 import type { Locale } from "../paraglide/runtime.js";
 
-const OPTIONS: Locale[] = ["en", "fr", "de"];
+const OPTIONS: Locale[] = ["en", "zh", "fr", "de"];
 
 function languageName(locale: Locale): string {
+  if (locale === "zh") return "简体中文";
   if (locale === "fr") return m.language_french();
   if (locale === "de") return "Deutsch";
   return m.language_english();
 }
 
 function LanguageFlag({ locale }: { locale: Locale }) {
+  if (locale === "zh") {
+    return (
+      <span
+        className="relative flex h-4 w-6 shrink-0 items-center justify-center overflow-hidden rounded-[2px] bg-[#de2910] ring-1 ring-black/15"
+        aria-hidden="true"
+      >
+        <svg viewBox="0 0 24 16" className="h-full w-full">
+          <rect width="24" height="16" fill="#de2910" />
+          <polygon
+            points="5,2 6.2,5.8 9.8,5.8 6.8,8 7.9,11.8 5,9.5 2.1,11.8 3.2,8 0.2,5.8 3.8,5.8"
+            fill="#ffde00"
+            transform="scale(0.7) translate(1, 1)"
+          />
+        </svg>
+      </span>
+    );
+  }
   if (locale === "de") {
     return (
       <span
