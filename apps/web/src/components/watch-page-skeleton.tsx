@@ -62,10 +62,10 @@ export function WatchPageSkeleton({
         ? partVideos.length
         : undefined;
 
-  const hasSecondaryContent =
-    !isMobile && (hasPlaylist || (showRelated && (relatedStreams.length > 0 || !stream)));
+  const layoutHasSecondaryContent = !isMobile && (hasPlaylist || showRelated);
+  const hasCinemaSecondaryContent = showRelated || (!isMobile && hasPlaylist);
 
-  const classes = getWatchLayoutClasses(cinemaMode, hasSecondaryContent);
+  const classes = getWatchLayoutClasses(cinemaMode, layoutHasSecondaryContent);
   const panelClassName = `w-full lg:flex-1 ${relatedVideoPanelClassName(settings.relatedVideoSize)} flex flex-col gap-6`;
 
   const meta = (
@@ -99,15 +99,20 @@ export function WatchPageSkeleton({
     </>
   );
 
+  const playlistSkeleton = hasPlaylist ? (
+    <WatchPlaylistSkeleton title={playlistTitle} count={playlistCount} />
+  ) : null;
+  const relatedSkeleton = showRelated ? (
+    relatedStreams.length > 0 ? (
+      <RelatedVideos streams={relatedStreams} />
+    ) : (
+      RELATED_KEYS.map((key) => <RelatedCardSkeleton key={key} />)
+    )
+  ) : null;
   const secondaryContent = (
     <>
-      {hasPlaylist && <WatchPlaylistSkeleton title={playlistTitle} count={playlistCount} />}
-      {showRelated &&
-        (relatedStreams.length > 0 ? (
-          <RelatedVideos streams={relatedStreams} />
-        ) : (
-          RELATED_KEYS.map((key) => <RelatedCardSkeleton key={key} />)
-        ))}
+      {playlistSkeleton}
+      {relatedSkeleton}
     </>
   );
 
@@ -123,7 +128,9 @@ export function WatchPageSkeleton({
         </div>
         <div className="mx-auto flex w-full max-w-[1700px] flex-col gap-6 px-4 lg:flex-row lg:items-start">
           <div className="min-w-0 flex-[2] max-w-[1200px] flex flex-col gap-4">{meta}</div>
-          {hasSecondaryContent && <aside className={panelClassName}>{secondaryContent}</aside>}
+          {hasCinemaSecondaryContent && (
+            <aside className={panelClassName}>{secondaryContent}</aside>
+          )}
         </div>
       </div>
     );
@@ -137,9 +144,11 @@ export function WatchPageSkeleton({
             <PageSpinner fullScreen={false} />
           </div>
         </div>
+        {isMobile && playlistSkeleton && <div className="mt-4">{playlistSkeleton}</div>}
         {meta}
+        {isMobile && relatedSkeleton && <div className="mt-6">{relatedSkeleton}</div>}
       </div>
-      {hasSecondaryContent && <aside className={panelClassName}>{secondaryContent}</aside>}
+      {layoutHasSecondaryContent && <aside className={panelClassName}>{secondaryContent}</aside>}
     </div>
   );
 }
