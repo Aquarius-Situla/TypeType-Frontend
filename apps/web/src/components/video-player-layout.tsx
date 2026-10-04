@@ -16,13 +16,13 @@ import { AudioTrackSelector } from "./audio-track-selector";
 import { CinemaModeControl } from "./cinema-mode-control";
 import { CompactPlayerControls } from "./compact-player-controls";
 import { FormatSelector } from "./format-selector";
-import { WebFullscreenControl } from "./web-fullscreen-control";
 import { PlayerTrackButton } from "./player-track-button";
 import { PlayerVolumeControl, PlayerVolumeSlider } from "./player-volume-control";
 import { QualitySelector } from "./quality-selector";
 import { SabrCurrentTime } from "./sabr-current-time";
 import { SabrTimeSlider } from "./sabr-time-slider";
 import { ShortsPlayerLayout } from "./shorts-player-layout";
+import { WebFullscreenControl } from "./web-fullscreen-control";
 
 type Props = {
   audioOnly?: boolean;

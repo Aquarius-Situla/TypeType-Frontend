@@ -50,8 +50,12 @@ export function WebFullscreenControl() {
 
   const isZh = locale?.startsWith("zh");
   const label = webFullscreen
-    ? (isZh ? "退出网页全屏" : m.player_disable_web_fullscreen({}, { locale }))
-    : (isZh ? "网页全屏" : m.player_enable_web_fullscreen({}, { locale }));
+    ? isZh
+      ? "退出网页全屏"
+      : m.player_disable_web_fullscreen({}, { locale })
+    : isZh
+      ? "网页全屏"
+      : m.player_enable_web_fullscreen({}, { locale });
 
   const toggleMode = async () => {
     if (pictureInPicture) {

@@ -195,10 +195,10 @@ function RootLayoutContent() {
   const mainClasses = watchWebFullscreenPage
     ? "watch-page-main p-0 m-0 w-full h-full"
     : watchCinemaPage
-    ? "watch-page-main transition-all duration-200 ml-0"
-    : `watch-page-main px-3 sm:px-4 ${mainBottomPad} transition-all duration-200 ${
-        isMobile ? "ml-0" : collapsed ? "ml-14" : "typetype-sidebar-offset"
-      }`;
+      ? "watch-page-main transition-all duration-200 ml-0"
+      : `watch-page-main px-3 sm:px-4 ${mainBottomPad} transition-all duration-200 ${
+          isMobile ? "ml-0" : collapsed ? "ml-14" : "typetype-sidebar-offset"
+        }`;
 
   return (
     <div

@@ -1,64 +1,55 @@
-/* Web Fullscreen (网页全屏) styles */
-.watch-web-fullscreen {
-  overflow: hidden !important;
+/* Web fullscreen needs to override the watch-shell layout without !important. */
+.watch-page-shell.watch-web-fullscreen {
+  overflow: hidden;
 }
 
-.watch-web-fullscreen .watch-page-chrome,
-.watch-web-fullscreen .watch-secondary-content,
-.watch-web-fullscreen footer {
-  display: none !important;
+.watch-page-shell.watch-web-fullscreen .watch-page-main {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  overflow: hidden;
 }
 
-.watch-web-fullscreen .watch-page-main {
-  margin-left: 0 !important;
-  padding: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: none !important;
-  overflow: hidden !important;
+.watch-page-shell.watch-web-fullscreen .watch-layout-container {
+  width: 100%;
+  height: 100%;
 }
 
-.watch-web-fullscreen .watch-layout-container {
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  gap: 0 !important;
+.watch-page-shell.watch-web-fullscreen .watch-player-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background: #000;
+  overflow: hidden;
 }
 
-.watch-web-fullscreen .watch-player-wrap {
-  position: fixed !important;
-  inset: 0 !important;
-  z-index: 50 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: none !important;
-  max-height: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border-radius: 0 !important;
-  background: #000 !important;
-  overflow: hidden !important;
+.watch-page-shell.watch-web-fullscreen .watch-player-box {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  aspect-ratio: auto;
 }
 
-.watch-web-fullscreen .watch-player-box {
-  width: 100% !important;
-  height: 100% !important;
-  max-width: none !important;
-  max-height: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border-radius: 0 !important;
-  aspect-ratio: auto !important;
-}
-
-.watch-web-fullscreen .watch-player-box > .aspect-video,
-.watch-web-fullscreen .watch-player-surface,
-.watch-web-fullscreen [data-media-player] {
-  width: 100% !important;
-  height: 100% !important;
-  max-width: none !important;
-  max-height: none !important;
-  border-radius: 0 !important;
-  aspect-ratio: auto !important;
+.watch-page-shell.watch-web-fullscreen .watch-player-box > .aspect-video,
+.watch-page-shell.watch-web-fullscreen .watch-player-surface,
+.watch-page-shell.watch-web-fullscreen [data-media-player] {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  border-radius: 0;
+  aspect-ratio: auto;
 }
