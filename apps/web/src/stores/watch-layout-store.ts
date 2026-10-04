@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 type WatchLayoutStore = {
   cinemaMode: boolean;
@@ -8,6 +8,12 @@ type WatchLayoutStore = {
   webFullscreen: boolean;
   setWebFullscreen: (value: boolean) => void;
   toggleWebFullscreen: () => void;
+};
+
+const fallbackStorage = {
+  getItem: () => null,
+  setItem: () => undefined,
+  removeItem: () => undefined,
 };
 
 export const useWatchLayoutStore = create<WatchLayoutStore>()(
@@ -28,6 +34,22 @@ export const useWatchLayoutStore = create<WatchLayoutStore>()(
           cinemaMode: state.webFullscreen ? state.cinemaMode : false,
         })),
     }),
-    { name: "typed-watch-layout" },
+    {
+      name: "typed-watch-layout",
+      storage: createJSONStorage(() => {
+        try {
+          if (typeof window !== "undefined" && window.localStorage) {
+            return window.localStorage;
+          }
+          if (typeof localStorage !== "undefined") {
+            return localStorage;
+          }
+        } catch {
+          // ignore storage access errors
+        }
+        return fallbackStorage;
+      }),
+      partialize: (state) => ({ cinemaMode: state.cinemaMode }),
+    },
   ),
 );
