@@ -184,4 +184,12 @@ describe("session refresh failures", () => {
       status: "authenticated",
     });
   });
+
+  test("preserves authenticated status during setBootstrapping when me is cached", () => {
+    useAuthStore.getState().setSession("cached-token", me);
+    expect(useAuthStore.getState().status).toBe("authenticated");
+
+    useAuthStore.getState().setBootstrapping();
+    expect(useAuthStore.getState().status).toBe("authenticated");
+  });
 });
