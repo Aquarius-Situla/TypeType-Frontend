@@ -123,6 +123,8 @@
   "player_format": "Format",
   "player_disable_cinema_mode": "Désactiver le mode cinéma",
   "player_enable_cinema_mode": "Activer le mode cinéma",
+  "player_disable_web_fullscreen": "Quitter le plein écran web",
+  "player_enable_web_fullscreen": "Plein écran web",
   "player_language": "Langue",
   "player_mute": "Couper le son",
   "player_next_video": "Vidéo suivante",

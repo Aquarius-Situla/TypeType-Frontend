@@ -22,6 +22,7 @@ import { QualitySelector } from "./quality-selector";
 import { SabrCurrentTime } from "./sabr-current-time";
 import { SabrTimeSlider } from "./sabr-time-slider";
 import { ShortsPlayerLayout } from "./shorts-player-layout";
+import { WebFullscreenControl } from "./web-fullscreen-control";
 
 type Props = {
   audioOnly?: boolean;
@@ -167,6 +168,7 @@ export function VideoPlayerLayout({
           <>
             <PlayerVolumeControl />
             {!hideCinemaMode && <CinemaModeControl />}
+            {!hideCinemaMode && <WebFullscreenControl />}
           </>
         ),
         volumeSlider: <PlayerVolumeSlider />,

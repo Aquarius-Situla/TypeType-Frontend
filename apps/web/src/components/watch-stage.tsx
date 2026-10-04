@@ -39,6 +39,7 @@ type Props = {
   chaptersVtt?: string;
   playerFailed: boolean;
   cinemaMode: boolean;
+  webFullscreen?: boolean;
   hideComments: boolean;
   mobilePanel: ReactNode;
   mobileSecondaryContent: ReactNode | null;
@@ -86,6 +87,7 @@ export function WatchStage({
   chaptersVtt,
   playerFailed,
   cinemaMode,
+  webFullscreen = false,
   hideComments,
   mobilePanel,
   mobileSecondaryContent,
@@ -112,8 +114,11 @@ export function WatchStage({
   const playerStartTimeRef = useRef(startTime);
   const playerKeyRef = useRef(playerKey);
   const cinemaModeRef = useRef(cinemaMode);
+  const webFullscreenRef = useRef(webFullscreen);
   const sourceChanged = playerKeyRef.current !== playerKey;
   const cinemaModeChanged = cinemaModeRef.current !== cinemaMode;
+  const webFullscreenChanged = webFullscreenRef.current !== webFullscreen;
+  const layoutChanged = (cinemaModeChanged || webFullscreenChanged) && !sourceChanged;
 
   if (sourceChanged) {
     playerKeyRef.current = playerKey;
@@ -124,15 +129,16 @@ export function WatchStage({
   const playerStartTime = resolveWatchPlayerStartTime(
     playerStartTimeRef.current,
     playerPositionRef.current,
-    cinemaModeChanged && !sourceChanged,
+    layoutChanged,
   );
 
   useLayoutEffect(() => {
     cinemaModeRef.current = cinemaMode;
-    if (cinemaModeChanged && !sourceChanged) {
+    webFullscreenRef.current = webFullscreen;
+    if (layoutChanged) {
       playerStartTimeRef.current = playerPositionRef.current;
     }
-  }, [cinemaMode, cinemaModeChanged, sourceChanged]);
+  }, [cinemaMode, webFullscreen, layoutChanged]);
 
   const handleTimeUpdate = (positionMs: number) => {
     playerPositionRef.current = Math.max(0, positionMs);
@@ -197,7 +203,7 @@ export function WatchStage({
   const persistent = usePersistentWatchPlayer(
     stream.id,
     playerProps,
-    !cinemaMode && !navigating && !playerFailed,
+    !cinemaMode && !webFullscreen && !navigating && !playerFailed,
   );
   const localPlayer = navigating ? (
     <div className="flex aspect-video w-full items-center justify-center bg-black">
@@ -214,14 +220,14 @@ export function WatchStage({
   return (
     <div className={classes.playerWrapClass}>
       <div ref={persistent.anchorRef} className={classes.playerBoxClass}>
-        {cinemaMode || navigating || playerFailed ? (
+        {cinemaMode || webFullscreen || navigating || playerFailed ? (
           localPlayer
         ) : (
           <div aria-hidden="true" className="aspect-video w-full bg-black" />
         )}
       </div>
-      {mobilePanel ? <div className="mt-4">{mobilePanel}</div> : null}
-      {!cinemaMode && (
+      {mobilePanel && !webFullscreen ? <div className="mt-4">{mobilePanel}</div> : null}
+      {!cinemaMode && !webFullscreen && (
         <WatchMeta
           stream={stream}
           showComments={!hideComments}
@@ -229,7 +235,9 @@ export function WatchStage({
           audioOnly={audioOnlyControls}
         />
       )}
-      {mobileSecondaryContent ? <div className="mt-6">{mobileSecondaryContent}</div> : null}
+      {mobileSecondaryContent && !webFullscreen ? (
+        <div className="mt-6">{mobileSecondaryContent}</div>
+      ) : null}
     </div>
   );
 }

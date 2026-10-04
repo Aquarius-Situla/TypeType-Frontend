@@ -10,6 +10,7 @@ import {
 } from "../components/player-hotkeys-utils";
 import { requestSabrSeek, requestSabrVidstackPlayback } from "../lib/sabr-vidstack-bridge";
 import { useMediaPlayer, useMediaRemote, useMediaState } from "../lib/vidstack";
+import { useWatchLayoutStore } from "../stores/watch-layout-store";
 import { useHoldFastForward } from "./use-hold-fast-forward";
 
 const FRAME_STEP_SECONDS = 1 / 30;
@@ -67,6 +68,13 @@ export function usePlayerKeyboard(canSeek: boolean, sabrVideo: HTMLVideoElement 
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+      if (event.key === "Escape" || event.code === "Escape") {
+        if (useWatchLayoutStore.getState().webFullscreen) {
+          consumeEvent(event);
+          useWatchLayoutStore.getState().setWebFullscreen(false);
+          return;
+        }
+      }
       const seekOffset = keyboardSeekOffset(event.code);
       if (seekOffset !== null && isPlayerSeekShortcutTarget(event.target, player?.el ?? null)) {
         consumeEvent(event);
@@ -74,6 +82,16 @@ export function usePlayerKeyboard(canSeek: boolean, sabrVideo: HTMLVideoElement 
         return;
       }
       if (isInteractiveTarget(event.target)) return;
+      if (event.key === "w" || event.key === "W" || event.code === "KeyW") {
+        consumeEvent(event);
+        useWatchLayoutStore.getState().toggleWebFullscreen();
+        return;
+      }
+      if (event.key === "t" || event.key === "T" || event.code === "KeyT") {
+        consumeEvent(event);
+        useWatchLayoutStore.getState().toggleCinemaMode();
+        return;
+      }
       if (event.code === "Space") {
         consumeEvent(event);
         if (!event.repeat) {
