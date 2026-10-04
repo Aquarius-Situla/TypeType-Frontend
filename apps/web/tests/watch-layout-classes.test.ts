@@ -19,3 +19,17 @@ test("keeps cinema sizing alongside the mobile landscape hooks", () => {
   expect(classes.playerClassName).toContain("[--video-aspect-ratio:16/9]");
   expect(classes.playerClassName).toContain("watch-player-surface");
 });
+
+test("produces full-viewport classes for web fullscreen mode", () => {
+  const classes = getWatchLayoutClasses(false, false, true);
+
+  expect(classes.playerWrapClass).toContain("fixed");
+  expect(classes.playerWrapClass).toContain("inset-0");
+  expect(classes.playerWrapClass).toContain("w-screen");
+  expect(classes.playerWrapClass).toContain("h-screen");
+  expect(classes.playerWrapClass).toContain("z-50");
+  expect(classes.playerBoxClass).toContain("w-full");
+  expect(classes.playerBoxClass).toContain("h-full");
+  expect(classes.playerBoxClass).not.toContain("watch-player-anchor");
+  expect(classes.playerClassName).toBe("watch-player-surface w-full h-full dark rounded-none");
+});

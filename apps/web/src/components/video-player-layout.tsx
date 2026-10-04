@@ -16,6 +16,7 @@ import { AudioTrackSelector } from "./audio-track-selector";
 import { CinemaModeControl } from "./cinema-mode-control";
 import { CompactPlayerControls } from "./compact-player-controls";
 import { FormatSelector } from "./format-selector";
+import { WebFullscreenControl } from "./web-fullscreen-control";
 import { PlayerTrackButton } from "./player-track-button";
 import { PlayerVolumeControl, PlayerVolumeSlider } from "./player-volume-control";
 import { QualitySelector } from "./quality-selector";
@@ -167,6 +168,7 @@ export function VideoPlayerLayout({
           <>
             <PlayerVolumeControl />
             {!hideCinemaMode && <CinemaModeControl />}
+            {!hideCinemaMode && <WebFullscreenControl />}
           </>
         ),
         volumeSlider: <PlayerVolumeSlider />,

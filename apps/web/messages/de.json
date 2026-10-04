@@ -121,6 +121,8 @@
   "player_format": "Format",
   "player_disable_cinema_mode": "Kinomodus deaktivieren",
   "player_enable_cinema_mode": "Kinomodus aktivieren",
+  "player_disable_web_fullscreen": "Web-Vollbild beenden",
+  "player_enable_web_fullscreen": "Web-Vollbild",
   "player_language": "Sprache",
   "player_mute": "Stummschalten",
   "player_next_video": "Nächstes Video",

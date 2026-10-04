@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useBlockedFilter } from "../hooks/use-blocked-filter";
 import { useDeArrowBranding } from "../hooks/use-dearrow";
 import { useMobile } from "../hooks/use-mobile";
@@ -57,6 +57,13 @@ export function WatchLayout({
   const relatedStreams = useMemo(() => filter(recommendations), [filter, recommendations]);
   const playlist = useWatchPlaylist(list, shuffle, currentParam, stream.collections, stream.parts);
   const cinemaMode = useWatchLayoutStore((state) => state.cinemaMode);
+  const webFullscreen = useWatchLayoutStore((state) => state.webFullscreen);
+
+  useEffect(() => {
+    return () => {
+      useWatchLayoutStore.getState().setWebFullscreen(false);
+    };
+  }, []);
   const seekRef = useRef<((seconds: number) => void) | null>(null);
   const positionReaderRef = useRef<(() => number | null) | null>(null);
   const handleVolumeChange = useVolumeSync(update.mutate, settings);
@@ -125,6 +132,7 @@ export function WatchLayout({
   const classes = getWatchLayoutClasses(
     cinemaMode,
     Boolean(!isMobile && (playlist.panel || relatedStreams.length > 0)),
+    webFullscreen,
   );
   const secondaryContent = (
     <WatchSecondaryContent
@@ -175,10 +183,13 @@ export function WatchLayout({
         chaptersVtt={chaptersVtt}
         playerFailed={player.playerFailed}
         cinemaMode={cinemaMode}
+        webFullscreen={webFullscreen}
         hideComments={settings.hideComments}
         mobilePanel={isMobile ? playlist.panel : null}
         mobileSecondaryContent={
-          isMobile && !cinemaMode && relatedStreams.length > 0 ? secondaryContent : null
+          isMobile && !cinemaMode && !webFullscreen && relatedStreams.length > 0
+            ? secondaryContent
+            : null
         }
         seekRef={seekRef}
         audioOnlyControls={audioOnly.controls}
@@ -201,7 +212,7 @@ export function WatchLayout({
         }
         onReset={player.reset}
       />
-      {(!isMobile || cinemaMode) && secondaryContent}
+      {(!isMobile || cinemaMode) && !webFullscreen && secondaryContent}
       <Toast message={toast} />
     </div>
   );
