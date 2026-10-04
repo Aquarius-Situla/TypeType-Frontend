@@ -43,6 +43,7 @@ function RootLayoutContent() {
   const closeMobileSidebar = useUiStore((s) => s.closeMobileSidebar);
   const theme = useThemeStore((s) => s.theme);
   const cinemaMode = useWatchLayoutStore((s) => s.cinemaMode);
+  const webFullscreen = useWatchLayoutStore((s) => s.webFullscreen);
   const { isAuthed, isAdmin, isGuest, status } = useAuth();
   const setSignedOut = useAuthStore((s) => s.setSignedOut);
   const { data: instance } = useInstance();
@@ -59,6 +60,7 @@ function RootLayoutContent() {
   const registerStatus = useRegisterStatus(status !== "loading" && !framedEmbedPage);
   const watchPage = pathname === "/watch";
   const watchCinemaPage = pathname === "/watch" && cinemaMode;
+  const watchWebFullscreenPage = pathname === "/watch" && webFullscreen;
   const wasWatchCinemaPage = useRef(watchCinemaPage);
   useSessionActivityReporting(!framedEmbedPage);
 
@@ -185,29 +187,39 @@ function RootLayoutContent() {
   const topPadding = watchPage
     ? undefined
     : { paddingTop: "calc(3.5rem + env(safe-area-inset-top, 0px))" };
-  const showTabBar = isMobile && !shortsPage && !watchCinemaPage && !embedPage;
+  const showTabBar =
+    isMobile && !shortsPage && !watchCinemaPage && !watchWebFullscreenPage && !embedPage;
   const mainBottomPad = showTabBar
     ? "pb-[calc(env(safe-area-inset-bottom)+4.5rem)]"
     : "pb-5 sm:pb-6";
-  const mainClasses = watchCinemaPage
-    ? "watch-page-main transition-all duration-200 ml-0"
-    : `watch-page-main px-3 sm:px-4 ${mainBottomPad} transition-all duration-200 ${
-        isMobile ? "ml-0" : collapsed ? "ml-14" : "typetype-sidebar-offset"
-      }`;
+  const mainClasses = watchWebFullscreenPage
+    ? "watch-page-main p-0 m-0 w-full h-full"
+    : watchCinemaPage
+      ? "watch-page-main transition-all duration-200 ml-0"
+      : `watch-page-main px-3 sm:px-4 ${mainBottomPad} transition-all duration-200 ${
+          isMobile ? "ml-0" : collapsed ? "ml-14" : "typetype-sidebar-offset"
+        }`;
 
   return (
-    <div className={`min-h-screen bg-app text-fg ${watchPage ? "watch-page-shell" : ""}`}>
+    <div
+      className={`min-h-screen bg-app text-fg ${watchPage ? "watch-page-shell" : ""} ${
+        watchWebFullscreenPage ? "watch-web-fullscreen" : ""
+      }`}
+    >
       <PersistentWatchPlayer />
-      <div className="watch-page-chrome">
-        <Navbar />
-      </div>
-      {watchCinemaPage ? !isMobile && <Sidebar overlay /> : <Sidebar />}
+      {!watchWebFullscreenPage && (
+        <div className="watch-page-chrome">
+          <Navbar />
+        </div>
+      )}
+      {!watchWebFullscreenPage &&
+        (watchCinemaPage ? !isMobile && <Sidebar overlay /> : <Sidebar />)}
       <main
         className={`${mainClasses} ${pathname === "/subscriptions/groups" ? "sg-page" : ""}`}
         style={topPadding}
       >
         <Outlet />
-        <AppFooter />
+        {!watchWebFullscreenPage && <AppFooter />}
       </main>
       {showTabBar && (
         <div className="watch-page-chrome">

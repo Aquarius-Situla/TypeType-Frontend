@@ -123,6 +123,8 @@
   "player_format": "Format",
   "player_disable_cinema_mode": "Disable cinema mode",
   "player_enable_cinema_mode": "Enable cinema mode",
+  "player_disable_web_fullscreen": "Exit web fullscreen",
+  "player_enable_web_fullscreen": "Web fullscreen",
   "player_language": "Language",
   "player_mute": "Mute",
   "player_next_video": "Next video",

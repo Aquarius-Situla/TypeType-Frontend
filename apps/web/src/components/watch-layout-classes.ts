@@ -1,6 +1,21 @@
 export type WatchLayoutClasses = ReturnType<typeof getWatchLayoutClasses>;
 
-export function getWatchLayoutClasses(cinemaMode: boolean, hasSecondaryContent: boolean) {
+export function getWatchLayoutClasses(
+  cinemaMode: boolean,
+  hasSecondaryContent: boolean,
+  webFullscreen = false,
+) {
+  if (webFullscreen) {
+    return {
+      containerClass: "watch-layout-container m-0 p-0 w-full h-full",
+      playerWrapClass:
+        "watch-player-wrap fixed inset-0 z-50 w-screen h-screen bg-black overflow-hidden m-0 p-0",
+      playerBoxClass: "watch-player-box w-full h-full relative m-0 p-0 rounded-none",
+      playerClassName: "watch-player-surface w-full h-full dark rounded-none",
+      mediaClassName: undefined,
+    };
+  }
+
   const anim = "[animation:page-fade-in_0.2s_ease-out]";
   const standardLayout = hasSecondaryContent
     ? "pt-2 sm:pt-3 lg:flex-row lg:items-stretch"

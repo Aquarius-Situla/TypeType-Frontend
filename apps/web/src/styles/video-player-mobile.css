@@ -28,7 +28,8 @@
   }
 
   .vds-video-layout .vds-pip-button,
-  .vds-video-layout .vds-cinema-button {
+  .vds-video-layout .vds-cinema-button,
+  .vds-video-layout .vds-web-fullscreen-button {
     display: none;
   }
 }
