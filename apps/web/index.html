@@ -17,6 +17,7 @@
         const STORAGE_KEY = "typed-theme";
         const DARK = "dark";
         const LIGHT = "light";
+        const SYSTEM = "system";
 
         function readStoredTheme() {
           try {
@@ -27,16 +28,30 @@
             const state = parsed.state;
             if (!state || typeof state !== "object") return DARK;
             const theme = state.theme;
-            return theme === LIGHT || theme === DARK ? theme : DARK;
+            return theme === LIGHT || theme === DARK || theme === SYSTEM ? theme : DARK;
           } catch (_error) {
             return DARK;
           }
         }
 
+        function resolveTheme(theme) {
+          if (theme === SYSTEM) {
+            return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? DARK
+              : LIGHT;
+          }
+          return theme === LIGHT ? LIGHT : DARK;
+        }
+
         const theme = readStoredTheme();
+        const resolved = resolveTheme(theme);
         const root = document.documentElement;
-        root.dataset.theme = theme;
-        root.style.colorScheme = DARK;
+        root.dataset.theme = resolved;
+        root.style.colorScheme = resolved;
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) {
+          meta.setAttribute("content", resolved === LIGHT ? "#f4f4f5" : "#09090b");
+        }
       })();
     </script>
     <title>TypeType</title>

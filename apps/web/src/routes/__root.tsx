@@ -72,6 +72,22 @@ function RootLayoutContent() {
 
   useEffect(() => {
     applyTheme(theme);
+
+    if (theme !== "system" || typeof window === "undefined" || !window.matchMedia) {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = () => {
+      applyTheme("system");
+    };
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
+    }
+    mediaQuery.addListener(handleChange);
+    return () => mediaQuery.removeListener(handleChange);
   }, [theme]);
 
   useEffect(() => {
