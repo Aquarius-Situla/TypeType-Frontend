@@ -112,11 +112,19 @@ export function toWatchSourceUrl(value: string): string {
 }
 
 export function toPublicWatchParam(sourceUrl: string): string {
+  const trimmed = sourceUrl.trim();
+  const bilibiliMatch = trimmed.match(BILIBILI_WATCH_PARAM_PATTERN);
+  if (bilibiliMatch) {
+    const page = Number(bilibiliMatch[2] ?? "1");
+    return Number.isSafeInteger(page) && page > 1
+      ? `${bilibiliMatch[1]}?p=${page}`
+      : bilibiliMatch[1];
+  }
   return (
-    youtubeVideoIdFromUrl(sourceUrl) ??
-    niconicoVideoIdFromUrl(sourceUrl) ??
-    bilibiliWatchParamFromUrl(sourceUrl) ??
-    sourceUrl.trim()
+    youtubeVideoIdFromUrl(trimmed) ??
+    niconicoVideoIdFromUrl(trimmed) ??
+    bilibiliWatchParamFromUrl(trimmed) ??
+    trimmed
   );
 }
 
