@@ -13,7 +13,7 @@ type Props = {
 
 type IndexedComment = BulletCommentItem & { lane: number; id: number };
 
-const PRE_MOUNT_MS = 600;
+const PRE_MOUNT_MS = 1000;
 
 export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Props) {
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -78,7 +78,7 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
       const currentSpeed = useDanmakuStore.getState().speed;
       const effectiveSpeed = currentSpeed * (mediaPlaybackRate || 1);
 
-      if (lastMsRef.current !== null && Math.abs(ms - lastMsRef.current) > 300) {
+      if (lastMsRef.current !== null && Math.abs(ms - lastMsRef.current) > 1500) {
         startMsMap.current.clear();
         setSeekEpoch((e) => e + 1);
         prevKey = "";
