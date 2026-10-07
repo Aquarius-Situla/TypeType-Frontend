@@ -1498,5 +1498,7 @@
   "portability_prepare_extracting": "Takeout-Teile werden entpackt",
   "portability_prepare_packing": "YouTube-Kontodaten werden vorbereitet",
   "portability_prepare_uploading": "Vorbereitete Daten werden hochgeladen",
-  "portability_resume_prepared_upload": "Vorbereiteten Upload fortsetzen"
+  "portability_resume_prepared_upload": "Vorbereiteten Upload fortsetzen",
+  "language_german": "Deutsch",
+  "language_chinese_simplified": "Vereinfachtes Chinesisch"
 }
