@@ -165,7 +165,6 @@ export function WatchLayout({
         overlay={
           <WatchLayoutPlayerOverlay
             canLoadBulletComments={canLoadBulletComments}
-            hideComments={settings.hideComments}
             bulletCommentsOn={bulletCommentsOn}
             bulletComments={bulletComments}
             positionRef={playerEvents.positionRef}
