@@ -5,6 +5,7 @@ import { useBulletComments } from "./use-bullet-comments";
 export function useWatchBulletComments(videoUrl: string, hideComments: boolean) {
   const sourceUrl = toWatchSourceUrl(videoUrl);
   const isNicoNico = detectProvider(sourceUrl) === "nicovideo";
+  const canLoadBulletComments = supportsBulletComments(sourceUrl);
   console.log("[useWatchBulletComments]", {
     videoUrl,
     sourceUrl,
