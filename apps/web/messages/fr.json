@@ -205,6 +205,8 @@
   "settings_layout_related_video_size_large": "Grande",
   "settings_layout_video_grid_columns": "Vidéos par ligne",
   "settings_layout_video_grid_columns_description": "Définit le nombre de colonnes sur l'accueil, les abonnements et les autres grilles.",
+  "settings_layout_theme_label": "Thème",
+  "settings_layout_theme_description": "Choisissez le thème de votre interface ou adaptez-le aux paramètres de votre système.",
   "settings_playback_description": "Qualité, vitesse, lecture automatique et audio uniquement.",
   "settings_playback_label": "Lecture",
   "settings_privacy_description": "Contrôlez l'historique, les sessions et la confidentialité du compte.",

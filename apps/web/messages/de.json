@@ -203,6 +203,8 @@
   "settings_layout_related_video_size_large": "Groß",
   "settings_layout_video_grid_columns": "Videos pro Zeile",
   "settings_layout_video_grid_columns_description": "Legt die Spaltenzahl für Startseite, Abos und andere Videoraster fest.",
+  "settings_layout_theme_label": "Design",
+  "settings_layout_theme_description": "Wählen Sie das Design der Benutzeroberfläche oder passen Sie es an Ihre Systemeinstellungen an.",
   "settings_playback_description": "Standardeinstellungen für Qualität, Geschwindigkeit, automatische Wiedergabe und „Nur Ton“.",
   "settings_playback_label": "Wiedergabe",
   "settings_privacy_description": "Wiedergabeverlauf, Sitzungen und Datenschutz des Kontos verwalten.",

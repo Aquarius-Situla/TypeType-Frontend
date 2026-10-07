@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "bun:test";
 import { applyTheme } from "../src/lib/theme";
 import {
+  getNextTheme,
   getSystemTheme,
   resolveEffectiveTheme,
   useThemeStore,
@@ -130,5 +131,63 @@ describe("Theme system and system theme following", () => {
     applyTheme("system");
     expect(mockDataset.theme).toBe("dark");
     expect(mockStyle.colorScheme).toBe("dark");
+  });
+
+  it("getNextTheme cycles through system -> light -> dark -> system", () => {
+    expect(getNextTheme("system")).toBe("light");
+    expect(getNextTheme("light")).toBe("dark");
+    expect(getNextTheme("dark")).toBe("system");
+  });
+
+  it("updates DOM theme when OS system theme change event fires in system mode", () => {
+    let isDarkOS = true;
+    const listeners = new Set<(e: MediaQueryListEvent) => void>();
+
+    window.matchMedia = (query: string) =>
+      ({
+        get matches() {
+          return query.includes("dark") ? isDarkOS : !isDarkOS;
+        },
+        media: query,
+        onchange: null,
+        addListener: () => {},
+        removeListener: () => {},
+        addEventListener: (_type: string, handler: any) => {
+          listeners.add(handler);
+        },
+        removeEventListener: (_type: string, handler: any) => {
+          listeners.delete(handler);
+        },
+        dispatchEvent: () => false,
+      }) as unknown as MediaQueryList;
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = () => {
+      applyTheme("system");
+    };
+    mediaQuery.addEventListener("change", handleChange);
+
+    applyTheme("system");
+    expect(mockDataset.theme).toBe("dark");
+    expect(mockStyle.colorScheme).toBe("dark");
+
+    isDarkOS = false;
+    for (const listener of listeners) {
+      listener({ matches: false } as MediaQueryListEvent);
+    }
+
+    expect(mockDataset.theme).toBe("light");
+    expect(mockStyle.colorScheme).toBe("light");
+
+    isDarkOS = true;
+    for (const listener of listeners) {
+      listener({ matches: true } as MediaQueryListEvent);
+    }
+
+    expect(mockDataset.theme).toBe("dark");
+    expect(mockStyle.colorScheme).toBe("dark");
+
+    mediaQuery.removeEventListener("change", handleChange);
+    expect(listeners.size).toBe(0);
   });
 });

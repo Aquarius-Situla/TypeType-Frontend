@@ -1,45 +1,36 @@
 import { Monitor, Moon, Sun } from "lucide-react";
-import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { m } from "../paraglide/messages.js";
-import { type AppTheme, useThemeStore } from "../stores/theme-store";
+import { type AppTheme, getNextTheme, useThemeStore } from "../stores/theme-store";
 
 type Props = {
   className?: string;
 };
 
 export function ThemeToggleButton({ className }: Props) {
-  const { locale } = useInterfaceLocale();
-  const isZh = locale.startsWith("zh");
   const theme = useThemeStore((s) => s.theme);
   const cycleTheme = useThemeStore((s) => s.cycleTheme);
-
-  const getNextTheme = (current: AppTheme): AppTheme => {
-    if (current === "system") return "light";
-    if (current === "light") return "dark";
-    return "system";
-  };
 
   const nextTheme = getNextTheme(theme);
 
   const getSwitchLabel = (target: AppTheme) => {
     switch (target) {
       case "system":
-        return isZh ? "切换至跟随系统" : m.ui_switch_to_system_mode();
+        return m.ui_switch_to_system_mode();
       case "light":
-        return isZh ? "切换至浅色模式" : m.ui_switch_to_light_mode();
+        return m.ui_switch_to_light_mode();
       case "dark":
-        return isZh ? "切换至深色模式" : m.ui_switch_to_dark_mode();
+        return m.ui_switch_to_dark_mode();
     }
   };
 
   const getModeLabel = (current: AppTheme) => {
     switch (current) {
       case "system":
-        return isZh ? "跟随系统" : m.ui_system_mode();
+        return m.ui_theme_mode_system();
       case "light":
-        return isZh ? "浅色模式" : m.ui_light_mode();
+        return m.ui_theme_mode_light();
       case "dark":
-        return isZh ? "深色模式" : m.ui_dark_mode();
+        return m.ui_theme_mode_dark();
     }
   };
 
