@@ -5,21 +5,11 @@ import { BiliBiliIcon } from "../components/bilibili-icon";
 import { Toast } from "../components/toast";
 import { useAuth } from "../hooks/use-auth";
 import { useBiliBiliSession } from "../hooks/use-bilibili-session";
+import { formatBilibiliSessionTime } from "../lib/bilibili-session-format";
 import { sanitizeBilibiliSessionReturnTo } from "../lib/bilibili-session-route";
 import { m } from "../paraglide/messages.js";
 
 const SIDE_LABEL = "font-mono text-fg-soft text-[11px] uppercase tracking-[0.22em]";
-
-function formatSessionTime(timestamp?: number): string {
-  if (!timestamp || timestamp === 0) return "—";
-  return new Date(timestamp * 1000).toLocaleString(undefined, {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 function BiliBiliSessionPage() {
   const { authReady, isAuthed } = useAuth();
@@ -161,12 +151,12 @@ function BiliBiliSessionPage() {
             {daysLeft > 0 && (
               <div>
                 <dt className="text-fg-soft text-xs">{m.ui_bilibili_expires_at()}</dt>
-                <dd className="mt-1 text-fg text-sm">{formatSessionTime(state?.expiresAt)}</dd>
+                <dd className="mt-1 text-fg text-sm">{formatBilibiliSessionTime(state?.expiresAt)}</dd>
               </div>
             )}
             <div>
               <dt className="text-fg-soft text-xs">{m.ui_updated()}</dt>
-              <dd className="mt-1 text-fg text-sm">{formatSessionTime(state?.updatedAt)}</dd>
+              <dd className="mt-1 text-fg text-sm">{formatBilibiliSessionTime(state?.updatedAt)}</dd>
             </div>
           </dl>
           <button
