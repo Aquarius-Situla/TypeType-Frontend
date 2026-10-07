@@ -1,6 +1,8 @@
 import { expect, test } from "bun:test";
-import { getWatchSecondaryMetaContainerClass } from "../src/components/watch-secondary-content";
-import { getWatchLayoutClasses } from "../src/components/watch-layout-classes";
+import {
+  getWatchLayoutClasses,
+  getWatchSecondaryMetaContainerClass,
+} from "../src/components/watch-layout-classes";
 
 test("exposes stable watch hooks without changing the player identity", () => {
   const classes = getWatchLayoutClasses(false, false);

@@ -8,6 +8,7 @@ import { detectProvider } from "../lib/provider";
 import type { VideoStream } from "../types/stream";
 import { LiveChatPanel } from "./live-chat-panel";
 import { RelatedVideos } from "./related-videos";
+import { getWatchSecondaryMetaContainerClass } from "./watch-layout-classes";
 import { WatchMeta } from "./watch-meta";
 
 type Props = {
@@ -19,12 +20,6 @@ type Props = {
   onSeekTimestamp: (seconds: number) => void;
   audioOnly: WatchAudioOnlyControls;
 };
-
-export function getWatchSecondaryMetaContainerClass(hasSideContent: boolean): string {
-  return hasSideContent
-    ? "min-w-0 flex-[2] max-w-[1200px] flex flex-col gap-4"
-    : "min-w-0 w-full flex-1 max-w-full flex flex-col gap-4";
-}
 
 export function WatchSecondaryContent({
   cinemaMode,
@@ -83,7 +78,7 @@ export function WatchSecondaryContent({
     );
   }
 
-  const hasSideContent = hasPlaylistPanel || hasRelatedStreams || (liveChat && !isMobile);
+  const hasSideContent = hasPlaylistPanel || hasRelatedStreams || Boolean(liveChat && !isMobile);
   const metaContainerClassName = getWatchSecondaryMetaContainerClass(hasSideContent);
 
   return (
