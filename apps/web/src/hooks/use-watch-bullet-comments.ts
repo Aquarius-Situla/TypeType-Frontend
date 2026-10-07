@@ -5,11 +5,23 @@ import { useBulletComments } from "./use-bullet-comments";
 export function useWatchBulletComments(videoUrl: string, hideComments: boolean) {
   const sourceUrl = toWatchSourceUrl(videoUrl);
   const isNicoNico = detectProvider(sourceUrl) === "nicovideo";
-  const canLoadBulletComments = supportsBulletComments(sourceUrl);
-  const { data: bulletComments } = useBulletComments(
+  console.log("[useWatchBulletComments]", {
+    videoUrl,
+    sourceUrl,
+    canLoadBulletComments,
+    hideComments,
+    enabled: canLoadBulletComments && !hideComments,
+  });
+  const { data: bulletComments, isLoading, isError, error } = useBulletComments(
     sourceUrl,
     canLoadBulletComments && !hideComments,
   );
+  console.log("[useWatchBulletComments result]", {
+    count: bulletComments?.length,
+    isLoading,
+    isError,
+    error,
+  });
 
   return { isNicoNico, canLoadBulletComments, bulletComments };
 }
