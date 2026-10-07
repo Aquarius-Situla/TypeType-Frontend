@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+import { getWatchSecondaryMetaContainerClass } from "../src/components/watch-secondary-content";
 import { getWatchLayoutClasses } from "../src/components/watch-layout-classes";
 
 test("exposes stable watch hooks without changing the player identity", () => {
@@ -32,4 +33,15 @@ test("produces full-viewport classes for web fullscreen mode", () => {
   expect(classes.playerBoxClass).toContain("h-full");
   expect(classes.playerBoxClass).not.toContain("watch-player-anchor");
   expect(classes.playerClassName).toBe("watch-player-surface w-full h-full dark rounded-none");
+});
+
+test("expands secondary meta container to full width when side content is absent", () => {
+  const withSide = getWatchSecondaryMetaContainerClass(true);
+  expect(withSide).toContain("flex-[2]");
+  expect(withSide).toContain("max-w-[1200px]");
+
+  const withoutSide = getWatchSecondaryMetaContainerClass(false);
+  expect(withoutSide).toContain("w-full");
+  expect(withoutSide).toContain("max-w-full");
+  expect(withoutSide).not.toContain("flex-[2]");
 });
