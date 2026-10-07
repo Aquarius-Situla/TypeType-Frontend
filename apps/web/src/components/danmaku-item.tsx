@@ -20,6 +20,7 @@ const BASE: React.CSSProperties = {
   pointerEvents: "none",
   userSelect: "none",
   left: "100%",
+  marginLeft: "2px",
   transform: "translate3d(0, 0, 0)",
   WebkitTransform: "translate3d(0, 0, 0)",
   willChange: "transform",
@@ -43,6 +44,15 @@ export function DanmakuItem({
   const durationMs = REGULAR_DISPLAY_MS / effectiveSpeed;
 
   if (comment.position === "REGULAR") {
+    let animDelayMs: number;
+    if (elapsedMs < 0) {
+      animDelayMs = Math.round((-elapsedMs) / effectiveSpeed);
+    } else if (elapsedMs <= 150) {
+      animDelayMs = 0;
+    } else {
+      animDelayMs = -Math.round(elapsedMs / effectiveSpeed);
+    }
+
     return (
       <span
         style={
@@ -53,9 +63,9 @@ export function DanmakuItem({
             top: `${lane * LANE_HEIGHT_PX}px`,
             animationName: "danmaku-scroll",
             animationDuration: `${durationMs}ms`,
-            animationDelay: `${-Math.max(0, elapsedMs)}ms`,
+            animationDelay: `${animDelayMs}ms`,
             animationTimingFunction: "linear",
-            animationFillMode: "forwards",
+            animationFillMode: "both",
             animationPlayState: paused ? "paused" : "running",
             "--d-width": `${containerWidth}px`,
           } as React.CSSProperties
@@ -66,11 +76,17 @@ export function DanmakuItem({
     );
   }
 
+  // Static comments (TOP, SUPERCHAT, BOTTOM) must not be rendered before their timestamp
+  if (elapsedMs < 0) {
+    return null;
+  }
+
   if (comment.position === "TOP" || comment.position === "SUPERCHAT") {
     return (
       <span
         style={{
           ...BASE,
+          marginLeft: 0,
           color,
           fontSize: `${fontSize}px`,
           top: `${4 + (lane % 3) * LANE_HEIGHT_PX}px`,
@@ -89,6 +105,7 @@ export function DanmakuItem({
       <span
         style={{
           ...BASE,
+          marginLeft: 0,
           color,
           fontSize: `${fontSize}px`,
           bottom: `${4 + (lane % 3) * LANE_HEIGHT_PX}px`,

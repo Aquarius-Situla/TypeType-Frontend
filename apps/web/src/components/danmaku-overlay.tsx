@@ -13,8 +13,11 @@ type Props = {
 
 type IndexedComment = BulletCommentItem & { lane: number; id: number };
 
+const PRE_MOUNT_MS = 600;
+
 export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Props) {
   const overlayRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const [visible, setVisible] = useState<IndexedComment[]>([]);
   const startMsMap = useRef(new Map<number, number>());
   const lastMsRef = useRef<number | null>(null);
@@ -33,6 +36,7 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
     const video =
       el?.closest(".vds-media-player")?.querySelector("video") ||
       document.querySelector("video");
+    videoRef.current = video;
     if (!video) return;
 
     const update = () => {
@@ -65,7 +69,12 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
     let prevKey = "";
 
     function tick() {
-      const ms = positionRef.current;
+      const video = videoRef.current;
+      const ms =
+        video && !Number.isNaN(video.currentTime) && video.currentTime > 0
+          ? Math.round(video.currentTime * 1000)
+          : (positionRef.current ?? 0);
+
       const currentSpeed = useDanmakuStore.getState().speed;
       const effectiveSpeed = currentSpeed * (mediaPlaybackRate || 1);
 
@@ -82,7 +91,8 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
           c.position === "REGULAR"
             ? REGULAR_DISPLAY_MS / effectiveSpeed + 300
             : displayDuration(c.position);
-        return elapsed >= 0 && elapsed < dur;
+        const minElapsed = c.position === "REGULAR" ? -PRE_MOUNT_MS : 0;
+        return elapsed >= minElapsed && elapsed < dur;
       });
       const key = vis.map((c) => c.id).join(",");
       if (key !== prevKey) {
@@ -126,6 +136,15 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
     overlayRef.current?.offsetWidth ||
     (typeof window !== "undefined" ? window.innerWidth : 1280);
 
+  const prevWidthRef = useRef(width);
+  useEffect(() => {
+    if (Math.abs(width - prevWidthRef.current) > 40) {
+      prevWidthRef.current = width;
+      startMsMap.current.clear();
+      setSeekEpoch((e) => e + 1);
+    }
+  }, [width]);
+
   return (
     <div
       ref={overlayRef}
@@ -136,6 +155,9 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
         pointerEvents: "none",
         zIndex: 20,
         isolation: "isolate",
+        contain: "paint layout",
+        clipPath: "inset(0)",
+        WebkitClipPath: "inset(0)",
         containerType: "inline-size",
         transform: "translate3d(0, 0, 0)",
         WebkitTransform: "translate3d(0, 0, 0)",
