@@ -7,9 +7,9 @@ import type { Locale } from "../paraglide/runtime.js";
 const OPTIONS: Locale[] = ["en", "zh-hans", "fr", "de"];
 
 function languageName(locale: Locale): string {
-  if (locale === "zh-hans") return "简体中文";
+  if (locale === "zh-hans") return m.language_chinese_simplified();
   if (locale === "fr") return m.language_french();
-  if (locale === "de") return "Deutsch";
+  if (locale === "de") return m.language_german();
   return m.language_english();
 }
 
