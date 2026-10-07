@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { supportsBulletComments } from "../lib/provider";
+import { toWatchSourceUrl } from "../lib/watch-url";
 import type { DefaultLayoutIcon, MenuInstance } from "../lib/vidstack";
 import {
   DefaultMenuButton,
@@ -30,6 +31,7 @@ export function DanmakuSelector({ supported }: Props) {
     (typeof window !== "undefined"
       ? supportsBulletComments(window.location.href) ||
         supportsBulletComments(window.location.search) ||
+        supportsBulletComments(toWatchSourceUrl(window.location.href)) ||
         Boolean(new URLSearchParams(window.location.search).get("v")?.match(/^BV|^sm\d+/i))
       : true);
 
