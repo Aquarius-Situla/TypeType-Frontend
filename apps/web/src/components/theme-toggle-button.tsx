@@ -26,11 +26,11 @@ export function ThemeToggleButton({ className }: Props) {
   const getModeLabel = (current: AppTheme) => {
     switch (current) {
       case "system":
-        return m.ui_theme_mode_system();
+        return m.ui_system_mode();
       case "light":
-        return m.ui_theme_mode_light();
+        return m.ui_light_mode();
       case "dark":
-        return m.ui_theme_mode_dark();
+        return m.ui_dark_mode();
     }
   };
 

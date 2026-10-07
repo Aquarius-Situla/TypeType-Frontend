@@ -48,7 +48,7 @@ describe("Theme system and system theme following", () => {
         writable: true,
       });
     } else {
-      (globalThis as any).window = globalThis;
+      (globalThis as unknown as { window: unknown }).window = globalThis;
     }
   });
 
@@ -152,10 +152,10 @@ describe("Theme system and system theme following", () => {
         onchange: null,
         addListener: () => {},
         removeListener: () => {},
-        addEventListener: (_type: string, handler: any) => {
+        addEventListener: (_type: string, handler: (e: MediaQueryListEvent) => void) => {
           listeners.add(handler);
         },
-        removeEventListener: (_type: string, handler: any) => {
+        removeEventListener: (_type: string, handler: (e: MediaQueryListEvent) => void) => {
           listeners.delete(handler);
         },
         dispatchEvent: () => false,
