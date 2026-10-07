@@ -86,14 +86,28 @@ export function PersistentWatchPlayerHost() {
   useEffect(() => {
     const observer = new ResizeObserver(updateAnchorRect);
     if (entry?.anchor) observer.observe(entry.anchor);
-    window.addEventListener("scroll", updateAnchorRect, true);
+
+    const handleScroll = () => {
+      const anchor = entry?.anchor;
+      const frame = frameRef.current;
+      if (anchor && frame && !outsideViewport && watchPage) {
+        const rect = anchor.getBoundingClientRect();
+        frame.style.top = `${rect.top}px`;
+        frame.style.left = `${rect.left}px`;
+        frame.style.width = `${rect.width}px`;
+        frame.style.height = `${rect.height}px`;
+      }
+      updateAnchorRect();
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true, capture: true });
     window.addEventListener("resize", updateAnchorRect);
     return () => {
       observer.disconnect();
-      window.removeEventListener("scroll", updateAnchorRect, true);
+      window.removeEventListener("scroll", handleScroll, true);
       window.removeEventListener("resize", updateAnchorRect);
     };
-  }, [updateAnchorRect, entry?.anchor]);
+  }, [updateAnchorRect, entry?.anchor, outsideViewport, watchPage]);
 
   const floating = !watchPage || (!landscapeWatch && outsideViewport);
   const handlePointerMove = useCallback(
@@ -147,7 +161,7 @@ export function PersistentWatchPlayerHost() {
 
   if (!entry?.enabled || hiddenPage) return null;
 
-  const style =
+  const style: React.CSSProperties =
     !floating && anchorRect
       ? {
           left: anchorRect.left,
@@ -155,12 +169,17 @@ export function PersistentWatchPlayerHost() {
           width: anchorRect.width,
           height: anchorRect.height,
         }
-      : position
-        ? { left: position.left, top: position.top }
-        : {
-            right: "1rem",
-            bottom: `calc(${isMobile ? "4.5rem" : "1rem"} + env(safe-area-inset-bottom, 0px))`,
-          };
+      : !floating
+        ? {
+            opacity: 0,
+            pointerEvents: "none",
+          }
+        : position
+          ? { left: position.left, top: position.top }
+          : {
+              right: "1rem",
+              bottom: `calc(${isMobile ? "4.5rem" : "1rem"} + env(safe-area-inset-bottom, 0px))`,
+            };
 
   const beginDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
     if (!floating || !frameRef.current || !event.isPrimary || event.button !== 0) return;
@@ -180,7 +199,11 @@ export function PersistentWatchPlayerHost() {
   return (
     <div
       ref={frameRef}
-      className="typetype-persistent-player-frame fixed z-30 overflow-hidden rounded-lg bg-black shadow-2xl ring-1 ring-black/30"
+      className={`typetype-persistent-player-frame fixed overflow-hidden bg-black transition-[box-shadow,ring-width] duration-200 ${
+        floating
+          ? "z-30 rounded-lg shadow-2xl ring-1 ring-black/30"
+          : "z-10 rounded-lg shadow-none ring-0"
+      }`}
       data-floating={floating ? "" : undefined}
       data-dragging={dragging ? "" : undefined}
       style={style}
