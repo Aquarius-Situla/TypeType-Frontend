@@ -19,12 +19,34 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
   const startMsMap = useRef(new Map<number, number>());
   const lastMsRef = useRef<number | null>(null);
   const [seekEpoch, setSeekEpoch] = useState(0);
+  const [videoPaused, setVideoPaused] = useState(false);
+  const [videoRate, setVideoRate] = useState(1);
   const { speed, size } = useDanmakuStore();
 
   const mediaPaused = useMediaState("paused");
   const mediaPlaybackRate = useMediaState("playbackRate");
-  const paused = pausedProp ?? mediaPaused;
-  const playbackRate = mediaPlaybackRate || 1;
+  const paused = pausedProp ?? (videoPaused || mediaPaused);
+  const playbackRate = videoRate || mediaPlaybackRate || 1;
+
+  useEffect(() => {
+    const el = overlayRef.current;
+    const video =
+      el?.closest(".vds-media-player")?.querySelector("video") ||
+      document.querySelector("video");
+    if (!video) return;
+
+    const update = () => {
+      setVideoPaused(video.paused);
+      setVideoRate(video.playbackRate || 1);
+    };
+    update();
+
+    const events = ["play", "pause", "seeking", "seeked", "waiting", "playing", "ratechange"];
+    for (const ev of events) video.addEventListener(ev, update);
+    return () => {
+      for (const ev of events) video.removeEventListener(ev, update);
+    };
+  }, []);
 
   const indexed = useMemo<IndexedComment[]>(
     () =>
