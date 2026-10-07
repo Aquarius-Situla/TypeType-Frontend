@@ -20,8 +20,7 @@ function LanguageFlag({ locale }: { locale: Locale }) {
         className="relative flex h-4 w-6 shrink-0 items-center justify-center overflow-hidden rounded-[2px] bg-[#de2910] ring-1 ring-black/15"
         aria-hidden="true"
       >
-        <svg viewBox="0 0 24 16" className="h-full w-full">
-          <title>China</title>
+        <svg viewBox="0 0 24 16" className="h-full w-full" aria-hidden="true">
           <rect width="24" height="16" fill="#de2910" />
           <polygon
             points="5,2 6.2,5.8 9.8,5.8 6.8,8 7.9,11.8 5,9.5 2.1,11.8 3.2,8 0.2,5.8 3.8,5.8"
