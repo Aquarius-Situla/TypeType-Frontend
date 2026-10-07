@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { displayDuration, N_LANES, REGULAR_DISPLAY_MS } from "../lib/danmaku";
 import { useDanmakuStore } from "../stores/danmaku-store";
 import type { BulletCommentItem } from "../types/api";
@@ -62,7 +62,25 @@ export function DanmakuOverlay({ comments, positionRef }: Props) {
     return () => cancelAnimationFrame(rafId);
   }, [indexed, positionRef]);
 
-  const width = overlayRef.current?.offsetWidth ?? 0;
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  useLayoutEffect(() => {
+    const el = overlayRef.current;
+    if (!el) return;
+    setContainerWidth(el.offsetWidth);
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setContainerWidth(entry.contentRect.width);
+      }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const width =
+    containerWidth ||
+    overlayRef.current?.offsetWidth ||
+    (typeof window !== "undefined" ? window.innerWidth : 1280);
 
   return (
     <div
@@ -72,7 +90,7 @@ export function DanmakuOverlay({ comments, positionRef }: Props) {
         inset: 0,
         overflow: "hidden",
         pointerEvents: "none",
-        zIndex: 1,
+        zIndex: 20,
       }}
     >
       {visible.map((c) => (
