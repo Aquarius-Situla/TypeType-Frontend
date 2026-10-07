@@ -151,12 +151,16 @@ function BiliBiliSessionPage() {
             {daysLeft > 0 && (
               <div>
                 <dt className="text-fg-soft text-xs">{m.ui_bilibili_expires_at()}</dt>
-                <dd className="mt-1 text-fg text-sm">{formatBilibiliSessionTime(state?.expiresAt)}</dd>
+                <dd className="mt-1 text-fg text-sm">
+                  {formatBilibiliSessionTime(state?.expiresAt)}
+                </dd>
               </div>
             )}
             <div>
               <dt className="text-fg-soft text-xs">{m.ui_updated()}</dt>
-              <dd className="mt-1 text-fg text-sm">{formatBilibiliSessionTime(state?.updatedAt)}</dd>
+              <dd className="mt-1 text-fg text-sm">
+                {formatBilibiliSessionTime(state?.updatedAt)}
+              </dd>
             </div>
           </dl>
           <button
