@@ -21,6 +21,7 @@ function LanguageFlag({ locale }: { locale: Locale }) {
         aria-hidden="true"
       >
         <svg viewBox="0 0 24 16" className="h-full w-full">
+          <title>China</title>
           <rect width="24" height="16" fill="#de2910" />
           <polygon
             points="5,2 6.2,5.8 9.8,5.8 6.8,8 7.9,11.8 5,9.5 2.1,11.8 3.2,8 0.2,5.8 3.8,5.8"
