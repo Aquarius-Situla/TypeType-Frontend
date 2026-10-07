@@ -33,7 +33,7 @@ export function WatchPlayerOverlay({
 }: Props) {
   return (
     <>
-      {canLoadBulletComments && !hideComments && bulletCommentsOn && bulletComments && (
+      {canLoadBulletComments && bulletCommentsOn && bulletComments && (
         <DanmakuOverlay comments={bulletComments} positionRef={positionRef} />
       )}
       <WatchPlayerDefaults

@@ -2,27 +2,14 @@ import { detectProvider, supportsBulletComments } from "../lib/provider";
 import { toWatchSourceUrl } from "../lib/watch-url";
 import { useBulletComments } from "./use-bullet-comments";
 
-export function useWatchBulletComments(videoUrl: string, hideComments: boolean) {
+export function useWatchBulletComments(videoUrl: string, enabled = true) {
   const sourceUrl = toWatchSourceUrl(videoUrl);
   const isNicoNico = detectProvider(sourceUrl) === "nicovideo";
   const canLoadBulletComments = supportsBulletComments(sourceUrl);
-  console.log("[useWatchBulletComments]", {
-    videoUrl,
+  const { data: bulletComments } = useBulletComments(
     sourceUrl,
-    canLoadBulletComments,
-    hideComments,
-    enabled: canLoadBulletComments && !hideComments,
-  });
-  const { data: bulletComments, isLoading, isError, error } = useBulletComments(
-    sourceUrl,
-    canLoadBulletComments && !hideComments,
+    canLoadBulletComments && enabled,
   );
-  console.log("[useWatchBulletComments result]", {
-    count: bulletComments?.length,
-    isLoading,
-    isError,
-    error,
-  });
 
   return { isNicoNico, canLoadBulletComments, bulletComments };
 }
