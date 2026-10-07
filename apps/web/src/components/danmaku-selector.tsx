@@ -27,7 +27,11 @@ export function DanmakuSelector({ supported }: Props) {
 
   const isSupported =
     supported ??
-    (typeof window !== "undefined" ? supportsBulletComments(window.location.href) : true);
+    (typeof window !== "undefined"
+      ? supportsBulletComments(window.location.href) ||
+        supportsBulletComments(window.location.search) ||
+        Boolean(new URLSearchParams(window.location.search).get("v")?.match(/^BV|^sm\d+/i))
+      : true);
 
   if (!isSupported) return null;
 
