@@ -20,13 +20,20 @@ function LanguageFlag({ locale }: { locale: Locale }) {
         className="relative flex h-4 w-6 shrink-0 items-center justify-center overflow-hidden rounded-[2px] bg-[#de2910] ring-1 ring-black/15"
         aria-hidden="true"
       >
-        <svg viewBox="0 0 24 16" className="h-full w-full" aria-hidden="true">
-          <rect width="24" height="16" fill="#de2910" />
-          <polygon
-            points="5,2 6.2,5.8 9.8,5.8 6.8,8 7.9,11.8 5,9.5 2.1,11.8 3.2,8 0.2,5.8 3.8,5.8"
-            fill="#ffde00"
-            transform="scale(0.7) translate(1, 1)"
-          />
+        <svg viewBox="0 0 30 20" className="h-full w-full" aria-hidden="true">
+          <defs>
+            <polygon
+              id="zh-star"
+              points="0,-1 0.2245,-0.309 0.9511,-0.309 0.3633,0.118 0.5878,0.809 0,0.382 -0.5878,0.809 -0.3633,0.118 -0.9511,-0.309 -0.2245,-0.309"
+              fill="#ffde00"
+            />
+          </defs>
+          <rect width="30" height="20" fill="#de2910" />
+          <use href="#zh-star" transform="translate(5, 5) scale(3)" />
+          <use href="#zh-star" transform="translate(10, 2) rotate(239.04)" />
+          <use href="#zh-star" transform="translate(12, 4) rotate(261.87)" />
+          <use href="#zh-star" transform="translate(12, 7) rotate(285.95)" />
+          <use href="#zh-star" transform="translate(10, 9) rotate(308.66)" />
         </svg>
       </span>
     );
