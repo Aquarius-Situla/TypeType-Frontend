@@ -1,6 +1,10 @@
 import { m } from "../paraglide/messages.js";
 
-function SvgIcon({ children, label }: { children: React.ReactNode; label: string }) {
+function SvgIcon({
+  children,
+  label,
+  ...props
+}: React.SVGProps<SVGSVGElement> & { children: React.ReactNode; label?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -14,6 +18,7 @@ function SvgIcon({ children, label }: { children: React.ReactNode; label: string
       strokeLinejoin="round"
       role="img"
       aria-label={label}
+      {...props}
     >
       {children}
     </svg>
@@ -55,9 +60,9 @@ export function StarIcon({ filled }: { filled?: boolean }) {
   );
 }
 
-export function DanmakuIcon() {
+export function DanmakuIcon(props?: React.SVGProps<SVGSVGElement>) {
   return (
-    <SvgIcon label={m.ui_bullet_comments()}>
+    <SvgIcon label={m.ui_bullet_comments()} {...props}>
       <line x1="3" y1="7" x2="21" y2="7" />
       <line x1="3" y1="12" x2="14" y2="12" />
       <line x1="3" y1="17" x2="17" y2="17" />
