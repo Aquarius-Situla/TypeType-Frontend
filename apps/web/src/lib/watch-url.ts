@@ -105,8 +105,14 @@ export function toWatchSourceUrl(value: string): string {
     return `https://www.bilibili.com/video/${bilibili[1]}${suffix}`;
   }
   const parsed = parseUrl(trimmed);
-  if (parsed && isSupportedVideoHost(parsed.hostname.toLowerCase())) {
-    return `${parsed.origin}${parsed.pathname}${parsed.search}${parsed.hash}`;
+  if (parsed) {
+    const v = parsed.searchParams.get("v");
+    if (v && v !== trimmed) {
+      return toWatchSourceUrl(v);
+    }
+    if (isSupportedVideoHost(parsed.hostname.toLowerCase())) {
+      return `${parsed.origin}${parsed.pathname}${parsed.search}${parsed.hash}`;
+    }
   }
   return trimmed;
 }
@@ -119,6 +125,13 @@ export function toPublicWatchParam(sourceUrl: string): string {
     return Number.isSafeInteger(page) && page > 1
       ? `${bilibiliMatch[1]}?p=${page}`
       : bilibiliMatch[1];
+  }
+  const parsed = parseUrl(trimmed);
+  if (parsed) {
+    const v = parsed.searchParams.get("v");
+    if (v && v !== trimmed) {
+      return toPublicWatchParam(v);
+    }
   }
   return (
     youtubeVideoIdFromUrl(trimmed) ??
