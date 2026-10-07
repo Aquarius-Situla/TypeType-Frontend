@@ -52,10 +52,10 @@ body {
 
 @keyframes danmaku-scroll {
   from {
-    transform: translateX(var(--d-from));
+    transform: translate3d(0, 0, 0);
   }
   to {
-    transform: translateX(var(--d-to));
+    transform: translate3d(calc(-100% - var(--d-width, 100cqw)), 0, 0);
   }
 }
 
