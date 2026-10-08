@@ -1,14 +1,11 @@
 import { useRef } from "react";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { supportsBulletComments } from "../lib/provider";
-import { toWatchSourceUrl } from "../lib/watch-url";
 import type { DefaultLayoutIcon, MenuInstance } from "../lib/vidstack";
-import {
-  DefaultMenuButton,
-  DefaultMenuRadioGroup,
-  Menu,
-} from "../lib/vidstack";
+import { DefaultMenuButton, DefaultMenuRadioGroup, Menu } from "../lib/vidstack";
+import { toWatchSourceUrl } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
+import { useB2YStore } from "../stores/b2y-store";
 import { useDanmakuStore } from "../stores/danmaku-store";
 import { DanmakuIcon } from "./watch-icons";
 
@@ -25,15 +22,20 @@ export function DanmakuSelector({ supported }: Props) {
   const { locale } = useInterfaceLocale();
   const menuRef = useRef<MenuInstance>(null);
   const { on, speed, size, setSpeed, setSize } = useDanmakuStore();
+  const b2yLinks = useB2YStore((s) => s.links);
+  const currentVideoId =
+    typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("v") : null;
+  const isB2YLinked = currentVideoId ? Boolean(b2yLinks[currentVideoId]) : false;
 
   const isSupported =
     supported ??
-    (typeof window !== "undefined"
-      ? supportsBulletComments(window.location.href) ||
-        supportsBulletComments(window.location.search) ||
-        supportsBulletComments(toWatchSourceUrl(window.location.href)) ||
-        Boolean(new URLSearchParams(window.location.search).get("v")?.match(/^BV|^sm\d+/i))
-      : true);
+    (isB2YLinked ||
+      (typeof window !== "undefined"
+        ? supportsBulletComments(window.location.href) ||
+          supportsBulletComments(window.location.search) ||
+          supportsBulletComments(toWatchSourceUrl(window.location.href)) ||
+          Boolean(new URLSearchParams(window.location.search).get("v")?.match(/^BV|^sm\d+/i))
+        : true));
 
   if (!isSupported) return null;
 
@@ -65,10 +67,7 @@ export function DanmakuSelector({ supported }: Props) {
       />
       <Menu.Items className={MENU_ITEMS_CLASS}>
         <Menu.Root className="vds-menu">
-          <DefaultMenuButton
-            label={m.ui_speed({}, { locale })}
-            hint={speedHint}
-          />
+          <DefaultMenuButton label={m.ui_speed({}, { locale })} hint={speedHint} />
           <Menu.Items className={MENU_ITEMS_CLASS}>
             <DefaultMenuRadioGroup
               value={speedStr}
@@ -86,10 +85,7 @@ export function DanmakuSelector({ supported }: Props) {
         </Menu.Root>
 
         <Menu.Root className="vds-menu">
-          <DefaultMenuButton
-            label={m.ui_size({}, { locale })}
-            hint={sizeHint}
-          />
+          <DefaultMenuButton label={m.ui_size({}, { locale })} hint={sizeHint} />
           <Menu.Items className={MENU_ITEMS_CLASS}>
             <DefaultMenuRadioGroup
               value={sizeStr}

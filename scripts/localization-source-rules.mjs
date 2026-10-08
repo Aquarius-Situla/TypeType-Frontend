@@ -24,17 +24,20 @@ export const allowedText = new Set([
   "light",
   "members_only",
   "delete",
+  "B2Y",
 ]);
 
 export const allowedFiles = new Set([
   "apps/web/src/lib/languages.ts",
   "apps/web/src/lib/openmoji-catalog.ts",
   "apps/web/src/settings/settings-focus-mode.tsx",
+  "apps/web/src/components/b2y-modal.tsx",
 ]);
 
 export const allowedTechnicalText = new Map([
   ["apps/web/src/components/portability-import-panel.tsx", new Set(["queryClient.setQueryData"])],
   ["apps/web/src/components/video-player-layout.tsx", new Set(["height"])],
+  ["apps/web/src/components/watch-actions.tsx", new Set(["B2Y", "B2Y 弹幕 (已联动)", "B2Y 弹幕"])],
   ["apps/web/src/hooks/use-interface-locale.tsx", new Set(["Promise"])],
   ["apps/web/src/routes/youtube-session.tsx", new Set(["unknown"])],
   [
