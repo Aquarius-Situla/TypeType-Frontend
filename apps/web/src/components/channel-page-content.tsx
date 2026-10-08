@@ -56,11 +56,7 @@ export function ChannelPageContent({ sourceUrl, sort, searchQuery, tab, onNaviga
   const entGroupSubs = useSubscriptions(focusMode.entertainmentGroupId ?? undefined);
   const isEntertainmentChannel = useMemo(() => {
     if (!focusMode.enabled || !focusMode.entertainmentGroupId) return false;
-    return (
-      entGroupSubs.query.data?.some(
-        (sub) => sub.url === sourceUrl || sub.channelUrl === sourceUrl,
-      ) ?? false
-    );
+    return entGroupSubs.query.data?.some((sub) => sub.channelUrl === sourceUrl) ?? false;
   }, [focusMode.enabled, focusMode.entertainmentGroupId, entGroupSubs.query.data, sourceUrl]);
 
   const visibleVideos = useMemo(() => {
