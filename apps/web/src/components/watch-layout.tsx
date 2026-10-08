@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useRef } from "react";
 import { useBlockedFilter } from "../hooks/use-blocked-filter";
 import { useDeArrowBranding } from "../hooks/use-dearrow";
 import { useMobile } from "../hooks/use-mobile";
@@ -11,10 +11,12 @@ import { useVolumeSync } from "../hooks/use-volume-sync";
 import { useWatchAudioOnlyPlayback } from "../hooks/use-watch-audio-only-playback";
 import { useWatchBulletComments } from "../hooks/use-watch-bullet-comments";
 import { useWatchVttAssets } from "../hooks/use-watch-layout-assets";
+import { useWatchLayoutFullscreenCleanup } from "../hooks/use-watch-layout-fullscreen";
+import { useWatchLayoutRecommendations } from "../hooks/use-watch-layout-recommendations";
+import { useWatchLiveChat } from "../hooks/use-watch-live-chat";
 import { useWatchPlaybackFlow } from "../hooks/use-watch-playback-flow";
 import { useWatchPlayerSourceState } from "../hooks/use-watch-player-source-state";
 import { useWatchPlaylist } from "../hooks/use-watch-playlist";
-import { useWatchRecommendations } from "../hooks/use-watch-recommendations";
 import { useWatchSponsorBlock } from "../hooks/use-watch-sponsorblock";
 import { useWatchToast } from "../hooks/use-watch-toast";
 import { getOriginalAudioLocale } from "../lib/audio-track";
@@ -49,21 +51,17 @@ export function WatchLayout({
     settings.hideComments,
   );
   const sponsor = useWatchSponsorBlock(stream, settings);
-  const recommendations = useWatchRecommendations(
+  const relatedStreams = useWatchLayoutRecommendations(
     stream,
     settings.defaultService,
     settings.hideRelatedVideos,
+    filter,
   );
-  const relatedStreams = useMemo(() => filter(recommendations), [filter, recommendations]);
   const playlist = useWatchPlaylist(list, shuffle, currentParam, stream.collections, stream.parts);
   const cinemaMode = useWatchLayoutStore((state) => state.cinemaMode);
   const webFullscreen = useWatchLayoutStore((state) => state.webFullscreen);
 
-  useEffect(() => {
-    return () => {
-      useWatchLayoutStore.getState().setWebFullscreen(false);
-    };
-  }, []);
+  useWatchLayoutFullscreenCleanup();
   const seekRef = useRef<((seconds: number) => void) | null>(null);
   const positionReaderRef = useRef<(() => number | null) | null>(null);
   const handleVolumeChange = useVolumeSync(update.mutate, settings);
@@ -85,6 +83,7 @@ export function WatchLayout({
     mutate: (position, keepalive) => save.mutate({ position, keepalive }),
     onPlay: player.clearFailed,
   });
+  const liveChat = useWatchLiveChat(stream.id, playerEvents.handleEnded);
   const audioOnly = useWatchAudioOnlyPlayback({
     currentParam,
     settings,
@@ -131,7 +130,7 @@ export function WatchLayout({
   });
   const classes = getWatchLayoutClasses(
     cinemaMode,
-    Boolean(!isMobile && (playlist.panel || relatedStreams.length > 0)),
+    Boolean(!isMobile && (playlist.panel || relatedStreams.length > 0 || liveChat.open)),
     webFullscreen,
   );
   const secondaryContent = (
@@ -187,7 +186,7 @@ export function WatchLayout({
         hideComments={settings.hideComments}
         mobilePanel={isMobile ? playlist.panel : null}
         mobileSecondaryContent={
-          isMobile && !cinemaMode && !webFullscreen && relatedStreams.length > 0
+          isMobile && !cinemaMode && !webFullscreen && (relatedStreams.length > 0 || liveChat.open)
             ? secondaryContent
             : null
         }
@@ -200,7 +199,7 @@ export function WatchLayout({
         onPause={playerEvents.handlePause}
         onSeeking={audioOnly.active ? () => undefined : player.handleSeeking}
         onSeeked={playerEvents.handleSeeked}
-        onEnded={playerEvents.handleEnded}
+        onEnded={liveChat.onEnded}
         onAutoplayPlayNow={autoplay.playNow}
         onAutoplayCancel={autoplay.cancel}
         onAutoplayPauseToggle={autoplay.togglePause}

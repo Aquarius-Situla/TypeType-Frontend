@@ -1,3 +1,4 @@
+import { MessageCircle } from "lucide-react";
 import { useRef, useState } from "react";
 import { useAuth } from "../hooks/use-auth";
 import { useFavoriteStatus } from "../hooks/use-favorite-status";
@@ -5,7 +6,8 @@ import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { useShareUrl } from "../hooks/use-share-url";
 import type { WatchAudioOnlyControls } from "../hooks/use-watch-audio-only-playback";
 import { prepareAudioSpectrum } from "../lib/audio-spectrum";
-import { supportsBulletComments } from "../lib/provider";
+import { useLiveChatStore } from "../lib/live-chat-store";
+import { detectProvider, supportsBulletComments } from "../lib/provider";
 import { goto } from "../lib/route-redirect";
 import { toPublicWatchUrl } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
@@ -49,6 +51,8 @@ export function WatchActions({ stream, audioOnly }: Props) {
     isPending: favPending,
   } = useFavoriteStatus(stream.id);
   const isLive = stream.streamType === "live_stream" || stream.streamType === "audio_live_stream";
+  const liveChatOpen = useLiveChatStore((state) => state.open && state.videoId === stream.id);
+  const toggleLiveChat = useLiveChatStore((state) => state.toggle);
   const audioOnlyAvailable = !isLive;
   const audioOnlyDisabled = !authReady || audioOnly.loading;
 
@@ -117,6 +121,16 @@ export function WatchActions({ stream, audioOnly }: Props) {
               ? m.watch_audio_loading({}, { locale })
               : m.watch_audio_only({}, { locale })}
           </span>
+        </WatchActionButton>
+      )}
+      {isLive && detectProvider(stream.id) === "youtube" && (
+        <WatchActionButton
+          onClick={() => toggleLiveChat(stream.id)}
+          pressed={liveChatOpen}
+          active={liveChatOpen}
+        >
+          <MessageCircle size={16} aria-hidden="true" />
+          <span className="typetype-adaptive-label">{m.watch_live_chat({}, { locale })}</span>
         </WatchActionButton>
       )}
       <WatchActionButton buttonRef={shareAnchorRef} onClick={() => setShareOpen(true)}>
