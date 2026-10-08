@@ -5,7 +5,7 @@ import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { useShareUrl } from "../hooks/use-share-url";
 import type { WatchAudioOnlyControls } from "../hooks/use-watch-audio-only-playback";
 import { prepareAudioSpectrum } from "../lib/audio-spectrum";
-import { detectProvider, supportsBulletComments } from "../lib/provider";
+import { supportsBulletComments } from "../lib/provider";
 import { goto } from "../lib/route-redirect";
 import { toPublicWatchUrl } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
@@ -85,9 +85,8 @@ export function WatchActions({ stream, audioOnly }: Props) {
 
   const showSave = true;
   const showReport = true;
-  const isYouTube = detectProvider(stream.id) === "youtube";
   const showDanmaku = supportsBulletComments(stream.id) || Boolean(b2yLink);
-  const showB2Y = isYouTube || Boolean(b2yLink);
+  const showB2Y = true;
 
   return (
     <div className="flex items-center gap-1 flex-wrap">
