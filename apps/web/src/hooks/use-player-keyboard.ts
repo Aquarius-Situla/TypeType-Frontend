@@ -10,6 +10,7 @@ import {
 } from "../components/player-hotkeys-utils";
 import { requestSabrSeek, requestSabrVidstackPlayback } from "../lib/sabr-vidstack-bridge";
 import { useMediaPlayer, useMediaRemote, useMediaState } from "../lib/vidstack";
+import { useDanmakuStore } from "../stores/danmaku-store";
 import { useWatchLayoutStore } from "../stores/watch-layout-store";
 import { useHoldFastForward } from "./use-hold-fast-forward";
 
@@ -90,6 +91,15 @@ export function usePlayerKeyboard(canSeek: boolean, sabrVideo: HTMLVideoElement 
       if (event.key === "t" || event.key === "T" || event.code === "KeyT") {
         consumeEvent(event);
         useWatchLayoutStore.getState().toggleCinemaMode();
+        return;
+      }
+      if (event.key === "d" || event.key === "D" || event.code === "KeyD") {
+        const el = event.target instanceof Element ? event.target : null;
+        if (el?.closest("input, textarea, select, [contenteditable='true'], [role='menu']")) {
+          return;
+        }
+        consumeEvent(event);
+        useDanmakuStore.getState().toggle();
         return;
       }
       if (event.code === "Space") {
