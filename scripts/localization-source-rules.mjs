@@ -29,6 +29,7 @@ export const allowedText = new Set([
 export const allowedFiles = new Set([
   "apps/web/src/lib/languages.ts",
   "apps/web/src/lib/openmoji-catalog.ts",
+  "apps/web/src/settings/settings-focus-mode.tsx",
 ]);
 
 export const allowedTechnicalText = new Map([
@@ -40,6 +41,10 @@ export const allowedTechnicalText = new Map([
     "apps/web/src/settings/settings-about.tsx",
     new Set(["Frontend", "Server", "Token", "Downloader"]),
   ],
+  [
+    "apps/web/src/routes/settings.tsx",
+    new Set(["Self-Discipline", "Digital detox, study & entertainment decay"]),
+  ],
 ]);
 
 export const propertySourceFiles = new Set([
@@ -49,6 +54,7 @@ export const propertySourceFiles = new Set([
   "apps/web/src/lib/search-filter-selection.ts",
   "apps/web/src/lib/sponsorblock-settings.ts",
   "apps/web/src/lib/video-availability.ts",
+  "apps/web/src/routes/settings.tsx",
 ]);
 
 export const helperSourceFiles = new Set([
