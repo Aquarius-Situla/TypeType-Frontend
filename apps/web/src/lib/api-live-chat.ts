@@ -58,6 +58,7 @@ export async function consumeLiveChatEvents(
     }
     if (buffer.trim()) dispatchSseBlock(buffer, onEvent);
   } finally {
+    await reader.cancel().catch(() => undefined);
     reader.releaseLock();
   }
 }

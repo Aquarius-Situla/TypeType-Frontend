@@ -73,3 +73,17 @@ test("preserves HTTP errors without marking the stream connected", async () => {
     globalThis.fetch = originalFetch;
   }
 });
+test("cancels the connection when an SSE error interrupts consumption", async () => {
+  let cancelled = false;
+  const stream = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(new TextEncoder().encode('event: error\ndata: {"error":"failed"}\n\n'));
+    },
+    cancel() {
+      cancelled = true;
+    },
+  });
+  await expect(consumeLiveChatEvents(stream, () => undefined)).rejects.toThrow("failed");
+  expect(cancelled).toBe(true);
+  expect(stream.locked).toBe(false);
+});
