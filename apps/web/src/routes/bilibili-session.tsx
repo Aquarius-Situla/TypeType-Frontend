@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect } from "react";
 import { BiliBiliIcon } from "../components/bilibili-icon";
+import { SessionPlatformNav } from "../components/session-platform-nav";
 import { Toast } from "../components/toast";
 import { useAuth } from "../hooks/use-auth";
 import { useBiliBiliSession } from "../hooks/use-bilibili-session";
@@ -48,11 +49,12 @@ function BiliBiliSessionPage() {
   }, [returnTo, session.qrPhase]);
 
   return (
-    <div className="flex w-full max-w-none flex-col gap-8 pt-2 [animation:page-fade-in_0.2s_ease-out]">
-      <div className="px-1">
+    <div className="flex w-full max-w-none flex-col gap-8 pt-2">
+      <div className="flex flex-wrap items-center justify-between gap-4 px-1">
         <Link to="/" className="w-fit text-fg-soft text-xs transition-colors hover:text-fg">
           {m.ui_back_home()}
         </Link>
+        <SessionPlatformNav active="bilibili" />
       </div>
 
       <section className="grid min-h-[28rem] gap-10 border-border border-y py-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-14 xl:grid-cols-[minmax(0,1fr)_24rem]">
@@ -150,11 +152,18 @@ function BiliBiliSessionPage() {
         <aside className="flex flex-col justify-center gap-5 border-border lg:border-l lg:pl-8">
           <div>
             <p className={SIDE_LABEL}>{m.admin_users_column_status()}</p>
-            <p className="mt-2 font-semibold text-fg text-lg">
-              {session.status.isPending ? m.ui_loading() : statusLabel}
-            </p>
-            {statusDescription && (
-              <p className="mt-2 text-fg-muted text-sm leading-6">{statusDescription}</p>
+            {session.status.isPending ? (
+              <div className="mt-2 flex flex-col gap-2">
+                <div className="h-7 w-28 animate-pulse rounded bg-surface-soft" />
+                <div className="h-5 w-52 animate-pulse rounded bg-surface-soft" />
+              </div>
+            ) : (
+              <>
+                <p className="mt-2 font-semibold text-fg text-lg">{statusLabel}</p>
+                {statusDescription && (
+                  <p className="mt-2 text-fg-muted text-sm leading-6">{statusDescription}</p>
+                )}
+              </>
             )}
           </div>
           <dl className="flex flex-col gap-4 border-border border-t pt-5">
@@ -166,12 +175,24 @@ function BiliBiliSessionPage() {
             )}
             <div>
               <dt className="text-fg-soft text-xs">{m.ui_updated()}</dt>
-              <dd className="mt-1 text-fg text-sm">{formatSessionTime(state?.updatedAt)}</dd>
+              <dd className="mt-1 text-fg text-sm">
+                {session.status.isPending ? (
+                  <span className="inline-block h-4 w-28 animate-pulse rounded bg-surface-soft" />
+                ) : (
+                  formatSessionTime(state?.updatedAt)
+                )}
+              </dd>
             </div>
           </dl>
           <button
             type="button"
-            disabled={!authReady || !isAuthed || !connected || session.disconnect.isPending}
+            disabled={
+              session.status.isPending ||
+              !authReady ||
+              !isAuthed ||
+              !connected ||
+              session.disconnect.isPending
+            }
             onClick={() => session.disconnect.mutate()}
             className="h-10 w-full border border-border-strong bg-transparent px-4 text-fg-muted text-sm transition-colors hover:border-danger hover:text-danger disabled:opacity-50"
           >
