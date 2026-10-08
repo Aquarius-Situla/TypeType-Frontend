@@ -2,7 +2,9 @@ import { useMemo } from "react";
 import { useBlockedFilter } from "../hooks/use-blocked-filter";
 import { useHomeRecommendations } from "../hooks/use-home-recommendations";
 import { useSettings } from "../hooks/use-settings";
+import { useSubscriptions } from "../hooks/use-subscriptions";
 import { m } from "../paraglide/messages.js";
+import { shouldFilterEntertainment, useFocusModeStore } from "../stores/focus-mode-store";
 import { FamilyListEmptyState } from "./family-list-empty-state";
 import { HomeFallbackSection } from "./home-fallback-section";
 import { ScrollSentinel } from "./scroll-sentinel";
@@ -14,7 +16,26 @@ export function HomeRecommendationsSection() {
     useHomeRecommendations();
   const { settings } = useSettings();
   const { filter } = useBlockedFilter();
-  const filtered = useMemo(() => filter(streams), [filter, streams]);
+  const focusMode = useFocusModeStore();
+  const entSubs = useSubscriptions(focusMode.entertainmentGroupId ?? undefined);
+
+  const entChannelUrls = useMemo(() => {
+    if (!focusMode.enabled || !focusMode.entertainmentGroupId) return new Set<string>();
+    return new Set(entSubs.query.data?.map((s) => s.channelUrl) ?? []);
+  }, [focusMode.enabled, focusMode.entertainmentGroupId, entSubs.query.data]);
+
+  const filtered = useMemo(() => {
+    const unblocked = filter(streams);
+    if (!focusMode.enabled || !focusMode.entertainmentGroupId || entChannelUrls.size === 0) {
+      return unblocked;
+    }
+    return unblocked.filter((stream) => {
+      if (stream.channelUrl && entChannelUrls.has(stream.channelUrl)) {
+        return !shouldFilterEntertainment(focusMode, stream.id);
+      }
+      return true;
+    });
+  }, [filter, streams, focusMode, entChannelUrls]);
 
   if (isLoading) return <VideoGridSkeleton idPrefix="home-recommendations" />;
   if (isError || filtered.length === 0) {

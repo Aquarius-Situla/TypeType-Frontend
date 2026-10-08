@@ -1,12 +1,14 @@
 export type SettingsSection =
   | "playback"
   | "video"
+  | "focus"
   | "home"
   | "language"
   | "service"
   | "notifications"
   | "import"
   | "api"
+  | "ai"
   | "privacy"
   | "blocked"
   | "rss"
@@ -18,12 +20,14 @@ export function isSettingsSection(value: unknown): value is SettingsSection {
   return (
     value === "playback" ||
     value === "video" ||
+    value === "focus" ||
     value === "home" ||
     value === "language" ||
     value === "service" ||
     value === "notifications" ||
     value === "import" ||
     value === "api" ||
+    value === "ai" ||
     value === "privacy" ||
     value === "blocked" ||
     value === "rss" ||

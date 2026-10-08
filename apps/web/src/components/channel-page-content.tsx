@@ -10,6 +10,7 @@ import type { ChannelTab } from "../lib/channel-route-url";
 import { detectProvider } from "../lib/provider";
 import { videoProgressUrl } from "../lib/video-progress";
 import { m } from "../paraglide/messages.js";
+import { useFocusModeStore } from "../stores/focus-mode-store";
 import { ChannelFilterBar } from "./channel-filter-bar";
 import { ChannelPageHeader } from "./channel-page-header";
 import { ChannelPlaylistsSection } from "./channel-playlists-section";
@@ -50,7 +51,29 @@ export function ChannelPageContent({ sourceUrl, sort, searchQuery, tab, onNaviga
   const provider = detectProvider(sourceUrl);
   const searchAvailable = provider === "youtube";
   const tabsAvailable = provider === "youtube" || provider === "nicovideo";
-  const visibleVideos = useMemo(() => filter(videos), [filter, videos]);
+
+  const focusMode = useFocusModeStore();
+  const entGroupSubs = useSubscriptions(focusMode.entertainmentGroupId ?? undefined);
+  const isEntertainmentChannel = useMemo(() => {
+    if (!focusMode.enabled || !focusMode.entertainmentGroupId) return false;
+    return entGroupSubs.query.data?.some((sub) => sub.channelUrl === sourceUrl) ?? false;
+  }, [focusMode.enabled, focusMode.entertainmentGroupId, entGroupSubs.query.data, sourceUrl]);
+
+  const visibleVideos = useMemo(() => {
+    const unblocked = filter(videos);
+    if (!focusMode.enabled || !isEntertainmentChannel) return unblocked;
+    const cutoffMs = Date.now() - focusMode.hideOldEntertainmentDays * 86_400_000;
+    return unblocked.filter((video) => {
+      const pub = video.publishedAt ?? 0;
+      return pub === 0 || pub >= cutoffMs;
+    });
+  }, [
+    filter,
+    videos,
+    focusMode.enabled,
+    focusMode.hideOldEntertainmentDays,
+    isEntertainmentChannel,
+  ]);
   const progressByUrl = useVideoProgressMap(visibleVideos);
   const isInitialLoading = isLoading && !meta;
   const isReplacingVideos = isFetching && !isFetchingNextPage && visibleVideos.length === 0;
@@ -136,6 +159,11 @@ export function ChannelPageContent({ sourceUrl, sort, searchQuery, tab, onNaviga
         onTabChange={selectTab}
         onSortChange={selectSort}
       />
+      {focusMode.enabled && isEntertainmentChannel && (
+        <div className="rounded-xl border border-border bg-surface-strong/50 p-3 text-xs text-fg">
+          <p className="font-medium">{m.settings_focus_mode_active_banner()}</p>
+        </div>
+      )}
       {tab === "playlists" ? (
         <ChannelPlaylistsSection channelUrl={sourceUrl} />
       ) : (

@@ -4,6 +4,7 @@ import {
   Bell,
   CircleHelp,
   Download,
+  Flame,
   Gauge,
   House,
   KeyRound,
@@ -12,6 +13,7 @@ import {
   Server,
   Shield,
   SlidersHorizontal,
+  Sparkles,
 } from "lucide-react";
 import { useEffect } from "react";
 import { SectionShell, type SectionShellItem } from "../components/section-shell";
@@ -26,9 +28,11 @@ import {
 } from "../lib/settings-section";
 import { m } from "../paraglide/messages.js";
 import { SettingsAbout } from "../settings/settings-about";
+import { SettingsAiSubtitles } from "../settings/settings-ai-subtitles";
 import { SettingsApi } from "../settings/settings-api";
 import { SettingsBackup } from "../settings/settings-backup";
 import { SettingsBlocked } from "../settings/settings-blocked";
+import { SettingsFocusMode } from "../settings/settings-focus-mode";
 import { SettingsLandingPage } from "../settings/settings-landing-page";
 import { SettingsLanguage } from "../settings/settings-language";
 import { SettingsNotifications } from "../settings/settings-notifications";
@@ -61,6 +65,12 @@ function baseItems(): Item[] {
       icon: SlidersHorizontal,
     },
     {
+      key: "focus",
+      label: m.settings_section_focus(),
+      description: m.settings_section_focus_desc(),
+      icon: Flame,
+    },
+    {
       key: "home",
       label: m.settings_interface_label(),
       description: m.settings_interface_description(),
@@ -89,6 +99,12 @@ function baseItems(): Item[] {
       label: m.settings_api_label(),
       description: m.settings_api_description(),
       icon: KeyRound,
+    },
+    {
+      key: "ai",
+      label: m.settings_section_ai(),
+      description: m.settings_section_ai_desc(),
+      icon: Sparkles,
     },
     {
       key: "privacy",
@@ -169,12 +185,14 @@ function SettingsPage() {
     >
       {activeSection === "playback" && <SettingsPlayback />}
       {activeSection === "video" && <SettingsVideoPreferences />}
+      {activeSection === "focus" && <SettingsFocusMode />}
       {activeSection === "home" && <SettingsLandingPage />}
       {activeSection === "language" && <SettingsLanguage />}
       {activeSection === "service" && <SettingsService />}
       {activeSection === "notifications" && <SettingsNotifications />}
       {activeSection === "import" && <SettingsBackup />}
       {activeSection === "api" && <SettingsApi />}
+      {activeSection === "ai" && <SettingsAiSubtitles />}
       {activeSection === "privacy" && <SettingsPrivacy />}
       {activeSection === "blocked" && <SettingsBlocked />}
       {activeSection === "rss" && showRss && (
