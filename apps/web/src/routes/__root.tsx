@@ -1,5 +1,5 @@
 import { createRootRoute, Outlet, useRouterState } from "@tanstack/react-router";
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { AppFooter } from "../components/app-footer";
 import { AuthBackdrop } from "../components/auth-backdrop";
 import { GuestDisabledScreen } from "../components/guest-disabled-screen";
@@ -61,7 +61,6 @@ function RootLayoutContent() {
   const watchPage = pathname === "/watch";
   const watchCinemaPage = pathname === "/watch" && cinemaMode;
   const watchWebFullscreenPage = pathname === "/watch" && webFullscreen;
-  const wasWatchCinemaPage = useRef(watchCinemaPage);
   useSessionActivityReporting(!framedEmbedPage);
 
   useEffect(() => {
@@ -86,11 +85,8 @@ function RootLayoutContent() {
   }, [isMobile, closeMobileSidebar]);
 
   useLayoutEffect(() => {
-    if (watchCinemaPage && !wasWatchCinemaPage.current && !isMobile) {
-      setSidebarCollapsed(true);
-    }
-    wasWatchCinemaPage.current = watchCinemaPage;
-  }, [watchCinemaPage, isMobile, setSidebarCollapsed]);
+    if (watchPage && !isMobile) setSidebarCollapsed(true);
+  }, [watchPage, isMobile, setSidebarCollapsed]);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -202,7 +198,7 @@ function RootLayoutContent() {
     ? "watch-page-main p-0 m-0 w-full h-full"
     : watchCinemaPage
       ? "watch-page-main transition-all duration-200 ml-0"
-      : `watch-page-main px-3 sm:px-4 ${mainBottomPad} transition-all duration-200 ${
+      : `watch-page-main px-2 sm:px-3 ${mainBottomPad} transition-all duration-200 ${
           isMobile ? "ml-0" : collapsed ? "ml-14" : "typetype-sidebar-offset"
         }`;
 

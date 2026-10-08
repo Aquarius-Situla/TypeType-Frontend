@@ -66,32 +66,35 @@ export function LiveChatPanel({ videoUrl, ended, className = "", onClose }: Prop
   return (
     <section
       aria-label={title}
-      className={`flex min-h-0 flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-lg ${className}`}
+      className={`flex min-h-0 flex-col overflow-hidden rounded-lg border border-white/10 bg-[#0f0f0f] text-white shadow-none ${className}`}
     >
-      <header className="flex h-11 shrink-0 items-center justify-between border-b border-border px-3">
-        <h2 className="text-sm font-semibold text-fg">{title}</h2>
+      <header className="flex h-12 shrink-0 items-center justify-between border-b border-white/10 px-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="size-2 shrink-0 rounded-full bg-red-500 animate-pulse" />
+          <h2 className="truncate text-sm font-semibold text-white">{title}</h2>
+        </div>
         <button
           type="button"
           onClick={onClose}
           aria-label={m.watch_live_chat_close({}, { locale })}
           title={m.watch_live_chat_close({}, { locale })}
-          className="flex size-8 items-center justify-center rounded-md text-fg-muted hover:bg-surface-strong hover:text-fg"
+          className="flex size-8 items-center justify-center rounded-md text-white/60 hover:bg-white/10 hover:text-white"
         >
           <X size={16} aria-hidden="true" />
         </button>
       </header>
       {status === "ended" && (
-        <p className="shrink-0 border-b border-border px-3 py-2 text-sm text-fg-soft">
+        <p className="shrink-0 border-b border-white/10 px-3 py-2 text-xs text-white/55">
           {m.watch_live_chat_ended({}, { locale })}
         </p>
       )}
       {status === "error" && (
-        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-3 py-2">
-          <p className="text-sm text-fg-soft">{m.watch_live_chat_error({}, { locale })}</p>
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 px-3 py-2">
+          <p className="text-xs text-white/55">{m.watch_live_chat_error({}, { locale })}</p>
           <button
             type="button"
             onClick={() => setRetryCount((count) => count + 1)}
-            className="inline-flex shrink-0 items-center gap-2 rounded-md px-2 py-1 text-sm text-fg hover:bg-surface-strong"
+            className="inline-flex shrink-0 items-center gap-2 rounded-md px-2 py-1 text-xs text-white hover:bg-white/10"
           >
             <RefreshCw size={14} aria-hidden="true" />
             {m.watch_live_chat_retry({}, { locale })}
@@ -110,20 +113,23 @@ export function LiveChatPanel({ videoUrl, ended, className = "", onClose }: Prop
         }}
       >
         {status === "connecting" && messages.length === 0 && (
-          <p className="px-3 py-4 text-sm text-fg-soft">
+          <p className="px-3 py-4 text-xs text-white/50">
             {m.watch_live_chat_connecting({}, { locale })}
           </p>
         )}
         {status === "connected" && messages.length === 0 && (
-          <p className="px-3 py-4 text-sm text-fg-soft">
+          <p className="px-3 py-4 text-xs text-white/50">
             {m.watch_live_chat_empty({}, { locale })}
           </p>
         )}
         {messages.map((message) => (
-          <div key={message.id} className="border-b border-border/60 px-3 py-2 text-sm text-fg">
+          <div
+            key={message.id}
+            className="border-b border-white/5 px-3 py-1.5 text-xs leading-5 text-white/90 hover:bg-white/[0.04]"
+          >
             <time
               dateTime={new Date(message.receivedAtMs).toISOString()}
-              className="mr-2 text-xs text-fg-soft"
+              className="mr-1.5 text-[11px] tabular-nums text-white/40"
             >
               {new Date(message.receivedAtMs).toLocaleTimeString(locale, {
                 hour: "2-digit",

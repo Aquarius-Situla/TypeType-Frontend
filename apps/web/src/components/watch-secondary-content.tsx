@@ -45,7 +45,7 @@ export function WatchSecondaryContent({
       className={
         isMobile
           ? "h-[62dvh] max-h-[62dvh] w-full"
-          : "h-[70vh] min-h-[20rem] max-h-[42rem] w-full lg:w-[24rem]"
+          : "h-[calc(100dvh-8rem)] min-h-[24rem] max-h-[44rem] w-full"
       }
     />
   ) : null;
@@ -57,7 +57,10 @@ export function WatchSecondaryContent({
     ) : null;
   const hasPlaylistPanel = Boolean(playlistPanel);
   const hasRelatedStreams = relatedStreams.length > 0;
-  const panelClassName = `w-full lg:flex-1 ${relatedVideoPanelClassName(settings.relatedVideoSize)} flex flex-col gap-6`;
+  const panelClassName =
+    liveChat && !isMobile
+      ? `w-full lg:w-[22rem] xl:w-[24rem] lg:flex-none ${relatedVideoPanelClassName(settings.relatedVideoSize)} flex flex-col gap-4`
+      : `w-full lg:flex-1 ${relatedVideoPanelClassName(settings.relatedVideoSize)} flex flex-col gap-6`;
 
   if (!cinemaMode) {
     if (!(hasPlaylistPanel || hasRelatedStreams || (liveChat && !isMobile))) return liveChatOverlay;

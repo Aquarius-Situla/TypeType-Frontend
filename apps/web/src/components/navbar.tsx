@@ -42,6 +42,7 @@ export function Navbar() {
   const logoTarget = defaultLandingPath(settings.defaultLandingPage) ?? "/";
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const authPage = isAuthPage(pathname);
+  const watchPage = pathname === "/watch";
   const canOpenSearch = !authPage;
   const showBackButton = isMobile && canOpenSearch && pathname !== "/";
   const navClass = isMobile
@@ -80,7 +81,7 @@ export function Navbar() {
             rel="noreferrer"
             aria-label={m.shell_support_typetype()}
             title={m.shell_support_typetype()}
-            className="hidden h-8 shrink-0 items-center gap-1.5 px-1 text-xs font-medium text-fg-muted hover:text-fg sm:inline-flex"
+            className={`${watchPage ? "hidden" : "hidden sm:inline-flex"} h-8 shrink-0 items-center gap-1.5 px-1 text-xs font-medium text-fg-muted hover:text-fg`}
           >
             <DollarSign size={15} />
             <span className="hidden sm:inline">{m.shell_support()}</span>
@@ -91,7 +92,7 @@ export function Navbar() {
             rel="noreferrer"
             aria-label="Lemmy"
             title="Lemmy"
-            className="hidden h-8 shrink-0 items-center gap-1.5 px-1 text-xs font-medium text-fg-muted hover:text-fg sm:inline-flex"
+            className={`${watchPage ? "hidden" : "hidden sm:inline-flex"} h-8 shrink-0 items-center gap-1.5 px-1 text-xs font-medium text-fg-muted hover:text-fg`}
           >
             <ServiceIcon path={siLemmy.path} color="currentColor" label="Lemmy" />
             <span className="hidden sm:inline">Lemmy</span>
