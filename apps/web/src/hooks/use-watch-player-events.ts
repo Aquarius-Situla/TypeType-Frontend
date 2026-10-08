@@ -27,6 +27,7 @@ export function useWatchPlayerEvents({
     playbackIntentRef.current = null;
   }
   const { positionRef, handleTimeUpdate, handlePause, handleSeeked } = useWatchProgressPersistence({
+    streamId: stream.id,
     durationSec: stream.duration,
     isLive,
     mutate,

@@ -12,18 +12,28 @@ type SaveReason =
   | "visibility";
 
 type Args = {
+  streamId: string;
   durationSec: number;
   isLive: boolean;
   mutate: MutateFn;
 };
 
-export function useWatchProgressPersistence({ durationSec, isLive, mutate }: Args) {
+export function useWatchProgressPersistence({ streamId, durationSec, isLive, mutate }: Args) {
+  const streamIdRef = useRef(streamId);
   const positionRef = useRef(0);
   const lastSavedPositionRef = useRef(0);
   const lastSeekedSaveRef = useRef(0);
   const maxPositionSeenRef = useRef(0);
   const mutateRef = useRef(mutate);
   mutateRef.current = mutate;
+
+  if (streamIdRef.current !== streamId) {
+    streamIdRef.current = streamId;
+    positionRef.current = 0;
+    lastSavedPositionRef.current = 0;
+    lastSeekedSaveRef.current = 0;
+    maxPositionSeenRef.current = 0;
+  }
 
   const saveRef = useRef<(reason: SaveReason) => void>(() => {});
   saveRef.current = (reason: SaveReason) => {
@@ -69,7 +79,7 @@ export function useWatchProgressPersistence({ durationSec, isLive, mutate }: Arg
   }, []);
 
   useEffect(() => {
-    if (isLive) return;
+    if (isLive || !streamId) return;
     const onVisibilityChange = () => {
       if (document.visibilityState === "hidden") saveRef.current("visibility");
     };
@@ -85,7 +95,7 @@ export function useWatchProgressPersistence({ durationSec, isLive, mutate }: Arg
       document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("pagehide", onPageHide);
     };
-  }, [isLive]);
+  }, [isLive, streamId]);
 
   return {
     positionRef,
