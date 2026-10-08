@@ -31,7 +31,7 @@ export function getWatchLayoutClasses(
         }`,
     playerBoxClass: cinemaMode
       ? "watch-player-box relative mx-auto aspect-video w-[min(100%,calc((100svh-4.5rem)*16/9))]"
-      : "watch-player-box watch-player-anchor relative overflow-hidden rounded-lg",
+      : "watch-player-box watch-player-anchor relative overflow-hidden rounded-none bg-black",
     playerClassName: cinemaMode
       ? "watch-player-surface w-full h-full dark [--video-aspect-ratio:16/9]"
       : "watch-player-surface",

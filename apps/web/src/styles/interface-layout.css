@@ -2,6 +2,20 @@
   --typetype-sidebar-width: 12rem;
 }
 
+.watch-page-shell-dark {
+  --color-app: #0f0f0f;
+  --color-surface: #181818;
+  --color-surface-strong: #272727;
+  --color-surface-soft: #333333;
+  --color-fg: #f1f1f1;
+  --color-fg-strong: #ffffff;
+  --color-fg-soft: #aaaaaa;
+  --color-fg-muted: #909090;
+  --color-border: #303030;
+  --color-border-strong: #404040;
+  color-scheme: dark;
+}
+
 /* Keep the shell and its content offset tied to one metric as labels grow. */
 .typetype-sidebar-expanded {
   width: var(--typetype-sidebar-width);
