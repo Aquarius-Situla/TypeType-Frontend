@@ -16,6 +16,7 @@ import {
   subscriptionsQueryOptions,
 } from "../lib/subscription-queries";
 import { m } from "../paraglide/messages.js";
+import { shouldFilterEntertainment, useFocusModeStore } from "../stores/focus-mode-store";
 
 function SubscriptionsPage() {
   const queryClient = useQueryClient();
@@ -36,7 +37,31 @@ function SubscriptionsPage() {
     error: feedError,
   } = useSubscriptionFeed(group);
   const { filter } = useBlockedFilter();
-  const visible = useMemo(() => filter(streams), [filter, streams]);
+  const focusMode = useFocusModeStore();
+  const entSubs = useSubscriptions(focusMode.entertainmentGroupId ?? undefined);
+
+  const entChannelUrls = useMemo(() => {
+    if (!focusMode.enabled || !focusMode.entertainmentGroupId) return new Set<string>();
+    return new Set(entSubs.query.data?.map((s) => s.url) ?? []);
+  }, [focusMode.enabled, focusMode.entertainmentGroupId, entSubs.query.data]);
+
+  const visible = useMemo(() => {
+    const unblocked = filter(streams);
+    if (
+      !focusMode.enabled ||
+      !focusMode.entertainmentGroupId ||
+      group !== "all" ||
+      entChannelUrls.size === 0
+    ) {
+      return unblocked;
+    }
+    return unblocked.filter((stream) => {
+      if (entChannelUrls.has(stream.uploaderUrl)) {
+        return !shouldFilterEntertainment(focusMode, stream.id);
+      }
+      return true;
+    });
+  }, [filter, streams, focusMode, group, entChannelUrls]);
 
   function prefetchChannels() {
     void queryClient.prefetchQuery(subscriptionsQueryOptions(group));

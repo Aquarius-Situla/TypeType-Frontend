@@ -4,6 +4,7 @@ import {
   Bell,
   CircleHelp,
   Download,
+  Flame,
   Gauge,
   House,
   KeyRound,
@@ -29,6 +30,7 @@ import { SettingsAbout } from "../settings/settings-about";
 import { SettingsApi } from "../settings/settings-api";
 import { SettingsBackup } from "../settings/settings-backup";
 import { SettingsBlocked } from "../settings/settings-blocked";
+import { SettingsFocusMode } from "../settings/settings-focus-mode";
 import { SettingsLandingPage } from "../settings/settings-landing-page";
 import { SettingsLanguage } from "../settings/settings-language";
 import { SettingsNotifications } from "../settings/settings-notifications";
@@ -59,6 +61,12 @@ function baseItems(): Item[] {
       label: m.settings_video_label(),
       description: m.settings_video_description(),
       icon: SlidersHorizontal,
+    },
+    {
+      key: "focus",
+      label: "Self-Discipline",
+      description: "Digital detox, study & entertainment decay",
+      icon: Flame,
     },
     {
       key: "home",
@@ -169,6 +177,7 @@ function SettingsPage() {
     >
       {activeSection === "playback" && <SettingsPlayback />}
       {activeSection === "video" && <SettingsVideoPreferences />}
+      {activeSection === "focus" && <SettingsFocusMode />}
       {activeSection === "home" && <SettingsLandingPage />}
       {activeSection === "language" && <SettingsLanguage />}
       {activeSection === "service" && <SettingsService />}
