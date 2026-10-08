@@ -76,8 +76,11 @@ export function LiveChatPanel({ videoUrl, ended, className = "", onClose }: Prop
     >
       <header className="flex h-12 shrink-0 items-center justify-between border-b border-white/10 px-3">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="size-2 shrink-0 rounded-full bg-red-500 animate-pulse" />
-          <h2 className="truncate text-sm font-semibold text-white">{title}</h2>
+          <span
+            aria-hidden="true"
+            className={`size-2 shrink-0 rounded-full ${status === "connected" ? "bg-red-500" : "bg-white/30"}`}
+          />
+          <h2 className="truncate text-base font-semibold text-white">{title}</h2>
         </div>
         <button
           type="button"
@@ -111,7 +114,7 @@ export function LiveChatPanel({ videoUrl, ended, className = "", onClose }: Prop
         ref={listRef}
         role="log"
         aria-live="polite"
-        className="min-h-0 flex-1 overflow-y-auto"
+        className="min-h-0 flex-1 overflow-y-auto py-2"
         onScroll={(event) => {
           const element = event.currentTarget;
           stickToBottom.current =
@@ -131,12 +134,9 @@ export function LiveChatPanel({ videoUrl, ended, className = "", onClose }: Prop
         {messages.map((message) => (
           <div
             key={message.id}
-            className="border-b border-white/5 px-3 py-1.5 text-xs leading-5 text-white/90 hover:bg-white/[0.04]"
+            className="px-4 py-1 text-sm leading-5 text-white/90 hover:bg-white/[0.04]"
           >
-            <time
-              dateTime={new Date(message.receivedAtMs).toISOString()}
-              className="mr-1.5 text-[11px] tabular-nums text-white/40"
-            >
+            <time dateTime={new Date(message.receivedAtMs).toISOString()} className="sr-only">
               {new Date(message.receivedAtMs).toLocaleTimeString(locale, {
                 hour: "2-digit",
                 minute: "2-digit",
