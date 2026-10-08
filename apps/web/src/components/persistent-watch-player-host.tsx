@@ -9,6 +9,7 @@ import {
 } from "../hooks/use-persistent-watch-player";
 import { isPlayerOutsideViewport } from "../lib/compact-player-position";
 import { m } from "../paraglide/messages.js";
+import { useUiStore } from "../stores/ui-store";
 import { useWatchLayoutStore } from "../stores/watch-layout-store";
 import { WatchStagePlayer } from "./watch-stage-player";
 
@@ -38,6 +39,7 @@ export function PersistentWatchPlayerHost() {
   const close = usePersistentWatchPlayerStore((state) => state.close);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const cinemaMode = useWatchLayoutStore((state) => state.cinemaMode);
+  const sidebarCollapsed = useUiStore((state) => state.sidebarCollapsed);
   const isMobile = useMobile();
   const frameRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragState | null>(null);
@@ -79,35 +81,83 @@ export function PersistentWatchPlayerHost() {
     );
   }, [entry?.anchor, watchPage]);
 
-  useLayoutEffect(() => {
+  const syncFrame = useCallback(() => {
+    const anchor = entry?.anchor;
+    const frame = frameRef.current;
+    if (anchor && frame && !outsideViewport && watchPage) {
+      const rect = anchor.getBoundingClientRect();
+      frame.style.top = `${rect.top}px`;
+      frame.style.left = `${rect.left}px`;
+      frame.style.width = `${rect.width}px`;
+      frame.style.height = `${rect.height}px`;
+    }
     updateAnchorRect();
-  }, [updateAnchorRect]);
+  }, [entry?.anchor, outsideViewport, watchPage, updateAnchorRect]);
+
+  useLayoutEffect(() => {
+    syncFrame();
+  }, [syncFrame]);
 
   useEffect(() => {
-    const observer = new ResizeObserver(updateAnchorRect);
+    const observer = new ResizeObserver(syncFrame);
     if (entry?.anchor) observer.observe(entry.anchor);
 
     const handleScroll = () => {
-      const anchor = entry?.anchor;
-      const frame = frameRef.current;
-      if (anchor && frame && !outsideViewport && watchPage) {
-        const rect = anchor.getBoundingClientRect();
-        frame.style.top = `${rect.top}px`;
-        frame.style.left = `${rect.left}px`;
-        frame.style.width = `${rect.width}px`;
-        frame.style.height = `${rect.height}px`;
-      }
-      updateAnchorRect();
+      syncFrame();
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true, capture: true });
-    window.addEventListener("resize", updateAnchorRect);
+    window.addEventListener("resize", syncFrame);
     return () => {
       observer.disconnect();
       window.removeEventListener("scroll", handleScroll, true);
-      window.removeEventListener("resize", updateAnchorRect);
+      window.removeEventListener("resize", syncFrame);
     };
-  }, [updateAnchorRect, entry?.anchor, outsideViewport, watchPage]);
+  }, [syncFrame, entry?.anchor]);
+
+  useEffect(() => {
+    if (!watchPage || outsideViewport) return;
+    let rafId: number;
+    const start = performance.now();
+    const duration = 280;
+    const tick = (now: number) => {
+      syncFrame();
+      if (now - start < duration) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        syncFrame();
+      }
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [sidebarCollapsed, watchPage, outsideViewport, syncFrame]);
+
+  useEffect(() => {
+    if (!watchPage || outsideViewport) return;
+    let rafId: number;
+    const handleTransition = () => {
+      cancelAnimationFrame(rafId);
+      const start = performance.now();
+      const duration = 280;
+      const tick = (now: number) => {
+        syncFrame();
+        if (now - start < duration) {
+          rafId = requestAnimationFrame(tick);
+        } else {
+          syncFrame();
+        }
+      };
+      rafId = requestAnimationFrame(tick);
+    };
+
+    window.addEventListener("transitionrun", handleTransition);
+    window.addEventListener("transitionend", syncFrame);
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("transitionrun", handleTransition);
+      window.removeEventListener("transitionend", syncFrame);
+    };
+  }, [watchPage, outsideViewport, syncFrame]);
 
   const floating = !watchPage || (!landscapeWatch && outsideViewport);
   const handlePointerMove = useCallback(
