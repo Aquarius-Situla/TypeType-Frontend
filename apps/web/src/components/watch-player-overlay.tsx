@@ -8,7 +8,6 @@ import { WatchPlayerDefaults } from "./watch-player-defaults";
 
 type Props = {
   canLoadBulletComments: boolean;
-  hideComments: boolean;
   bulletCommentsOn: boolean;
   bulletComments: BulletCommentItem[] | undefined;
   positionRef: RefObject<number>;
@@ -21,7 +20,6 @@ type Props = {
 
 export function WatchPlayerOverlay({
   canLoadBulletComments,
-  hideComments,
   bulletCommentsOn,
   bulletComments,
   positionRef,
@@ -33,7 +31,7 @@ export function WatchPlayerOverlay({
 }: Props) {
   return (
     <>
-      {canLoadBulletComments && !hideComments && bulletCommentsOn && bulletComments && (
+      {canLoadBulletComments && bulletCommentsOn && bulletComments && (
         <DanmakuOverlay comments={bulletComments} positionRef={positionRef} />
       )}
       <WatchPlayerDefaults

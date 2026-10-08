@@ -5,10 +5,9 @@ import { DanmakuIcon } from "./watch-icons";
 const BTN = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors";
 const BTN_IDLE = "text-fg-muted hover:text-fg hover:bg-surface-strong";
 const BTN_ON = "text-fg bg-surface-strong";
-const SLIDER = "w-20 accent-zinc-400 cursor-pointer";
 
 export function DanmakuControls() {
-  const { on, speed, size, toggle, setSpeed, setSize } = useDanmakuStore();
+  const { on, toggle } = useDanmakuStore();
   return (
     <div className="flex items-center gap-3 flex-wrap">
       <button
@@ -20,34 +19,6 @@ export function DanmakuControls() {
         <DanmakuIcon />
         {on ? m.ui_danmaku_on() : m.ui_danmaku()}
       </button>
-      {on && (
-        <div className="flex items-center gap-4 text-xs text-fg-muted">
-          <label className="flex items-center gap-1.5">
-            {m.ui_speed()}
-            <input
-              type="range"
-              min={0.5}
-              max={2}
-              step={0.1}
-              value={speed}
-              onChange={(e) => setSpeed(Number(e.target.value))}
-              className={SLIDER}
-            />
-          </label>
-          <label className="flex items-center gap-1.5">
-            {m.ui_size()}
-            <input
-              type="range"
-              min={0.5}
-              max={2}
-              step={0.1}
-              value={size}
-              onChange={(e) => setSize(Number(e.target.value))}
-              className={SLIDER}
-            />
-          </label>
-        </div>
-      )}
     </div>
   );
 }
