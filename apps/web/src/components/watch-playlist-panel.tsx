@@ -1,4 +1,4 @@
-import { ChevronDown, Plus, Shuffle } from "lucide-react";
+import { ChevronDown, FolderPlus, Shuffle } from "lucide-react";
 import { type DragEvent, type UIEvent, useEffect, useRef, useState } from "react";
 import { useFlipList } from "../hooks/use-flip-list";
 import { useMobile } from "../hooks/use-mobile";
@@ -122,50 +122,57 @@ export function WatchPlaylistPanel({
 
   return (
     <section className="overflow-hidden rounded-xl border border-border bg-surface">
-      <div className="flex items-center gap-2 border-border border-b px-3 py-3">
+      <div className="flex items-start justify-between gap-2 border-border border-b px-3 py-2.5">
         <button
           type="button"
           onClick={() => setCollapsed((value) => !value)}
-          className="flex min-w-0 flex-1 flex-col items-start text-left"
+          className="flex min-w-0 max-w-[calc(100%-84px)] flex-1 flex-col items-start overflow-hidden text-left"
         >
-          <span className="truncate font-medium text-fg text-sm">{name}</span>
-          <span className="text-fg-soft text-xs">
+          <span
+            className="w-full line-clamp-2 break-words font-medium text-fg text-sm leading-snug"
+            title={name}
+          >
+            {name}
+          </span>
+          <span className="mt-1 text-fg-soft text-xs">
             {currentIndex >= 0 ? currentIndex + 1 : "-"} / {displayVideos.length}
           </span>
         </button>
-        {onToggleShuffle && (
+        <div className="flex shrink-0 items-center gap-1.5">
+          {onToggleShuffle && (
+            <button
+              type="button"
+              onClick={onToggleShuffle}
+              aria-label={m.ui_shuffle_playlist()}
+              title={m.ui_shuffle_playlist()}
+              className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors ${
+                shuffle ? "bg-fg text-app" : "text-fg-muted hover:bg-surface-strong hover:text-fg"
+              }`}
+            >
+              <Shuffle className="h-3.5 w-3.5" aria-hidden="true" />
+            </button>
+          )}
           <button
             type="button"
-            onClick={onToggleShuffle}
-            aria-label={m.ui_shuffle_playlist()}
-            title={m.ui_shuffle_playlist()}
-            className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors ${
-              shuffle ? "bg-fg text-app" : "text-fg-muted hover:bg-surface-strong hover:text-fg"
-            }`}
+            onClick={(e) => setAddDropdownAnchor(e.currentTarget)}
+            aria-label={m.watch_save_playlist()}
+            title={m.watch_save_playlist()}
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border text-fg-muted transition-colors hover:border-border-strong hover:bg-surface-strong hover:text-fg"
           >
-            <Shuffle className="h-3.5 w-3.5" aria-hidden="true" />
+            <FolderPlus className="h-3.5 w-3.5" aria-hidden="true" />
           </button>
-        )}
-        <button
-          type="button"
-          onClick={(e) => setAddDropdownAnchor(e.currentTarget)}
-          aria-label={m.watch_save_playlist()}
-          title={m.watch_save_playlist()}
-          className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border text-fg-muted transition-colors hover:border-border-strong hover:bg-surface-strong hover:text-fg"
-        >
-          <Plus className="h-3.5 w-3.5" aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          onClick={() => setCollapsed((value) => !value)}
-          aria-label={collapsed ? m.ui_expand_playlist() : m.ui_collapse_playlist()}
-          className="shrink-0 text-fg-muted transition-colors hover:text-fg"
-        >
-          <ChevronDown
-            className={`h-4 w-4 transition-transform ${collapsed ? "" : "rotate-180"}`}
-            aria-hidden="true"
-          />
-        </button>
+          <button
+            type="button"
+            onClick={() => setCollapsed((value) => !value)}
+            aria-label={collapsed ? m.ui_expand_playlist() : m.ui_collapse_playlist()}
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center text-fg-muted transition-colors hover:text-fg"
+          >
+            <ChevronDown
+              className={`h-4 w-4 transition-transform ${collapsed ? "" : "rotate-180"}`}
+              aria-hidden="true"
+            />
+          </button>
+        </div>
       </div>
       {!collapsed && sections && sections.length > 1 && (
         <div className="flex items-center gap-1.5 overflow-x-auto border-border border-b px-3 py-2 no-scrollbar">
