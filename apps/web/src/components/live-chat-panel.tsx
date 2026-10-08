@@ -39,6 +39,7 @@ export function LiveChatPanel({ videoUrl, ended, className = "", onClose }: Prop
           return;
         }
         setStatus("connected");
+        if (event.type === "connected") return;
         setMessages((current) => [...current, event.message].slice(-MAX_MESSAGES));
       })
         .then(() => {

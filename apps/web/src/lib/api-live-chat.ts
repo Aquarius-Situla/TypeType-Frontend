@@ -7,7 +7,10 @@ export type LiveChatMessage = {
   receivedAtMs: number;
 };
 
-export type LiveChatEvent = { type: "message"; message: LiveChatMessage } | { type: "ended" };
+export type LiveChatEvent =
+  | { type: "connected" }
+  | { type: "message"; message: LiveChatMessage }
+  | { type: "ended" };
 
 export async function connectYoutubeLiveChat(
   videoUrl: string,
@@ -17,12 +20,13 @@ export async function connectYoutubeLiveChat(
   const query = new URLSearchParams({ url: videoUrl });
   const response = await fetch(
     `${API_BASE}/live-chat?${query}`,
-    optionalBearer({ signal, headers: { Accept: "text/event-stream" } }),
+    optionalBearer({ signal, headers: { Accept: "text/event-stream, application/json" } }),
   );
   if (!response.ok) throw new Error("Live chat request failed");
   if (!response.headers.get("Content-Type")?.includes("text/event-stream") || !response.body) {
     throw new Error("Live chat stream is unavailable");
   }
+  onEvent({ type: "connected" });
   await consumeLiveChatEvents(response.body, onEvent);
 }
 

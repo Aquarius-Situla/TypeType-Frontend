@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { consumeLiveChatEvents } from "../src/lib/api-live-chat";
+import { connectYoutubeLiveChat, consumeLiveChatEvents } from "../src/lib/api-live-chat";
 
 test("parses a message split across SSE chunks and ignores heartbeats", async () => {
   const encoder = new TextEncoder();
@@ -29,4 +29,23 @@ test("converts SSE errors to rejected requests", async () => {
     },
   });
   await expect(consumeLiveChatEvents(stream, () => undefined)).rejects.toThrow("failed");
+});
+
+test("connects an empty stream and accepts JSON errors", async () => {
+  const originalFetch = globalThis.fetch;
+  const events: unknown[] = [];
+  globalThis.fetch = (async (_input, init) => {
+    expect(new Headers(init?.headers).get("Accept")).toContain("application/json");
+    return new Response("", { headers: { "Content-Type": "text/event-stream" } });
+  }) as typeof fetch;
+  try {
+    await connectYoutubeLiveChat(
+      "https://www.youtube.com/watch?v=live",
+      new AbortController().signal,
+      (event) => events.push(event),
+    );
+    expect(events).toEqual([{ type: "connected" }]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });
