@@ -11,6 +11,7 @@ import { toPublicWatchUrl } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
 import { useB2YStore } from "../stores/b2y-store";
 import type { VideoStream } from "../types/stream";
+import { AiSubtitlesModal } from "./ai-subtitles-modal";
 import { B2YModal } from "./b2y-modal";
 import { DanmakuControls } from "./danmaku-controls";
 import { DownloadSheet } from "./download-sheet";
@@ -41,6 +42,7 @@ export function WatchActions({ stream, audioOnly }: Props) {
   const [reportOpen, setReportOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [b2yOpen, setB2yOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
   const [toastLabel, setToastLabel] = useState<string | null>(null);
   const saveAnchorRef = useRef<HTMLButtonElement>(null);
   const shareAnchorRef = useRef<HTMLButtonElement>(null);
@@ -173,6 +175,10 @@ export function WatchActions({ stream, audioOnly }: Props) {
           </span>
         </WatchActionButton>
       )}
+      <WatchActionButton onClick={() => setAiOpen(true)}>
+        <span className="text-xs font-bold text-indigo-400">✨</span>
+        <span className="typetype-adaptive-label">AI 字幕</span>
+      </WatchActionButton>
       {showDanmaku && <DanmakuControls />}
       {showReport && isAuthed && (
         <WatchActionButton onClick={() => setReportOpen(true)}>
@@ -203,6 +209,14 @@ export function WatchActions({ stream, audioOnly }: Props) {
           streamId={stream.id}
           streamTitle={stream.title}
           onSuccessToast={handleSaved}
+        />
+      )}
+      {aiOpen && (
+        <AiSubtitlesModal
+          isOpen={aiOpen}
+          onClose={() => setAiOpen(false)}
+          stream={stream}
+          onToast={handleSaved}
         />
       )}
     </div>
