@@ -42,7 +42,7 @@ function SubscriptionsPage() {
 
   const entChannelUrls = useMemo(() => {
     if (!focusMode.enabled || !focusMode.entertainmentGroupId) return new Set<string>();
-    return new Set(entSubs.query.data?.map((s) => s.url) ?? []);
+    return new Set(entSubs.query.data?.map((s) => s.channelUrl) ?? []);
   }, [focusMode.enabled, focusMode.entertainmentGroupId, entSubs.query.data]);
 
   const visible = useMemo(() => {
@@ -56,7 +56,7 @@ function SubscriptionsPage() {
       return unblocked;
     }
     return unblocked.filter((stream) => {
-      if (entChannelUrls.has(stream.uploaderUrl)) {
+      if (stream.channelUrl && entChannelUrls.has(stream.channelUrl)) {
         return !shouldFilterEntertainment(focusMode, stream.id);
       }
       return true;
