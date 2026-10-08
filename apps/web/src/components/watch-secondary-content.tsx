@@ -4,6 +4,7 @@ import type { WatchAudioOnlyControls } from "../hooks/use-watch-audio-only-playb
 import { relatedVideoPanelClassName } from "../lib/layout-preferences";
 import type { VideoStream } from "../types/stream";
 import { RelatedVideos } from "./related-videos";
+import { getWatchSecondaryMetaContainerClass } from "./watch-layout-classes";
 import { WatchMeta } from "./watch-meta";
 
 type Props = {
@@ -41,9 +42,12 @@ export function WatchSecondaryContent({
     );
   }
 
+  const hasSideContent = hasPlaylistPanel || hasRelatedStreams;
+  const metaContainerClassName = getWatchSecondaryMetaContainerClass(hasSideContent);
+
   return (
     <div className="mx-auto flex w-full max-w-[1700px] flex-col gap-6 px-4 lg:flex-row lg:items-start">
-      <div className="min-w-0 flex-[2] max-w-[1200px] flex flex-col gap-4">
+      <div className={metaContainerClassName}>
         <WatchMeta
           stream={stream}
           showComments={showComments}
@@ -51,7 +55,7 @@ export function WatchSecondaryContent({
           audioOnly={audioOnly}
         />
       </div>
-      {(hasPlaylistPanel || hasRelatedStreams) && (
+      {hasSideContent && (
         <div className={panelClassName}>
           {playlistPanel}
           {hasRelatedStreams && <RelatedVideos streams={relatedStreams} />}

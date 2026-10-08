@@ -38,3 +38,9 @@ export function getWatchLayoutClasses(
     mediaClassName: cinemaMode ? "object-cover" : undefined,
   };
 }
+
+export function getWatchSecondaryMetaContainerClass(hasSideContent: boolean): string {
+  return hasSideContent
+    ? "min-w-0 flex-[2] max-w-[1200px] flex flex-col gap-4"
+    : "min-w-0 w-full flex-1 max-w-full flex flex-col gap-4";
+}
