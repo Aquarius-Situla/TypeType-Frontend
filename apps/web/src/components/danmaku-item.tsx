@@ -46,7 +46,7 @@ export function DanmakuItem({
   if (comment.position === "REGULAR") {
     let animDelayMs: number;
     if (elapsedMs < 0) {
-      animDelayMs = Math.round((-elapsedMs) / effectiveSpeed);
+      animDelayMs = Math.round(-elapsedMs / effectiveSpeed);
     } else if (elapsedMs <= 500) {
       // Natural entrance jitter buffer: start cleanly from offscreen right edge (left: 100%)
       animDelayMs = 0;
