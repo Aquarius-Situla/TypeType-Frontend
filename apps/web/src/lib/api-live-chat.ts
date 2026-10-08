@@ -22,7 +22,14 @@ export async function connectYoutubeLiveChat(
     `${API_BASE}/live-chat?${query}`,
     optionalBearer({ signal, headers: { Accept: "text/event-stream, application/json" } }),
   );
-  if (!response.ok) throw new Error("Live chat request failed");
+  if (!response.ok) {
+    const payload: unknown = await response.json().catch(() => null);
+    const reason =
+      isRecord(payload) && typeof payload.error === "string"
+        ? payload.error
+        : `Live chat request failed (HTTP ${response.status})`;
+    throw new Error(reason);
+  }
   if (!response.headers.get("Content-Type")?.includes("text/event-stream") || !response.body) {
     throw new Error("Live chat stream is unavailable");
   }
@@ -74,8 +81,8 @@ function dispatchSseBlock(block: string, onEvent: (event: LiveChatEvent) => void
   const payload: unknown = JSON.parse(data.join("\n"));
   if (eventName === "error") {
     const message =
-      isRecord(payload) && typeof payload.message === "string"
-        ? payload.message
+      isRecord(payload) && typeof payload.error === "string"
+        ? payload.error
         : "Live chat retrieval failed";
     throw new Error(message);
   }

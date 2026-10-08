@@ -2,6 +2,7 @@ import { RefreshCw, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { connectYoutubeLiveChat, type LiveChatMessage } from "../lib/api-live-chat";
+import { debugConsole } from "../lib/debug-console";
 import { m } from "../paraglide/messages.js";
 
 type Props = {
@@ -45,7 +46,11 @@ export function LiveChatPanel({ videoUrl, ended, className = "", onClose }: Prop
         .then(() => {
           if (!controller.signal.aborted) setStatus("error");
         })
-        .catch(() => {
+        .catch((error: unknown) => {
+          if (!controller.signal.aborted)
+            debugConsole("live_chat.error", {
+              message: error instanceof Error ? error.message : String(error),
+            });
           if (!controller.signal.aborted) setStatus("error");
         });
     }, retryDelayMs);

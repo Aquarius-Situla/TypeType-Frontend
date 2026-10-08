@@ -24,7 +24,9 @@ test("parses a message split across SSE chunks and ignores heartbeats", async ()
 test("converts SSE errors to rejected requests", async () => {
   const stream = new ReadableStream<Uint8Array>({
     start(controller) {
-      controller.enqueue(new TextEncoder().encode('event: error\ndata: {"message":"failed"}\n\n'));
+      controller.enqueue(
+        new TextEncoder().encode('event: error\ndata: {"error":"failed","code":"error"}\n\n'),
+      );
       controller.close();
     },
   });
@@ -45,6 +47,28 @@ test("connects an empty stream and accepts JSON errors", async () => {
       (event) => events.push(event),
     );
     expect(events).toEqual([{ type: "connected" }]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("preserves HTTP errors without marking the stream connected", async () => {
+  const originalFetch = globalThis.fetch;
+  const events: unknown[] = [];
+  globalThis.fetch = (async () =>
+    new Response(JSON.stringify({ error: "Chat disabled", code: "error" }), {
+      status: 422,
+      headers: { "Content-Type": "application/json" },
+    })) as typeof fetch;
+  try {
+    await expect(
+      connectYoutubeLiveChat(
+        "https://www.youtube.com/watch?v=live",
+        new AbortController().signal,
+        (event) => events.push(event),
+      ),
+    ).rejects.toThrow("Chat disabled");
+    expect(events).toEqual([]);
   } finally {
     globalThis.fetch = originalFetch;
   }
