@@ -11,7 +11,6 @@ import { toPublicWatchUrl } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
 import { useB2YStore } from "../stores/b2y-store";
 import type { VideoStream } from "../types/stream";
-import { B2YModal } from "./b2y-modal";
 import { DanmakuControls } from "./danmaku-controls";
 import { DownloadSheet } from "./download-sheet";
 import { PlaylistAddDropdown } from "./playlist-add-dropdown";
@@ -40,7 +39,6 @@ export function WatchActions({ stream, audioOnly }: Props) {
   const [downloadOpen, setDownloadOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
-  const [b2yOpen, setB2yOpen] = useState(false);
   const [toastLabel, setToastLabel] = useState<string | null>(null);
   const saveAnchorRef = useRef<HTMLButtonElement>(null);
   const shareAnchorRef = useRef<HTMLButtonElement>(null);
@@ -86,7 +84,6 @@ export function WatchActions({ stream, audioOnly }: Props) {
   const showSave = true;
   const showReport = true;
   const showDanmaku = supportsBulletComments(stream.id) || Boolean(b2yLink);
-  const showB2Y = true;
 
   return (
     <div className="flex items-center gap-1 flex-wrap">
@@ -161,18 +158,6 @@ export function WatchActions({ stream, audioOnly }: Props) {
         onSaved={handleSaved}
         className="typetype-adaptive-control inline-flex min-h-8 min-w-0 max-w-full flex-wrap items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-center text-sm leading-tight text-fg-muted transition-colors hover:bg-surface-strong hover:text-fg"
       />
-      {showB2Y && (
-        <WatchActionButton
-          onClick={() => setB2yOpen(true)}
-          pressed={Boolean(b2yLink)}
-          active={Boolean(b2yLink)}
-        >
-          <span className="text-xs font-bold text-pink-500">B2Y</span>
-          <span className="typetype-adaptive-label">
-            {b2yLink ? "B2Y 弹幕 (已联动)" : "B2Y 弹幕"}
-          </span>
-        </WatchActionButton>
-      )}
       {showDanmaku && <DanmakuControls />}
       {showReport && isAuthed && (
         <WatchActionButton onClick={() => setReportOpen(true)}>
@@ -196,15 +181,6 @@ export function WatchActions({ stream, audioOnly }: Props) {
         />
       )}
       {reportOpen && <ReportBugModal videoUrl={stream.id} onClose={() => setReportOpen(false)} />}
-      {b2yOpen && (
-        <B2YModal
-          isOpen={b2yOpen}
-          onClose={() => setB2yOpen(false)}
-          streamId={stream.id}
-          streamTitle={stream.title}
-          onSuccessToast={handleSaved}
-        />
-      )}
     </div>
   );
 }

@@ -34,8 +34,7 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
   useEffect(() => {
     const el = overlayRef.current;
     const video =
-      el?.closest(".vds-media-player")?.querySelector("video") ||
-      document.querySelector("video");
+      el?.closest(".vds-media-player")?.querySelector("video") || document.querySelector("video");
     videoRef.current = video;
     if (!video) return;
 
@@ -53,12 +52,11 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
   }, []);
 
   const indexed = useMemo<IndexedComment[]>(
-    () =>
-      comments
-        .map((c, i) => ({ ...c, lane: i % N_LANES, id: i })),
+    () => comments.map((c, i) => ({ ...c, lane: i % N_LANES, id: i })),
     [comments],
   );
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reset epoch on param changes
   useEffect(() => {
     startMsMap.current.clear();
     setSeekEpoch((e) => e + 1);
@@ -148,21 +146,23 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
   return (
     <div
       ref={overlayRef}
-      style={{
-        position: "absolute",
-        inset: 0,
-        overflow: "hidden",
-        pointerEvents: "none",
-        zIndex: 20,
-        isolation: "isolate",
-        contain: "paint layout",
-        clipPath: "inset(0)",
-        WebkitClipPath: "inset(0)",
-        containerType: "inline-size",
-        transform: "translate3d(0, 0, 0)",
-        WebkitTransform: "translate3d(0, 0, 0)",
-        "--d-width": `${width}px`,
-      } as React.CSSProperties}
+      style={
+        {
+          position: "absolute",
+          inset: 0,
+          overflow: "hidden",
+          pointerEvents: "none",
+          zIndex: 20,
+          isolation: "isolate",
+          contain: "paint layout",
+          clipPath: "inset(0)",
+          WebkitClipPath: "inset(0)",
+          containerType: "inline-size",
+          transform: "translate3d(0, 0, 0)",
+          WebkitTransform: "translate3d(0, 0, 0)",
+          "--d-width": `${width}px`,
+        } as React.CSSProperties
+      }
     >
       {visible.map((c) => (
         <DanmakuItem
