@@ -10,7 +10,12 @@ export type B2YLink = {
 
 type B2YStore = {
   links: Record<string, B2YLink>;
-  setLink: (youtubeId: string, bilibiliUrlOrBv: string, bilibiliTitle?: string, offsetSeconds?: number) => void;
+  setLink: (
+    youtubeId: string,
+    bilibiliUrlOrBv: string,
+    bilibiliTitle?: string,
+    offsetSeconds?: number,
+  ) => void;
   setOffset: (youtubeId: string, offsetSeconds: number) => void;
   removeLink: (youtubeId: string) => void;
   getLink: (youtubeId: string) => B2YLink | undefined;

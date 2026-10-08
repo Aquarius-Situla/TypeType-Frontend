@@ -20,14 +20,10 @@ export function useWatchBulletComments(videoUrl: string, enabled = true) {
   const b2yLink = useB2YStore((s) => s.links[streamId]);
   const isB2Y = !nativeSupported && Boolean(b2yLink);
 
-  const targetUrl =
-    isB2Y && b2yLink ? normalizeBilibiliTarget(b2yLink.bilibiliUrlOrBv) : sourceUrl;
+  const targetUrl = isB2Y && b2yLink ? normalizeBilibiliTarget(b2yLink.bilibiliUrlOrBv) : sourceUrl;
   const canLoadBulletComments = nativeSupported || isB2Y;
 
-  const { data: rawComments } = useBulletComments(
-    targetUrl,
-    canLoadBulletComments && enabled,
-  );
+  const { data: rawComments } = useBulletComments(targetUrl, canLoadBulletComments && enabled);
 
   const bulletComments = useMemo(() => {
     if (!rawComments) return undefined;
