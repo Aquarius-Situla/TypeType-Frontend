@@ -1,4 +1,5 @@
-import { useRef } from "react";
+import { MessageSquareShare } from "lucide-react";
+import { useRef, useState } from "react";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { supportsBulletComments } from "../lib/provider";
 import type { DefaultLayoutIcon, MenuInstance } from "../lib/vidstack";
@@ -7,6 +8,7 @@ import { toWatchSourceUrl } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
 import { useB2YStore } from "../stores/b2y-store";
 import { useDanmakuStore } from "../stores/danmaku-store";
+import { B2YModal } from "./b2y-modal";
 import { DanmakuIcon } from "./watch-icons";
 
 const danmakuIcon: DefaultLayoutIcon = (props) => <DanmakuIcon {...props} />;
@@ -21,6 +23,7 @@ type Props = {
 export function DanmakuSelector({ supported }: Props) {
   const { locale } = useInterfaceLocale();
   const menuRef = useRef<MenuInstance>(null);
+  const [b2yModalOpen, setB2yModalOpen] = useState(false);
   const { on, speed, size, setSpeed, setSize } = useDanmakuStore();
   const b2yLinks = useB2YStore((s) => s.links);
   const currentVideoId =
@@ -59,49 +62,82 @@ export function DanmakuSelector({ supported }: Props) {
   const danmakuHint = on ? `${speedHint} · ${sizeHint}` : m.player_off({}, { locale });
 
   return (
-    <Menu.Root ref={menuRef} className="vds-danmaku-menu vds-menu">
-      <DefaultMenuButton
-        label={m.ui_danmaku({}, { locale })}
-        hint={danmakuHint}
-        Icon={danmakuIcon}
-      />
-      <Menu.Items className={MENU_ITEMS_CLASS}>
-        <Menu.Root className="vds-menu">
-          <DefaultMenuButton label={m.ui_speed({}, { locale })} hint={speedHint} />
-          <Menu.Items className={MENU_ITEMS_CLASS}>
-            <DefaultMenuRadioGroup
-              value={speedStr}
-              options={[
-                { label: m.danmaku_speed_slow({}, { locale }), value: "0.75" },
-                { label: m.danmaku_speed_normal({}, { locale }), value: "1" },
-                { label: m.danmaku_speed_fast({}, { locale }), value: "1.25" },
-              ]}
-              onChange={(val) => {
-                setSpeed(Number(val));
-                menuRef.current?.close();
-              }}
-            />
-          </Menu.Items>
-        </Menu.Root>
+    <>
+      <Menu.Root ref={menuRef} className="vds-danmaku-menu vds-menu">
+        <DefaultMenuButton
+          label={m.ui_danmaku({}, { locale })}
+          hint={danmakuHint}
+          Icon={danmakuIcon}
+        />
+        <Menu.Items className={MENU_ITEMS_CLASS}>
+          <Menu.Root className="vds-menu">
+            <DefaultMenuButton label={m.ui_speed({}, { locale })} hint={speedHint} />
+            <Menu.Items className={MENU_ITEMS_CLASS}>
+              <DefaultMenuRadioGroup
+                value={speedStr}
+                options={[
+                  { label: m.danmaku_speed_slow({}, { locale }), value: "0.75" },
+                  { label: m.danmaku_speed_normal({}, { locale }), value: "1" },
+                  { label: m.danmaku_speed_fast({}, { locale }), value: "1.25" },
+                ]}
+                onChange={(val) => {
+                  setSpeed(Number(val));
+                  menuRef.current?.close();
+                }}
+              />
+            </Menu.Items>
+          </Menu.Root>
 
-        <Menu.Root className="vds-menu">
-          <DefaultMenuButton label={m.ui_size({}, { locale })} hint={sizeHint} />
-          <Menu.Items className={MENU_ITEMS_CLASS}>
-            <DefaultMenuRadioGroup
-              value={sizeStr}
-              options={[
-                { label: m.danmaku_size_small({}, { locale }), value: "0.8" },
-                { label: m.danmaku_size_normal({}, { locale }), value: "1" },
-                { label: m.danmaku_size_large({}, { locale }), value: "1.25" },
-              ]}
-              onChange={(val) => {
-                setSize(Number(val));
+          <Menu.Root className="vds-menu">
+            <DefaultMenuButton label={m.ui_size({}, { locale })} hint={sizeHint} />
+            <Menu.Items className={MENU_ITEMS_CLASS}>
+              <DefaultMenuRadioGroup
+                value={sizeStr}
+                options={[
+                  { label: m.danmaku_size_small({}, { locale }), value: "0.8" },
+                  { label: m.danmaku_size_normal({}, { locale }), value: "1" },
+                  { label: m.danmaku_size_large({}, { locale }), value: "1.25" },
+                ]}
+                onChange={(val) => {
+                  setSize(Number(val));
+                  menuRef.current?.close();
+                }}
+              />
+            </Menu.Items>
+          </Menu.Root>
+
+          {currentVideoId && (
+            <button
+              type="button"
+              onClick={() => {
                 menuRef.current?.close();
+                setB2yModalOpen(true);
               }}
-            />
-          </Menu.Items>
-        </Menu.Root>
-      </Menu.Items>
-    </Menu.Root>
+              className="vds-menu-item flex w-full items-center justify-between gap-3 px-3 py-2 text-xs text-left hover:bg-surface-strong transition-colors rounded-lg text-fg"
+            >
+              <div className="flex items-center gap-2">
+                <MessageSquareShare className="h-3.5 w-3.5 text-fg-muted" aria-hidden="true" />
+                <span>{m.watch_b2y_danmaku({}, { locale })}</span>
+              </div>
+              <span className="text-[11px] text-fg-soft font-mono">
+                {isB2YLinked
+                  ? m.watch_b2y_danmaku_linked({}, { locale })
+                  : m.b2y_modal_link_action({}, { locale })}
+              </span>
+            </button>
+          )}
+        </Menu.Items>
+      </Menu.Root>
+      {b2yModalOpen && currentVideoId && (
+        <B2YModal
+          isOpen={b2yModalOpen}
+          onClose={() => setB2yModalOpen(false)}
+          streamId={currentVideoId}
+          streamTitle={
+            typeof document !== "undefined" ? document.title.replace(/ - TypeType$/, "") : ""
+          }
+        />
+      )}
+    </>
   );
 }

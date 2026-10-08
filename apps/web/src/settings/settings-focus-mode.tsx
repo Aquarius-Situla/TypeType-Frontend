@@ -1,11 +1,13 @@
-import { Link } from "@tanstack/react-router";
 import { Calendar, Compass, Flame, ShieldAlert, Sparkles } from "lucide-react";
+import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { useSubscriptionGroups } from "../hooks/use-subscription-groups";
+import { m } from "../paraglide/messages.js";
 import { getEntertainmentWeight, useFocusModeStore } from "../stores/focus-mode-store";
 
 const PRESET_DAYS = [7, 30, 90, 180, 365];
 
 export function SettingsFocusMode() {
+  const { locale } = useInterfaceLocale();
   const {
     enabled,
     startedAt,
@@ -33,13 +35,11 @@ export function SettingsFocusMode() {
     <section className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
         <h2 className="text-base font-semibold text-fg flex items-center gap-2">
-          <Flame className="h-4 w-4 text-amber-500" aria-hidden="true" />
-          <span>Self-Discipline Mode (自律专注模式)</span>
+          <Flame className="h-4 w-4 text-fg" aria-hidden="true" />
+          <span>{m.settings_focus_mode_title({}, { locale })}</span>
         </h2>
         <p className="text-xs text-fg-soft leading-relaxed">
-          Designed for long-term digital detox and focused learning. Progressively eliminates
-          entertainment recommendations over your chosen timeframe and hides deep channel archives
-          to prevent algorithmic addiction.
+          {m.settings_focus_mode_description({}, { locale })}
         </p>
       </div>
 
@@ -47,11 +47,13 @@ export function SettingsFocusMode() {
       <div className="rounded-xl border border-border bg-surface p-4 flex flex-col gap-4">
         <div className="flex items-center justify-between gap-4">
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium text-fg">Enable Self-Discipline Mode</span>
+            <span className="text-sm font-medium text-fg">
+              {m.settings_focus_mode_enable({}, { locale })}
+            </span>
             <span className="text-xs text-fg-soft">
               {enabled
-                ? "Active · Algorithm decay is in progress"
-                : "Disabled · Standard feeds without decay"}
+                ? m.settings_focus_mode_status_active({}, { locale })
+                : m.settings_focus_mode_status_disabled({}, { locale })}
             </span>
           </div>
           <button
@@ -60,11 +62,11 @@ export function SettingsFocusMode() {
             aria-checked={enabled}
             onClick={() => setEnabled(!enabled)}
             className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-              enabled ? "bg-amber-600" : "bg-zinc-700"
+              enabled ? "bg-fg" : "bg-surface-strong"
             }`}
           >
             <span
-              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-app shadow ring-0 transition duration-200 ease-in-out ${
                 enabled ? "translate-x-5" : "translate-x-0"
               }`}
             />
@@ -72,31 +74,40 @@ export function SettingsFocusMode() {
         </div>
 
         {enabled && (
-          <div className="rounded-lg border border-border-strong/50 bg-surface-strong/40 p-3 flex flex-col gap-3">
+          <div className="rounded-lg border border-border bg-surface-strong/40 p-3 flex flex-col gap-3">
             <div className="flex items-center justify-between text-xs">
               <span className="font-medium text-fg">
-                Day {Math.min(totalDays, elapsedDays + 1)} of {totalDays}
+                {m.settings_focus_mode_day_counter(
+                  {
+                    elapsed: String(Math.min(totalDays, elapsedDays + 1)),
+                    total: String(totalDays),
+                  },
+                  { locale },
+                )}
               </span>
-              <span className="text-amber-500 font-semibold">
-                Entertainment Feed: {entertainmentPercentage}%
+              <span className="text-fg font-semibold">
+                {m.settings_focus_mode_current_rate(
+                  { percent: String(entertainmentPercentage) },
+                  { locale },
+                )}
               </span>
             </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-800">
+            <div className="h-2 w-full overflow-hidden rounded-full bg-surface-strong">
               <div
-                className="h-full bg-gradient-to-r from-amber-500 to-emerald-500 transition-all duration-300"
+                className="h-full bg-fg transition-all duration-300"
                 style={{
                   width: `${Math.min(100, Math.round(((totalDays - weight * totalDays) / totalDays) * 100))}%`,
                 }}
               />
             </div>
             <div className="flex items-center justify-between text-[11px] text-fg-muted pt-1">
-              <span>{Math.round(100 - entertainmentPercentage)}% detoxified</span>
+              <span>{m.settings_focus_mode_decay_progress({}, { locale })}</span>
               <button
                 type="button"
                 onClick={resetProgress}
                 className="hover:text-fg underline transition-colors"
               >
-                Reset Start Timer
+                {m.settings_focus_mode_reset_button({}, { locale })}
               </button>
             </div>
           </div>
@@ -105,28 +116,27 @@ export function SettingsFocusMode() {
 
       {/* Dual Group Configuration */}
       <div className="flex flex-col gap-3">
-        <p className="px-1 text-xs font-medium text-fg-soft uppercase tracking-wider">
-          Dual Group Mapping (双分组归类)
-        </p>
         <div className="rounded-xl border border-border bg-surface divide-y divide-border">
           {/* Study Group */}
           <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex flex-col gap-0.5">
               <span className="text-sm font-medium text-fg flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
-                Study Group (学习分组)
+                <Sparkles className="h-3.5 w-3.5 text-fg-muted" />
+                {m.settings_focus_mode_study_group({}, { locale })}
               </span>
               <span className="text-xs text-fg-soft">
-                Channels dedicated to courses, skills, and academic research (always prioritized).
+                {m.settings_focus_mode_study_group_description({}, { locale })}
               </span>
             </div>
             <select
-              aria-label="Study Group"
+              aria-label={m.settings_focus_mode_study_group({}, { locale })}
               value={studyGroupId ?? ""}
               onChange={(e) => setStudyGroupId(e.target.value || null)}
-              className="h-9 rounded-lg border border-border-strong bg-surface-strong px-3 text-xs text-fg sm:w-56"
+              className="h-9 rounded-lg border border-border bg-surface-strong px-3 text-xs text-fg sm:w-56"
             >
-              <option value="">(None / Ungrouped)</option>
+              <option value="">
+                {m.settings_focus_mode_select_group_placeholder({}, { locale })}
+              </option>
               {groups.map((group) => (
                 <option key={group.id} value={group.id}>
                   {group.name} ({group.channelCount})
@@ -139,20 +149,22 @@ export function SettingsFocusMode() {
           <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex flex-col gap-0.5">
               <span className="text-sm font-medium text-fg flex items-center gap-1.5">
-                <Compass className="h-3.5 w-3.5 text-amber-400" />
-                Entertainment Group (娱乐分组)
+                <Compass className="h-3.5 w-3.5 text-fg-muted" />
+                {m.settings_focus_mode_entertainment_group({}, { locale })}
               </span>
               <span className="text-xs text-fg-soft">
-                Gaming, comedy, and relaxation channels subject to progressive decay.
+                {m.settings_focus_mode_entertainment_group_description({}, { locale })}
               </span>
             </div>
             <select
-              aria-label="Entertainment Group"
+              aria-label={m.settings_focus_mode_entertainment_group({}, { locale })}
               value={entertainmentGroupId ?? ""}
               onChange={(e) => setEntertainmentGroupId(e.target.value || null)}
-              className="h-9 rounded-lg border border-border-strong bg-surface-strong px-3 text-xs text-fg sm:w-56"
+              className="h-9 rounded-lg border border-border bg-surface-strong px-3 text-xs text-fg sm:w-56"
             >
-              <option value="">(None / Ungrouped)</option>
+              <option value="">
+                {m.settings_focus_mode_select_group_placeholder({}, { locale })}
+              </option>
               {groups.map((group) => (
                 <option key={group.id} value={group.id}>
                   {group.name} ({group.channelCount})
@@ -162,29 +174,23 @@ export function SettingsFocusMode() {
           </div>
         </div>
 
-        <p className="px-1 text-xs text-fg-muted">
-          Need to create or assign channels to groups? Manage them in{" "}
-          <Link to="/subscriptions/groups" className="text-fg underline hover:text-white">
-            Subscription Groups
-          </Link>
-          .
-        </p>
+        {groups.length === 0 && (
+          <p className="px-1 text-xs text-fg-muted">
+            {m.settings_focus_mode_no_groups({}, { locale })}
+          </p>
+        )}
       </div>
 
       {/* Decay Transition Timeframe */}
       <div className="flex flex-col gap-3">
-        <p className="px-1 text-xs font-medium text-fg-soft uppercase tracking-wider">
-          Transition Timeframe (过渡衰减周期)
-        </p>
         <div className="rounded-xl border border-border bg-surface p-4 flex flex-col gap-4">
           <div className="flex flex-col gap-1">
             <span className="text-sm font-medium text-fg flex items-center gap-1.5">
-              <Calendar className="h-3.5 w-3.5 text-blue-400" />
-              Decay Duration (Days)
+              <Calendar className="h-3.5 w-3.5 text-fg-muted" />
+              {m.settings_focus_mode_transition_days({}, { locale })}
             </span>
             <span className="text-xs text-fg-soft">
-              Entertainment channel recommendations on Home and Subscriptions will gradually decay
-              from 100% to 0% over this duration.
+              {m.settings_focus_mode_transition_days_description({}, { locale })}
             </span>
           </div>
 
@@ -200,41 +206,36 @@ export function SettingsFocusMode() {
                     : "bg-surface-strong text-fg-muted hover:text-fg hover:bg-surface-strong/80"
                 }`}
               >
-                {days} Days {days === 90 ? "(Recommended)" : ""}
+                {days}
               </button>
             ))}
           </div>
         </div>
       </div>
 
-      {/* 7-Day Cutoff Window */}
+      {/* Cutoff Window */}
       <div className="flex flex-col gap-3">
-        <p className="px-1 text-xs font-medium text-fg-soft uppercase tracking-wider">
-          Binge Prevention Window (深坑防刷机制)
-        </p>
         <div className="rounded-xl border border-border bg-surface p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex flex-col gap-1">
             <span className="text-sm font-medium text-fg flex items-center gap-1.5">
-              <ShieldAlert className="h-3.5 w-3.5 text-rose-400" />
-              Entertainment Channel Archive Window
+              <ShieldAlert className="h-3.5 w-3.5 text-fg-muted" />
+              {m.settings_focus_mode_hide_old_archive({}, { locale })}
             </span>
             <span className="text-xs text-fg-soft">
-              When entering an entertainment channel page, hide videos uploaded older than{" "}
-              {hideOldEntertainmentDays} days to keep you updated on recent highlights while
-              preventing endless binge-watching.
+              {m.settings_focus_mode_hide_old_archive_description({}, { locale })}
             </span>
           </div>
 
           <select
-            aria-label="Archive Window"
+            aria-label={m.settings_focus_mode_hide_old_archive({}, { locale })}
             value={hideOldEntertainmentDays}
             onChange={(e) => setHideOldEntertainmentDays(Number(e.target.value))}
-            className="h-9 rounded-lg border border-border-strong bg-surface-strong px-3 text-xs text-fg sm:w-44"
+            className="h-9 rounded-lg border border-border bg-surface-strong px-3 text-xs text-fg sm:w-32"
           >
-            <option value={3}>3 Days</option>
-            <option value={7}>7 Days (Standard)</option>
-            <option value={14}>14 Days</option>
-            <option value={30}>30 Days</option>
+            <option value={3}>3</option>
+            <option value={7}>7</option>
+            <option value={14}>14</option>
+            <option value={30}>30</option>
           </select>
         </div>
       </div>

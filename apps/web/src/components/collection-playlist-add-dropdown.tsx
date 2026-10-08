@@ -133,7 +133,7 @@ export function CollectionPlaylistAddDropdown({
           <span>{m.watch_save_playlist()}</span>
         </p>
         <p className="text-[11px] text-fg-muted truncate">
-          {collectionName} · {videos.length} videos
+          {collectionName} ({videos.length})
         </p>
       </div>
 

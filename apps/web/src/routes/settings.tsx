@@ -66,8 +66,8 @@ function baseItems(): Item[] {
     },
     {
       key: "focus",
-      label: "Self-Discipline",
-      description: "Digital detox, study & entertainment decay",
+      label: m.settings_section_focus(),
+      description: m.settings_section_focus_desc(),
       icon: Flame,
     },
     {
@@ -102,8 +102,8 @@ function baseItems(): Item[] {
     },
     {
       key: "ai",
-      label: "AI Subtitles",
-      description: "LLM endpoint, model & bilingual subtitles",
+      label: m.settings_section_ai(),
+      description: m.settings_section_ai_desc(),
       icon: Sparkles,
     },
     {

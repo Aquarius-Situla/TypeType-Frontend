@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Toast } from "../components/toast";
+import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { callLlmChat } from "../lib/ai-subtitles";
+import { LANGUAGES } from "../lib/languages";
+import { m } from "../paraglide/messages.js";
 import { useAiSubtitlesStore } from "../stores/ai-subtitles-store";
 
 const PRESETS = [
@@ -15,7 +18,7 @@ const PRESETS = [
     model: "deepseek-chat",
   },
   {
-    name: "Groq (Fast)",
+    name: "Groq",
     endpoint: "https://api.groq.com/openai/v1",
     model: "llama-3.3-70b-versatile",
   },
@@ -25,22 +28,17 @@ const PRESETS = [
     model: "meta-llama/llama-3.3-70b-instruct",
   },
   {
-    name: "Ollama (Local)",
+    name: "Ollama",
     endpoint: "http://localhost:11434/v1",
     model: "qwen2.5:7b",
   },
 ];
 
-const TARGET_LANGS = [
-  { value: "zh", label: "简体中文 (Simplified Chinese)" },
-  { value: "zh-TW", label: "繁體中文 (Traditional Chinese)" },
-  { value: "en", label: "English" },
-  { value: "ja", label: "日本語 (Japanese)" },
-  { value: "ko", label: "한국어 (Korean)" },
-  { value: "es", label: "Español" },
-];
+const TARGET_CODES = new Set(["zh", "en", "ja", "ko", "de", "fr", "es"]);
+const targetLanguages = LANGUAGES.filter((l) => TARGET_CODES.has(l.code));
 
 export function SettingsAiSubtitles() {
+  const { locale } = useInterfaceLocale();
   const {
     endpoint,
     apiKey,
@@ -62,18 +60,14 @@ export function SettingsAiSubtitles() {
   function applyPreset(p: (typeof PRESETS)[number]) {
     setEndpoint(p.endpoint);
     setModel(p.model);
-    setToastMessage(`已应用 ${p.name} 预设`);
+    setToastMessage(p.name);
     setTimeout(() => setToastMessage(null), 2000);
   }
 
   async function handleTestConnection() {
-    if (!endpoint) {
-      setTestResult({ success: false, message: "请填写 API Endpoint 端点地址" });
-      return;
-    }
+    if (!endpoint) return;
     setTesting(true);
     setTestResult(null);
-    const start = Date.now();
     try {
       const res = await callLlmChat(endpoint, apiKey, model, [
         {
@@ -81,14 +75,13 @@ export function SettingsAiSubtitles() {
           content: 'Translate the word "Hello" into Chinese. Return only the translated word.',
         },
       ]);
-      const latency = Date.now() - start;
       setTestResult({
         success: true,
-        message: `连接成功 (${latency}ms)! 模型回复: "${res.trim()}"`,
+        message: res.trim(),
       });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
-      setTestResult({ success: false, message: `连接失败: ${message}` });
+      setTestResult({ success: false, message });
     } finally {
       setTesting(false);
     }
@@ -99,56 +92,56 @@ export function SettingsAiSubtitles() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="text-lg font-semibold text-fg">AI Subtitles (AI 智能字幕)</h2>
-        <p className="text-sm text-fg-soft mt-1">
-          配置自定义 LLM API 端点，为哔哩哔哩等视频智能生成和翻译高精度双语 AI 字幕。
+        <h2 className="text-base font-semibold text-fg">
+          {m.settings_ai_subtitles_title({}, { locale })}
+        </h2>
+        <p className="text-xs text-fg-soft mt-1">
+          {m.settings_ai_subtitles_description({}, { locale })}
         </p>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <span className="text-xs font-semibold uppercase tracking-wider text-fg-muted">
-          快速预设 (Provider Presets)
-        </span>
-        <div className="flex flex-wrap gap-2">
-          {PRESETS.map((p) => (
-            <button
-              key={p.name}
-              type="button"
-              onClick={() => applyPreset(p)}
-              className="px-3 py-1.5 text-xs font-medium bg-surface-strong hover:bg-surface-strong/80 text-fg rounded-lg border border-border-strong transition-colors"
-            >
-              {p.name}
-            </button>
-          ))}
-        </div>
+      <div className="flex flex-wrap gap-2">
+        {PRESETS.map((p) => (
+          <button
+            key={p.name}
+            type="button"
+            onClick={() => applyPreset(p)}
+            className="px-3 py-1.5 text-xs font-medium bg-surface-strong hover:bg-surface-strong/80 text-fg rounded-lg border border-border transition-colors"
+          >
+            {p.name}
+          </button>
+        ))}
       </div>
 
-      <div className="flex flex-col gap-4 bg-surface rounded-xl border border-border-strong p-4">
+      <div className="flex flex-col gap-4 bg-surface rounded-xl border border-border p-4">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="ai-endpoint" className="text-xs font-medium text-fg-muted">
-            API Endpoint (兼容 OpenAI 规范)
+            {m.settings_ai_endpoint({}, { locale })}
           </label>
           <input
             id="ai-endpoint"
             type="text"
             value={endpoint}
             onChange={(e) => setEndpoint(e.target.value)}
-            placeholder="https://api.openai.com/v1"
-            className="w-full px-3 py-2 text-sm bg-surface-strong border border-border-strong rounded-lg text-fg focus:outline-none focus:ring-1 focus:ring-accent font-mono"
+            placeholder={m.settings_ai_endpoint_placeholder({}, { locale })}
+            className="w-full px-3 py-2 text-sm bg-surface-strong border border-border rounded-lg text-fg focus:outline-none focus:border-fg-muted font-mono"
           />
+          <span className="text-[11px] text-fg-soft">
+            {m.settings_ai_endpoint_description({}, { locale })}
+          </span>
         </div>
 
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
             <label htmlFor="ai-api-key" className="text-xs font-medium text-fg-muted">
-              API Key (保存在本地浏览器，不经过任何中转)
+              {m.settings_ai_api_key({}, { locale })}
             </label>
             <button
               type="button"
               onClick={() => setShowKey(!showKey)}
-              className="text-xs text-accent hover:underline"
+              className="text-xs text-fg-muted hover:text-fg transition-colors"
             >
-              {showKey ? "隐藏" : "显示"}
+              {showKey ? m.ui_hide({}, { locale }) : m.ui_show({}, { locale })}
             </button>
           </div>
           <input
@@ -156,38 +149,42 @@ export function SettingsAiSubtitles() {
             type={showKey ? "text" : "password"}
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
-            placeholder="sk-..."
-            className="w-full px-3 py-2 text-sm bg-surface-strong border border-border-strong rounded-lg text-fg focus:outline-none focus:ring-1 focus:ring-accent font-mono"
+            placeholder={m.settings_ai_api_key_placeholder({}, { locale })}
+            className="w-full px-3 py-2 text-sm bg-surface-strong border border-border rounded-lg text-fg focus:outline-none focus:border-fg-muted font-mono"
           />
+          <span className="text-[11px] text-fg-soft">
+            {m.settings_ai_api_key_description({}, { locale })}
+          </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
             <label htmlFor="ai-model" className="text-xs font-medium text-fg-muted">
-              模型名称 (Model)
+              {m.settings_ai_model({}, { locale })}
             </label>
             <input
               id="ai-model"
               type="text"
               value={model}
               onChange={(e) => setModel(e.target.value)}
-              placeholder="gpt-4o-mini"
-              className="w-full px-3 py-2 text-sm bg-surface-strong border border-border-strong rounded-lg text-fg focus:outline-none focus:ring-1 focus:ring-accent font-mono"
+              placeholder={m.settings_ai_model_placeholder({}, { locale })}
+              className="w-full px-3 py-2 text-sm bg-surface-strong border border-border rounded-lg text-fg focus:outline-none focus:border-fg-muted font-mono"
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor="ai-target-lang" className="text-xs font-medium text-fg-muted">
-              目标翻译语言 (Target Language)
+              {m.settings_ai_target_language({}, { locale })}
             </label>
             <select
               id="ai-target-lang"
+              aria-label={m.settings_ai_target_language({}, { locale })}
               value={targetLanguage}
               onChange={(e) => setTargetLanguage(e.target.value)}
-              className="w-full px-3 py-2 text-sm bg-surface-strong border border-border-strong rounded-lg text-fg focus:outline-none focus:ring-1 focus:ring-accent"
+              className="w-full px-3 py-2 text-sm bg-surface-strong border border-border rounded-lg text-fg focus:outline-none focus:border-fg-muted"
             >
-              {TARGET_LANGS.map((lang) => (
-                <option key={lang.value} value={lang.value}>
+              {targetLanguages.map((lang) => (
+                <option key={lang.code} value={lang.code}>
                   {lang.label}
                 </option>
               ))}
@@ -195,14 +192,16 @@ export function SettingsAiSubtitles() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-3 pt-2 border-t border-border-strong/50">
+        <div className="flex items-center justify-between gap-3 pt-2 border-t border-border">
           <button
             type="button"
             onClick={handleTestConnection}
             disabled={testing || !endpoint}
-            className="px-4 py-2 text-xs font-medium bg-accent hover:bg-accent-strong text-white rounded-lg transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-xs font-medium bg-fg text-app hover:opacity-90 rounded-lg transition-opacity disabled:opacity-50"
           >
-            {testing ? "测试连接中..." : "测试 API 连接"}
+            {testing
+              ? m.ai_subtitles_generating({}, { locale })
+              : m.settings_ai_save({}, { locale })}
           </button>
 
           {cachedCount > 0 && (
@@ -210,12 +209,12 @@ export function SettingsAiSubtitles() {
               type="button"
               onClick={() => {
                 clearCache();
-                setToastMessage("已清空已缓存的 AI 字幕");
+                setToastMessage(m.ui_clearing());
                 setTimeout(() => setToastMessage(null), 2000);
               }}
               className="px-3 py-1.5 text-xs text-danger hover:bg-danger/10 border border-danger/30 rounded-lg transition-colors"
             >
-              清空缓存字幕 ({cachedCount})
+              {m.ui_clear()} ({cachedCount})
             </button>
           )}
         </div>
@@ -224,7 +223,7 @@ export function SettingsAiSubtitles() {
           <div
             className={`p-3 rounded-lg text-xs border ${
               testResult.success
-                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                ? "bg-surface-strong text-fg border-border"
                 : "bg-danger/10 text-danger border-danger/30"
             }`}
           >

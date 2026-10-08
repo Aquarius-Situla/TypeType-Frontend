@@ -160,12 +160,8 @@ export function ChannelPageContent({ sourceUrl, sort, searchQuery, tab, onNaviga
         onSortChange={selectSort}
       />
       {focusMode.enabled && isEntertainmentChannel && (
-        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-400">
-          <p className="font-semibold">Self-Discipline Mode Active (自律模式生效中)</p>
-          <p className="text-[11px] text-amber-400/80 mt-0.5">
-            Only videos published within the last {focusMode.hideOldEntertainmentDays} days are
-            shown to prevent endless binge-watching.
-          </p>
+        <div className="rounded-xl border border-border bg-surface-strong/50 p-3 text-xs text-fg">
+          <p className="font-medium">{m.settings_focus_mode_active_banner()}</p>
         </div>
       )}
       {tab === "playlists" ? (
