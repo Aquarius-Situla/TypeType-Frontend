@@ -1,10 +1,12 @@
-import { ChevronDown, Shuffle } from "lucide-react";
+import { ChevronDown, FolderPlus, Shuffle } from "lucide-react";
 import { type DragEvent, type UIEvent, useEffect, useRef, useState } from "react";
 import { useFlipList } from "../hooks/use-flip-list";
 import { useMobile } from "../hooks/use-mobile";
 import { toPublicWatchParam } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
 import type { WatchPlaylistItem } from "../types/playlist";
+import { CollectionPlaylistAddDropdown } from "./collection-playlist-add-dropdown";
+import { Toast } from "./toast";
 import { WatchPlaylistRow } from "./watch-playlist-row";
 
 type WatchPlaylistSection = {
@@ -51,6 +53,15 @@ export function WatchPlaylistPanel({
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
     sectionWithCurrentId ?? sections?.[0]?.id ?? null,
   );
+
+  const [addDropdownAnchor, setAddDropdownAnchor] = useState<HTMLElement | null>(null);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!toastMsg) return;
+    const timer = setTimeout(() => setToastMsg(null), 2500);
+    return () => clearTimeout(timer);
+  }, [toastMsg]);
 
   useEffect(() => {
     if (sectionWithCurrentId) {
@@ -137,6 +148,16 @@ export function WatchPlaylistPanel({
         )}
         <button
           type="button"
+          onClick={(e) => setAddDropdownAnchor(e.currentTarget)}
+          aria-label={m.watch_save_playlist()}
+          title={m.watch_save_playlist()}
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center gap-1.5 rounded-full font-medium text-xs transition-colors text-fg-muted hover:bg-surface-strong hover:text-fg sm:w-auto sm:rounded-lg sm:px-2.5 sm:py-1.5"
+        >
+          <FolderPlus className="h-3.5 w-3.5" aria-hidden="true" />
+          <span className="hidden sm:inline">{m.watch_save_playlist()}</span>
+        </button>
+        <button
+          type="button"
           onClick={() => setCollapsed((value) => !value)}
           aria-label={collapsed ? m.ui_expand_playlist() : m.ui_collapse_playlist()}
           className="shrink-0 text-fg-muted transition-colors hover:text-fg"
@@ -216,6 +237,16 @@ export function WatchPlaylistPanel({
           })}
         </ul>
       )}
+      {addDropdownAnchor && (
+        <CollectionPlaylistAddDropdown
+          collectionName={name}
+          videos={displayVideos}
+          anchorEl={addDropdownAnchor}
+          onClose={() => setAddDropdownAnchor(null)}
+          onSaved={(msg) => setToastMsg(msg)}
+        />
+      )}
+      <Toast message={toastMsg} />
     </section>
   );
 }
