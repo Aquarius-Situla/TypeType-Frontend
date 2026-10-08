@@ -12,6 +12,7 @@ import {
   Server,
   Shield,
   SlidersHorizontal,
+  Sparkles,
 } from "lucide-react";
 import { useEffect } from "react";
 import { SectionShell, type SectionShellItem } from "../components/section-shell";
@@ -26,6 +27,7 @@ import {
 } from "../lib/settings-section";
 import { m } from "../paraglide/messages.js";
 import { SettingsAbout } from "../settings/settings-about";
+import { SettingsAiSubtitles } from "../settings/settings-ai-subtitles";
 import { SettingsApi } from "../settings/settings-api";
 import { SettingsBackup } from "../settings/settings-backup";
 import { SettingsBlocked } from "../settings/settings-blocked";
@@ -89,6 +91,12 @@ function baseItems(): Item[] {
       label: m.settings_api_label(),
       description: m.settings_api_description(),
       icon: KeyRound,
+    },
+    {
+      key: "ai",
+      label: "AI Subtitles",
+      description: "LLM endpoint, model & bilingual subtitles",
+      icon: Sparkles,
     },
     {
       key: "privacy",
@@ -175,6 +183,7 @@ function SettingsPage() {
       {activeSection === "notifications" && <SettingsNotifications />}
       {activeSection === "import" && <SettingsBackup />}
       {activeSection === "api" && <SettingsApi />}
+      {activeSection === "ai" && <SettingsAiSubtitles />}
       {activeSection === "privacy" && <SettingsPrivacy />}
       {activeSection === "blocked" && <SettingsBlocked />}
       {activeSection === "rss" && showRss && (
