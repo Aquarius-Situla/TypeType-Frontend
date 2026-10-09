@@ -1,5 +1,4 @@
 import { useRouter } from "@tanstack/react-router";
-import { useEffect } from "react";
 import { m } from "../paraglide/messages.js";
 
 type Props = {
@@ -9,18 +8,18 @@ type Props = {
 export function PlayerError({ onRetry }: Props) {
   const router = useRouter();
 
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
-    };
-  }, []);
-
   return (
-    <div className="fixed inset-0 bg-app flex flex-col items-center justify-center gap-5 z-50">
-      <img src="/sad-sigh.gif" width="220" height="220" alt="" className="rounded-2xl" />
+    <div
+      role="alert"
+      className="flex aspect-video w-full min-h-0 flex-col items-center justify-start gap-3 overflow-y-auto sm:justify-center bg-app px-4 py-3"
+    >
+      <img
+        src="/sad-sigh.gif"
+        width="80"
+        height="80"
+        alt=""
+        className="size-12 shrink-0 rounded-lg sm:size-20"
+      />
       <div className="flex flex-col items-center gap-1.5">
         <p className="text-white text-base font-semibold tracking-tight">
           {m.ui_playback_failed()}
@@ -29,7 +28,7 @@ export function PlayerError({ onRetry }: Props) {
           {m.ui_this_video_could_not_be_played_the_stream_may_be_unavailable_or_unsup()}
         </p>
       </div>
-      <div className="flex gap-3">
+      <div className="flex shrink-0 flex-wrap justify-center gap-3">
         <button
           type="button"
           onClick={onRetry}
