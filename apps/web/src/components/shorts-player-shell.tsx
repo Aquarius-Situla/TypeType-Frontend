@@ -95,7 +95,7 @@ export function ShortsPlayerShell({ targetUrl }: Props) {
           <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
             <Link
               to="/subscriptions/channels"
-              className="rounded-lg bg-fg px-4 py-2 text-sm font-medium text-bg transition-opacity hover:opacity-90"
+              className="rounded-lg bg-fg px-4 py-2 text-sm font-medium text-app transition-opacity hover:opacity-90"
             >
               {m.groups_preview_open_subscriptions()}
             </Link>
