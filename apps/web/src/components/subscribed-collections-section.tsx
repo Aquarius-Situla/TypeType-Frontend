@@ -11,7 +11,7 @@ export type SubscribedCollectionDisplayItem = {
   uploaderName?: string;
   to: string;
   search?: Record<string, unknown>;
-  params?: Record<string, string>;
+  params?: { id: string };
 };
 
 type Props = {
