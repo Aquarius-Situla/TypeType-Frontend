@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { SessionPlatformNav } from "../components/session-platform-nav";
 import { Toast } from "../components/toast";
 import { YoutubeSessionBrowserPanel } from "../components/youtube-session-browser-panel";
 import { YoutubeSessionInfoSection } from "../components/youtube-session-info-section";
@@ -75,11 +76,12 @@ function YoutubeSessionPage() {
   }
 
   return (
-    <div className="flex w-full max-w-none flex-col gap-8 pt-2 [animation:page-fade-in_0.2s_ease-out]">
-      <div className="px-1">
+    <div className="flex w-full max-w-none flex-col gap-8 pt-2">
+      <div className="flex flex-wrap items-center justify-between gap-4 px-1">
         <Link to="/" className="w-fit text-fg-soft text-xs transition-colors hover:text-fg">
           {m.ui_back_home()}
         </Link>
+        <SessionPlatformNav active="youtube" />
       </div>
 
       <section className="grid min-h-[28rem] gap-10 border-border border-y py-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-14 xl:grid-cols-[minmax(0,1fr)_24rem]">

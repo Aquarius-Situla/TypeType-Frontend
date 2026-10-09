@@ -17,6 +17,7 @@ export function useYoutubeSession() {
     queryKey: YOUTUBE_SESSION_KEY,
     queryFn: fetchYoutubeSessionStatus,
     enabled: authReady && isAuthed,
+    staleTime: 60_000,
   });
 
   const startBrowser = useMutation({

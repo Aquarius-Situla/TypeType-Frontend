@@ -46,6 +46,7 @@ export function useBiliBiliSession() {
     queryKey: BILIBILI_SESSION_KEY,
     queryFn: fetchBiliBiliSessionStatus,
     enabled: authReady && isAuthed,
+    staleTime: 60_000,
   });
 
   const disconnect = useMutation({
