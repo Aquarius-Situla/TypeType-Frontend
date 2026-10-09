@@ -87,3 +87,31 @@ test("cancels the connection when an SSE error interrupts consumption", async ()
   expect(cancelled).toBe(true);
   expect(stream.locked).toBe(false);
 });
+
+test("preserves real author metadata and rejects invalid optional fields", async () => {
+  const message = {
+    id: "m2",
+    text: "hello",
+    receivedAtMs: 2,
+    authorName: "Viewer",
+    authorAvatarUrl: "https://example.com/avatar.jpg",
+    moderator: true,
+  };
+  const stream = new ReadableStream<Uint8Array>({
+    start(controller) {
+      for (const value of [
+        message,
+        { ...message, moderator: "yes" },
+        { ...message, authorName: 42 },
+      ]) {
+        controller.enqueue(
+          new TextEncoder().encode(`event: message\ndata: ${JSON.stringify(value)}\n\n`),
+        );
+      }
+      controller.close();
+    },
+  });
+  const events: unknown[] = [];
+  await consumeLiveChatEvents(stream, (event) => events.push(event));
+  expect(events).toEqual([{ type: "message", message }]);
+});

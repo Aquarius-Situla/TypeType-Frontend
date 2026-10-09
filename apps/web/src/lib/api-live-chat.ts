@@ -5,6 +5,9 @@ export type LiveChatMessage = {
   id: string;
   text: string;
   receivedAtMs: number;
+  authorName?: string | null;
+  authorAvatarUrl?: string | null;
+  moderator?: boolean;
 };
 
 export type LiveChatEvent =
@@ -101,6 +104,9 @@ function isLiveChatMessage(value: unknown): value is LiveChatMessage {
     typeof value.id === "string" &&
     typeof value.text === "string" &&
     typeof value.receivedAtMs === "number" &&
-    Number.isFinite(value.receivedAtMs)
+    Number.isFinite(value.receivedAtMs) &&
+    (value.authorName == null || typeof value.authorName === "string") &&
+    (value.authorAvatarUrl == null || typeof value.authorAvatarUrl === "string") &&
+    (value.moderator === undefined || typeof value.moderator === "boolean")
   );
 }
