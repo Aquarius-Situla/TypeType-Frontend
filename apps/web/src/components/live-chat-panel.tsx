@@ -73,7 +73,6 @@ export function LiveChatPanel({ videoUrl, ended, className = "", onClose }: Prop
       </header>
       <div className="flex shrink-0 items-center justify-between border-b border-white/5 px-3.5 py-2.5 text-[11px] text-white/45">
         <span>{m.watch_live_chat_messages({}, { locale })}</span>
-        <span>{m.watch_live_chat_read_only({}, { locale })}</span>
       </div>
       <div
         ref={list}
@@ -117,19 +116,12 @@ export function LiveChatPanel({ videoUrl, ended, className = "", onClose }: Prop
         <button
           type="button"
           onClick={jump}
-          className="absolute bottom-12 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded border border-white/15 bg-[#303036] px-3 py-2 text-xs shadow-lg hover:bg-[#3a3a42]"
+          className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded border border-white/15 bg-[#303036] px-3 py-2 text-xs shadow-lg hover:bg-[#3a3a42]"
         >
           <ArrowDown size={14} />
           {m.watch_live_chat_latest({}, { locale })}
         </button>
       )}
-      <footer className="flex h-9 shrink-0 items-center gap-2 border-t border-white/10 px-3.5 text-[10px] text-white/40">
-        <span
-          aria-hidden="true"
-          className={`size-1.5 rounded-full ${status === "connected" ? "bg-emerald-300" : "bg-white/25"}`}
-        />
-        {status === "connected" ? m.watch_live_chat_connected({}, { locale }) : stateText}
-      </footer>
     </section>
   );
 }
