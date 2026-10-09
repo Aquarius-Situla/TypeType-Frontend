@@ -6,7 +6,7 @@ type Props = {
   videos: PlaylistVideoItem[];
   reorderable: boolean;
   listId: string;
-  onRemove: (video: PlaylistVideoItem) => void;
+  onRemove?: (video: PlaylistVideoItem) => void;
   onReorder: (order: string[]) => void;
 };
 
@@ -62,7 +62,7 @@ export function PlaylistGrid({ videos, reorderable, listId, onRemove, onReorder 
         >
           <PlaylistVideoRow
             video={video}
-            onRemove={() => onRemove(video)}
+            onRemove={onRemove ? () => onRemove(video) : undefined}
             reorderable={reorderable}
             listId={listId}
             onDragStart={(event) => handleDragStart(event, index)}

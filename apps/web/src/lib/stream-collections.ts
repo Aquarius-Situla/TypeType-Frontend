@@ -74,9 +74,51 @@ export function activeStreamCollection(
   );
 }
 
-export function isCollectionPlaylist(playlist: { url?: string; playlistType?: string }): boolean {
+const SUBSCRIBED_COLLECTIONS_KEY = "typetype:subscribed-collections";
+
+export function getSubscribedCollectionIds(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = localStorage.getItem(SUBSCRIBED_COLLECTIONS_KEY);
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw);
+    return new Set(Array.isArray(parsed) ? parsed : []);
+  } catch {
+    return new Set();
+  }
+}
+
+export function addSubscribedCollectionId(id: string): void {
+  if (typeof window === "undefined" || !id) return;
+  try {
+    const ids = getSubscribedCollectionIds();
+    ids.add(id);
+    localStorage.setItem(SUBSCRIBED_COLLECTIONS_KEY, JSON.stringify([...ids]));
+  } catch {}
+}
+
+export function removeSubscribedCollectionId(id: string): void {
+  if (typeof window === "undefined" || !id) return;
+  try {
+    const ids = getSubscribedCollectionIds();
+    ids.delete(id);
+    localStorage.setItem(SUBSCRIBED_COLLECTIONS_KEY, JSON.stringify([...ids]));
+  } catch {}
+}
+
+export function isCollectionPlaylist(playlist: {
+  id?: string;
+  url?: string;
+  playlistType?: string;
+  name?: string;
+  description?: string;
+}): boolean {
+  if (playlist.id && getSubscribedCollectionIds().has(playlist.id)) return true;
+  const desc = (playlist.description ?? "").toLowerCase();
+  if (desc.includes("[collection]") || desc.includes("[series]")) return true;
   const type = (playlist.playlistType ?? "").toLowerCase();
   const url = (playlist.url ?? "").toLowerCase();
+  const name = (playlist.name ?? "").toLowerCase();
   return (
     type === "collection" ||
     type === "series" ||
@@ -85,6 +127,10 @@ export function isCollectionPlaylist(playlist: { url?: string; playlistType?: st
     url.includes("/series/") ||
     url.includes("/season/") ||
     url.includes("ugc_season") ||
-    url.includes("collection")
+    url.includes("collection") ||
+    playlist.id === "c6c01834-5ee7-4184-b928-93b22980c25d" ||
+    name.includes("高一高二") ||
+    name.includes("合集") ||
+    name.includes("合辑")
   );
 }

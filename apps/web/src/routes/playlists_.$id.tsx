@@ -11,6 +11,7 @@ import { usePlaylist } from "../hooks/use-playlist";
 import { usePlaylists } from "../hooks/use-playlists";
 import { randomShuffleSeed, shuffleByKey } from "../lib/playlist-shuffle";
 import { type PlaylistSortMode, sortPlaylistVideos } from "../lib/playlist-sort";
+import { isCollectionPlaylist } from "../lib/stream-collections";
 import { markWatchAutoplayIntent } from "../lib/watch-autoplay-intent";
 import { toPublicWatchParam } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
@@ -48,11 +49,12 @@ function PlaylistDetailPage() {
     );
   }
 
+  const isCollection = Boolean(playlist && isCollectionPlaylist(playlist));
   const allVideos = playlist.videos ?? [];
   const videos = filter(allVideos);
   const count = videos.length;
   const sortedVideos = sortPlaylistVideos(videos, sortMode);
-  const reorderable = sortMode === "manual";
+  const reorderable = !isCollection && sortMode === "manual";
 
   function handleDelete() {
     remove.mutate(id);
@@ -85,14 +87,20 @@ function PlaylistDetailPage() {
           <div>
             <div className="flex items-center gap-1.5">
               <h1 className="font-semibold text-fg text-lg">{playlist.name}</h1>
-              <button
-                type="button"
-                onClick={() => setRenaming(true)}
-                className="text-fg-soft transition-colors hover:text-fg-muted"
-                aria-label={m.ui_rename_playlist()}
-              >
-                <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-              </button>
+              {isCollection ? (
+                <div className="rounded-md bg-surface-strong px-2 py-0.5 text-[11px] font-medium text-fg-muted">
+                  {m.ui_collection()}
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setRenaming(true)}
+                  className="text-fg-soft transition-colors hover:text-fg-muted"
+                  aria-label={m.ui_rename_playlist()}
+                >
+                  <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                </button>
+              )}
             </div>
             <p className="text-fg-soft text-xs">
               {count === 1 ? m.ui_video_count({ count }) : m.ui_videos_count({ count })}
@@ -109,13 +117,15 @@ function PlaylistDetailPage() {
               <PlaylistSortMenu value={sortMode} onChange={setSortMode} />
             </>
           )}
-          <button
-            type="button"
-            onClick={() => setConfirmingDelete(true)}
-            className="rounded-lg px-3 py-1.5 text-danger text-xs transition-colors hover:bg-danger/10"
-          >
-            {m.ui_delete_playlist()}
-          </button>
+          {!isCollection && (
+            <button
+              type="button"
+              onClick={() => setConfirmingDelete(true)}
+              className="rounded-lg px-3 py-1.5 text-danger text-xs transition-colors hover:bg-danger/10"
+            >
+              {m.ui_delete_playlist()}
+            </button>
+          )}
         </div>
       </div>
       {count === 0 ? (
@@ -134,7 +144,7 @@ function PlaylistDetailPage() {
           videos={sortedVideos}
           reorderable={reorderable}
           listId={id}
-          onRemove={setPendingRemove}
+          onRemove={isCollection ? undefined : setPendingRemove}
           onReorder={(order) => reorder.mutate({ id, order })}
         />
       )}

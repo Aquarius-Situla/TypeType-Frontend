@@ -1,10 +1,12 @@
-import { ChevronDown, Shuffle } from "lucide-react";
+import { ChevronDown, FolderPlus, Shuffle } from "lucide-react";
 import { type DragEvent, type UIEvent, useEffect, useRef, useState } from "react";
 import { useFlipList } from "../hooks/use-flip-list";
 import { useMobile } from "../hooks/use-mobile";
 import { toPublicWatchParam } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
 import type { WatchPlaylistItem } from "../types/playlist";
+import { CollectionPlaylistAddDropdown } from "./collection-playlist-add-dropdown";
+import { Toast } from "./toast";
 import { WatchPlaylistRow } from "./watch-playlist-row";
 
 type WatchPlaylistSection = {
@@ -51,6 +53,15 @@ export function WatchPlaylistPanel({
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
     sectionWithCurrentId ?? sections?.[0]?.id ?? null,
   );
+
+  const [addDropdownAnchor, setAddDropdownAnchor] = useState<HTMLElement | null>(null);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!toastMsg) return;
+    const timer = setTimeout(() => setToastMsg(null), 2500);
+    return () => clearTimeout(timer);
+  }, [toastMsg]);
 
   useEffect(() => {
     if (sectionWithCurrentId) {
@@ -122,30 +133,41 @@ export function WatchPlaylistPanel({
             {currentIndex >= 0 ? currentIndex + 1 : "-"} / {displayVideos.length}
           </span>
         </button>
-        {onToggleShuffle && (
+        <div className="flex shrink-0 items-center gap-1.5">
+          {onToggleShuffle && (
+            <button
+              type="button"
+              onClick={onToggleShuffle}
+              aria-label={m.ui_shuffle_playlist()}
+              title={m.ui_shuffle_playlist()}
+              className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors ${
+                shuffle ? "bg-fg text-app" : "text-fg-muted hover:bg-surface-strong hover:text-fg"
+              }`}
+            >
+              <Shuffle className="h-3.5 w-3.5" aria-hidden="true" />
+            </button>
+          )}
           <button
             type="button"
-            onClick={onToggleShuffle}
-            aria-label={m.ui_shuffle_playlist()}
-            className={`inline-flex h-8 w-8 shrink-0 items-center justify-center gap-1.5 rounded-full font-medium text-xs transition-colors sm:w-auto sm:rounded-lg sm:px-2.5 sm:py-1.5 ${
-              shuffle ? "bg-fg text-app" : "text-fg-muted hover:bg-surface-strong hover:text-fg"
-            }`}
+            onClick={(e) => setAddDropdownAnchor(e.currentTarget)}
+            aria-label={m.watch_save_playlist()}
+            title={m.watch_save_playlist()}
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border text-fg-muted transition-colors hover:border-border-strong hover:bg-surface-strong hover:text-fg"
           >
-            <Shuffle className="h-3.5 w-3.5" aria-hidden="true" />
-            <span className="hidden sm:inline">{m.ui_shuffle()}</span>
+            <FolderPlus className="h-3.5 w-3.5" aria-hidden="true" />
           </button>
-        )}
-        <button
-          type="button"
-          onClick={() => setCollapsed((value) => !value)}
-          aria-label={collapsed ? m.ui_expand_playlist() : m.ui_collapse_playlist()}
-          className="shrink-0 text-fg-muted transition-colors hover:text-fg"
-        >
-          <ChevronDown
-            className={`h-4 w-4 transition-transform ${collapsed ? "" : "rotate-180"}`}
-            aria-hidden="true"
-          />
-        </button>
+          <button
+            type="button"
+            onClick={() => setCollapsed((value) => !value)}
+            aria-label={collapsed ? m.ui_expand_playlist() : m.ui_collapse_playlist()}
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center text-fg-muted transition-colors hover:text-fg"
+          >
+            <ChevronDown
+              className={`h-4 w-4 transition-transform ${collapsed ? "" : "rotate-180"}`}
+              aria-hidden="true"
+            />
+          </button>
+        </div>
       </div>
       {!collapsed && sections && sections.length > 1 && (
         <div className="flex items-center gap-1.5 overflow-x-auto border-border border-b px-3 py-2 no-scrollbar">
@@ -216,6 +238,16 @@ export function WatchPlaylistPanel({
           })}
         </ul>
       )}
+      {addDropdownAnchor && (
+        <CollectionPlaylistAddDropdown
+          collectionName={name}
+          videos={displayVideos}
+          anchorEl={addDropdownAnchor}
+          onClose={() => setAddDropdownAnchor(null)}
+          onSaved={(msg) => setToastMsg(msg)}
+        />
+      )}
+      <Toast message={toastMsg} />
     </section>
   );
 }

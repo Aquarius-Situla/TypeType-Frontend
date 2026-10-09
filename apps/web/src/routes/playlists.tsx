@@ -32,6 +32,18 @@ function PlaylistsPage() {
     () => filterPlaylistSummaries(playlists, filter),
     [filter, playlists],
   );
+  const { userPlaylistsOnly, userCollections } = useMemo(() => {
+    const user: typeof visiblePlaylists = [];
+    const cols: typeof visiblePlaylists = [];
+    for (const p of visiblePlaylists) {
+      if (isCollectionPlaylist(p)) {
+        cols.push(p);
+      } else {
+        user.push(p);
+      }
+    }
+    return { userPlaylistsOnly: user, userCollections: cols };
+  }, [visiblePlaylists]);
   const saved = savedPlaylists.items.filter((playlist) => !isPlaylistBlocked(playlist));
   const savedCollections = useMemo(
     () => saved.filter((item) => isCollectionPlaylist(item)),
@@ -41,6 +53,33 @@ function PlaylistsPage() {
     () => saved.filter((item) => !isCollectionPlaylist(item)),
     [saved],
   );
+  const allSubscribedCollections = useMemo(() => {
+    const list: import("../components/subscribed-collections-section").SubscribedCollectionDisplayItem[] =
+      [];
+    for (const p of userCollections) {
+      list.push({
+        id: p.id,
+        title: p.name,
+        streamCount: p.videoCount ?? p.videos?.length ?? 0,
+        thumbnailUrl: p.videos?.[0]?.thumbnail,
+        uploaderName: p.videos?.[0]?.channelName,
+        to: "/playlists/$id",
+        params: { id: p.id },
+      });
+    }
+    for (const s of savedCollections) {
+      list.push({
+        id: s.id,
+        title: s.title,
+        streamCount: s.streamCount,
+        thumbnailUrl: s.thumbnailUrl,
+        uploaderName: s.uploaderName,
+        to: "/playlist",
+        search: { list: undefined, url: s.url },
+      });
+    }
+    return list;
+  }, [userCollections, savedCollections]);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmIds, setConfirmIds] = useState<string[] | null>(null);
@@ -92,22 +131,22 @@ function PlaylistsPage() {
             name: playlists.find((p) => p.id === confirmIds[0])?.name ?? m.ui_this_playlist(),
           })
         : m.ui_delete_playlists_question({ count: confirmIds.length });
-  const hasSavedItems = savedCollections.length > 0 || savedPlaylistsOnly.length > 0;
+  const hasSavedItems = allSubscribedCollections.length > 0 || savedPlaylistsOnly.length > 0;
   const hasLocalCollections =
-    playlists.length > 0 || visibleFavorites.length > 0 || visibleWatchLater.length > 0;
+    userPlaylistsOnly.length > 0 || visibleFavorites.length > 0 || visibleWatchLater.length > 0;
 
   return (
     <div className="flex flex-col gap-6 pt-2 sm:pt-4 [animation:page-fade-in_0.2s_ease-out]">
       <PlaylistsPageHeader
         selectionMode={selectionMode}
         selectedCount={selectedIds.size}
-        canSelect={playlists.length > 0}
+        canSelect={userPlaylistsOnly.length > 0}
         onSelect={() => setSelectionMode(true)}
         onCancel={exitSelection}
         onDelete={() => setConfirmIds([...selectedIds])}
         onCreate={() => setCreating(true)}
       />
-      <SubscribedCollectionsSection collections={savedCollections} onDelete={setSavedConfirm} />
+      <SubscribedCollectionsSection collections={allSubscribedCollections} />
       <SavedPlaylistsSection playlists={savedPlaylistsOnly} onDelete={setSavedConfirm} />
       {!hasLocalCollections && !hasSavedItems ? (
         <PlaylistsEmptyState />
@@ -125,7 +164,7 @@ function PlaylistsPage() {
             count={visibleWatchLater.length}
             thumbnail={visibleWatchLater[0]?.thumbnail}
           />
-          {visiblePlaylists.map((playlist, index) => (
+          {userPlaylistsOnly.map((playlist, index) => (
             <div
               key={playlist.id}
               className="animate-card-pop-in"

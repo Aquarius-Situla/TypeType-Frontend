@@ -16,7 +16,7 @@ import { WatchedBadge } from "./watched-badge";
 
 type Props = {
   video: PlaylistVideoItem;
-  onRemove: () => void;
+  onRemove?: () => void;
   reorderable?: boolean;
   listId?: string;
   onDragStart?: (event: DragEvent) => void;
@@ -76,17 +76,19 @@ export function PlaylistVideoRow({ video, onRemove, reorderable, listId, onDragS
             </span>
           )}
           <VideoProgressBar progress={video.watchPosition} duration={video.duration} />
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              onRemove();
-            }}
-            aria-label={m.ui_remove_video()}
-            className="absolute top-1.5 right-1.5 rounded-full bg-black/70 p-1 text-white transition-colors hover:bg-black/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-          >
-            <X className="h-3 w-3" aria-hidden="true" />
-          </button>
+          {onRemove && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                onRemove();
+              }}
+              aria-label={m.ui_remove_video()}
+              className="absolute top-1.5 right-1.5 rounded-full bg-black/70 p-1 text-white transition-colors hover:bg-black/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
+              <X className="h-3 w-3" aria-hidden="true" />
+            </button>
+          )}
           {reorderable && (
             <button
               type="button"
