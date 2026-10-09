@@ -59,7 +59,7 @@ export function WatchSecondaryContent({
   const hasRelatedStreams = relatedStreams.length > 0;
   const panelClassName =
     liveChat && !isMobile
-      ? `w-full lg:w-[22rem] xl:w-[24rem] lg:flex-none ${relatedVideoPanelClassName(settings.relatedVideoSize)} flex flex-col gap-4`
+      ? `w-full lg:w-[clamp(21rem,34vw,36.25rem)] lg:flex-none ${relatedVideoPanelClassName(settings.relatedVideoSize)} flex flex-col gap-4`
       : `w-full lg:flex-1 ${relatedVideoPanelClassName(settings.relatedVideoSize)} flex flex-col gap-6`;
 
   if (!cinemaMode) {
