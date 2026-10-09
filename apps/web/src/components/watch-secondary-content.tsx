@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { useMobile } from "../hooks/use-mobile";
 import { useSettings } from "../hooks/use-settings";
 import type { WatchAudioOnlyControls } from "../hooks/use-watch-audio-only-playback";
-import { relatedVideoPanelClassName } from "../lib/layout-preferences";
+import { watchSecondaryPanelClassName } from "../lib/layout-preferences";
 import { useLiveChatStore } from "../lib/live-chat-store";
 import { detectProvider } from "../lib/provider";
 import type { VideoStream } from "../types/stream";
@@ -57,10 +57,10 @@ export function WatchSecondaryContent({
     ) : null;
   const hasPlaylistPanel = Boolean(playlistPanel);
   const hasRelatedStreams = relatedStreams.length > 0;
-  const panelClassName =
-    liveChat && !isMobile
-      ? `w-full lg:w-[clamp(21rem,34vw,36.25rem)] lg:flex-none ${relatedVideoPanelClassName(settings.relatedVideoSize)} flex flex-col gap-4`
-      : `w-full lg:flex-1 ${relatedVideoPanelClassName(settings.relatedVideoSize)} flex flex-col gap-6`;
+  const panelClassName = watchSecondaryPanelClassName(
+    settings.relatedVideoSize,
+    showLiveChat && !isMobile,
+  );
 
   if (!cinemaMode) {
     if (!(hasPlaylistPanel || hasRelatedStreams || (liveChat && !isMobile))) return liveChatOverlay;

@@ -18,3 +18,15 @@ export function relatedVideoThumbnailClassName(size: RelatedVideoSize): string {
 export function relatedVideoPanelClassName(size: RelatedVideoSize): string {
   return size === "large" ? "lg:min-w-80" : "lg:min-w-64";
 }
+
+export function watchSecondaryPanelClassName(
+  size: RelatedVideoSize,
+  liveChatOpen: boolean,
+): string {
+  const width = liveChatOpen
+    ? "lg:w-[clamp(21rem,34vw,36.25rem)]"
+    : size === "large"
+      ? "lg:w-80 xl:w-96"
+      : "lg:w-72 xl:w-80";
+  return `w-full lg:flex-none ${width} flex flex-col ${liveChatOpen ? "gap-4" : "gap-6"}`;
+}
