@@ -18,9 +18,20 @@ export const PLAYLIST_SORT_OPTIONS: { value: PlaylistSortMode; label: () => stri
   { value: "popular", label: () => m.playlist_sort_popularity() },
 ];
 
+const EPISODE_NUMBER_REGEX = /(?:^|\s|第|P|p|[【\[])(\d+)(?:[.\s、期讲集话部\]】]|$)/;
+
+export function extractEpisodeNumber(title?: string): number | null {
+  if (!title) return null;
+  const match = title.match(EPISODE_NUMBER_REGEX);
+  if (!match) return null;
+  const num = parseInt(match[1], 10);
+  return Number.isNaN(num) ? null : num;
+}
+
 export function sortPlaylistVideos(
   videos: PlaylistVideoItem[],
   mode: PlaylistSortMode,
+  isCollection = false,
 ): PlaylistVideoItem[] {
   const sorted = [...videos];
   switch (mode) {
@@ -35,6 +46,21 @@ export function sortPlaylistVideos(
     case "popular":
       return sorted.sort((a, b) => (b.viewCount ?? 0) - (a.viewCount ?? 0));
     default:
+      if (isCollection) {
+        return sorted.sort((a, b) => {
+          const numA = extractEpisodeNumber(a.title);
+          const numB = extractEpisodeNumber(b.title);
+          if (numA !== null && numB !== null) {
+            if (numA !== numB) return numA - numB;
+          } else if (numA !== null) {
+            return -1;
+          } else if (numB !== null) {
+            return 1;
+          }
+          if (a.position !== b.position) return a.position - b.position;
+          return (a.title ?? "").localeCompare(b.title ?? "", "zh-Hans-CN", { numeric: true });
+        });
+      }
       return sorted.sort((a, b) => a.position - b.position);
   }
 }

@@ -53,7 +53,7 @@ function PlaylistDetailPage() {
   const allVideos = playlist.videos ?? [];
   const videos = filter(allVideos);
   const count = videos.length;
-  const sortedVideos = sortPlaylistVideos(videos, sortMode);
+  const sortedVideos = sortPlaylistVideos(videos, sortMode, isCollection);
   const reorderable = !isCollection && sortMode === "manual";
 
   function handleDelete() {

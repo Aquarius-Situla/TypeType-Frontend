@@ -3,8 +3,10 @@ import { type ReactNode, useCallback, useEffect } from "react";
 import { WatchPlaylistPanel } from "../components/watch-playlist-panel";
 import { applyCustomOrder, randomShuffleSeed, shuffleByKey } from "../lib/playlist-shuffle";
 import { isManagedPlaylistId } from "../lib/playlist-url";
+import { extractEpisodeNumber } from "../lib/playlist-sort";
 import {
   activeStreamCollection,
+  isCollectionPlaylist,
   streamCollectionPlaylistItems,
   streamCollectionSectionGroups,
 } from "../lib/stream-collections";
@@ -62,8 +64,27 @@ export function useWatchPlaylist(
     : (publicPlaylist.data?.pages[0]?.playlist.title ??
       collection?.title ??
       (partVideos.length > 0 ? m.ui_video_parts() : ""));
+  const isManagedCollection = Boolean(
+    isManaged && managedPlaylist.data && isCollectionPlaylist(managedPlaylist.data),
+  );
+  const managedVideos = managedPlaylist.data?.videos ?? [];
+  const sortedManagedVideos = isManagedCollection
+    ? [...managedVideos].sort((a, b) => {
+        const numA = extractEpisodeNumber(a.title);
+        const numB = extractEpisodeNumber(b.title);
+        if (numA !== null && numB !== null) {
+          if (numA !== numB) return numA - numB;
+        } else if (numA !== null) {
+          return -1;
+        } else if (numB !== null) {
+          return 1;
+        }
+        if (a.position !== b.position) return a.position - b.position;
+        return (a.title ?? "").localeCompare(b.title ?? "", "zh-Hans-CN", { numeric: true });
+      })
+    : managedVideos;
   const base: WatchPlaylistItem[] = isManaged
-    ? (managedPlaylist.data?.videos ?? []).map((item) => ({
+    ? sortedManagedVideos.map((item) => ({
         key: item.id,
         url: item.url,
         title: item.title,

@@ -146,8 +146,6 @@ function PlaylistsPage() {
         onDelete={() => setConfirmIds([...selectedIds])}
         onCreate={() => setCreating(true)}
       />
-      <SubscribedCollectionsSection collections={allSubscribedCollections} />
-      <SavedPlaylistsSection playlists={savedPlaylistsOnly} onDelete={setSavedConfirm} />
       {!hasLocalCollections && !hasSavedItems ? (
         <PlaylistsEmptyState />
       ) : hasLocalCollections ? (
@@ -181,6 +179,8 @@ function PlaylistsPage() {
           ))}
         </div>
       ) : null}
+      <SavedPlaylistsSection playlists={savedPlaylistsOnly} onDelete={setSavedConfirm} />
+      <SubscribedCollectionsSection collections={allSubscribedCollections} />
       {creating && (
         <PlaylistCreateModal
           onConfirm={(name) => {

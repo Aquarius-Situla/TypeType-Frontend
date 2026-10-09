@@ -51,4 +51,15 @@ describe("playlist sorting", () => {
 
     expect(videos.map((video) => video.id)).toEqual(originalOrder);
   });
+
+  test("sorts collections by natural episode numbers in manual mode", () => {
+    const epVideos = [
+      { ...playlistVideo("ep-106", 0, 10), title: "106.【高中物理必修二】恒定加速度启动" },
+      { ...playlistVideo("ep-100", 1, 20), title: "100.【高中物理必修二】功的概念" },
+      { ...playlistVideo("ep-105", 2, 30), title: "105.【高中物理必修二】恒定功率启动" },
+      { ...playlistVideo("ep-101", 3, 40), title: "101.【高中物理必修二】功的计算" },
+    ];
+    const sorted = sortPlaylistVideos(epVideos, "manual", true);
+    expect(sorted.map((v) => v.id)).toEqual(["ep-100", "ep-101", "ep-105", "ep-106"]);
+  });
 });
