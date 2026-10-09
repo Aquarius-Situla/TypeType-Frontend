@@ -1,5 +1,6 @@
 import { useSettings } from "../hooks/use-settings";
 import { m } from "../paraglide/messages.js";
+import { type AppTheme, useThemeStore } from "../stores/theme-store";
 import { ROW } from "./settings-toggle-switch";
 
 const SECTION_LABEL = "px-1 text-xs font-medium text-fg-soft uppercase tracking-wider";
@@ -8,6 +9,8 @@ const SELECT =
   "typetype-adaptive-control h-9 w-full max-w-full rounded-sm border border-border-strong bg-app px-2.5 text-sm text-fg sm:w-48";
 
 export function SettingsLayoutPreferences() {
+  const theme = useThemeStore((s) => s.theme);
+  const setTheme = useThemeStore((s) => s.setTheme);
   const { settings, update } = useSettings();
 
   return (
@@ -35,6 +38,22 @@ export function SettingsLayoutPreferences() {
             <option value={4}>4</option>
             <option value={5}>5</option>
             <option value={6}>6</option>
+          </select>
+        </div>
+        <div className={ROW}>
+          <div className="typetype-adaptive-label flex min-w-0 flex-1 flex-col gap-1">
+            <span className="text-sm text-fg">{m.settings_layout_theme_label()}</span>
+            <span className="text-xs text-fg-soft">{m.settings_layout_theme_description()}</span>
+          </div>
+          <select
+            aria-label={m.settings_layout_theme_label()}
+            value={theme}
+            onChange={(event) => setTheme(event.target.value as AppTheme)}
+            className={SELECT}
+          >
+            <option value="system">{m.ui_system_mode()}</option>
+            <option value="light">{m.ui_light_mode()}</option>
+            <option value="dark">{m.ui_dark_mode()}</option>
           </select>
         </div>
         <div className={ROW}>
