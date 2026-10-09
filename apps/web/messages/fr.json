@@ -1517,5 +1517,7 @@
   "portability_prepare_extracting": "Extraction des parties Takeout",
   "portability_prepare_packing": "Préparation des données YouTube",
   "portability_prepare_uploading": "Envoi des données préparées",
-  "portability_resume_prepared_upload": "Reprendre l’envoi préparé"
+  "portability_resume_prepared_upload": "Reprendre l’envoi préparé",
+  "language_german": "Allemand",
+  "language_chinese_simplified": "Chinois simplifié"
 }

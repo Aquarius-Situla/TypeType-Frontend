@@ -1517,5 +1517,7 @@
   "portability_prepare_extracting": "Extracting Takeout parts",
   "portability_prepare_packing": "Preparing YouTube account data",
   "portability_prepare_uploading": "Uploading prepared data",
-  "portability_resume_prepared_upload": "Retry prepared upload"
+  "portability_resume_prepared_upload": "Retry prepared upload",
+  "language_german": "German",
+  "language_chinese_simplified": "Simplified Chinese"
 }
