@@ -1,10 +1,12 @@
-import { ShieldCheck, UserRound } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
+import { memo } from "react";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import type { LiveChatMessage as Message } from "../lib/api-live-chat";
 import { liveChatAuthorColor, liveChatAvatarUrl } from "../lib/live-chat-author";
 import { m } from "../paraglide/messages.js";
+import { LiveChatAvatar } from "./live-chat-avatar";
 
-export function LiveChatMessage({
+export const LiveChatMessage = memo(function LiveChatMessage({
   message,
   compact,
   timestamps,
@@ -30,28 +32,7 @@ export function LiveChatMessage({
           minute: "2-digit",
         })}
       </time>
-      <div
-        aria-hidden="true"
-        className={`relative mt-0.5 shrink-0 overflow-hidden rounded-full ${compact ? "size-5" : "size-[25px]"}`}
-        style={{ color, backgroundColor: `${color}22` }}
-      >
-        <span className="flex size-full items-center justify-center text-[11px] font-semibold">
-          {name ? Array.from(name)[0] : <UserRound size={12} />}
-        </span>
-        {avatar && (
-          <img
-            src={avatar}
-            alt=""
-            className="absolute inset-0 size-full object-cover"
-            loading="lazy"
-            decoding="async"
-            referrerPolicy="no-referrer"
-            onError={(event) => {
-              event.currentTarget.hidden = true;
-            }}
-          />
-        )}
-      </div>
+      <LiveChatAvatar key={avatar ?? ""} url={avatar} name={name} color={color} compact={compact} />
       <div className="min-w-0 [overflow-wrap:anywhere]">
         {name && (
           <strong
@@ -71,4 +52,4 @@ export function LiveChatMessage({
       </div>
     </div>
   );
-}
+});

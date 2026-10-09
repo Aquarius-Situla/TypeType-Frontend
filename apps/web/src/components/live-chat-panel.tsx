@@ -5,6 +5,7 @@ import { useLiveChatConnection } from "../hooks/use-live-chat-connection";
 import { m } from "../paraglide/messages.js";
 import { LiveChatMessage } from "./live-chat-message";
 import { LiveChatOptions } from "./live-chat-options";
+import { LiveChatSkeleton } from "./live-chat-skeleton";
 
 type Props = { videoUrl: string; ended: boolean; className?: string; onClose: () => void };
 
@@ -85,6 +86,7 @@ export function LiveChatPanel({ videoUrl, ended, className = "", onClose }: Prop
           setFollowing(stick.current);
         }}
       >
+        {status === "connecting" && messages.length === 0 && <LiveChatSkeleton />}
         {messages.map((message) => (
           <LiveChatMessage
             key={message.id}
@@ -95,7 +97,7 @@ export function LiveChatPanel({ videoUrl, ended, className = "", onClose }: Prop
         ))}
         {(messages.length === 0 || status === "error" || status === "ended") && (
           <div className="flex flex-col items-center gap-3 px-5 py-8 text-center text-xs text-white/50">
-            <p>{stateText}</p>
+            <p className={status === "connecting" ? "sr-only" : ""}>{stateText}</p>
             {status === "error" && (
               <button
                 type="button"
