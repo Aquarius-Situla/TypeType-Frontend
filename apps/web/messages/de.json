@@ -842,6 +842,8 @@
   "ui_startup": "Hochfahren",
   "ui_status": "Status:",
   "ui_stored_data": "Gespeicherte Daten",
+  "ui_subscribed_collections": "Abonnierte Sammlungen",
+  "ui_subscribed_collections_desc": "Schreibgeschützte Serien- und Kurssammlungen, synchronisiert mit den Erstellern.",
   "ui_subscribe_to_channels_to_unlock_a_personalized_home_feed": "Abonniere Kanäle, um eine personalisierte Startseite freizuschalten.",
   "ui_subscribers": "Abonnenten",
   "ui_subscription_views": "Ansichten von Abonnements",

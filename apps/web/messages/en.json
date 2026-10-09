@@ -851,6 +851,8 @@
   "ui_startup": "Startup",
   "ui_status": "Status:",
   "ui_stored_data": "Stored data",
+  "ui_subscribed_collections": "Subscribed collections",
+  "ui_subscribed_collections_desc": "Read-only series and course collections synced with creators.",
   "ui_subscribe_to_channels_to_unlock_a_personalized_home_feed": "Subscribe to channels to unlock a personalized home feed.",
   "ui_subscribers": "subscribers",
   "ui_subscription_views": "Subscription views",

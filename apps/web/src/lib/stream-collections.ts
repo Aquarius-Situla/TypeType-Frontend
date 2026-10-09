@@ -73,3 +73,18 @@ export function activeStreamCollection(
     ) ?? nonEmpty[0]
   );
 }
+
+export function isCollectionPlaylist(playlist: { url?: string; playlistType?: string }): boolean {
+  const type = (playlist.playlistType ?? "").toLowerCase();
+  const url = (playlist.url ?? "").toLowerCase();
+  return (
+    type === "collection" ||
+    type === "series" ||
+    type === "season" ||
+    type === "ugc_season" ||
+    url.includes("/series/") ||
+    url.includes("/season/") ||
+    url.includes("ugc_season") ||
+    url.includes("collection")
+  );
+}

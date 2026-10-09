@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 import { proxyImage } from "../lib/proxy";
+import { isCollectionPlaylist } from "../lib/stream-collections";
 import { m } from "../paraglide/messages.js";
 import type { SavedPlaylistItem } from "../types/playlist";
 
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export function SavedPlaylistCard({ playlist, onDelete }: Props) {
+  const isCollection = isCollectionPlaylist(playlist);
   const count =
     playlist.streamCount === 1
       ? m.ui_video_count({ count: playlist.streamCount })
@@ -27,6 +29,11 @@ export function SavedPlaylistCard({ playlist, onDelete }: Props) {
               loading="lazy"
               decoding="async"
             />
+          )}
+          {isCollection && (
+            <div className="absolute top-1.5 left-1.5 rounded-md bg-black/75 px-1.5 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
+              {m.ui_collection()}
+            </div>
           )}
           <div className="absolute bottom-1.5 right-1.5 rounded-md bg-black/80 px-1.5 py-0.5 text-[11px] font-medium text-white">
             {count}

@@ -7,6 +7,7 @@ import { PlaylistCreateModal } from "../components/playlist-create-modal";
 import { PlaylistsEmptyState } from "../components/playlists-empty-state";
 import { PlaylistsPageHeader } from "../components/playlists-page-header";
 import { SavedPlaylistsSection } from "../components/saved-playlists-section";
+import { SubscribedCollectionsSection } from "../components/subscribed-collections-section";
 import { Toast } from "../components/toast";
 import { useBlockedFilter } from "../hooks/use-blocked-filter";
 import { useFavoriteStreams } from "../hooks/use-favorite-streams";
@@ -14,6 +15,7 @@ import { usePlaylists } from "../hooks/use-playlists";
 import { useSavedPlaylists } from "../hooks/use-saved-playlists";
 import { useWatchLaterStreams } from "../hooks/use-watch-later-streams";
 import { filterPlaylistSummaries } from "../lib/playlist-summary";
+import { isCollectionPlaylist } from "../lib/stream-collections";
 import { m } from "../paraglide/messages.js";
 import type { SavedPlaylistItem } from "../types/playlist";
 
@@ -31,6 +33,14 @@ function PlaylistsPage() {
     [filter, playlists],
   );
   const saved = savedPlaylists.items.filter((playlist) => !isPlaylistBlocked(playlist));
+  const savedCollections = useMemo(
+    () => saved.filter((item) => isCollectionPlaylist(item)),
+    [saved],
+  );
+  const savedPlaylistsOnly = useMemo(
+    () => saved.filter((item) => !isCollectionPlaylist(item)),
+    [saved],
+  );
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmIds, setConfirmIds] = useState<string[] | null>(null);
@@ -82,6 +92,7 @@ function PlaylistsPage() {
             name: playlists.find((p) => p.id === confirmIds[0])?.name ?? m.ui_this_playlist(),
           })
         : m.ui_delete_playlists_question({ count: confirmIds.length });
+  const hasSavedItems = savedCollections.length > 0 || savedPlaylistsOnly.length > 0;
   const hasLocalCollections =
     playlists.length > 0 || visibleFavorites.length > 0 || visibleWatchLater.length > 0;
 
@@ -96,8 +107,9 @@ function PlaylistsPage() {
         onDelete={() => setConfirmIds([...selectedIds])}
         onCreate={() => setCreating(true)}
       />
-      <SavedPlaylistsSection playlists={saved} onDelete={setSavedConfirm} />
-      {!hasLocalCollections && saved.length === 0 ? (
+      <SubscribedCollectionsSection collections={savedCollections} onDelete={setSavedConfirm} />
+      <SavedPlaylistsSection playlists={savedPlaylistsOnly} onDelete={setSavedConfirm} />
+      {!hasLocalCollections && !hasSavedItems ? (
         <PlaylistsEmptyState />
       ) : hasLocalCollections ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
