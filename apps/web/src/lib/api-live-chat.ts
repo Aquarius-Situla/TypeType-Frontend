@@ -10,6 +10,27 @@ export type LiveChatMessage = {
   moderator?: boolean;
 };
 
+export class LiveChatRequestError extends Error {
+  readonly status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+    this.name = "LiveChatRequestError";
+  }
+}
+
+export function liveChatRetryDelay(error: unknown, attempt: number): number | null {
+  if (attempt >= 5) return null;
+  if (
+    error instanceof LiveChatRequestError &&
+    error.status !== 408 &&
+    error.status !== 429 &&
+    error.status < 500
+  )
+    return null;
+  return Math.min(1000 * 2 ** attempt, 15000);
+}
+
 export type LiveChatEvent =
   | { type: "connected" }
   | { type: "message"; message: LiveChatMessage }
@@ -31,7 +52,7 @@ export async function connectYoutubeLiveChat(
       isRecord(payload) && typeof payload.error === "string"
         ? payload.error
         : `Live chat request failed (HTTP ${response.status})`;
-    throw new Error(reason);
+    throw new LiveChatRequestError(reason, response.status);
   }
   if (!response.headers.get("Content-Type")?.includes("text/event-stream") || !response.body) {
     throw new Error("Live chat stream is unavailable");

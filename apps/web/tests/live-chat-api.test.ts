@@ -1,5 +1,10 @@
 import { expect, test } from "bun:test";
-import { connectYoutubeLiveChat, consumeLiveChatEvents } from "../src/lib/api-live-chat";
+import {
+  connectYoutubeLiveChat,
+  consumeLiveChatEvents,
+  LiveChatRequestError,
+  liveChatRetryDelay,
+} from "../src/lib/api-live-chat";
 
 test("parses a message split across SSE chunks and ignores heartbeats", async () => {
   const encoder = new TextEncoder();
@@ -114,4 +119,17 @@ test("preserves real author metadata and rejects invalid optional fields", async
   const events: unknown[] = [];
   await consumeLiveChatEvents(stream, (event) => events.push(event));
   expect(events).toEqual([{ type: "message", message }]);
+});
+
+test("retries transient chat failures with capped backoff", () => {
+  expect(liveChatRetryDelay(new LiveChatRequestError("temporary", 502), 0)).toBe(1000);
+  expect(liveChatRetryDelay(new LiveChatRequestError("busy", 429), 4)).toBe(15000);
+  expect(liveChatRetryDelay(new TypeError("network"), 1)).toBe(2000);
+  expect(liveChatRetryDelay(new Error("closed"), 5)).toBeNull();
+});
+
+test("does not retry permanent request and authentication errors", () => {
+  for (const status of [400, 401, 403, 404, 422]) {
+    expect(liveChatRetryDelay(new LiveChatRequestError("rejected", status), 0)).toBeNull();
+  }
 });
