@@ -36,6 +36,19 @@ function isSupportedVideoHost(host: string): boolean {
   );
 }
 
+function isValidWatchQueryParam(host: string, v: string): boolean {
+  if (host === "youtu.be" || hostMatches(host, "youtube.com")) {
+    return YOUTUBE_VIDEO_ID_PATTERN.test(v);
+  }
+  if (host === "nico.ms" || hostMatches(host, "nicovideo.jp")) {
+    return NICONICO_VIDEO_ID_PATTERN.test(v);
+  }
+  if (host === "b23.tv" || hostMatches(host, "bilibili.com")) {
+    return BILIBILI_WATCH_PARAM_PATTERN.test(v);
+  }
+  return false;
+}
+
 function youtubeIdFromPath(pathname: string): string | null {
   const segments = pathname.split("/").filter(Boolean);
   const nestedVideoPath =
@@ -105,18 +118,41 @@ export function toWatchSourceUrl(value: string): string {
     return `https://www.bilibili.com/video/${bilibili[1]}${suffix}`;
   }
   const parsed = parseUrl(trimmed);
-  if (parsed && isSupportedVideoHost(parsed.hostname.toLowerCase())) {
-    return `${parsed.origin}${parsed.pathname}${parsed.search}${parsed.hash}`;
+  if (parsed) {
+    const host = parsed.hostname.toLowerCase();
+    const v = parsed.searchParams.get("v");
+    if (v && v !== trimmed && isValidWatchQueryParam(host, v)) {
+      return toWatchSourceUrl(v);
+    }
+    if (isSupportedVideoHost(host)) {
+      return `${parsed.origin}${parsed.pathname}${parsed.search}${parsed.hash}`;
+    }
   }
   return trimmed;
 }
 
 export function toPublicWatchParam(sourceUrl: string): string {
+  const trimmed = sourceUrl.trim();
+  const bilibiliMatch = trimmed.match(BILIBILI_WATCH_PARAM_PATTERN);
+  if (bilibiliMatch) {
+    const page = Number(bilibiliMatch[2] ?? "1");
+    return Number.isSafeInteger(page) && page > 1
+      ? `${bilibiliMatch[1]}?p=${page}`
+      : bilibiliMatch[1];
+  }
+  const parsed = parseUrl(trimmed);
+  if (parsed) {
+    const host = parsed.hostname.toLowerCase();
+    const v = parsed.searchParams.get("v");
+    if (v && v !== trimmed && isValidWatchQueryParam(host, v)) {
+      return toPublicWatchParam(v);
+    }
+  }
   return (
-    youtubeVideoIdFromUrl(sourceUrl) ??
-    niconicoVideoIdFromUrl(sourceUrl) ??
-    bilibiliWatchParamFromUrl(sourceUrl) ??
-    sourceUrl.trim()
+    youtubeVideoIdFromUrl(trimmed) ??
+    niconicoVideoIdFromUrl(trimmed) ??
+    bilibiliWatchParamFromUrl(trimmed) ??
+    trimmed
   );
 }
 

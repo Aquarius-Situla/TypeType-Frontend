@@ -48,6 +48,9 @@ test("shortens and expands BiliBili watch URLs", () => {
   expect(toPublicWatchParam("https://www.bilibili.com/video/BV1UbX3B2EZQ?p=3")).toBe(
     "BV1UbX3B2EZQ?p=3",
   );
+  expect(toPublicWatchParam("BV1UbX3B2EZQ?p=1")).toBe("BV1UbX3B2EZQ");
+  expect(toPublicWatchParam("BV1UbX3B2EZQ?p=3")).toBe("BV1UbX3B2EZQ?p=3");
+  expect(toPublicWatchParam("BV1UbX3B2EZQ")).toBe("BV1UbX3B2EZQ");
   expect(toWatchSourceUrl("BV1UbX3B2EZQ?p=3")).toBe(
     "https://www.bilibili.com/video/BV1UbX3B2EZQ?p=3",
   );
@@ -58,4 +61,28 @@ test("keeps recommendation fallback on the watched provider", () => {
   expect(watchServiceId("sm46525483", 0)).toBe(1);
   expect(watchServiceId("BV1UbX3B2EZQ?p=3", 0)).toBe(2);
   expect(watchServiceId("https://example.com/video", 1)).toBe(1);
+});
+
+test("restricts v parameter extraction to valid IDs matching the host", () => {
+  // Generic URLs without a supported host are not rewritten
+  expect(toPublicWatchParam("https://example.com/watch?v=abc")).toBe(
+    "https://example.com/watch?v=abc",
+  );
+  expect(toWatchSourceUrl("https://example.com/watch?v=abc")).toBe(
+    "https://example.com/watch?v=abc",
+  );
+
+  // YouTube URLs with invalid IDs are not rewritten
+  expect(toPublicWatchParam("https://www.youtube.com/watch?v=invalid")).toBe(
+    "https://www.youtube.com/watch?v=invalid",
+  );
+  expect(toWatchSourceUrl("https://www.youtube.com/watch?v=invalid")).toBe(
+    "https://www.youtube.com/watch?v=invalid",
+  );
+
+  // YouTube URLs with valid IDs are correctly extracted
+  expect(toPublicWatchParam("https://www.youtube.com/watch?v=Z05XGDSTe7U")).toBe("Z05XGDSTe7U");
+  expect(toWatchSourceUrl("https://www.youtube.com/watch?v=Z05XGDSTe7U")).toBe(
+    "https://www.youtube.com/watch?v=Z05XGDSTe7U",
+  );
 });
