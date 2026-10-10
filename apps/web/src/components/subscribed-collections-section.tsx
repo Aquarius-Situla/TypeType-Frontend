@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { Layers } from "lucide-react";
+import { Layers, Trash2 } from "lucide-react";
 import { proxyImage } from "../lib/proxy";
 import { m } from "../paraglide/messages.js";
+import type { SavedPlaylistItem } from "../types/playlist";
 
 export type SubscribedCollectionDisplayItem = {
   id: string;
@@ -12,13 +13,16 @@ export type SubscribedCollectionDisplayItem = {
   to: string;
   search?: Record<string, unknown>;
   params?: { id: string };
+  rawSavedItem?: SavedPlaylistItem;
+  rawUserPlaylistId?: string;
 };
 
 type Props = {
   collections: SubscribedCollectionDisplayItem[];
+  onDelete?: (item: SubscribedCollectionDisplayItem) => void;
 };
 
-export function SubscribedCollectionsSection({ collections }: Props) {
+export function SubscribedCollectionsSection({ collections, onDelete }: Props) {
   if (collections.length === 0) return null;
 
   return (
@@ -84,22 +88,35 @@ export function SubscribedCollectionsSection({ collections }: Props) {
                   </div>
                 </Link>
               )}
-              <div className="flex flex-col gap-0.5 px-1">
+              <div className="flex items-start justify-between gap-2 px-1">
                 {collection.params ? (
-                  <Link to="/playlists/$id" params={collection.params} className="min-w-0">
+                  <Link to="/playlists/$id" params={collection.params} className="min-w-0 flex-1">
                     <p className="line-clamp-2 text-sm font-medium leading-snug text-fg group-hover:text-fg-strong">
                       {collection.title}
                     </p>
+                    {collection.uploaderName && (
+                      <p className="mt-1 truncate text-xs text-fg-muted">{collection.uploaderName}</p>
+                    )}
                   </Link>
                 ) : (
-                  <Link to="/playlist" search={collection.search as never} className="min-w-0">
+                  <Link to="/playlist" search={collection.search as never} className="min-w-0 flex-1">
                     <p className="line-clamp-2 text-sm font-medium leading-snug text-fg group-hover:text-fg-strong">
                       {collection.title}
                     </p>
+                    {collection.uploaderName && (
+                      <p className="mt-1 truncate text-xs text-fg-muted">{collection.uploaderName}</p>
+                    )}
                   </Link>
                 )}
-                {collection.uploaderName && (
-                  <p className="truncate text-xs text-fg-muted">{collection.uploaderName}</p>
+                {onDelete && (
+                  <button
+                    type="button"
+                    onClick={() => onDelete(collection)}
+                    aria-label={m.ui_remove_saved_playlist()}
+                    className="mt-0.5 shrink-0 text-fg-soft transition-colors hover:text-danger"
+                  >
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
+                  </button>
                 )}
               </div>
             </div>

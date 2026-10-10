@@ -72,11 +72,11 @@ function PublicPlaylistPage() {
   function toggleSaved() {
     if (saved) {
       savedPlaylists.remove.mutate(saved.id, {
-        onSuccess: () => setToast(m.ui_playlist_removed()),
+        onSuccess: () => setToast(m.ui_collection_unsubscribed()),
       });
       return;
     }
-    savedPlaylists.save.mutate(playlistUrl, { onSuccess: () => setToast(m.ui_playlist_saved()) });
+    savedPlaylists.save.mutate(playlistUrl, { onSuccess: () => setToast(m.ui_collection_subscribed()) });
   }
 
   return (
@@ -99,11 +99,11 @@ function PublicPlaylistPage() {
               className="inline-flex items-center gap-1.5 rounded-lg border border-border-strong px-3 py-1.5 font-medium text-fg text-xs transition-colors hover:bg-surface-strong disabled:opacity-50"
             >
               {saved ? (
-                <BookmarkCheck className="h-3.5 w-3.5" />
+                <BookmarkCheck className="h-3.5 w-3.5 text-primary" />
               ) : (
                 <BookmarkPlus className="h-3.5 w-3.5" />
               )}
-              {saved ? m.ui_saved() : m.ui_save()}
+              {saved ? m.ui_subscribed_collection() : m.ui_subscribe_collection()}
             </button>
           </div>
         )}

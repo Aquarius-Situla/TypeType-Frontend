@@ -194,7 +194,7 @@ export function WatchPlaylistPanel({
         </div>
       )}
       {!collapsed && (
-        <ul className="max-h-[24rem] list-none overflow-y-auto py-1" onScroll={handleScroll}>
+        <ul className="max-h-[min(42rem,calc(100dvh-12rem))] list-none overflow-y-auto py-1" onScroll={handleScroll}>
           {displayVideos.map((video, index) => {
             const isCurrent = index === currentIndex;
 

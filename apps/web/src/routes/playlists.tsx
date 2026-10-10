@@ -6,7 +6,6 @@ import { PlaylistCard } from "../components/playlist-card";
 import { PlaylistCreateModal } from "../components/playlist-create-modal";
 import { PlaylistsEmptyState } from "../components/playlists-empty-state";
 import { PlaylistsPageHeader } from "../components/playlists-page-header";
-import { SavedPlaylistsSection } from "../components/saved-playlists-section";
 import { SubscribedCollectionsSection } from "../components/subscribed-collections-section";
 import { Toast } from "../components/toast";
 import { useBlockedFilter } from "../hooks/use-blocked-filter";
@@ -45,14 +44,6 @@ function PlaylistsPage() {
     return { userPlaylistsOnly: user, userCollections: cols };
   }, [visiblePlaylists]);
   const saved = savedPlaylists.items.filter((playlist) => !isPlaylistBlocked(playlist));
-  const savedCollections = useMemo(
-    () => saved.filter((item) => isCollectionPlaylist(item)),
-    [saved],
-  );
-  const savedPlaylistsOnly = useMemo(
-    () => saved.filter((item) => !isCollectionPlaylist(item)),
-    [saved],
-  );
   const allSubscribedCollections = useMemo(() => {
     const list: import("../components/subscribed-collections-section").SubscribedCollectionDisplayItem[] =
       [];
@@ -65,9 +56,10 @@ function PlaylistsPage() {
         uploaderName: p.videos?.[0]?.channelName,
         to: "/playlists/$id",
         params: { id: p.id },
+        rawUserPlaylistId: p.id,
       });
     }
-    for (const s of savedCollections) {
+    for (const s of saved) {
       list.push({
         id: s.id,
         title: s.title,
@@ -76,10 +68,11 @@ function PlaylistsPage() {
         uploaderName: s.uploaderName,
         to: "/playlist",
         search: { list: undefined, url: s.url },
+        rawSavedItem: s,
       });
     }
     return list;
-  }, [userCollections, savedCollections]);
+  }, [userCollections, saved]);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmIds, setConfirmIds] = useState<string[] | null>(null);
@@ -119,7 +112,7 @@ function PlaylistsPage() {
   function handleSavedConfirm() {
     if (!savedConfirm) return;
     savedPlaylists.remove.mutate(savedConfirm.id);
-    setToastMsg(m.ui_saved_playlist_removed({ name: savedConfirm.title }));
+    setToastMsg(m.ui_subscribed_collection_removed({ name: savedConfirm.title }));
     setSavedConfirm(null);
   }
 
@@ -131,7 +124,7 @@ function PlaylistsPage() {
             name: playlists.find((p) => p.id === confirmIds[0])?.name ?? m.ui_this_playlist(),
           })
         : m.ui_delete_playlists_question({ count: confirmIds.length });
-  const hasSavedItems = allSubscribedCollections.length > 0 || savedPlaylistsOnly.length > 0;
+  const hasSavedItems = allSubscribedCollections.length > 0;
   const hasLocalCollections =
     userPlaylistsOnly.length > 0 || visibleFavorites.length > 0 || visibleWatchLater.length > 0;
 
@@ -179,8 +172,16 @@ function PlaylistsPage() {
           ))}
         </div>
       ) : null}
-      <SavedPlaylistsSection playlists={savedPlaylistsOnly} onDelete={setSavedConfirm} />
-      <SubscribedCollectionsSection collections={allSubscribedCollections} />
+      <SubscribedCollectionsSection
+        collections={allSubscribedCollections}
+        onDelete={(item) => {
+          if (item.rawSavedItem) {
+            setSavedConfirm(item.rawSavedItem);
+          } else if (item.rawUserPlaylistId) {
+            setConfirmIds([item.rawUserPlaylistId]);
+          }
+        }}
+      />
       {creating && (
         <PlaylistCreateModal
           onConfirm={(name) => {
@@ -201,7 +202,7 @@ function PlaylistsPage() {
       )}
       {savedConfirm !== null && (
         <ConfirmModal
-          title={m.ui_remove_saved_playlist_question({ name: savedConfirm.title })}
+          title={m.ui_remove_subscribed_collection_question({ name: savedConfirm.title })}
           description={m.ui_this_only_removes_the_saved_reference_from_your_library()}
           onConfirm={handleSavedConfirm}
           onCancel={() => setSavedConfirm(null)}

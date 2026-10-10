@@ -26,7 +26,7 @@ export function watchSecondaryPanelClassName(
   const width = liveChatOpen
     ? "lg:w-[clamp(21rem,34vw,36.25rem)]"
     : size === "large"
-      ? "lg:w-80 xl:w-96"
-      : "lg:w-72 xl:w-80";
+      ? "lg:w-80 xl:w-96 2xl:w-[28rem]"
+      : "lg:w-72 xl:w-80 2xl:w-96";
   return `w-full lg:flex-none ${width} flex flex-col ${liveChatOpen ? "gap-4" : "gap-6"}`;
 }
