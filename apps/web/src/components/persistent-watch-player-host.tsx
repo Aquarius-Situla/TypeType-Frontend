@@ -81,83 +81,118 @@ export function PersistentWatchPlayerHost() {
     );
   }, [entry?.anchor, watchPage]);
 
-  const syncFrame = useCallback(() => {
-    const anchor = entry?.anchor;
-    const frame = frameRef.current;
-    if (anchor && frame && !outsideViewport && watchPage) {
+  const syncFrame = useCallback(
+    (commitState = true) => {
+      const anchor = entry?.anchor;
+      const frame = frameRef.current;
+      if (!anchor) {
+        if (commitState) updateAnchorRect();
+        return;
+      }
       const rect = anchor.getBoundingClientRect();
-      frame.style.top = `${rect.top}px`;
-      frame.style.left = `${rect.left}px`;
-      frame.style.width = `${rect.width}px`;
-      frame.style.height = `${rect.height}px`;
-    }
-    updateAnchorRect();
-  }, [entry?.anchor, outsideViewport, watchPage, updateAnchorRect]);
+      if (frame && !outsideViewport && watchPage) {
+        frame.style.top = `${rect.top}px`;
+        frame.style.left = `${rect.left}px`;
+        frame.style.width = `${rect.width}px`;
+        frame.style.height = `${rect.height}px`;
+      }
+      // Check if viewport threshold changed
+      setOutsideViewport((previous) => {
+        const next = isPlayerOutsideViewport(rect.bottom, previous);
+        return next;
+      });
+      if (commitState) {
+        setAnchorRect((previous) =>
+          previous &&
+          previous.left === rect.left &&
+          previous.top === rect.top &&
+          previous.width === rect.width &&
+          previous.height === rect.height
+            ? previous
+            : { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
+        );
+      }
+    },
+    [entry?.anchor, outsideViewport, watchPage, updateAnchorRect],
+  );
 
   useLayoutEffect(() => {
-    syncFrame();
+    syncFrame(true);
   }, [syncFrame]);
 
   useEffect(() => {
-    const observer = new ResizeObserver(syncFrame);
+    const handleSync = () => syncFrame(true);
+    const observer = new ResizeObserver(handleSync);
     if (entry?.anchor) observer.observe(entry.anchor);
 
     const handleScroll = () => {
-      syncFrame();
+      syncFrame(true);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true, capture: true });
-    window.addEventListener("resize", syncFrame);
+    window.addEventListener("resize", handleSync);
     return () => {
       observer.disconnect();
       window.removeEventListener("scroll", handleScroll, true);
-      window.removeEventListener("resize", syncFrame);
+      window.removeEventListener("resize", handleSync);
     };
   }, [syncFrame, entry?.anchor]);
 
-  useEffect(() => {
+  // Consolidated transition animation tracking loop without per-frame React state churn
+  const animRafRef = useRef<number | null>(null);
+  const startTransitionLoop = useCallback(() => {
     if (!watchPage || outsideViewport) return;
-    let rafId: number;
+    if (animRafRef.current !== null) {
+      cancelAnimationFrame(animRafRef.current);
+    }
     const start = performance.now();
     const duration = 280;
     const tick = (now: number) => {
-      syncFrame();
       if (now - start < duration) {
-        rafId = requestAnimationFrame(tick);
+        syncFrame(false); // Direct DOM style sync, no React state re-renders
+        animRafRef.current = requestAnimationFrame(tick);
       } else {
-        syncFrame();
+        syncFrame(true); // Final resting position: commit state
+        animRafRef.current = null;
       }
     };
-    rafId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafId);
-  }, [sidebarCollapsed, watchPage, outsideViewport, syncFrame]);
+    animRafRef.current = requestAnimationFrame(tick);
+  }, [watchPage, outsideViewport, syncFrame]);
+
+  useEffect(() => {
+    startTransitionLoop();
+    return () => {
+      if (animRafRef.current !== null) {
+        cancelAnimationFrame(animRafRef.current);
+        animRafRef.current = null;
+      }
+    };
+  }, [sidebarCollapsed, startTransitionLoop]);
 
   useEffect(() => {
     if (!watchPage || outsideViewport) return;
-    let rafId: number;
     const handleTransition = () => {
-      cancelAnimationFrame(rafId);
-      const start = performance.now();
-      const duration = 280;
-      const tick = (now: number) => {
-        syncFrame();
-        if (now - start < duration) {
-          rafId = requestAnimationFrame(tick);
-        } else {
-          syncFrame();
-        }
-      };
-      rafId = requestAnimationFrame(tick);
+      startTransitionLoop();
+    };
+    const handleEnd = () => {
+      if (animRafRef.current !== null) {
+        cancelAnimationFrame(animRafRef.current);
+        animRafRef.current = null;
+      }
+      syncFrame(true);
     };
 
     window.addEventListener("transitionrun", handleTransition);
-    window.addEventListener("transitionend", syncFrame);
+    window.addEventListener("transitionend", handleEnd);
     return () => {
-      cancelAnimationFrame(rafId);
+      if (animRafRef.current !== null) {
+        cancelAnimationFrame(animRafRef.current);
+        animRafRef.current = null;
+      }
       window.removeEventListener("transitionrun", handleTransition);
-      window.removeEventListener("transitionend", syncFrame);
+      window.removeEventListener("transitionend", handleEnd);
     };
-  }, [watchPage, outsideViewport, syncFrame]);
+  }, [watchPage, outsideViewport, startTransitionLoop, syncFrame]);
 
   const floating = !watchPage || (!landscapeWatch && outsideViewport);
   const handlePointerMove = useCallback(
