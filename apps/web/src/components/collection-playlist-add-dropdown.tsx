@@ -1,16 +1,23 @@
-import { FolderPlus } from "lucide-react";
+import { Check, FolderPlus } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePlaylists } from "../hooks/use-playlists";
-import { addSubscribedCollectionId } from "../lib/stream-collections";
+import { addSubscribedCollectionId, isCollectionPlaylist } from "../lib/stream-collections";
 import { m } from "../paraglide/messages.js";
 import type { WatchPlaylistItem } from "../types/playlist";
 
 const MARGIN = 8;
 
+type WatchPlaylistSection = {
+  id: string;
+  title: string;
+  videos: WatchPlaylistItem[];
+};
+
 type Props = {
   collectionName: string;
   videos: WatchPlaylistItem[];
+  sections?: WatchPlaylistSection[];
   anchorEl: HTMLElement | null;
   onClose: () => void;
   onSaved: (label: string) => void;
@@ -19,6 +26,7 @@ type Props = {
 export function CollectionPlaylistAddDropdown({
   collectionName,
   videos,
+  sections,
   anchorEl,
   onClose,
   onSaved,
@@ -33,6 +41,16 @@ export function CollectionPlaylistAddDropdown({
   onCloseRef.current = onClose;
   const anchorElRef = useRef(anchorEl);
   anchorElRef.current = anchorEl;
+
+  // Deduplicate videos by url
+  const seenUrls = new Set<string>();
+  const uniqueVideos: WatchPlaylistItem[] = [];
+  for (const v of videos) {
+    const key = v.url.trim();
+    if (!key || seenUrls.has(key)) continue;
+    seenUrls.add(key);
+    uniqueVideos.push(v);
+  }
 
   useLayoutEffect(() => {
     if (!anchorEl || !panelRef.current) return;
@@ -80,37 +98,92 @@ export function CollectionPlaylistAddDropdown({
     if (submitting) return;
     setSubmitting(true);
     try {
-      for (const video of videos) {
-        addVideo.mutate({
-          playlistId,
-          video: {
-            url: video.url,
-            title: video.title,
-            thumbnail: video.thumbnail,
-            channelName: video.channelName ?? "",
-            channelUrl: "",
-            channelAvatar: "",
-            viewCount: 0,
-            duration: 0,
-          },
-        });
-      }
-      onSaved(m.ui_saved_to_playlist({ name: `${targetName} (${videos.length})` }));
+      const targetPlaylist = playlists.find((p) => p.id === playlistId);
+      const existingUrls = new Set((targetPlaylist?.videos ?? []).map((v) => v.url.trim()));
+      const toAdd = uniqueVideos.filter((video) => !existingUrls.has(video.url.trim()));
+
+      const firstBatch = toAdd.slice(0, 12);
+      const remaining = toAdd.slice(12);
+
+      await Promise.all(
+        firstBatch.map((video) =>
+          addVideo
+            .mutateAsync({
+              playlistId,
+              video: {
+                url: video.url,
+                title: video.title,
+                thumbnail: video.thumbnail,
+                channelName: video.channelName ?? "",
+                channelUrl: "",
+                channelAvatar: "",
+                viewCount: 0,
+                duration: 0,
+              },
+            })
+            .catch(() => null),
+        ),
+      );
+
+      onSaved(m.ui_saved_to_playlist({ name: `${targetName} (${toAdd.length})` }));
       onClose();
+
+      if (remaining.length > 0) {
+        void (async () => {
+          for (let i = 0; i < remaining.length; i += 4) {
+            await new Promise((r) => setTimeout(r, 120));
+            const chunk = remaining.slice(i, i + 4);
+            await Promise.all(
+              chunk.map((video) =>
+                addVideo
+                  .mutateAsync({
+                    playlistId,
+                    video: {
+                      url: video.url,
+                      title: video.title,
+                      thumbnail: video.thumbnail,
+                      channelName: video.channelName ?? "",
+                      channelUrl: "",
+                      channelAvatar: "",
+                      viewCount: 0,
+                      duration: 0,
+                    },
+                  })
+                  .catch(() => null),
+              ),
+            );
+          }
+        })();
+      }
     } finally {
       setSubmitting(false);
     }
   }
 
+  const isAlreadySubscribed = playlists.some(
+    (p) =>
+      (isCollectionPlaylist(p) || (p.description ?? "").includes("[collection]")) &&
+      p.name.trim().toLowerCase() === collectionName.trim().toLowerCase(),
+  );
+
   async function handleCreateAndAdd() {
     const trimmed = newName.trim();
-    if (!trimmed || submitting) return;
+    if (!trimmed || submitting || isAlreadySubscribed) return;
     setSubmitting(true);
     try {
       const result = await create.mutateAsync(trimmed);
       const createdId = (result as { id?: string })?.id;
       if (createdId) {
-        addSubscribedCollectionId(createdId);
+        const sectionsMeta = sections?.map((sec) => ({
+          id: sec.id,
+          title: sec.title,
+          videoUrls: sec.videos.map((v) => v.url.trim()),
+        }));
+        addSubscribedCollectionId(createdId, {
+          id: createdId,
+          title: trimmed,
+          sections: sectionsMeta,
+        });
         await addVideosToPlaylist(createdId, trimmed);
       } else {
         onSaved(m.ui_playlist_named_created({ name: trimmed }));
@@ -130,12 +203,20 @@ export function CollectionPlaylistAddDropdown({
       style={panelStyle}
     >
       <div className="flex-shrink-0 px-3 pt-3 pb-1 border-b border-border">
-        <p className="text-xs font-semibold text-fg flex items-center gap-1.5">
-          <FolderPlus className="h-3.5 w-3.5 text-fg-muted" aria-hidden="true" />
-          <span>{m.watch_save_playlist()}</span>
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-semibold text-fg flex items-center gap-1.5">
+            <FolderPlus className="h-3.5 w-3.5 text-fg-muted" aria-hidden="true" />
+            <span>{m.watch_save_playlist()}</span>
+          </p>
+          {isAlreadySubscribed && (
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-surface-strong text-fg-muted">
+              <Check className="h-3 w-3 text-accent" />
+              {m.ui_already_subscribed()}
+            </span>
+          )}
+        </div>
         <p className="text-[11px] text-fg-muted truncate">
-          {collectionName} ({videos.length})
+          {collectionName} ({uniqueVideos.length})
         </p>
       </div>
 
@@ -157,25 +238,32 @@ export function CollectionPlaylistAddDropdown({
         ))}
       </div>
 
-      <div className="flex-shrink-0 border-t border-border p-2 flex gap-1.5 bg-surface-muted/50">
-        <input
-          type="text"
-          value={newName}
-          disabled={submitting}
-          onChange={(e) => setNewName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && void handleCreateAndAdd()}
-          placeholder={m.ui_new_playlist_2()}
-          className="min-w-0 flex-1 text-xs bg-surface text-fg placeholder-fg-soft rounded-lg px-2.5 py-1.5 outline-none border border-border focus:border-fg-muted"
-        />
-        <button
-          type="button"
-          disabled={submitting || !newName.trim()}
-          onClick={() => void handleCreateAndAdd()}
-          className="flex-shrink-0 text-xs px-2.5 py-1.5 bg-fg text-app hover:opacity-90 font-medium rounded-lg transition-opacity disabled:opacity-50"
-        >
-          {m.ui_create()}
-        </button>
-      </div>
+      {isAlreadySubscribed ? (
+        <div className="flex-shrink-0 border-t border-border p-2.5 flex items-center justify-center gap-1.5 bg-surface-muted/50 text-xs text-fg-muted">
+          <Check className="h-3.5 w-3.5 text-accent" />
+          <span>{m.ui_collection_already_subscribed()}</span>
+        </div>
+      ) : (
+        <div className="flex-shrink-0 border-t border-border p-2 flex gap-1.5 bg-surface-muted/50">
+          <input
+            type="text"
+            value={newName}
+            disabled={submitting}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && void handleCreateAndAdd()}
+            placeholder={m.ui_new_playlist_2()}
+            className="min-w-0 flex-1 text-xs bg-surface text-fg placeholder-fg-soft rounded-lg px-2.5 py-1.5 outline-none border border-border focus:border-fg-muted"
+          />
+          <button
+            type="button"
+            disabled={submitting || !newName.trim()}
+            onClick={() => void handleCreateAndAdd()}
+            className="flex-shrink-0 text-xs px-2.5 py-1.5 bg-fg text-app hover:opacity-90 font-medium rounded-lg transition-opacity disabled:opacity-50"
+          >
+            {m.ui_create()}
+          </button>
+        </div>
+      )}
     </div>,
     document.body,
   );

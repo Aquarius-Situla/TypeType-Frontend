@@ -1,12 +1,15 @@
 import { useNavigate } from "@tanstack/react-router";
-import { type ReactNode, useCallback, useEffect } from "react";
+import { type ReactNode, useCallback, useEffect, useMemo } from "react";
 import { WatchPlaylistPanel } from "../components/watch-playlist-panel";
 import { applyCustomOrder, randomShuffleSeed, shuffleByKey } from "../lib/playlist-shuffle";
-import { isManagedPlaylistId } from "../lib/playlist-url";
 import { extractEpisodeNumber } from "../lib/playlist-sort";
+import { isManagedPlaylistId } from "../lib/playlist-url";
 import {
   activeStreamCollection,
+  deriveSectionsFromVideos,
+  getSubscribedCollectionMeta,
   isCollectionPlaylist,
+  type SubscribedCollectionSectionMeta,
   streamCollectionPlaylistItems,
   streamCollectionSectionGroups,
 } from "../lib/stream-collections";
@@ -67,7 +70,43 @@ export function useWatchPlaylist(
   const isManagedCollection = Boolean(
     isManaged && managedPlaylist.data && isCollectionPlaylist(managedPlaylist.data),
   );
-  const managedVideos = managedPlaylist.data?.videos ?? [];
+  const managedCollectionMeta =
+    isManagedCollection && managedList ? getSubscribedCollectionMeta(managedList) : undefined;
+  const plVideos = managedPlaylist.data?.videos ?? [];
+  const managedVideos = useMemo(() => {
+    if (!isManagedCollection || !managedCollectionMeta?.sections) return plVideos;
+    const metaEpisodes = managedCollectionMeta.sections.flatMap((sec) => sec.episodes ?? []);
+    if (metaEpisodes.length === 0) return plVideos;
+    const seen = new Set<string>();
+    const res: typeof plVideos = [];
+    for (const v of plVideos) {
+      if (v.url && !seen.has(v.url)) {
+        seen.add(v.url);
+        res.push(v);
+      }
+    }
+    for (const ep of metaEpisodes) {
+      if (ep.url && !seen.has(ep.url)) {
+        seen.add(ep.url);
+        res.push({
+          id: ep.videoId || ep.url,
+          url: ep.url,
+          title: ep.title,
+          thumbnail: ep.thumbnailUrl ?? "",
+          channelName: ep.channelName ?? plVideos[0]?.channelName ?? "",
+          channelUrl: "",
+          channelAvatar: "",
+          viewCount: 0,
+          duration: 0,
+          position: res.length,
+          watchPosition: 0,
+          watched: false,
+          progressUpdatedAt: 0,
+        });
+      }
+    }
+    return res;
+  }, [plVideos, isManagedCollection, managedCollectionMeta]);
   const sortedManagedVideos = isManagedCollection
     ? [...managedVideos].sort((a, b) => {
         const numA = extractEpisodeNumber(a.title);
@@ -84,7 +123,7 @@ export function useWatchPlaylist(
       })
     : managedVideos;
   const base: WatchPlaylistItem[] = isManaged
-    ? sortedManagedVideos.map((item) => ({
+    ? sortedManagedVideos.map((item: (typeof plVideos)[number]) => ({
         key: item.id,
         url: item.url,
         title: item.title,
@@ -155,12 +194,39 @@ export function useWatchPlaylist(
     publicPlaylist.fetchNextPage,
   ]);
 
+  const effectiveSections =
+    collectionSections.length > 1
+      ? collectionSections
+      : managedCollectionMeta?.sections && managedCollectionMeta.sections.length > 1
+        ? managedCollectionMeta.sections.map((sec: SubscribedCollectionSectionMeta) => ({
+            id: sec.id,
+            title: sec.title,
+            videos: filter(
+              sec.episodes && sec.episodes.length > 0
+                ? sec.episodes.map((ep) => ({
+                    key: ep.videoId || ep.url,
+                    url: ep.url,
+                    title: ep.title,
+                    thumbnail: ep.thumbnailUrl ?? "",
+                    channelName: ep.channelName,
+                  }))
+                : videos.filter((v) => sec.videoUrls.includes(v.url.trim())),
+            ),
+          }))
+        : isManagedCollection
+          ? deriveSectionsFromVideos(videos).map((sec: SubscribedCollectionSectionMeta) => ({
+              id: sec.id,
+              title: sec.title,
+              videos: filter(videos.filter((v) => sec.videoUrls.includes(v.url.trim()))),
+            }))
+          : undefined;
+
   const panel =
     inPlaylist && (list || collection || partVideos.length > 0) ? (
       <WatchPlaylistPanel
         name={name}
         videos={videos}
-        sections={collectionSections.length > 1 && !shuffle ? collectionSections : undefined}
+        sections={effectiveSections && !shuffle ? effectiveSections : undefined}
         listId={list}
         currentParam={currentParam}
         shuffle={shuffle}

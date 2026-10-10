@@ -7,3 +7,5 @@ tmp/
 *.tsbuildinfo
 apps/web/src/paraglide/
 .env
+scratch/
+*.tar.gz

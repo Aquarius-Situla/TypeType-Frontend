@@ -14,9 +14,14 @@ import { usePlaylists } from "../hooks/use-playlists";
 import { useSavedPlaylists } from "../hooks/use-saved-playlists";
 import { useWatchLaterStreams } from "../hooks/use-watch-later-streams";
 import { filterPlaylistSummaries } from "../lib/playlist-summary";
-import { isCollectionPlaylist } from "../lib/stream-collections";
+import {
+  extractCollectionOriginalTitle,
+  getSubscribedCollectionMeta,
+  isCollectionPlaylist,
+} from "../lib/stream-collections";
 import { m } from "../paraglide/messages.js";
 import type { SavedPlaylistItem } from "../types/playlist";
+import type { PlaylistItem } from "../types/user";
 
 function PlaylistsPage() {
   const { query, create, remove } = usePlaylists();
@@ -47,12 +52,40 @@ function PlaylistsPage() {
   const allSubscribedCollections = useMemo(() => {
     const list: import("../components/subscribed-collections-section").SubscribedCollectionDisplayItem[] =
       [];
+    const seenTitles = new Set<string>();
+
     for (const p of userCollections) {
+      const meta = getSubscribedCollectionMeta(p.id);
+      const metaCount =
+        meta?.sections && meta.sections.length > 0
+          ? new Set(meta.sections.flatMap((s) => s.videoUrls)).size
+          : 0;
+      const count = metaCount || p.videoCount || (p.videos ? p.videos.length : 0);
+      const origTitle = extractCollectionOriginalTitle(p);
+      const titleKey = (origTitle || p.name).trim().toLowerCase();
+
+      if (seenTitles.has(titleKey)) {
+        const existing = list.find(
+          (item) =>
+            (item as { titleKey?: string }).titleKey === titleKey ||
+            item.title.trim().toLowerCase() === titleKey ||
+            (origTitle && item.title.trim().toLowerCase() === origTitle.trim().toLowerCase()),
+        );
+        if (existing && count > existing.streamCount) {
+          existing.id = p.id;
+          existing.streamCount = count;
+          existing.params = { id: p.id };
+          if (p.videos?.[0]?.thumbnail) existing.thumbnailUrl = p.videos[0].thumbnail;
+        }
+        continue;
+      }
+      seenTitles.add(titleKey);
+
       list.push({
         id: p.id,
         title: p.name,
-        streamCount: p.videoCount ?? p.videos?.length ?? 0,
-        thumbnailUrl: p.videos?.[0]?.thumbnail,
+        streamCount: count,
+        thumbnailUrl: p.videos?.[0]?.thumbnail || meta?.sections?.[0]?.episodes?.[0]?.thumbnailUrl,
         uploaderName: p.videos?.[0]?.channelName,
         to: "/playlists/$id",
         params: { id: p.id },
@@ -60,6 +93,10 @@ function PlaylistsPage() {
       });
     }
     for (const s of saved) {
+      const titleKey = s.title.trim().toLowerCase();
+      if (seenTitles.has(titleKey)) continue;
+      seenTitles.add(titleKey);
+
       list.push({
         id: s.id,
         title: s.title,
@@ -155,7 +192,7 @@ function PlaylistsPage() {
             count={visibleWatchLater.length}
             thumbnail={visibleWatchLater[0]?.thumbnail}
           />
-          {userPlaylistsOnly.map((playlist, index) => (
+          {userPlaylistsOnly.map((playlist: PlaylistItem, index: number) => (
             <div
               key={playlist.id}
               className="animate-card-pop-in"

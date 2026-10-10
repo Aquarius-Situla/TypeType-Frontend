@@ -1,7 +1,14 @@
-import { ChevronDown, FolderPlus, Shuffle } from "lucide-react";
+import { Check, ChevronDown, FolderPlus, Shuffle } from "lucide-react";
 import { type DragEvent, type UIEvent, useEffect, useRef, useState } from "react";
 import { useFlipList } from "../hooks/use-flip-list";
 import { useMobile } from "../hooks/use-mobile";
+import { usePlaylists } from "../hooks/use-playlists";
+import {
+  addSubscribedCollectionId,
+  findSubscribedCollection,
+  isCollectionPlaylist,
+  removeSubscribedCollectionId,
+} from "../lib/stream-collections";
 import { toPublicWatchParam } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
 import type { WatchPlaylistItem } from "../types/playlist";
@@ -80,6 +87,97 @@ export function WatchPlaylistPanel({
   const reorderable = Boolean(onReorder) && !activeSection;
   const register = useFlipList(displayVideos.map((video) => video.key).join("|"));
 
+  const isCollection =
+    Boolean(sections && sections.length > 0) || isCollectionPlaylist({ name, id: listId });
+
+  const { query: playlistsQuery, create, remove, addVideo } = usePlaylists();
+  const playlists = playlistsQuery.data ?? [];
+  const subscribedTarget = findSubscribedCollection(name, playlists);
+  const isAlreadySubscribed = Boolean(subscribedTarget);
+  const [subscribing, setSubscribing] = useState(false);
+
+  async function handleToggleSubscribe() {
+    if (subscribing) return;
+    setSubscribing(true);
+    try {
+      if (subscribedTarget) {
+        remove.mutate(subscribedTarget.id);
+        removeSubscribedCollectionId(subscribedTarget.id);
+        setToastMsg(m.ui_subscribed_collection_removed({ name }));
+      } else {
+        const trimmed = name.trim();
+        const result = await create.mutateAsync(trimmed);
+        const createdId = (result as { id?: string })?.id;
+        if (createdId) {
+          const sectionsMeta = sections?.map((sec) => ({
+            id: sec.id,
+            title: sec.title,
+            videoUrls: sec.videos.map((v) => v.url.trim()),
+            episodes: sec.videos.map((v) => ({
+              videoId: v.key,
+              title: v.title,
+              url: v.url.trim(),
+              thumbnailUrl: v.thumbnail,
+              channelName: v.channelName,
+            })),
+          }));
+          addSubscribedCollectionId(createdId, {
+            id: createdId,
+            title: trimmed,
+            originalTitle: trimmed,
+            sections: sectionsMeta,
+          });
+
+          // Collect all distinct videos from all sections
+          const seenUrls = new Set<string>();
+          const allCollectionVideos: WatchPlaylistItem[] = [];
+          if (sections && sections.length > 0) {
+            for (const sec of sections) {
+              for (const v of sec.videos) {
+                const u = v.url.trim();
+                if (!u || seenUrls.has(u)) continue;
+                seenUrls.add(u);
+                allCollectionVideos.push(v);
+              }
+            }
+          }
+          if (allCollectionVideos.length === 0) {
+            for (const v of videos) {
+              const u = v.url.trim();
+              if (!u || seenUrls.has(u)) continue;
+              seenUrls.add(u);
+              allCollectionVideos.push(v);
+            }
+          }
+
+          // Add first video to backend playlist so it has thumbnail and initial entry
+          const firstVideo = allCollectionVideos[0] ?? videos[0];
+          if (firstVideo) {
+            await addVideo
+              .mutateAsync({
+                playlistId: createdId,
+                video: {
+                  url: firstVideo.url,
+                  title: firstVideo.title,
+                  thumbnail: firstVideo.thumbnail,
+                  channelName: firstVideo.channelName ?? "",
+                  channelUrl: "",
+                  channelAvatar: "",
+                  viewCount: 0,
+                  duration: 0,
+                },
+              })
+              .catch(() => null);
+          }
+
+          setToastMsg(m.ui_subscribed_collection({ name: trimmed }));
+        }
+      }
+    } finally {
+      setSubscribing(false);
+    }
+  }
+
   useEffect(() => {
     if (!collapsed && currentIndex >= 0) {
       currentElement.current?.scrollIntoView({ block: "nearest" });
@@ -147,15 +245,44 @@ export function WatchPlaylistPanel({
               <Shuffle className="h-3.5 w-3.5" aria-hidden="true" />
             </button>
           )}
-          <button
-            type="button"
-            onClick={(e) => setAddDropdownAnchor(e.currentTarget)}
-            aria-label={m.watch_save_playlist()}
-            title={m.watch_save_playlist()}
-            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border text-fg-muted transition-colors hover:border-border-strong hover:bg-surface-strong hover:text-fg"
-          >
-            <FolderPlus className="h-3.5 w-3.5" aria-hidden="true" />
-          </button>
+          {isCollection ? (
+            <button
+              type="button"
+              disabled={subscribing}
+              onClick={() => void handleToggleSubscribe()}
+              aria-label={
+                isAlreadySubscribed
+                  ? m.ui_subscribed_collection_tooltip()
+                  : m.ui_subscribe_collection()
+              }
+              title={
+                isAlreadySubscribed
+                  ? m.ui_subscribed_collection_tooltip()
+                  : m.ui_subscribe_collection()
+              }
+              className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border transition-colors ${
+                isAlreadySubscribed
+                  ? "border-accent/40 bg-accent/15 text-accent hover:bg-accent/25"
+                  : "border-border text-fg-muted hover:border-border-strong hover:bg-surface-strong hover:text-fg"
+              }`}
+            >
+              {isAlreadySubscribed ? (
+                <Check className="h-3.5 w-3.5" aria-hidden="true" />
+              ) : (
+                <FolderPlus className="h-3.5 w-3.5" aria-hidden="true" />
+              )}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={(e) => setAddDropdownAnchor(e.currentTarget)}
+              aria-label={m.watch_save_playlist()}
+              title={m.watch_save_playlist()}
+              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border text-fg-muted transition-colors hover:border-border-strong hover:bg-surface-strong hover:text-fg"
+            >
+              <FolderPlus className="h-3.5 w-3.5" aria-hidden="true" />
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setCollapsed((value) => !value)}
@@ -194,7 +321,10 @@ export function WatchPlaylistPanel({
         </div>
       )}
       {!collapsed && (
-        <ul className="max-h-[min(42rem,calc(100dvh-12rem))] list-none overflow-y-auto py-1" onScroll={handleScroll}>
+        <ul
+          className="max-h-[min(42rem,calc(100dvh-12rem))] list-none overflow-y-auto py-1"
+          onScroll={handleScroll}
+        >
           {displayVideos.map((video, index) => {
             const isCurrent = index === currentIndex;
 
@@ -241,7 +371,8 @@ export function WatchPlaylistPanel({
       {addDropdownAnchor && (
         <CollectionPlaylistAddDropdown
           collectionName={name}
-          videos={displayVideos}
+          videos={videos}
+          sections={sections}
           anchorEl={addDropdownAnchor}
           onClose={() => setAddDropdownAnchor(null)}
           onSaved={(msg) => setToastMsg(msg)}

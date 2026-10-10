@@ -18,7 +18,7 @@ export const PLAYLIST_SORT_OPTIONS: { value: PlaylistSortMode; label: () => stri
   { value: "popular", label: () => m.playlist_sort_popularity() },
 ];
 
-const EPISODE_NUMBER_REGEX = /(?:^|\s|第|P|p|[【\[])(\d+)(?:[.\s、期讲集话部\]】]|$)/;
+const EPISODE_NUMBER_REGEX = /(?:^|\s|第|P|p|[【[])(\d+)(?:[.\s、期讲集话部\]】]|$)/;
 
 export function extractEpisodeNumber(title?: string): number | null {
   if (!title) return null;
@@ -63,4 +63,16 @@ export function sortPlaylistVideos(
       }
       return sorted.sort((a, b) => a.position - b.position);
   }
+}
+
+export function deduplicateVideos(videos: PlaylistVideoItem[]): PlaylistVideoItem[] {
+  const seen = new Set<string>();
+  const res: PlaylistVideoItem[] = [];
+  for (const v of videos) {
+    const key = v.url.trim();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    res.push(v);
+  }
+  return res;
 }

@@ -95,16 +95,24 @@ export function SubscribedCollectionsSection({ collections, onDelete }: Props) {
                       {collection.title}
                     </p>
                     {collection.uploaderName && (
-                      <p className="mt-1 truncate text-xs text-fg-muted">{collection.uploaderName}</p>
+                      <p className="mt-1 truncate text-xs text-fg-muted">
+                        {collection.uploaderName}
+                      </p>
                     )}
                   </Link>
                 ) : (
-                  <Link to="/playlist" search={collection.search as never} className="min-w-0 flex-1">
+                  <Link
+                    to="/playlist"
+                    search={collection.search as never}
+                    className="min-w-0 flex-1"
+                  >
                     <p className="line-clamp-2 text-sm font-medium leading-snug text-fg group-hover:text-fg-strong">
                       {collection.title}
                     </p>
                     {collection.uploaderName && (
-                      <p className="mt-1 truncate text-xs text-fg-muted">{collection.uploaderName}</p>
+                      <p className="mt-1 truncate text-xs text-fg-muted">
+                        {collection.uploaderName}
+                      </p>
                     )}
                   </Link>
                 )}
