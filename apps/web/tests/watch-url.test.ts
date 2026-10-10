@@ -81,9 +81,7 @@ test("restricts v parameter extraction to valid IDs matching the host", () => {
   );
 
   // YouTube URLs with valid IDs are correctly extracted
-  expect(toPublicWatchParam("https://www.youtube.com/watch?v=Z05XGDSTe7U")).toBe(
-    "Z05XGDSTe7U",
-  );
+  expect(toPublicWatchParam("https://www.youtube.com/watch?v=Z05XGDSTe7U")).toBe("Z05XGDSTe7U");
   expect(toWatchSourceUrl("https://www.youtube.com/watch?v=Z05XGDSTe7U")).toBe(
     "https://www.youtube.com/watch?v=Z05XGDSTe7U",
   );

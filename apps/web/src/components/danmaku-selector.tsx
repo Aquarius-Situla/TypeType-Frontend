@@ -2,13 +2,9 @@ import { useRef } from "react";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { useSettings } from "../hooks/use-settings";
 import { supportsBulletComments } from "../lib/provider";
-import { toWatchSourceUrl } from "../lib/watch-url";
 import type { DefaultLayoutIcon, MenuInstance } from "../lib/vidstack";
-import {
-  DefaultMenuButton,
-  DefaultMenuRadioGroup,
-  Menu,
-} from "../lib/vidstack";
+import { DefaultMenuButton, DefaultMenuRadioGroup, Menu } from "../lib/vidstack";
+import { toWatchSourceUrl } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
 import { useDanmakuStore } from "../stores/danmaku-store";
 import { DanmakuIcon } from "./watch-icons";
@@ -67,10 +63,7 @@ export function DanmakuSelector({ supported }: Props) {
       />
       <Menu.Items className={MENU_ITEMS_CLASS}>
         <Menu.Root className="vds-menu">
-          <DefaultMenuButton
-            label={m.ui_speed({}, { locale })}
-            hint={speedHint}
-          />
+          <DefaultMenuButton label={m.ui_speed({}, { locale })} hint={speedHint} />
           <Menu.Items className={MENU_ITEMS_CLASS}>
             <DefaultMenuRadioGroup
               value={speedStr}
@@ -88,10 +81,7 @@ export function DanmakuSelector({ supported }: Props) {
         </Menu.Root>
 
         <Menu.Root className="vds-menu">
-          <DefaultMenuButton
-            label={m.ui_size({}, { locale })}
-            hint={sizeHint}
-          />
+          <DefaultMenuButton label={m.ui_size({}, { locale })} hint={sizeHint} />
           <Menu.Items className={MENU_ITEMS_CLASS}>
             <DefaultMenuRadioGroup
               value={sizeStr}

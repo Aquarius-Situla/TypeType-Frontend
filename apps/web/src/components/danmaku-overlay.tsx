@@ -34,8 +34,7 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
   useEffect(() => {
     const el = overlayRef.current;
     const video =
-      el?.closest(".vds-media-player")?.querySelector("video") ||
-      document.querySelector("video");
+      el?.closest(".vds-media-player")?.querySelector("video") || document.querySelector("video");
     videoRef.current = video;
     if (!video) return;
 
@@ -53,12 +52,13 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
   }, []);
 
   const indexed = useMemo<IndexedComment[]>(
-    () =>
-      comments
-        .map((c, i) => ({ ...c, lane: i % N_LANES, id: i })),
+    () => comments.map((c, i) => ({ ...c, lane: i % N_LANES, id: i })),
     [comments],
   );
 
+  // The cached start times must reset when the comment set, the speed or the playback rate
+  // changes, even though this effect only touches refs and state setters.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional reset triggers
   useEffect(() => {
     startMsMap.current.clear();
     setSeekEpoch((e) => e + 1);
@@ -113,7 +113,7 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
 
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
-  }, [indexed, positionRef, mediaPlaybackRate]);
+  }, [indexed, positionRef]);
 
   const [containerWidth, setContainerWidth] = useState(0);
 
@@ -147,21 +147,23 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
   return (
     <div
       ref={overlayRef}
-      style={{
-        position: "absolute",
-        inset: 0,
-        overflow: "hidden",
-        pointerEvents: "none",
-        zIndex: 1,
-        isolation: "isolate",
-        contain: "paint layout",
-        clipPath: "inset(0)",
-        WebkitClipPath: "inset(0)",
-        containerType: "inline-size",
-        transform: "translate3d(0, 0, 0)",
-        WebkitTransform: "translate3d(0, 0, 0)",
-        "--d-width": `${width}px`,
-      } as React.CSSProperties}
+      style={
+        {
+          position: "absolute",
+          inset: 0,
+          overflow: "hidden",
+          pointerEvents: "none",
+          zIndex: 1,
+          isolation: "isolate",
+          contain: "paint layout",
+          clipPath: "inset(0)",
+          WebkitClipPath: "inset(0)",
+          containerType: "inline-size",
+          transform: "translate3d(0, 0, 0)",
+          WebkitTransform: "translate3d(0, 0, 0)",
+          "--d-width": `${width}px`,
+        } as React.CSSProperties
+      }
     >
       {visible.map((c) => (
         <DanmakuItem
