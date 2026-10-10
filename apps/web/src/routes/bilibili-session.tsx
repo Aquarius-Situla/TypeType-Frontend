@@ -6,7 +6,7 @@ import { SessionPlatformNav } from "../components/session-platform-nav";
 import { Toast } from "../components/toast";
 import { useAuth } from "../hooks/use-auth";
 import { useBiliBiliSession } from "../hooks/use-bilibili-session";
-import { formatBilibiliSessionTime } from "../lib/bilibili-session-format";
+import { bilibiliSessionDaysLeft, formatBilibiliSessionTime } from "../lib/bilibili-session-format";
 import { sanitizeBilibiliSessionReturnTo } from "../lib/bilibili-session-route";
 import { m } from "../paraglide/messages.js";
 
@@ -19,10 +19,7 @@ function BiliBiliSessionPage() {
   const returnTo = sanitizeBilibiliSessionReturnTo(redirect);
   const state = session.status.data;
   const connected = state?.status === "connected";
-  const daysLeft =
-    state?.expiresAt && state.expiresAt > 0
-      ? Math.ceil((state.expiresAt - Date.now()) / 86400000)
-      : 0;
+  const daysLeft = bilibiliSessionDaysLeft(state?.expiresAt);
   const statusLabel = connected
     ? m.ui_bilibili_session_connected()
     : state?.status === "needs_reconnect"
