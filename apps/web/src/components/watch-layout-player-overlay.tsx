@@ -7,6 +7,7 @@ import { WatchPlayerOverlay } from "./watch-player-overlay";
 
 type Props = {
   canLoadBulletComments: boolean;
+  hideComments: boolean;
   bulletCommentsOn: boolean;
   bulletComments: BulletCommentItem[] | undefined;
   positionRef: RefObject<number>;
@@ -20,6 +21,7 @@ export function WatchLayoutPlayerOverlay(props: Props) {
   return (
     <WatchPlayerOverlay
       canLoadBulletComments={props.canLoadBulletComments}
+      hideComments={props.hideComments}
       bulletCommentsOn={props.bulletCommentsOn}
       bulletComments={props.bulletComments}
       positionRef={props.positionRef}

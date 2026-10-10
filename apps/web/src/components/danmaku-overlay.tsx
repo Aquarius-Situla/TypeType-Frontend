@@ -76,7 +76,6 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
           : (positionRef.current ?? 0);
 
       const currentSpeed = useDanmakuStore.getState().speed;
-      const effectiveSpeed = currentSpeed * (mediaPlaybackRate || 1);
 
       if (lastMsRef.current !== null && Math.abs(ms - lastMsRef.current) > 1500) {
         startMsMap.current.clear();
@@ -89,7 +88,7 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
         const elapsed = ms - c.durationMs;
         const dur =
           c.position === "REGULAR"
-            ? REGULAR_DISPLAY_MS / effectiveSpeed + 300
+            ? REGULAR_DISPLAY_MS / currentSpeed + 300
             : displayDuration(c.position);
         const minElapsed = c.position === "REGULAR" ? -PRE_MOUNT_MS : 0;
         return elapsed >= minElapsed && elapsed < dur;

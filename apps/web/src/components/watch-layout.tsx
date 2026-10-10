@@ -48,7 +48,7 @@ export function WatchLayout({
   const { on: bulletCommentsOn } = useDanmakuStore();
   const { isNicoNico, canLoadBulletComments, bulletComments } = useWatchBulletComments(
     stream.id,
-    bulletCommentsOn,
+    !settings.hideComments && bulletCommentsOn,
   );
   const sponsor = useWatchSponsorBlock(stream, settings);
   const relatedStreams = useWatchLayoutRecommendations(
@@ -164,6 +164,7 @@ export function WatchLayout({
         overlay={
           <WatchLayoutPlayerOverlay
             canLoadBulletComments={canLoadBulletComments}
+            hideComments={settings.hideComments}
             bulletCommentsOn={bulletCommentsOn}
             bulletComments={bulletComments}
             positionRef={playerEvents.positionRef}
