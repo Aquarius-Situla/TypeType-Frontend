@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
+import { useSettings } from "../hooks/use-settings";
 import { supportsBulletComments } from "../lib/provider";
 import { toWatchSourceUrl } from "../lib/watch-url";
 import type { DefaultLayoutIcon, MenuInstance } from "../lib/vidstack";
@@ -22,6 +23,7 @@ type Props = {
 };
 
 export function DanmakuSelector({ supported }: Props) {
+  const { settings } = useSettings();
   const { locale } = useInterfaceLocale();
   const menuRef = useRef<MenuInstance>(null);
   const { on, speed, size, setSpeed, setSize } = useDanmakuStore();
@@ -35,7 +37,7 @@ export function DanmakuSelector({ supported }: Props) {
         Boolean(new URLSearchParams(window.location.search).get("v")?.match(/^BV|^sm\d+/i))
       : true);
 
-  if (!isSupported) return null;
+  if (settings.hideComments || !isSupported) return null;
 
   const speedStr = speed <= 0.85 ? "0.75" : speed >= 1.15 ? "1.25" : "1";
   const sizeStr = size <= 0.85 ? "0.8" : size >= 1.15 ? "1.25" : "1";

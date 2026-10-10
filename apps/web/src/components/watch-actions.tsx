@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import { useAuth } from "../hooks/use-auth";
 import { useFavoriteStatus } from "../hooks/use-favorite-status";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
+import { useSettings } from "../hooks/use-settings";
 import { useShareUrl } from "../hooks/use-share-url";
 import type { WatchAudioOnlyControls } from "../hooks/use-watch-audio-only-playback";
 import { prepareAudioSpectrum } from "../lib/audio-spectrum";
@@ -34,6 +35,7 @@ type Props = {
   audioOnly: WatchAudioOnlyControls;
 };
 export function WatchActions({ stream, audioOnly }: Props) {
+  const { settings } = useSettings();
   const { locale } = useInterfaceLocale();
   const { copied, share } = useShareUrl();
   const [playlistOpen, setPlaylistOpen] = useState(false);
@@ -85,7 +87,7 @@ export function WatchActions({ stream, audioOnly }: Props) {
 
   const showSave = true;
   const showReport = true;
-  const showDanmaku = supportsBulletComments(stream.id);
+  const showDanmaku = !settings.hideComments && supportsBulletComments(stream.id);
 
   return (
     <div className="flex items-center gap-1 flex-wrap">

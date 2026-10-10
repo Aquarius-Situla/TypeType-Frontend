@@ -1,5 +1,11 @@
+.vds-menu-items[data-submenu] {
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
 .vds-quality-menu .vds-menu-items[data-submenu],
-.vds-audio-menu .vds-menu-items[data-submenu] {
+.vds-audio-menu .vds-menu-items[data-submenu],
+.vds-danmaku-menu .vds-menu-items[data-submenu] {
   align-items: stretch;
   justify-content: flex-start;
   max-height: min(44svh, 18rem);
