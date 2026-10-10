@@ -6,21 +6,11 @@ import { SessionPlatformNav } from "../components/session-platform-nav";
 import { Toast } from "../components/toast";
 import { useAuth } from "../hooks/use-auth";
 import { useBiliBiliSession } from "../hooks/use-bilibili-session";
+import { bilibiliSessionDaysLeft, formatBilibiliSessionTime } from "../lib/bilibili-session-format";
 import { sanitizeBilibiliSessionReturnTo } from "../lib/bilibili-session-route";
 import { m } from "../paraglide/messages.js";
 
 const SIDE_LABEL = "font-mono text-fg-soft text-[11px] uppercase tracking-[0.22em]";
-
-function formatSessionTime(timestamp?: number): string {
-  if (!timestamp || timestamp === 0) return "—";
-  return new Date(timestamp * 1000).toLocaleString(undefined, {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 function BiliBiliSessionPage() {
   const { authReady, isAuthed } = useAuth();
@@ -29,10 +19,7 @@ function BiliBiliSessionPage() {
   const returnTo = sanitizeBilibiliSessionReturnTo(redirect);
   const state = session.status.data;
   const connected = state?.status === "connected";
-  const daysLeft =
-    state?.expiresAt && state.expiresAt > 0
-      ? Math.ceil((state.expiresAt - Date.now()) / 86400000)
-      : 0;
+  const daysLeft = bilibiliSessionDaysLeft(state?.expiresAt);
   const statusLabel = connected
     ? m.ui_bilibili_session_connected()
     : state?.status === "needs_reconnect"
@@ -170,7 +157,9 @@ function BiliBiliSessionPage() {
             {daysLeft > 0 && (
               <div>
                 <dt className="text-fg-soft text-xs">{m.ui_bilibili_expires_at()}</dt>
-                <dd className="mt-1 text-fg text-sm">{formatSessionTime(state?.expiresAt)}</dd>
+                <dd className="mt-1 text-fg text-sm">
+                  {formatBilibiliSessionTime(state?.expiresAt)}
+                </dd>
               </div>
             )}
             <div>
@@ -179,7 +168,7 @@ function BiliBiliSessionPage() {
                 {session.status.isPending ? (
                   <span className="inline-block h-4 w-28 animate-pulse rounded bg-surface-soft" />
                 ) : (
-                  formatSessionTime(state?.updatedAt)
+                  formatBilibiliSessionTime(state?.updatedAt)
                 )}
               </dd>
             </div>

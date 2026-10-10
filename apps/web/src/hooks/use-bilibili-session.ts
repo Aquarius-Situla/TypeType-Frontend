@@ -7,6 +7,7 @@ import {
   pollBiliBiliQrLogin,
   startBiliBiliQrLogin,
 } from "../lib/api-bilibili-session";
+import { toBilibiliSessionTimeMs } from "../lib/bilibili-session-format";
 import { m } from "../paraglide/messages.js";
 import { useAuth } from "./use-auth";
 
@@ -71,9 +72,9 @@ export function useBiliBiliSession() {
       qrcodeKeyRef.current = result.qrcodeKey;
       setQrUrl(result.qrUrl);
       setQrPhase("waiting");
-      const expiresAt = result.expiresAt;
+      const expiresAt = toBilibiliSessionTimeMs(result.expiresAt);
       pollTimerRef.current = setInterval(async () => {
-        if (Date.now() > expiresAt) {
+        if (expiresAt !== null && Date.now() > expiresAt) {
           stopPolling();
           setQrPhase("expired");
           return;
