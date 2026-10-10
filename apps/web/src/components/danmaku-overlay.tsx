@@ -152,7 +152,7 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
         inset: 0,
         overflow: "hidden",
         pointerEvents: "none",
-        zIndex: 20,
+        zIndex: 1,
         isolation: "isolate",
         contain: "paint layout",
         clipPath: "inset(0)",

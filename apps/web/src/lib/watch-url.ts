@@ -36,6 +36,19 @@ function isSupportedVideoHost(host: string): boolean {
   );
 }
 
+function isValidWatchQueryParam(host: string, v: string): boolean {
+  if (host === "youtu.be" || hostMatches(host, "youtube.com")) {
+    return YOUTUBE_VIDEO_ID_PATTERN.test(v);
+  }
+  if (host === "nico.ms" || hostMatches(host, "nicovideo.jp")) {
+    return NICONICO_VIDEO_ID_PATTERN.test(v);
+  }
+  if (host === "b23.tv" || hostMatches(host, "bilibili.com")) {
+    return BILIBILI_WATCH_PARAM_PATTERN.test(v);
+  }
+  return false;
+}
+
 function youtubeIdFromPath(pathname: string): string | null {
   const segments = pathname.split("/").filter(Boolean);
   const nestedVideoPath =
@@ -106,11 +119,12 @@ export function toWatchSourceUrl(value: string): string {
   }
   const parsed = parseUrl(trimmed);
   if (parsed) {
+    const host = parsed.hostname.toLowerCase();
     const v = parsed.searchParams.get("v");
-    if (v && v !== trimmed) {
+    if (v && v !== trimmed && isValidWatchQueryParam(host, v)) {
       return toWatchSourceUrl(v);
     }
-    if (isSupportedVideoHost(parsed.hostname.toLowerCase())) {
+    if (isSupportedVideoHost(host)) {
       return `${parsed.origin}${parsed.pathname}${parsed.search}${parsed.hash}`;
     }
   }
@@ -128,8 +142,9 @@ export function toPublicWatchParam(sourceUrl: string): string {
   }
   const parsed = parseUrl(trimmed);
   if (parsed) {
+    const host = parsed.hostname.toLowerCase();
     const v = parsed.searchParams.get("v");
-    if (v && v !== trimmed) {
+    if (v && v !== trimmed && isValidWatchQueryParam(host, v)) {
       return toPublicWatchParam(v);
     }
   }

@@ -62,3 +62,29 @@ test("keeps recommendation fallback on the watched provider", () => {
   expect(watchServiceId("BV1UbX3B2EZQ?p=3", 0)).toBe(2);
   expect(watchServiceId("https://example.com/video", 1)).toBe(1);
 });
+
+test("restricts v parameter extraction to valid IDs matching the host", () => {
+  // Generic URLs without a supported host are not rewritten
+  expect(toPublicWatchParam("https://example.com/watch?v=abc")).toBe(
+    "https://example.com/watch?v=abc",
+  );
+  expect(toWatchSourceUrl("https://example.com/watch?v=abc")).toBe(
+    "https://example.com/watch?v=abc",
+  );
+
+  // YouTube URLs with invalid IDs are not rewritten
+  expect(toPublicWatchParam("https://www.youtube.com/watch?v=invalid")).toBe(
+    "https://www.youtube.com/watch?v=invalid",
+  );
+  expect(toWatchSourceUrl("https://www.youtube.com/watch?v=invalid")).toBe(
+    "https://www.youtube.com/watch?v=invalid",
+  );
+
+  // YouTube URLs with valid IDs are correctly extracted
+  expect(toPublicWatchParam("https://www.youtube.com/watch?v=Z05XGDSTe7U")).toBe(
+    "Z05XGDSTe7U",
+  );
+  expect(toWatchSourceUrl("https://www.youtube.com/watch?v=Z05XGDSTe7U")).toBe(
+    "https://www.youtube.com/watch?v=Z05XGDSTe7U",
+  );
+});
