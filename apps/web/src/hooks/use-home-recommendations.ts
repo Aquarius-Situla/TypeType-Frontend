@@ -26,6 +26,7 @@ type Result = {
   isFetchingNextPage: boolean;
   hasNextPage: boolean;
   fetchNextPage: () => void;
+  pageCount: number;
 };
 
 function mergeRows(pages: HomeRecommendationsResponse[]): HomeRecommendationRow[] {
@@ -93,5 +94,6 @@ export function useHomeRecommendations(): Result {
     isFetchingNextPage: query.isFetchingNextPage,
     hasNextPage: query.hasNextPage,
     fetchNextPage: query.fetchNextPage,
+    pageCount: query.data?.pages.length ?? 0,
   };
 }

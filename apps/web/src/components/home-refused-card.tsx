@@ -17,22 +17,34 @@ const REASON_LABEL: Record<VideoRefusalReason, () => string> = {
 type Props = {
   url: string;
   refusal: Refusal;
+  profileId: string;
   subject?: { id: string; title: string };
 };
 
-export function HomeRefusedCard({ url, refusal, subject }: Props) {
+export function HomeRefusedCard({ url, refusal, profileId, subject }: Props) {
   const { send, remove } = useRecommenderFeedback(false);
   const refuse = useRefusedVideosStore((state) => state.refuse);
   const restore = useRefusedVideosStore((state) => state.restore);
 
   const hide = useHideInterest();
   const explain = (reason: VideoRefusalReason) => {
-    refuse(url, { ...refusal, explained: true, notThisSubject: reason === "topic" });
-    send.mutate({ kind: "video", verdict: "not_for_me", videoUrl: url, reason });
+    if (!refusal.id || send.isPending) return;
+    send.mutate(
+      { kind: "video", verdict: "not_for_me", videoUrl: url, reason },
+      {
+        onSuccess: (saved) =>
+          refuse(profileId, url, {
+            ...refusal,
+            id: saved.id,
+            explained: true,
+            notThisSubject: reason === "topic",
+          }),
+      },
+    );
   };
   const undo = () => {
     if (!refusal.id) return;
-    remove.mutate(refusal.id, { onSuccess: () => restore(url) });
+    remove.mutate(refusal.id, { onSuccess: () => restore(profileId, url) });
   };
 
   return (
@@ -49,7 +61,7 @@ export function HomeRefusedCard({ url, refusal, subject }: Props) {
                 key={reason}
                 type="button"
                 onClick={() => explain(reason)}
-                disabled={!refusal.id}
+                disabled={!refusal.id || send.isPending}
                 className={CHIP}
               >
                 {REASON_LABEL[reason]()}

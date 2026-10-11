@@ -1,5 +1,6 @@
 import { ThumbsDown } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
+import { useAuth } from "../hooks/use-auth";
 import { useVideoProgressMap } from "../hooks/use-progress";
 import { useRecommenderFeedback } from "../hooks/use-recommender-feedback";
 import { useSettings } from "../hooks/use-settings";
@@ -7,7 +8,7 @@ import { videoGridClassName } from "../lib/layout-preferences";
 import { spreadCreators } from "../lib/spread-creators";
 import { videoProgressUrl } from "../lib/video-progress";
 import { m } from "../paraglide/messages.js";
-import { useRefusedVideosStore } from "../stores/refused-videos-store";
+import { EMPTY_REFUSED_VIDEOS, useRefusedVideosStore } from "../stores/refused-videos-store";
 import type { HomeRecommendationRow } from "../types/recommender";
 import type { VideoStream } from "../types/stream";
 import { reasonLabel } from "./algorithm/algorithm-labels";
@@ -25,15 +26,20 @@ type Props = {
 
 export function HomeRecommenderRows({ rows, streams, flat = false }: Props) {
   const { settings } = useSettings();
+  const { me } = useAuth();
+  const profileId = me?.id ?? null;
   const { send } = useRecommenderFeedback(false);
   const byUrl = useMemo(() => new Map(streams.map((stream) => [stream.id, stream])), [streams]);
   const progressByUrl = useVideoProgressMap(streams);
-  const refused = useRefusedVideosStore((state) => state.refused);
+  const refused = useRefusedVideosStore((state) =>
+    profileId ? state.refused[profileId] ?? EMPTY_REFUSED_VIDEOS : EMPTY_REFUSED_VIDEOS,
+  );
   const refuse = useRefusedVideosStore((state) => state.refuse);
   const restore = useRefusedVideosStore((state) => state.restore);
 
   const notForMe = (stream: VideoStream) => {
-    refuse(stream.id, { id: null, explained: false });
+    if (!profileId) return;
+    refuse(profileId, stream.id, { id: null, explained: false });
     send.mutate(
       {
         kind: "video",
@@ -44,8 +50,8 @@ export function HomeRecommenderRows({ rows, streams, flat = false }: Props) {
         thumbnailUrl: stream.thumbnail,
       },
       {
-        onSuccess: (saved) => refuse(stream.id, { id: saved.id, explained: false }),
-        onError: () => restore(stream.id),
+        onSuccess: (saved) => refuse(profileId, stream.id, { id: saved.id, explained: false }),
+        onError: () => restore(profileId, stream.id),
       },
     );
   };
@@ -117,6 +123,7 @@ export function HomeRecommenderRows({ rows, streams, flat = false }: Props) {
                       key={stream.id}
                       url={stream.id}
                       refusal={refusal}
+                      profileId={profileId ?? ""}
                       subject={subjectOf.get(stream.id)}
                     />
                   );

@@ -7,17 +7,35 @@ export type Refusal = {
 };
 
 type State = {
-  refused: Record<string, Refusal>;
-  refuse: (url: string, refusal: Refusal) => void;
-  restore: (url: string) => void;
+  refused: Record<string, Record<string, Refusal>>;
+  refuse: (profileId: string, url: string, refusal: Refusal) => void;
+  restore: (profileId: string, url: string) => void;
 };
+
+export const EMPTY_REFUSED_VIDEOS: Record<string, Refusal> = {};
 
 export const useRefusedVideosStore = create<State>((set) => ({
   refused: {},
-  refuse: (url, refusal) => set((state) => ({ refused: { ...state.refused, [url]: refusal } })),
-  restore: (url) =>
+  refuse: (profileId, url, refusal) => {
+    if (!profileId) return;
+    set((state) => ({
+      refused: {
+        ...state.refused,
+        [profileId]: { ...state.refused[profileId], [url]: refusal },
+      },
+    }));
+  },
+  restore: (profileId, url) => {
+    if (!profileId) return;
     set((state) => {
-      const { [url]: _restored, ...refused } = state.refused;
-      return { refused };
-    }),
+      const current = state.refused[profileId];
+      if (!current?.[url]) return state;
+      const refused = { ...current };
+      delete refused[url];
+      const profiles = { ...state.refused };
+      if (Object.keys(refused).length === 0) delete profiles[profileId];
+      else profiles[profileId] = refused;
+      return { refused: profiles };
+    });
+  },
 }));
