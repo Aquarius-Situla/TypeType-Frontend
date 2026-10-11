@@ -1,0 +1,133 @@
+/* Motion for the algorithm page: sections fade in, details slide in from the
+   side they come from, and whatever a chart sent you to is briefly lit up. */
+
+@keyframes algorithm-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes algorithm-forward {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes algorithm-back {
+  from {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes algorithm-highlight {
+  0%,
+  45% {
+    background-color: var(--color-surface-strong);
+    box-shadow: inset 2px 0 0 var(--color-accent);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: inset 2px 0 0 transparent;
+  }
+}
+
+.algorithm-enter {
+  animation: algorithm-enter 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.algorithm-forward {
+  animation: algorithm-forward 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.algorithm-back {
+  animation: algorithm-back 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.algorithm-highlight {
+  margin-inline: -0.5rem;
+  padding-inline: 0.5rem;
+  border-radius: 0.125rem;
+  animation: algorithm-highlight 2.6s ease-out forwards;
+}
+
+/* Height animation for anything that opens in place. */
+.algorithm-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 200ms ease-out;
+}
+
+.algorithm-collapse[data-open="true"] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.algorithm-collapse > * {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.algorithm-arc {
+  transition:
+    stroke-dasharray 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    stroke-dashoffset 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    stroke-width 200ms ease-out,
+    opacity 200ms ease-out;
+}
+
+.algorithm-bar {
+  transition: width 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .algorithm-enter,
+  .algorithm-forward,
+  .algorithm-back {
+    animation-duration: 1ms;
+  }
+
+  .algorithm-collapse,
+  .algorithm-arc,
+  .algorithm-bar {
+    transition-duration: 1ms;
+  }
+}
+
+@keyframes algorithm-tip {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.algorithm-tip {
+  animation: algorithm-tip 140ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .algorithm-tip {
+    animation-duration: 1ms;
+  }
+}
