@@ -1,0 +1,11 @@
+Model Information:
+* title:	Grungy Teddy Bear
+* source:	https://sketchfab.com/3d-models/grungy-teddy-bear-2964995f7512435abc447e8feecdab9c
+* author:	Joel Davenport (https://sketchfab.com/jdavenport1)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Grungy Teddy Bear" (https://sketchfab.com/3d-models/grungy-teddy-bear-2964995f7512435abc447e8feecdab9c) by Joel Davenport (https://sketchfab.com/jdavenport1) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

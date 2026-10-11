@@ -1,0 +1,11 @@
+Model Information:
+* title:	Emergency Escape Light
+* source:	https://sketchfab.com/3d-models/emergency-escape-light-ffef66624e0840b489868628dda1736e
+* author:	Gurazh (https://sketchfab.com/gurazh)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Emergency Escape Light" (https://sketchfab.com/3d-models/emergency-escape-light-ffef66624e0840b489868628dda1736e) by Gurazh (https://sketchfab.com/gurazh) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

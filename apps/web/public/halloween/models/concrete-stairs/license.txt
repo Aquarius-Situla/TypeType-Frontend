@@ -1,0 +1,11 @@
+Model Information:
+* title:	Concrete Stairs
+* source:	https://sketchfab.com/3d-models/concrete-stairs-b552862f1bff4a968fa65da90c6a9e6b
+* author:	Periltek Games (https://sketchfab.com/PeriltekGames)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Concrete Stairs" (https://sketchfab.com/3d-models/concrete-stairs-b552862f1bff4a968fa65da90c6a9e6b) by Periltek Games (https://sketchfab.com/PeriltekGames) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
