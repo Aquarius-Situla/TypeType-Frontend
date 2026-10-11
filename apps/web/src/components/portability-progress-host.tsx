@@ -26,6 +26,8 @@ const IMPORT_QUERY_KEYS = [
   ["history-all"],
   ["favorites"],
   ["watch-later"],
+  ["home-recommendations"],
+  ["recommender"],
 ];
 
 function queryKeysForCategory(category: PortabilityCategory | null | undefined) {
