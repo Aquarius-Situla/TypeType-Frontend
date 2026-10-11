@@ -20,6 +20,12 @@ export type AdminSettings = {
   rssMaxItems: number;
   rssMinimumPollMinutes: number;
   rssRateLimitPerMinute: number;
+  recommenderEnabled?: boolean;
+  recommenderDefaultOn?: boolean;
+  recommenderDefaultAlgorithm?: string | null;
+  recommenderAllowedAlgorithms?: string[];
+  recommenderTimeoutMs?: number;
+  recommenderStreamRequestsPerMinute?: number;
 };
 
 type AdminSessionNowPlaying = {
@@ -47,4 +53,33 @@ export type AdminSession = {
   lastActivityAt: number;
   lastPlaybackAt?: number | null;
   nowPlaying?: AdminSessionNowPlaying | null;
+};
+
+export type RecommenderAdminStatus = {
+  installed: boolean;
+  enabled: boolean;
+  reachable: boolean;
+  healthMs: number | null;
+  algorithms: { id: string; name: string }[];
+  defaultAlgorithm: string | null;
+  pagesBuilt: number;
+  pagesFromCache: number;
+  fallbacks: number;
+  averageBuildMs: number;
+  averageRecommenderMs?: number;
+  averageSourcesMs?: number;
+  sourceRequests: number;
+  sourceCacheHits: number;
+  streamRequests: number;
+  streamRequestsRefused: number;
+  streamRequestsThisMinute: number;
+  streamRequestsPerMinuteLimit: number;
+  requestTimeoutMs: number;
+};
+
+export type RecommenderAdminFeedback = {
+  usersEnabled: number;
+  usersByAlgorithm: Record<string, number>;
+  verdicts: { algorithmId: string; good: number; bad: number; notForMe: number }[];
+  comments: { verdict: string; comment: string | null; algorithmId: string; createdAt: number }[];
 };

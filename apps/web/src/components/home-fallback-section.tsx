@@ -8,11 +8,11 @@ import { VideoGrid } from "./video-grid";
 import { VideoGridSkeleton } from "./video-grid-skeleton";
 
 function FeedSection() {
-  const { streams, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage } =
+  const { streams, isLoading, isPreparing, hasNextPage, isFetchingNextPage, fetchNextPage } =
     useSubscriptionFeed();
   const { filter } = useBlockedFilter();
   const filtered = useMemo(() => filter(streams), [filter, streams]);
-  if (isLoading) return <VideoGridSkeleton idPrefix="home-feed" />;
+  if (isLoading || isPreparing) return <VideoGridSkeleton idPrefix="home-feed" />;
   return (
     <>
       <VideoGrid streams={filtered} />

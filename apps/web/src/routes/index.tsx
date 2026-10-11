@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { ContinueWatching } from "../components/continue-watching";
 import { HomeFallbackSection } from "../components/home-fallback-section";
 import { HomeRecommendationsSection } from "../components/home-recommendations-section";
+import { HomeRecommenderWelcome } from "../components/home-recommender-welcome";
 import { useAuth } from "../hooks/use-auth";
 import { readCachedSettings, useSettings, writeCachedSettings } from "../hooks/use-settings";
 import { fetchSettings } from "../lib/api-user";
@@ -43,6 +44,7 @@ function HomePage() {
 
   return (
     <div className="flex flex-col gap-6 sm:gap-8">
+      {isAuthed && <HomeRecommenderWelcome />}
       {!settings.hideContinueWatching && <ContinueWatching />}
       {showRecommendations && (
         <section className="flex flex-col gap-3">
