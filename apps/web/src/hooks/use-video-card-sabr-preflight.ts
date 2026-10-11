@@ -1,10 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef } from "react";
 import { prewarmSabrPlayback } from "../lib/api-sabr-prewarm";
+import { releaseHoverPreflight, takeHoverPreflight } from "../lib/hover-preflight-slots";
 import { preloadPlaybackRuntime } from "../lib/playback-runtime-preload";
 import { detectProvider } from "../lib/provider";
 import { defaultSabrAudioTrackId, sabrAudioOptions } from "../lib/sabr-audio";
 import { defaultSabrItag, resolveSabrPlaybackConfig, sabrQualityOptions } from "../lib/sabr-source";
+import { isUpcomingStream } from "../lib/upcoming-stream";
 import { resolveWatchStartTime } from "../lib/watch-resume";
 import { useAuthStore } from "../stores/auth-store";
 import { useSabrAudioStore } from "../stores/sabr-audio-store";
@@ -14,7 +16,7 @@ import type { SettingsItem } from "../types/user";
 import { resolvePreferredSabrQuality } from "./use-sabr-playback-config";
 import { streamQueryOptions } from "./use-stream";
 
-const PREFLIGHT_DELAY_MS = 200;
+const PREFLIGHT_DELAY_MS = 600;
 const AUDIO_ONLY_STORAGE_KEY = "typetype-audio-only-playback";
 
 export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
@@ -26,6 +28,7 @@ export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
   const prefetchableLive =
     stream.isLive === true &&
     stream.requiresMembership !== true &&
+    !isUpcomingStream(stream) &&
     detectProvider(stream.id) === "youtube";
   const sabrEnabled =
     stream.isLive !== true &&
@@ -38,6 +41,8 @@ export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
     if (!sabrEnabled || prewarmedRef.current) return;
     const active = activeControllerRef.current;
     if (active && !active.signal.aborted) return;
+    const hover = !committedRef.current;
+    if (hover && !takeHoverPreflight()) return;
 
     const controller = new AbortController();
     activeControllerRef.current = controller;
@@ -45,7 +50,7 @@ export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
     const authenticated = Boolean(token);
     void preloadPlaybackRuntime(stream.id).catch(() => undefined);
     void queryClient
-      .fetchQuery(streamQueryOptions(stream.id, authenticated, true, false))
+      .fetchQuery(streamQueryOptions(stream.id, authenticated, true, false, hover))
       .then((fullStream) => {
         if (controller.signal.aborted) return;
         const settings = queryClient.getQueryData<SettingsItem>(["settings"]);
@@ -85,7 +90,8 @@ export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
           selectedTrackId,
           audioOnly,
         );
-        if (!config) return;
+        // The playback session opens the video a second time at the provider: only for a click.
+        if (!config || !committedRef.current) return;
         const startTimeMs =
           resolveWatchStartTime({
             authenticated,
@@ -97,27 +103,31 @@ export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
         return prewarmSabrPlayback(config, token, controller.signal, startTimeMs);
       })
       .then(() => {
-        if (!controller.signal.aborted) prewarmedRef.current = true;
+        if (!controller.signal.aborted && committedRef.current) prewarmedRef.current = true;
       })
       .catch(() => undefined)
       .finally(() => {
+        if (hover) releaseHoverPreflight();
         if (activeControllerRef.current === controller) activeControllerRef.current = null;
       });
   }, [progressMs, queryClient, sabrEnabled, stream.id]);
 
-  const prefetchLive = useCallback(() => {
-    if (!prefetchableLive) return;
-    void queryClient.prefetchQuery(
-      streamQueryOptions(stream.id, Boolean(useAuthStore.getState().token), true, true),
-    );
-  }, [prefetchableLive, queryClient, stream.id]);
+  const prefetchLive = useCallback(
+    (preview: boolean) => {
+      if (!prefetchableLive) return;
+      void queryClient.prefetchQuery(
+        streamQueryOptions(stream.id, Boolean(useAuthStore.getState().token), true, true, preview),
+      );
+    },
+    [prefetchableLive, queryClient, stream.id],
+  );
 
   const schedule = useCallback(() => {
     if (timerRef.current !== null) return;
     if (prefetchableLive) {
       timerRef.current = setTimeout(() => {
         timerRef.current = null;
-        prefetchLive();
+        prefetchLive(true);
       }, PREFLIGHT_DELAY_MS);
       return;
     }
@@ -141,7 +151,7 @@ export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
 
   const focus = useCallback(() => {
     if (prefetchableLive) {
-      prefetchLive();
+      prefetchLive(true);
       return;
     }
     schedule();
@@ -153,7 +163,7 @@ export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
         clearTimeout(timerRef.current);
         timerRef.current = null;
       }
-      prefetchLive();
+      prefetchLive(false);
       return;
     }
     if (!sabrEnabled) return;
