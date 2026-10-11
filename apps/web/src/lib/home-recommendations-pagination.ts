@@ -1,4 +1,4 @@
-export const MAX_EMPTY_HOME_PAGES_TO_AUTOLOAD = 3;
+const MAX_EMPTY_HOME_PAGES_TO_AUTOLOAD = 3;
 
 type EmptyHomePageState = {
   itemCount: number;
