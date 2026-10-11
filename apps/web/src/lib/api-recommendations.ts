@@ -1,5 +1,7 @@
+import { getLocale } from "../paraglide/runtime.js";
 import type { HomeRecommendationsResponse } from "../types/api";
 import { request } from "./api";
+import { clientTimezone } from "./client-timezone";
 import { API_BASE as BASE } from "./env";
 import { optionalBearer } from "./optional-bearer";
 
@@ -15,6 +17,8 @@ export async function fetchHomeRecommendations(
     service: String(service),
     limit: String(limit),
     intent,
+    locale: getLocale(),
+    timezone: clientTimezone(),
   });
   if (cursor) search.set("cursor", cursor);
   return request(`${BASE}/recommendations/home?${search.toString()}`, optionalBearer());

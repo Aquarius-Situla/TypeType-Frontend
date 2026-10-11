@@ -1,8 +1,17 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Bug, ListChecks, MonitorDot, Radio, ServerCog, Users } from "lucide-react";
+import {
+  Bug,
+  ListChecks,
+  MonitorDot,
+  Radio,
+  ServerCog,
+  SlidersHorizontal,
+  Users,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { AdminAllowListSection } from "../components/admin-allow-list-section";
 import { AdminBugReportsSection } from "../components/admin-bug-reports-section";
+import { AdminRecommenderSection } from "../components/admin-recommender-section";
 import { AdminRssSection } from "../components/admin-rss-section";
 import { AdminSessionsSection } from "../components/admin-sessions-section";
 import { AdminSettingsSection } from "../components/admin-settings-section";
@@ -10,6 +19,7 @@ import { AdminUsersSection } from "../components/admin-users-section";
 import { SectionShell, type SectionShellItem } from "../components/section-shell";
 import { Toast } from "../components/toast";
 import { useAuth } from "../hooks/use-auth";
+import { useInstance } from "../hooks/use-instance";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import {
   type AdminSection,
@@ -20,7 +30,14 @@ import {
 import { goto } from "../lib/route-redirect";
 import { m } from "../paraglide/messages.js";
 
-function availableSections(isAdmin: boolean, isModerator: boolean): AdminSection[] {
+function availableSections(
+  isAdmin: boolean,
+  isModerator: boolean,
+  recommenderInstalled: boolean,
+): AdminSection[] {
+  if (isAdmin && recommenderInstalled) {
+    return ["settings", "allow-list", "users", "sessions", "rss", "recommender", "issues"];
+  }
   if (isAdmin) return ["settings", "allow-list", "users", "sessions", "rss", "issues"];
   if (isModerator) return ["issues"];
   return [];
@@ -58,6 +75,12 @@ function adminItems(): Record<AdminSection, SectionShellItem<AdminSection>> {
       description: m.admin_rss_description(),
       icon: Radio,
     },
+    recommender: {
+      key: "recommender",
+      label: m.admin_recommender_label(),
+      description: m.admin_recommender_description(),
+      icon: SlidersHorizontal,
+    },
     issues: {
       key: "issues",
       label: m.admin_reports_label(),
@@ -74,7 +97,12 @@ function AdminConsolePage() {
   const navigate = useNavigate({ from: "/admin-console" });
   const [toast, setToast] = useState<string | null>(null);
   const canAccessAdmin = isAdmin || isModerator;
-  const sections = availableSections(isAdmin, isModerator);
+  const instance = useInstance();
+  const sections = availableSections(
+    isAdmin,
+    isModerator,
+    instance.data?.recommender.installed === true,
+  );
   const localizedItems = adminItems();
   const items = sections.map((item) => localizedItems[item]);
   const activeSection = sections.includes(section) ? section : (sections[0] ?? "issues");
@@ -120,6 +148,9 @@ function AdminConsolePage() {
       {activeSection === "sessions" && isAdmin && <AdminSessionsSection enabled={isAdmin} />}
       {activeSection === "rss" && isAdmin && (
         <AdminRssSection enabled={isAdmin} onToast={setToast} />
+      )}
+      {activeSection === "recommender" && isAdmin && (
+        <AdminRecommenderSection enabled={isAdmin} onToast={setToast} />
       )}
       {activeSection === "issues" && (
         <AdminBugReportsSection enabled={canAccessAdmin} isAdmin={isAdmin} onToast={setToast} />

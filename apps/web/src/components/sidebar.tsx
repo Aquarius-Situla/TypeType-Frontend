@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "../hooks/use-auth";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { useMobile } from "../hooks/use-mobile";
+import { useRecommenderAvailable } from "../hooks/use-recommender";
 import { useSettings } from "../hooks/use-settings";
 import { getStoredAdminSection } from "../lib/admin-console-section";
 import { logoutSession } from "../lib/auth-session";
@@ -48,6 +49,7 @@ export function Sidebar({ overlay = false }: Props) {
   const visualCollapsed = overlay ? false : collapsed;
   const { isAdmin, isAuthed, me, signOut } = useAuth();
   const { settings } = useSettings();
+  const recommenderAvailable = useRecommenderAvailable();
   const loc = useRouterState({ select: (s) => s.location });
 
   const adminSearch = { section: getStoredAdminSection() };
@@ -58,6 +60,7 @@ export function Sidebar({ overlay = false }: Props) {
   );
   const navItems = NAV_ITEMS.filter((item) => {
     if (item.adminOnly && !isAdmin) return false;
+    if (item.recommenderOnly && !recommenderAvailable) return false;
     if (item.to === "/shorts" && settings.hideShorts) return false;
     if (item.to === "/" && hideHome) return false;
     return true;

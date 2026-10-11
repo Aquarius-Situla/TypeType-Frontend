@@ -1,4 +1,5 @@
 import type { PublicPlaylistInfo } from "./playlist";
+import type { HomeRecommendationRow } from "./recommender";
 import type { StreamCollectionItem } from "./stream-collection";
 import type {
   AudioStreamItem,
@@ -130,6 +131,9 @@ export type HomeRecommendationsResponse = {
   items: VideoItem[];
   nextCursor: string | null;
   hasMore: boolean;
+  algorithm?: string | null;
+  rows?: HomeRecommendationRow[] | null;
+  preparing?: boolean | null;
 };
 
 export type SubscriptionFeedPage = {

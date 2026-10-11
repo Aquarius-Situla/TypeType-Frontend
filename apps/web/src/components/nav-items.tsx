@@ -6,6 +6,7 @@ type NavItem = {
   activePaths?: string[];
   icon: React.ReactNode;
   adminOnly?: boolean;
+  recommenderOnly?: boolean;
 };
 
 export const NAV_ITEMS: NavItem[] = [
@@ -69,6 +70,24 @@ export const NAV_ITEMS: NavItem[] = [
         <path d="M4 11l4 4 4-4" />
         <path d="M16 21V9" />
         <path d="M12 13l4-4 4 4" />
+      </>
+    ),
+  },
+  {
+    label: m.nav_algorithm,
+    to: "/algorithm",
+    recommenderOnly: true,
+    icon: (
+      <>
+        <path d="M4 6h10" />
+        <path d="M18 6h2" />
+        <circle cx="16" cy="6" r="2" />
+        <path d="M4 12h2" />
+        <path d="M10 12h10" />
+        <circle cx="8" cy="12" r="2" />
+        <path d="M4 18h10" />
+        <path d="M18 18h2" />
+        <circle cx="16" cy="18" r="2" />
       </>
     ),
   },

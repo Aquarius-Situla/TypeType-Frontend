@@ -3,11 +3,14 @@ import { useVersionInfo } from "../hooks/use-version-info";
 import type { ComponentVersion, VersionComponent } from "../lib/api-version";
 import { m } from "../paraglide/messages.js";
 
-const COMPONENTS: { key: VersionComponent; label: string }[] = [
+const OPTIONAL: ReadonlySet<VersionComponent> = new Set(["recommender"]);
+
+const components = (): { key: VersionComponent; label: string }[] => [
   { key: "frontend", label: "Frontend" },
   { key: "server", label: "Server" },
   { key: "token", label: "Token" },
   { key: "downloader", label: "Downloader" },
+  { key: "recommender", label: m.nav_algorithm() },
 ];
 
 function VersionDetails({ version }: { version: ComponentVersion | null }) {
@@ -42,16 +45,18 @@ export function SettingsAbout() {
         </button>
       </div>
       <div className="divide-y divide-border border-y border-border">
-        {COMPONENTS.map(({ key, label }) => (
-          <div key={key} className="flex min-h-20 items-start justify-between gap-4 px-4 py-3.5">
-            <span className="pt-0.5 text-sm text-fg">{label}</span>
-            {query.isPending ? (
-              <span className="text-xs text-fg-soft">{m.ui_loading()}</span>
-            ) : (
-              <VersionDetails version={query.data?.[key] ?? null} />
-            )}
-          </div>
-        ))}
+        {components()
+          .filter(({ key }) => !OPTIONAL.has(key) || query.data?.[key])
+          .map(({ key, label }) => (
+            <div key={key} className="flex min-h-20 items-start justify-between gap-4 px-4 py-3.5">
+              <span className="pt-0.5 text-sm text-fg">{label}</span>
+              {query.isPending ? (
+                <span className="text-xs text-fg-soft">{m.ui_loading()}</span>
+              ) : (
+                <VersionDetails version={query.data?.[key] ?? null} />
+              )}
+            </div>
+          ))}
       </div>
       <a
         href="/THIRD_PARTY_NOTICES.txt"
