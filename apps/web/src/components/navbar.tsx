@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { DollarSign, Search } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
 import { siLemmy } from "simple-icons";
+import { HalloweenMode } from "../halloween/halloween-mode";
 import { useAuth } from "../hooks/use-auth";
 import { useAuthToasts } from "../hooks/use-auth-toasts";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
@@ -114,6 +115,7 @@ export function Navbar() {
 
         <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
           {canOpenSearch && <NavbarServicePicker compact={isMobile} />}
+          {!authPage && <HalloweenMode />}
           <InterfaceLanguagePicker />
           <NavbarNotifications />
           <NavbarAccountControls
