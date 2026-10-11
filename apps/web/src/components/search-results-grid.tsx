@@ -62,7 +62,7 @@ export function SearchResultsGrid({ items }: Props) {
     <div className="space-y-6">
       {topChannel && (
         <div className="animate-card-pop-in">
-          <SearchChannelCard channel={topChannel} banner />
+          <SearchChannelCard channel={topChannel} />
         </div>
       )}
       {remainingItems.length > 0 &&
