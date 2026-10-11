@@ -2,6 +2,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { fetchHomeRecommendations, type RecommendationIntent } from "../lib/api-recommendations";
 import { mapVideoItem } from "../lib/mappers";
+import { profileScopedQueryKey } from "../lib/profile-scoped-query-key";
 import type { HomeRecommendationsResponse } from "../types/api";
 import type { HomeRecommendationRow } from "../types/recommender";
 import type { VideoStream } from "../types/stream";
@@ -40,11 +41,15 @@ function mergeRows(pages: HomeRecommendationsResponse[]): HomeRecommendationRow[
 }
 
 export function useHomeRecommendations(): Result {
-  const { authReady, isAuthed } = useAuth();
+  const { authReady, isAuthed, me } = useAuth();
+  const profileId = me?.id ?? null;
   const { settings } = useSettings();
   const intent: RecommendationIntent = "auto";
   const query = useInfiniteQuery({
-    queryKey: ["home-recommendations", "v2", settings.defaultService, intent],
+    queryKey: profileScopedQueryKey(
+      ["home-recommendations", "v2", settings.defaultService, intent],
+      profileId,
+    ),
     queryFn: ({ pageParam }) =>
       fetchHomeRecommendations(
         settings.defaultService,
@@ -54,7 +59,7 @@ export function useHomeRecommendations(): Result {
       ),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => (last.hasMore ? (last.nextCursor ?? undefined) : undefined),
-    enabled: authReady && isAuthed && !settings.hideHomeRecommendations,
+    enabled: authReady && isAuthed && profileId !== null && !settings.hideHomeRecommendations,
     staleTime: 90 * 1000,
     // Server serves the standard page while the algorithm builds its own, and says so: the
     // home page is asked again until the algorithm's page is there.

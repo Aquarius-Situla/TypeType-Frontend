@@ -5,21 +5,24 @@ import {
   fetchRecommenderSettings,
   saveRecommenderSettings,
 } from "../lib/api-recommender";
+import { profileScopedQueryKey } from "../lib/profile-scoped-query-key";
 import { getLocale } from "../paraglide/runtime.js";
+import { useAuthStore } from "../stores/auth-store";
 import type { AlgorithmInfo, ParameterValue, RecommenderSettings } from "../types/recommender";
 import { useAuth } from "./use-auth";
 import { useInstance } from "./use-instance";
 
-const RECOMMENDER_SETTINGS_KEY = ["recommender", "settings"] as const;
-const PROFILE_KEY = ["recommender", "profile"] as const;
 export const HOME_RECOMMENDATIONS_KEY = ["home-recommendations"] as const;
+
+type PendingSave = { profileId: string; timeout: ReturnType<typeof setTimeout> };
+type RecommenderSettingsUpdate = { profileId: string | null; settings: RecommenderSettings };
 
 // A change shows at once; it is sent once the person has stopped clicking, so that trying
 // three values in a row does not make Server build three home pages.
 const SAVE_DELAY_MS = 700;
 export const MAX_INTERESTS = 10;
 export const MAX_INTEREST_CHARS = 60;
-let pendingSave: ReturnType<typeof setTimeout> | null = null;
+let pendingSave: PendingSave | null = null;
 
 const NO_SETTINGS: RecommenderSettings = {
   enabled: false,
@@ -35,6 +38,13 @@ const NO_SETTINGS: RecommenderSettings = {
   retentionDays: {},
 };
 
+async function saveForProfile(profileId: string | null, settings: RecommenderSettings) {
+  if (!profileId || useAuthStore.getState().me?.id !== profileId) {
+    throw new Error("The active profile changed before these settings could be saved");
+  }
+  return saveRecommenderSettings(settings);
+}
+
 export function useRecommenderAvailable(): boolean {
   const { isAuthed } = useAuth();
   const instance = useInstance();
@@ -49,6 +59,9 @@ export function useRecommender() {
   const available = useRecommenderAvailable();
   const client = useQueryClient();
   const locale = getLocale();
+  const { me } = useAuth();
+  const profileId = me?.id ?? null;
+  const settingsKey = profileScopedQueryKey(["recommender", "settings"], profileId);
   const algorithms = useQuery({
     queryKey: ["recommender", "algorithms", locale],
     queryFn: () => fetchRecommenderAlgorithms(locale),
@@ -56,9 +69,9 @@ export function useRecommender() {
     staleTime: 10 * 60 * 1000,
   });
   const stored = useQuery({
-    queryKey: RECOMMENDER_SETTINGS_KEY,
+    queryKey: settingsKey,
     queryFn: fetchRecommenderSettings,
-    enabled: available,
+    enabled: available && profileId !== null,
     staleTime: 5 * 60 * 1000,
   });
   const settings = stored.data ?? NO_SETTINGS;
@@ -66,33 +79,43 @@ export function useRecommender() {
   const selectedId = settings.algorithmId ?? algorithms.data?.default_algorithm ?? list[0]?.id;
   const current: AlgorithmInfo | undefined = list.find((a) => a.id === selectedId) ?? list[0];
   const profile = useQuery({
-    queryKey: [...PROFILE_KEY, locale, selectedId, settings],
+    queryKey: profileScopedQueryKey(
+      ["recommender", "profile", locale, selectedId, settings],
+      profileId,
+    ),
     queryFn: () => fetchRecommenderProfile(locale),
-    enabled: available && settings.enabled && Boolean(selectedId),
+    enabled: available && profileId !== null && settings.enabled && Boolean(selectedId),
     staleTime: 60 * 1000,
-    placeholderData: (previous) => previous,
   });
 
-  const save = useMutation({
-    mutationFn: saveRecommenderSettings,
-    onMutate: async (next) => {
-      await client.cancelQueries({ queryKey: RECOMMENDER_SETTINGS_KEY });
-      client.setQueryData(RECOMMENDER_SETTINGS_KEY, next);
+  const save = useMutation<RecommenderSettings, Error, RecommenderSettingsUpdate>({
+    mutationFn: ({ profileId: targetProfileId, settings: next }) =>
+      saveForProfile(targetProfileId, next),
+    onMutate: async ({ profileId: targetProfileId, settings: next }) => {
+      const key = profileScopedQueryKey(["recommender", "settings"], targetProfileId);
+      await client.cancelQueries({ queryKey: key });
+      client.setQueryData(key, next);
     },
     // What is shown may already be several changes ahead: ask Server what it really kept.
-    onError: () => client.invalidateQueries({ queryKey: RECOMMENDER_SETTINGS_KEY }),
+    onError: (_error, variables) =>
+      client.invalidateQueries({
+        queryKey: profileScopedQueryKey(["recommender", "settings"], variables.profileId),
+      }),
     onSettled: () => client.invalidateQueries({ queryKey: HOME_RECOMMENDATIONS_KEY }),
   });
   const change = (patch: Partial<RecommenderSettings>, now = false) => {
     const next = { ...settings, ...patch };
-    client.setQueryData(RECOMMENDER_SETTINGS_KEY, next);
-    if (pendingSave !== null) clearTimeout(pendingSave);
+    client.setQueryData(settingsKey, next);
+    if (pendingSave !== null) clearTimeout(pendingSave.timeout);
     pendingSave = null;
-    if (now) return save.mutate(next);
-    pendingSave = setTimeout(() => {
+    if (now) return save.mutate({ profileId, settings: next });
+    if (profileId === null) return;
+    const timeout = setTimeout(() => {
       pendingSave = null;
-      save.mutate(next);
+      if (useAuthStore.getState().me?.id !== profileId) return;
+      save.mutate({ profileId, settings: next });
     }, SAVE_DELAY_MS);
+    pendingSave = { profileId, timeout };
   };
 
   return {
@@ -155,16 +178,19 @@ export type Recommender = ReturnType<typeof useRecommender>;
 
 export function useHideInterest() {
   const client = useQueryClient();
+  const { me } = useAuth();
+  const profileId = me?.id ?? null;
+  const settingsKey = profileScopedQueryKey(["recommender", "settings"], profileId);
   return useMutation({
     mutationFn: async (id: string) => {
+      if (profileId === null) throw new Error("No active profile");
       const current =
-        client.getQueryData<RecommenderSettings>(RECOMMENDER_SETTINGS_KEY) ??
-        (await fetchRecommenderSettings());
+        client.getQueryData<RecommenderSettings>(settingsKey) ?? (await fetchRecommenderSettings());
       if (current.mutedGroups.includes(id)) return current;
-      return saveRecommenderSettings({ ...current, mutedGroups: [...current.mutedGroups, id] });
+      return saveForProfile(profileId, { ...current, mutedGroups: [...current.mutedGroups, id] });
     },
     onSuccess: (saved) => {
-      client.setQueryData(RECOMMENDER_SETTINGS_KEY, saved);
+      client.setQueryData(settingsKey, saved);
       client.invalidateQueries({ queryKey: HOME_RECOMMENDATIONS_KEY });
     },
   });

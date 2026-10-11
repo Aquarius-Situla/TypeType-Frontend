@@ -7,6 +7,7 @@ import type {
   RecommenderPageTrace,
   RecommenderSettings,
 } from "../types/recommender";
+import { apiErrorFromResponse } from "./api";
 import { authed, authedJson } from "./authed";
 import { clientTimezone } from "./client-timezone";
 import { API_BASE as BASE } from "./env";
@@ -66,5 +67,10 @@ export async function sendRecommenderFeedback(
 }
 
 export async function deleteRecommenderFeedback(id: string): Promise<void> {
-  await authed(`${BASE}/recommendations/feedback/${encodeURIComponent(id)}`, { method: "DELETE" });
+  const response = await authed(`${BASE}/recommendations/feedback/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    throw apiErrorFromResponse(response, await response.json().catch(() => null));
+  }
 }

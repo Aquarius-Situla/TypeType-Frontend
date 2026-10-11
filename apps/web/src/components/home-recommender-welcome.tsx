@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { useAuth } from "../hooks/use-auth";
 import { useRecommenderAvailable } from "../hooks/use-recommender";
 import { fetchRecommenderData } from "../lib/api-recommender";
+import { profileScopedQueryKey } from "../lib/profile-scoped-query-key";
 import { m } from "../paraglide/messages.js";
 import { useHomeWelcomeStore } from "../stores/home-welcome-store";
 
@@ -13,12 +15,14 @@ const ACTION = "flex h-9 items-center rounded-sm px-4 text-sm font-medium transi
 
 export function HomeRecommenderWelcome() {
   const available = useRecommenderAvailable();
+  const { me } = useAuth();
+  const profileId = me?.id ?? null;
   const done = useHomeWelcomeStore((state) => state.done);
   const finish = useHomeWelcomeStore((state) => state.finish);
   const data = useQuery({
-    queryKey: ["recommender", "welcome"],
+    queryKey: profileScopedQueryKey(["recommender", "welcome"], profileId),
     queryFn: fetchRecommenderData,
-    enabled: available && !done,
+    enabled: available && profileId !== null && !done,
     staleTime: 10 * 60 * 1000,
   });
   const count = (id: string) => data.data?.find((category) => category.id === id)?.count ?? 0;
