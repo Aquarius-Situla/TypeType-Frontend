@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminConsoleRouteImport } from './routes/admin-console'
+import { Route as AlgorithmRouteImport } from './routes/algorithm'
 import { Route as BilibiliSessionRouteImport } from './routes/bilibili-session'
 import { Route as ChannelRouteImport } from './routes/channel'
 import { Route as ExportRouteImport } from './routes/export'
@@ -54,6 +55,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminConsoleRoute = AdminConsoleRouteImport.update({
   id: '/admin-console',
   path: '/admin-console',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlgorithmRoute = AlgorithmRouteImport.update({
+  id: '/algorithm',
+  path: '/algorithm',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BilibiliSessionRoute = BilibiliSessionRouteImport.update({
@@ -232,6 +238,7 @@ const ChannelProviderChannelIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin-console': typeof AdminConsoleRoute
+  '/algorithm': typeof AlgorithmRoute
   '/bilibili-session': typeof BilibiliSessionRoute
   '/channel': typeof ChannelRoute
   '/export': typeof ExportRoute
@@ -270,6 +277,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin-console': typeof AdminConsoleRoute
+  '/algorithm': typeof AlgorithmRoute
   '/bilibili-session': typeof BilibiliSessionRoute
   '/channel': typeof ChannelRoute
   '/export': typeof ExportRoute
@@ -308,6 +316,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin-console': typeof AdminConsoleRoute
+  '/algorithm': typeof AlgorithmRoute
   '/bilibili-session': typeof BilibiliSessionRoute
   '/channel': typeof ChannelRoute
   '/export': typeof ExportRoute
@@ -348,6 +357,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin-console'
+    | '/algorithm'
     | '/bilibili-session'
     | '/channel'
     | '/export'
@@ -386,6 +396,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin-console'
+    | '/algorithm'
     | '/bilibili-session'
     | '/channel'
     | '/export'
@@ -423,6 +434,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin-console'
+    | '/algorithm'
     | '/bilibili-session'
     | '/channel'
     | '/export'
@@ -462,6 +474,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminConsoleRoute: typeof AdminConsoleRoute
+  AlgorithmRoute: typeof AlgorithmRoute
   BilibiliSessionRoute: typeof BilibiliSessionRoute
   ChannelRoute: typeof ChannelRoute
   ExportRoute: typeof ExportRoute
@@ -509,6 +522,13 @@ declare module '@tanstack/react-router' {
       path: '/admin-console'
       fullPath: '/admin-console'
       preLoaderRoute: typeof AdminConsoleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/algorithm': {
+      id: '/algorithm'
+      path: '/algorithm'
+      fullPath: '/algorithm'
+      preLoaderRoute: typeof AlgorithmRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bilibili-session': {
@@ -770,6 +790,7 @@ const ImportRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminConsoleRoute: AdminConsoleRoute,
+  AlgorithmRoute: AlgorithmRoute,
   BilibiliSessionRoute: BilibiliSessionRoute,
   ChannelRoute: ChannelRoute,
   ExportRoute: ExportRoute,
