@@ -12,6 +12,8 @@ if (!("localStorage" in globalThis)) {
 
 const { normalizeInstanceCapabilities } = await import("../src/lib/api-instance");
 
+const recommender = { installed: false, enabled: false, experimental: true };
+
 describe("RSS instance capability", () => {
   test("keeps RSS hidden when an older Server omits the capability", () => {
     expect(
@@ -27,6 +29,7 @@ describe("RSS instance capability", () => {
         minimumPollMinutes: 0,
         rateLimitPerMinute: 0,
       },
+      recommender,
     });
   });
 
@@ -50,6 +53,7 @@ describe("RSS instance capability", () => {
       youtubeRemoteLoginEnabled: true,
       parentalControlsEnabled: true,
       rss,
+      recommender,
     });
   });
 
