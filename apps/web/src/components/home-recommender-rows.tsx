@@ -32,7 +32,7 @@ export function HomeRecommenderRows({ rows, streams, flat = false }: Props) {
   const byUrl = useMemo(() => new Map(streams.map((stream) => [stream.id, stream])), [streams]);
   const progressByUrl = useVideoProgressMap(streams);
   const refused = useRefusedVideosStore((state) =>
-    profileId ? state.refused[profileId] ?? EMPTY_REFUSED_VIDEOS : EMPTY_REFUSED_VIDEOS,
+    profileId ? (state.refused[profileId] ?? EMPTY_REFUSED_VIDEOS) : EMPTY_REFUSED_VIDEOS,
   );
   const refuse = useRefusedVideosStore((state) => state.refuse);
   const restore = useRefusedVideosStore((state) => state.restore);
