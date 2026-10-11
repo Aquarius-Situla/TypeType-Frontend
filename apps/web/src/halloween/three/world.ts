@@ -46,6 +46,11 @@ const OPEN = (40 * Math.PI) / 180;
 const NO_SCENE: WatcherFrame = watcherFrame(null, 0);
 
 export async function createCorridorWorld(canvas: HTMLCanvasElement): Promise<CorridorWorld> {
+  const [materials, models, face] = await Promise.all([
+    createMaterials(CORRIDOR.segmentLength, CORRIDOR.width, CORRIDOR.ceiling + CORRIDOR.floor),
+    loadModels(),
+    loadNurseryFace(),
+  ]);
   const renderer = new WebGLRenderer({
     canvas,
     antialias: true,
@@ -74,11 +79,6 @@ export async function createCorridorWorld(canvas: HTMLCanvasElement): Promise<Co
   scene.add(camera);
 
   const veil = createFadeVeil(camera);
-  const [materials, models, face] = await Promise.all([
-    createMaterials(CORRIDOR.segmentLength, CORRIDOR.width, CORRIDOR.ceiling + CORRIDOR.floor),
-    loadModels(),
-    loadNurseryFace(),
-  ]);
   const room = createRoomLook(scene, models.head);
   const signs = createExitArrows();
   const chalk = createChalkControls();

@@ -24,7 +24,12 @@ export function HalloweenMode() {
 
   const open = (): void => {
     setIntro(true);
-    void loadGallery(queryClient, settings.defaultService).then(useGallery.getState().setItems);
+    useGallery.getState().setItems([]);
+    if (!settings.hideHomeRecommendations) {
+      void loadGallery(queryClient, settings.defaultService, settings.hideHomeRecommendations).then(
+        useGallery.getState().setItems,
+      );
+    }
     void import("./halloween-runtime").then((module) => setRuntime(() => module.HalloweenRuntime));
   };
   const enter = (): void => {

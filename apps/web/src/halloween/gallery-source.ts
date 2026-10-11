@@ -4,12 +4,14 @@ import { mapVideoItem } from "../lib/mappers";
 import type { HomeRecommendationsResponse, VideoItem } from "../types/api";
 import type { GalleryItem } from "./gallery-store";
 
-const HOME_KEY = ["home-recommendations"];
+const HOME_KEY = ["home-recommendations", "v2"] as const;
 const GALLERY_SIZE = 30;
 
-function cachedVideos(client: QueryClient): VideoItem[] {
+function cachedVideos(client: QueryClient, service: number): VideoItem[] {
   return client
-    .getQueriesData<InfiniteData<HomeRecommendationsResponse>>({ queryKey: HOME_KEY })
+    .getQueriesData<InfiniteData<HomeRecommendationsResponse>>({
+      queryKey: [...HOME_KEY, service],
+    })
     .flatMap(([, data]) => data?.pages ?? [])
     .flatMap((page) => page.items);
 }
@@ -22,8 +24,14 @@ async function freshVideos(service: number): Promise<VideoItem[]> {
   }
 }
 
-export async function loadGallery(client: QueryClient, service: number): Promise<GalleryItem[]> {
-  const cached = cachedVideos(client);
+export async function loadGallery(
+  client: QueryClient,
+  service: number,
+  hideHomeRecommendations: boolean,
+): Promise<GalleryItem[]> {
+  if (hideHomeRecommendations) return [];
+
+  const cached = cachedVideos(client, service);
   const videos = cached.length > 0 ? cached : await freshVideos(service);
   const items = new Map<string, GalleryItem>();
   for (const video of videos.map(mapVideoItem)) {

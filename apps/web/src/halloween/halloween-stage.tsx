@@ -34,6 +34,7 @@ export function HalloweenStage({ lights }: Props) {
             sounds={distant}
             onStep={playStep}
             onContextDead={restart}
+            onExit={stop}
           />
         </Suspense>
       )}

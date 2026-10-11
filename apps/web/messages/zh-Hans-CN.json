@@ -1533,6 +1533,8 @@
   "halloween_intro_warning": "胆小者慎入：此模式包含黑暗场景、突然的巨响和令人不安的画面。如果你不喜欢这些，可以跳过。",
   "halloween_intro_skip": "以后再说",
   "halloween_intro_enter": "进入",
+  "halloween_scene_load_error": "万圣节场景加载失败。你可以重试或退出此模式。",
+  "halloween_scene_exit": "退出万圣节模式",
   "halloween_hint_alarm": "拉响火警",
   "halloween_wall_walk": "行走",
   "halloween_wall_arrows": "也行",

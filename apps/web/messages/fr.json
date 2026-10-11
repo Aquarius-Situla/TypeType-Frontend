@@ -1533,6 +1533,8 @@
   "halloween_intro_warning": "Âmes sensibles s'abstenir : ce mode contient des scènes sombres, des sons forts et soudains et des images dérangeantes. Si ce n'est pas pour vous, vous pouvez passer.",
   "halloween_intro_skip": "Plus tard",
   "halloween_intro_enter": "Entrer",
+  "halloween_scene_load_error": "Impossible de charger la scène d’Halloween. Vous pouvez réessayer ou quitter ce mode.",
+  "halloween_scene_exit": "Quitter le mode Halloween",
   "halloween_hint_alarm": "tirer l'alarme",
   "halloween_wall_walk": "pour marcher",
   "halloween_wall_arrows": "aussi",

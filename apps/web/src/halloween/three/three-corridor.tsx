@@ -1,4 +1,6 @@
-import { type RefObject, useEffect, useRef } from "react";
+import { TriangleAlert } from "lucide-react";
+import { type RefObject, useEffect, useRef, useState } from "react";
+import { m } from "../../paraglide/messages.js";
 import { WALK } from "../corridor/corridor-config";
 import { visibleSegments } from "../corridor/corridor-range";
 import { finaleFrame } from "../corridor/finale";
@@ -26,10 +28,13 @@ type Props = {
   sounds: RefObject<DistantSounds | null>;
   onStep: (step: NonNullable<StepEvent>) => void;
   onContextDead: () => void;
+  onExit: () => void;
 };
 
-function ThreeCorridor({ input, sounds, onStep, onContextDead }: Props) {
+function ThreeCorridor({ input, sounds, onStep, onContextDead, onExit }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [attempt, setAttempt] = useState(0);
+  const [loadError, setLoadError] = useState(false);
   const leaving = useLightsOutStore((state) => state.phase === "restoring");
   const onStepRef = useRef(onStep);
   onStepRef.current = onStep;
@@ -143,14 +148,20 @@ function ThreeCorridor({ input, sounds, onStep, onContextDead }: Props) {
     };
 
     const resize = (): void => world?.resize();
-    void createCorridorWorld(canvas).then((created) => {
-      if (disposed) {
-        created.dispose();
-        return;
-      }
-      world = created;
-      frame = requestAnimationFrame(tick);
-    });
+    void createCorridorWorld(canvas)
+      .then((created) => {
+        if (disposed) {
+          created.dispose();
+          return;
+        }
+        world = created;
+        frame = requestAnimationFrame(tick);
+      })
+      .catch((error: unknown) => {
+        if (disposed) return;
+        console.error("[halloween] failed to load corridor scene", { attempt: attempt + 1, error });
+        setLoadError(true);
+      });
     addEventListener("mousemove", turn);
     addEventListener("resize", resize);
     const stopWatch = watchContext(canvas, () => onDeadRef.current());
@@ -164,7 +175,7 @@ function ThreeCorridor({ input, sounds, onStep, onContextDead }: Props) {
       removeEventListener("resize", resize);
       stopWatch();
     };
-  }, [input, sounds]);
+  }, [input, sounds, attempt]);
 
   return (
     <>
@@ -172,6 +183,27 @@ function ThreeCorridor({ input, sounds, onStep, onContextDead }: Props) {
         ref={canvasRef}
         className={`fixed inset-0 z-[55] h-full w-full bg-black transition-opacity duration-700 ${leaving ? "opacity-0" : "opacity-100"}`}
       />
+      {loadError && (
+        <div role="alert" className="fixed inset-0 z-[65] grid place-items-center bg-black/90 p-6">
+          <div className="flex w-[min(92vw,24rem)] flex-col items-center gap-4 rounded-lg border border-border-strong bg-surface p-6 text-center shadow-2xl">
+            <TriangleAlert size={22} className="text-danger" aria-hidden="true" />
+            <p className="text-sm leading-relaxed text-fg">{m.halloween_scene_load_error()}</p>
+            <button
+              type="button"
+              onClick={() => {
+                setLoadError(false);
+                setAttempt((current) => current + 1);
+              }}
+              className="rounded-lg bg-accent px-3.5 py-1.5 text-sm text-on-accent transition-colors hover:bg-accent-strong"
+            >
+              {m.ui_retry()}
+            </button>
+            <button type="button" onClick={onExit} className="text-sm text-fg-muted underline">
+              {m.halloween_scene_exit()}
+            </button>
+          </div>
+        </div>
+      )}
       <CorridorHint />
       <CorridorSubtitle />
     </>

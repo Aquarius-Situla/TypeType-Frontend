@@ -1533,6 +1533,8 @@
   "halloween_intro_warning": "For the faint of heart: this mode has dark scenes, sudden loud sounds and unsettling images. If that is not your thing, you can skip it.",
   "halloween_intro_skip": "Maybe later",
   "halloween_intro_enter": "Enter",
+  "halloween_scene_load_error": "The Halloween scene could not load. You can retry or leave this mode.",
+  "halloween_scene_exit": "Leave Halloween mode",
   "halloween_hint_alarm": "pull the alarm",
   "halloween_wall_walk": "to walk",
   "halloween_wall_arrows": "too",

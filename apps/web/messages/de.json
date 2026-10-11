@@ -1533,6 +1533,8 @@
   "halloween_intro_warning": "Nichts für schwache Nerven: Dieser Modus enthält dunkle Szenen, plötzliche laute Geräusche und verstörende Bilder. Wenn das nichts für dich ist, kannst du ihn überspringen.",
   "halloween_intro_skip": "Vielleicht später",
   "halloween_intro_enter": "Betreten",
+  "halloween_scene_load_error": "Die Halloween-Szene konnte nicht geladen werden. Du kannst es erneut versuchen oder diesen Modus verlassen.",
+  "halloween_scene_exit": "Halloween-Modus verlassen",
   "halloween_hint_alarm": "Alarm auslösen",
   "halloween_wall_walk": "zum Gehen",
   "halloween_wall_arrows": "auch",
