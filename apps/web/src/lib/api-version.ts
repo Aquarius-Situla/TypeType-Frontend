@@ -1,7 +1,7 @@
 import { request } from "./api";
 import { API_BASE as BASE } from "./env";
 
-const VERSION_COMPONENTS = ["frontend", "server", "token", "downloader"] as const;
+const VERSION_COMPONENTS = ["frontend", "server", "token", "downloader", "recommender"] as const;
 
 export type VersionComponent = (typeof VERSION_COMPONENTS)[number];
 
@@ -20,6 +20,7 @@ const VERSION_PATHS: Record<VersionComponent, string> = {
   server: "server",
   token: "token",
   downloader: "downloader",
+  recommender: "recommender",
 };
 
 export function parseComponentVersion(value: unknown): ComponentVersion | null {
