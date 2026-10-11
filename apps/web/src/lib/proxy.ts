@@ -4,7 +4,7 @@ const RAW: string = API_BASE;
 
 function absoluteBase(): string {
   if (RAW.startsWith("http")) return RAW;
-  if (typeof window === "undefined") return RAW;
+  if (typeof window === "undefined" || !window.location?.origin) return RAW;
   return window.location.origin + RAW;
 }
 
