@@ -1524,6 +1524,7 @@
   "portability_prepare_packing": "Préparation des données YouTube",
   "portability_prepare_uploading": "Envoi des données préparées",
   "portability_resume_prepared_upload": "Reprendre l’envoi préparé",
+  "subscriptions_feed_preparing": "Vos abonnements se préparent. Leurs vidéos s'afficheront ici toutes seules.",
   "language_german": "Allemand",
   "language_chinese_simplified": "Chinois simplifié"
 }

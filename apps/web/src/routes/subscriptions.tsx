@@ -15,6 +15,7 @@ import {
   subscriptionFeedQueryOptions,
   subscriptionsQueryOptions,
 } from "../lib/subscription-queries";
+import { isUpcomingStream } from "../lib/upcoming-stream";
 import { m } from "../paraglide/messages.js";
 
 function SubscriptionsPage() {
@@ -26,6 +27,7 @@ function SubscriptionsPage() {
   const subscriptions = query.data ?? [];
   const {
     streams,
+    isPreparing,
     isLoading,
     isLoadingError,
     isFetchNextPageError,
@@ -51,11 +53,16 @@ function SubscriptionsPage() {
     if (streams.length > 0) {
       const topVideos = streams.slice(0, 5);
       for (const video of topVideos) {
-        if (prefetchedIdsRef.current.has(video.id)) continue;
+        if (prefetchedIdsRef.current.has(video.id) || isUpcomingStream(video)) continue;
+        // A live or a replay of one is never kept by Server: preparing it would open it at the
+        // provider on every visit of this page.
+        if (video.isLive || video.isPostLive || video.isLiveContent) continue;
         prefetchedIdsRef.current.add(video.id);
-        void queryClient.prefetchQuery(streamQueryOptions(video.id)).catch((error) => {
-          if (error instanceof ApiError && [400, 404, 422].includes(error.status)) return;
-        });
+        void queryClient
+          .prefetchQuery(streamQueryOptions(video.id, false, true, false, true))
+          .catch((error) => {
+            if (error instanceof ApiError && [400, 404, 409, 422].includes(error.status)) return;
+          });
       }
     }
   }, [streams, queryClient]);
@@ -74,7 +81,14 @@ function SubscriptionsPage() {
         error={query.error ?? feedError}
         onChange={(value, replace) => void navigate({ search: { group: value }, replace })}
       />
-      {query.isLoading || isLoading ? (
+      {isPreparing ? (
+        <>
+          <p role="status" className="text-sm text-fg-muted">
+            {m.subscriptions_feed_preparing()}
+          </p>
+          <VideoGridSkeleton idPrefix="subscriptions-preparing" />
+        </>
+      ) : query.isLoading || isLoading ? (
         <VideoGridSkeleton idPrefix="subscriptions" />
       ) : query.isLoadingError || isLoadingError ? (
         <div role="alert" className="flex flex-col items-center gap-3 py-10 text-sm text-fg-muted">
