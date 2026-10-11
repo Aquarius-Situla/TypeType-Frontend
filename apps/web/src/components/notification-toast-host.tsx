@@ -19,7 +19,7 @@ import { useUiStore } from "../stores/ui-store";
 import type { NotificationItem } from "../types/notifications";
 import { NotificationToast } from "./notification-toast";
 
-const POLL_INTERVAL_MS = 15_000;
+const POLL_INTERVAL_MS = 60_000;
 const DISMISS_AFTER_MS = 6_000;
 const STORAGE_PREFIX = "typetype-notification-toast:";
 

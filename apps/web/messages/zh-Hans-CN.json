@@ -1525,5 +1525,6 @@
   "watch_verified": "已认证",
   "watch_video_blocked": "视频已屏蔽",
   "watch_video_options": "视频选项",
+  "subscriptions_feed_preparing": "正在准备你的订阅内容。视频会自己出现在这里。",
   "watch_video_unblocked": "视频已取消屏蔽"
 }

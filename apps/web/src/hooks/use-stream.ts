@@ -18,6 +18,7 @@ export function streamQueryOptions(
   useAuthenticatedStream = false,
   enabled = true,
   knownLive = false,
+  preview = false,
 ) {
   const ownerId = useAuthenticatedStream ? useAuthStore.getState().me?.id : null;
   return queryOptions({
@@ -28,6 +29,7 @@ export function streamQueryOptions(
         useAuthenticatedStream ? "authenticated_first" : "anonymous_first",
         signal,
         knownLive,
+        preview,
       ).then((r) => mapStreamResponse(r, url)),
     enabled: enabled && url.startsWith("http"),
     staleTime: 3 * 60 * 1000,
@@ -38,6 +40,8 @@ export function streamQueryOptions(
         (error.status === 400 ||
           error.status === 403 ||
           error.status === 404 ||
+          // A live event that has not started yet: asking again at once changes nothing.
+          error.status === 409 ||
           error.status === 422)
       ) {
         return false;
@@ -89,7 +93,8 @@ export function useSabrBootstrap(url: string, useAuthenticatedStream = false, en
     staleTime: 3 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     retry: (count, error) => {
-      if (error instanceof ApiError && [400, 403, 404, 422].includes(error.status)) return false;
+      if (error instanceof ApiError && [400, 403, 404, 409, 422].includes(error.status))
+        return false;
       return count < 2;
     },
     retryDelay: (attempt) => Math.min(250 * 2 ** attempt, 1500),

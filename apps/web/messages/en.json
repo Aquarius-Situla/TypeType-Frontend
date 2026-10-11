@@ -1524,6 +1524,7 @@
   "portability_prepare_packing": "Preparing YouTube account data",
   "portability_prepare_uploading": "Uploading prepared data",
   "portability_resume_prepared_upload": "Retry prepared upload",
+  "subscriptions_feed_preparing": "Your subscriptions are being prepared. Their videos will appear here by themselves.",
   "language_german": "German",
   "language_chinese_simplified": "Simplified Chinese"
 }

@@ -56,7 +56,7 @@ export function useWatchAutoplayPreload({ durationMs, enabled, target }: Args) {
       activeRef.current?.abort();
       activeRef.current = controller;
       void queryClient
-        .fetchQuery(streamQueryOptions(sourceUrl, useAuthenticatedStream, true))
+        .fetchQuery(streamQueryOptions(sourceUrl, useAuthenticatedStream, true, false, true))
         .then((stream) => {
           if (controller.signal.aborted) return;
           const itag = defaultSabrItag(sabrQualityOptions(stream), "720p");

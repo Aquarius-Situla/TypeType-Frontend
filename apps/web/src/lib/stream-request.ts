@@ -1,10 +1,10 @@
 import { API_BASE as BASE } from "./env";
 import { detectProvider } from "./provider";
 
-export function streamEndpoint(url: string, knownLive = false): string {
+export function streamEndpoint(url: string, knownLive = false, preview = false): string {
   const provider = detectProvider(url);
   const path = providerStreamPath(provider, knownLive);
-  return `${BASE}${path}?url=${encodeURIComponent(url)}`;
+  return `${BASE}${path}?url=${encodeURIComponent(url)}${preview ? "&intent=preview" : ""}`;
 }
 
 export function sabrBootstrapEndpoint(url: string): string | null {

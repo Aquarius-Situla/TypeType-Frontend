@@ -24,7 +24,8 @@ export function useNotifications(open: boolean) {
     queryKey: unreadKey,
     queryFn: () => fetchUnreadNotificationsCount(),
     enabled: enabled && profileId !== null,
-    refetchInterval: enabled ? 15_000 : false,
+    // Not asked again on a timer: the toast host reads the notifications every minute and
+    // writes the count it gets with them here.
     retry: false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
