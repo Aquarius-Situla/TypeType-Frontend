@@ -21,6 +21,13 @@ test("uses SABR for YouTube and provider-specific direct endpoints", () => {
   expect(() => streamEndpoint("https://example.com/video")).toThrow("Unsupported video provider");
 });
 
+test("marks a request made before anyone watches, and only that one", () => {
+  expect(streamEndpoint(VIDEO_URL, false, true)).toEndWith("&intent=preview");
+  expect(streamEndpoint(VIDEO_URL, true, true)).toEndWith("&intent=preview");
+  expect(streamEndpoint(VIDEO_URL)).not.toContain("intent=");
+  expect(streamEndpoint(VIDEO_URL, true)).not.toContain("intent=");
+});
+
 test("uses an isolated YouTube SABR bootstrap request", () => {
   expect(sabrBootstrapEndpoint(VIDEO_URL)).toContain("/streams/youtube/sabr/bootstrap?url=");
   expect(sabrBootstrapQueryKey(VIDEO_URL, true)).toEqual(["stream-bootstrap", VIDEO_URL, "auth"]);
