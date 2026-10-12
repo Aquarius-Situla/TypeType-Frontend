@@ -62,8 +62,6 @@ describe("buildWatchPlayerKey", () => {
       hasChapters: true,
     };
 
-    expect(buildWatchPlayerKey(base)).toBe(
-      buildWatchPlayerKey({ ...base, retryKey: 4 }),
-    );
+    expect(buildWatchPlayerKey(base)).toBe(buildWatchPlayerKey({ ...base, retryKey: 4 }));
   });
 });

@@ -6,6 +6,7 @@ import { useSabrErrorReporter } from "../hooks/use-sabr-error-reporter";
 import { useSabrMediaSettings } from "../hooks/use-sabr-media-settings";
 import { useSabrModeSwitch } from "../hooks/use-sabr-mode-switch";
 import { useSabrQualitySwitch } from "../hooks/use-sabr-quality-switch";
+import { recordClientEvent } from "../lib/client-debug-log";
 import { toAbsoluteApiUrl } from "../lib/env";
 import { addPlaybackTraceHeader } from "../lib/playback-trace";
 import {
@@ -85,6 +86,9 @@ export function SabrMsePlayer({
   useSabrMediaSettings(video, settingsReady, initialVolume, initialMuted);
   useEffect(() => {
     if (!video) return;
+    if (retryKey > 0) {
+      recordClientEvent("player.sabr_engine_retry", { attempt: retryKey });
+    }
     errorReportedRef.current = false;
     const { startTimeMs: initialStartTimeMs, replacingVideo } = videoHandoffRef.current.attach(
       video,
