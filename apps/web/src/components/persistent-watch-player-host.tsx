@@ -38,6 +38,7 @@ export function PersistentWatchPlayerHost() {
   const close = usePersistentWatchPlayerStore((state) => state.close);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const cinemaMode = useWatchLayoutStore((state) => state.cinemaMode);
+  const webFullscreen = useWatchLayoutStore((state) => state.webFullscreen);
   const isMobile = useMobile();
   const frameRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragState | null>(null);
@@ -45,7 +46,7 @@ export function PersistentWatchPlayerHost() {
   const [dragging, setDragging] = useState(false);
   const [outsideViewport, setOutsideViewport] = useState(false);
   const [landscapeWatch, setLandscapeWatch] = useState(false);
-  const watchPage = pathname === "/watch" && !cinemaMode;
+  const watchPage = pathname === "/watch";
   const hiddenPage =
     pathname === "/shorts" || pathname === "/hide-everything" || pathname.startsWith("/embed/");
 
@@ -95,7 +96,8 @@ export function PersistentWatchPlayerHost() {
     };
   }, [updateAnchorRect, entry?.anchor]);
 
-  const floating = !watchPage || (!landscapeWatch && outsideViewport);
+  const floating =
+    !watchPage || (!cinemaMode && !webFullscreen && !landscapeWatch && outsideViewport);
   const handlePointerMove = useCallback(
     (event: PointerEvent) => {
       const drag = dragRef.current;
@@ -180,7 +182,8 @@ export function PersistentWatchPlayerHost() {
   return (
     <div
       ref={frameRef}
-      className="typetype-persistent-player-frame fixed z-30 overflow-hidden rounded-lg bg-black shadow-2xl ring-1 ring-black/30"
+      className={`typetype-persistent-player-frame fixed overflow-hidden bg-black ${webFullscreen && watchPage ? "z-[60]" : "z-30"} ${floating ? "rounded-lg shadow-2xl ring-1 ring-black/30" : "rounded-none"}`}
+      data-web-fullscreen={webFullscreen && watchPage ? "" : undefined}
       data-floating={floating ? "" : undefined}
       data-dragging={dragging ? "" : undefined}
       style={style}
