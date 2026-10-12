@@ -35,6 +35,7 @@ function sourceIdentity(src: MediaSrc): string {
 type AutoplayState = {
   playerKey: string;
   streamId: string;
+  retryKey: number;
   settingsReady: boolean;
   autoplay: boolean;
 };
@@ -84,12 +85,14 @@ export function useWatchPlayerSourceState(args: Args) {
   if (
     !autoplayState ||
     autoplayState.playerKey !== playerKey ||
+    autoplayState.retryKey !== args.retryKey ||
     (!autoplayState.settingsReady && args.settingsReady)
   ) {
     const autoplayIntent = consumeWatchAutoplayIntent();
     autoplayRef.current = {
       playerKey,
       streamId: args.streamId,
+      retryKey: args.retryKey,
       settingsReady: args.settingsReady,
       autoplay: decideWatchSourceAutoplay({
         previous: autoplayState,

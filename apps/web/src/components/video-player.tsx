@@ -28,6 +28,7 @@ patchVidstackProviderLoaders();
 export function VideoPlayer({
   src,
   sabrConfig,
+  sabrRetryKey = 0,
   sabrPlaybackRatePreference,
   title,
   poster,
@@ -119,6 +120,7 @@ export function VideoPlayer({
       {sabrConfig && (
         <SabrMsePlayer
           config={sabrConfig}
+          retryKey={sabrRetryKey}
           playbackRatePreference={sabrPlaybackRatePreference}
           video={sabrState.video}
           startTime={startTime}

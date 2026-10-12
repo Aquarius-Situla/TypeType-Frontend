@@ -8,6 +8,7 @@ import type { CaptionStyles } from "../types/user";
 export type VideoPlayerProps = {
   src: MediaSrc;
   sabrConfig?: SabrPlaybackConfig | null;
+  sabrRetryKey?: number;
   sabrPlaybackRatePreference?: SabrPlaybackRatePreference;
   title?: string;
   poster?: string;

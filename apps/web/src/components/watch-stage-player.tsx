@@ -13,6 +13,7 @@ export type WatchStagePlayerProps = {
   streamTitle: string;
   poster?: string;
   playerKey: string;
+  sabrRetryKey: number;
   manifestSrc: MediaSrc;
   sabrConfig: SabrPlaybackConfig | null;
   isLive: boolean;
@@ -64,6 +65,7 @@ export function WatchStagePlayer(props: WatchStagePlayerProps) {
         key={props.playerKey}
         src={props.manifestSrc}
         sabrConfig={props.sabrConfig}
+        sabrRetryKey={props.sabrRetryKey}
         sabrPlaybackRatePreference={playbackRatePreference.current}
         audioOnly={props.audioOnly}
         title={props.streamTitle}

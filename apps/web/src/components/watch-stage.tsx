@@ -22,6 +22,7 @@ type Props = {
   sabrConfig: SabrPlaybackConfig | null;
   audioOnly: boolean;
   playerKey: string;
+  sabrRetryKey: number;
   startTime: number;
   seekIntervalSeconds?: number;
   isLive: boolean;
@@ -70,6 +71,7 @@ export function WatchStage({
   sabrConfig,
   audioOnly,
   playerKey,
+  sabrRetryKey,
   startTime,
   seekIntervalSeconds,
   isLive,
@@ -129,6 +131,7 @@ export function WatchStage({
     streamTitle: stream.title,
     poster: stream.thumbnail,
     playerKey,
+    sabrRetryKey,
     manifestSrc,
     sabrConfig,
     isLive,

@@ -3,6 +3,7 @@ import type { SabrPlaybackConfig } from "../lib/sabr-source";
 
 export type SabrMsePlayerProps = {
   config: SabrPlaybackConfig;
+  retryKey: number;
   playbackRatePreference?: SabrPlaybackRatePreference;
   video: HTMLVideoElement | null;
   startTime: number;

@@ -51,4 +51,19 @@ describe("buildWatchPlayerKey", () => {
       buildWatchPlayerKey(base),
     );
   });
+
+  test("can keep a sabr media element stable across engine retries", () => {
+    const base = {
+      streamId: "video",
+      retryKey: 0,
+      sourceKey: "sabr:manifest",
+      highQuality: true,
+      hasThumbnails: true,
+      hasChapters: true,
+    };
+
+    expect(buildWatchPlayerKey(base)).toBe(
+      buildWatchPlayerKey({ ...base, retryKey: 4 }),
+    );
+  });
 });

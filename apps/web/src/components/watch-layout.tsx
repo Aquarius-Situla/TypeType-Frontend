@@ -154,6 +154,7 @@ export function WatchLayout({
         sabrConfig={sabrConfig}
         audioOnly={audioOnly.active}
         playerKey={sourceState.playerKey}
+        sabrRetryKey={player.retryKey}
         startTime={player.seekStartTime ?? sourceState.startTime}
         seekIntervalSeconds={isNicoNico ? 6 : undefined}
         isLive={isLive}

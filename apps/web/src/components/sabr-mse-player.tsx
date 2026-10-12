@@ -29,6 +29,7 @@ import { useAuthStore } from "../stores/auth-store";
 import type { SabrMsePlayerProps } from "./sabr-mse-player-types";
 export function SabrMsePlayer({
   config,
+  retryKey,
   playbackRatePreference,
   video,
   startTime,
@@ -220,6 +221,7 @@ export function SabrMsePlayer({
     latestStartTime,
     playbackRate,
     reportError,
+    retryKey,
     video,
   ]);
   return null;
