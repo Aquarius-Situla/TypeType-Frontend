@@ -92,8 +92,10 @@ export function usePlayerError(stream: VideoStream, isLive: boolean): UsePlayerE
   const manifestSrc: MediaSrc = sabrSelected ? { src: "", type: "video/mp4" } : fallbackSrc;
   const missingYoutubeLiveHls = isYoutubeLive && !stream.hlsUrl;
   const handleError = useCallback(() => {
-    if (!sabrEnabled && typeof navigator !== "undefined" && !navigator.onLine) {
-      offlineRecoveryRef.current?.waitForOnline();
+    if (
+      typeof navigator !== "undefined" &&
+      offlineRecoveryRef.current?.deferErrorUntilOnline(navigator.onLine)
+    ) {
       recordClientEvent("player.network_retry_waiting", { video: debugVideo });
       return;
     }
@@ -138,7 +140,6 @@ export function usePlayerError(stream: VideoStream, isLive: boolean): UsePlayerE
     }
   }, [
     debugVideo,
-    sabrEnabled,
     hlsEnabled,
     hlsFailed,
     isYoutubeLive,

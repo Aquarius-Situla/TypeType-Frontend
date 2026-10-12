@@ -1,8 +1,10 @@
 export class OfflinePlayerRecovery {
   private waitingForOnline = false;
 
-  waitForOnline(): void {
+  deferErrorUntilOnline(isOnline: boolean): boolean {
+    if (isOnline) return false;
     this.waitingForOnline = true;
+    return true;
   }
 
   resumeIfOnline(isOnline: boolean): boolean {

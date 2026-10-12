@@ -3,9 +3,10 @@ import { OfflinePlayerRecovery } from "../src/lib/offline-player-recovery";
 
 test("retries the same source once after network recovery", () => {
   const recovery = new OfflinePlayerRecovery();
+  expect(recovery.deferErrorUntilOnline(true)).toBe(false);
 
   expect(recovery.resumeIfOnline(true)).toBe(false);
-  recovery.waitForOnline();
+  expect(recovery.deferErrorUntilOnline(false)).toBe(true);
   expect(recovery.resumeIfOnline(false)).toBe(false);
   expect(recovery.resumeIfOnline(true)).toBe(true);
   expect(recovery.resumeIfOnline(true)).toBe(false);
@@ -14,7 +15,7 @@ test("retries the same source once after network recovery", () => {
 test("clears a pending retry when the source changes", () => {
   const recovery = new OfflinePlayerRecovery();
 
-  recovery.waitForOnline();
+  expect(recovery.deferErrorUntilOnline(false)).toBe(true);
   recovery.reset();
 
   expect(recovery.resumeIfOnline(true)).toBe(false);
