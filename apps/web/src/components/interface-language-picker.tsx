@@ -4,12 +4,13 @@ import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { m } from "../paraglide/messages.js";
 import type { Locale } from "../paraglide/runtime.js";
 
-const OPTIONS: Locale[] = ["en", "zh-Hans-CN", "fr", "de"];
+const OPTIONS: Locale[] = ["en", "zh-Hans-CN", "fr", "de", "dev"];
 
 function languageName(locale: Locale): string {
   if (locale === "zh-Hans-CN") return m.language_chinese_simplified();
   if (locale === "fr") return m.language_french();
   if (locale === "de") return m.language_german();
+  if (locale === "dev") return "Dev Keys";
   return m.language_english();
 }
 
@@ -59,6 +60,16 @@ function LanguageFlag({ locale }: { locale: Locale }) {
         <span className="bg-[#1b4fa3]" />
         <span className="bg-white" />
         <span className="bg-[#e33a3a]" />
+      </span>
+    );
+  }
+  if (locale === "dev") {
+    return (
+      <span
+        className="relative flex h-4 w-6 shrink-0 items-center justify-center overflow-hidden rounded-[2px] bg-[#18181b] ring-1 ring-black/15 font-mono text-[9px] font-bold text-[#a3e635]"
+        aria-hidden="true"
+      >
+        {"{k}"}
       </span>
     );
   }
