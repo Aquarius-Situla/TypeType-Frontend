@@ -1,7 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
 import { type ReactNode, useCallback, useEffect } from "react";
 import { WatchPlaylistPanel } from "../components/watch-playlist-panel";
-import { applyCustomOrder, randomShuffleSeed, shuffleByKey } from "../lib/playlist-shuffle";
+import { playlistShuffleSeed } from "../lib/continuous-playlist";
+import { applyCustomOrder } from "../lib/playlist-shuffle";
 import { isManagedPlaylistId } from "../lib/playlist-url";
 import {
   activeStreamCollection,
@@ -18,6 +19,7 @@ import type { StreamCollectionItem } from "../types/stream-collection";
 import type { StreamPartItem } from "../types/stream-parts";
 import { useBlockedFilter } from "./use-blocked-filter";
 import { usePlaylist } from "./use-playlist";
+import { usePlaylistShuffle } from "./use-playlist-shuffle";
 import { usePlaylists } from "./use-playlists";
 import { usePublicPlaylist } from "./use-public-playlist";
 
@@ -86,7 +88,7 @@ export function useWatchPlaylist(
   const visibleBase = filter(base);
   const arranged =
     !isManaged && customOrder ? applyCustomOrder(visibleBase, customOrder) : visibleBase;
-  const videos = shuffle ? shuffleByKey(arranged, shuffle) : arranged;
+  const { plan, videos } = usePlaylistShuffle(arranged, list, shuffle, currentParam);
   const inPlaylist =
     (Boolean(list) || Boolean(collection) || partVideos.length > 0) && videos.length > 0;
   const currentIdx = inPlaylist
@@ -98,8 +100,8 @@ export function useWatchPlaylist(
   const loadMorePublic = useCallback(() => {
     if (canLoadPublicPage) void publicPlaylist.fetchNextPage();
   }, [canLoadPublicPage, publicPlaylist.fetchNextPage]);
-  const previousVideo = currentIdx > 0 ? videos[currentIdx - 1] : undefined;
-  const nextVideo = currentIdx >= 0 ? videos[currentIdx + 1] : undefined;
+  const previousVideo = plan ? plan.previous : currentIdx > 0 ? videos[currentIdx - 1] : undefined;
+  const nextVideo = plan ? plan.next : currentIdx >= 0 ? videos[currentIdx + 1] : undefined;
   const previousParam = previousVideo ? toPublicWatchParam(previousVideo.url) : null;
   const nextParam = nextVideo ? toPublicWatchParam(nextVideo.url) : null;
   const playPrevious = useCallback(() => {
@@ -145,15 +147,16 @@ export function useWatchPlaylist(
         shuffle={shuffle}
         isLoadingMore={publicPlaylist.isFetchingNextPage}
         onLoadMore={canLoadPublicPage ? loadMorePublic : undefined}
-        onToggleShuffle={
+        allowContinuous={isManaged}
+        onShuffleChange={
           list || collection
-            ? () =>
+            ? (mode) =>
                 navigate({
                   to: "/watch",
                   search: {
                     v: currentParam,
                     list,
-                    ...(shuffle ? {} : { shuffle: randomShuffleSeed() }),
+                    shuffle: playlistShuffleSeed(mode, currentParam),
                   },
                   resetScroll: false,
                 })

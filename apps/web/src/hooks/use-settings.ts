@@ -75,6 +75,7 @@ const DEFAULTS: SettingsItem = {
   autoplayOnOpen: true,
   autoplayCountdownSeconds: 10,
   skipPlaylistAutoplayScreen: false,
+  hideUpcomingPlaylistVideos: false,
   audioOnlyPlayback: false,
   videoGridColumns: 0,
   relatedVideoSize: "default",

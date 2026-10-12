@@ -1,6 +1,7 @@
 import type { WatchPlaylistItem } from "../types/playlist";
 import type { VideoStream } from "../types/stream";
 import type { SettingsItem } from "../types/user";
+import { usePlaylistVisibility } from "./use-playlist-visibility";
 import { useWatchAutoplayPreload } from "./use-watch-autoplay-preload";
 import { useWatchEndedNavigation } from "./use-watch-ended-navigation";
 import { useWatchPlayerEvents } from "./use-watch-player-events";
@@ -20,6 +21,7 @@ type Args = {
 };
 
 export function useWatchPlaybackFlow(args: Args) {
+  const visibility = usePlaylistVisibility(args.list);
   const autoplay = useWatchEndedNavigation({
     settingsReady: args.settingsReady,
     autoplay: args.settings.autoplay,
@@ -30,6 +32,7 @@ export function useWatchPlaybackFlow(args: Args) {
     nextVideo: args.nextVideo,
     list: args.list,
     shuffle: args.shuffle,
+    hideUpcoming: visibility.hidden,
     related: args.related,
   });
   const preloadAutoplay = useWatchAutoplayPreload({

@@ -21,7 +21,7 @@ export function AutoplayCountdownOverlay({
   onCancel,
   onPauseToggle,
 }: Props) {
-  const thumbnail = proxyImage(target.thumbnail);
+  const thumbnail = target.hidden ? "" : proxyImage(target.thumbnail);
   const progressStyle = {
     animationDuration: `${totalSeconds}s`,
     animationPlayState: paused ? "paused" : "running",
@@ -82,7 +82,7 @@ export function AutoplayCountdownOverlay({
             {m.ui_up_next()}
           </p>
           <h2 className="mt-2 line-clamp-2 text-base font-semibold leading-snug text-white sm:text-xl lg:text-2xl">
-            {target.title}
+            {target.title || m.player_next_video_fallback()}
           </h2>
           {target.channelName && (
             <p className="mt-1.5 text-sm font-medium text-white/65">{target.channelName}</p>

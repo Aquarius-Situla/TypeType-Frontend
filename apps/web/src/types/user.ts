@@ -112,6 +112,7 @@ export type SettingsItem = {
   autoplayOnOpen: boolean;
   autoplayCountdownSeconds: number;
   skipPlaylistAutoplayScreen: boolean;
+  hideUpcomingPlaylistVideos: boolean;
   audioOnlyPlayback: boolean;
   videoGridColumns: VideoGridColumns;
   relatedVideoSize: RelatedVideoSize;

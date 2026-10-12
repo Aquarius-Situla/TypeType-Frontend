@@ -1,10 +1,16 @@
-import { ChevronDown, Shuffle } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { type DragEvent, type UIEvent, useEffect, useRef, useState } from "react";
 import { useFlipList } from "../hooks/use-flip-list";
 import { useMobile } from "../hooks/use-mobile";
+import { usePlaylistVisibility } from "../hooks/use-playlist-visibility";
 import { toPublicWatchParam } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
 import type { WatchPlaylistItem } from "../types/playlist";
+import {
+  type PlaylistShuffleMode,
+  WatchPlaylistShuffleControl,
+  WatchPlaylistVisibilityToggle,
+} from "./watch-playlist-controls";
 import { WatchPlaylistRow } from "./watch-playlist-row";
 
 type WatchPlaylistSection = {
@@ -22,7 +28,8 @@ type Props = {
   shuffle: string | undefined;
   isLoadingMore?: boolean;
   onLoadMore?: () => void;
-  onToggleShuffle?: () => void;
+  onShuffleChange?: (mode: PlaylistShuffleMode) => void;
+  allowContinuous?: boolean;
   onReorder?: (videos: WatchPlaylistItem[]) => void;
 };
 
@@ -35,10 +42,12 @@ export function WatchPlaylistPanel({
   shuffle,
   isLoadingMore = false,
   onLoadMore,
-  onToggleShuffle,
+  onShuffleChange,
+  allowContinuous = false,
   onReorder,
 }: Props) {
   const isMobile = useMobile();
+  const visibility = usePlaylistVisibility(listId);
   const [collapsed, setCollapsed] = useState(isMobile);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
@@ -66,7 +75,7 @@ export function WatchPlaylistPanel({
   const currentIndex = displayVideos.findIndex(
     (video) => toPublicWatchParam(video.url) === currentParam,
   );
-  const reorderable = Boolean(onReorder) && !activeSection;
+  const reorderable = Boolean(onReorder) && !activeSection && !visibility.hidden && !shuffle;
   const register = useFlipList(displayVideos.map((video) => video.key).join("|"));
 
   useEffect(() => {
@@ -75,9 +84,6 @@ export function WatchPlaylistPanel({
     }
   }, [collapsed, currentIndex]);
 
-  function commit(next: WatchPlaylistItem[]) {
-    onReorder?.(next);
-  }
   function handleDragStart(event: DragEvent, index: number) {
     setDragIndex(index);
     event.dataTransfer.effectAllowed = "move";
@@ -89,7 +95,7 @@ export function WatchPlaylistPanel({
       const next = [...videos];
       const [moved] = next.splice(dragIndex, 1);
       next.splice(targetIndex, 0, moved);
-      commit(next);
+      onReorder(next);
     }
     setDragIndex(null);
     setOverIndex(null);
@@ -100,7 +106,7 @@ export function WatchPlaylistPanel({
     const next = [...videos];
     const [moved] = next.splice(index, 1);
     next.splice(target, 0, moved);
-    commit(next);
+    onReorder(next);
   }
   function handleScroll(event: UIEvent<HTMLUListElement>) {
     if (!onLoadMore || isLoadingMore) return;
@@ -122,19 +128,6 @@ export function WatchPlaylistPanel({
             {currentIndex >= 0 ? currentIndex + 1 : "-"} / {displayVideos.length}
           </span>
         </button>
-        {onToggleShuffle && (
-          <button
-            type="button"
-            onClick={onToggleShuffle}
-            aria-label={m.ui_shuffle_playlist()}
-            className={`inline-flex h-8 w-8 shrink-0 items-center justify-center gap-1.5 rounded-full font-medium text-xs transition-colors sm:w-auto sm:rounded-lg sm:px-2.5 sm:py-1.5 ${
-              shuffle ? "bg-fg text-app" : "text-fg-muted hover:bg-surface-strong hover:text-fg"
-            }`}
-          >
-            <Shuffle className="h-3.5 w-3.5" aria-hidden="true" />
-            <span className="hidden sm:inline">{m.ui_shuffle()}</span>
-          </button>
-        )}
         <button
           type="button"
           onClick={() => setCollapsed((value) => !value)}
@@ -147,6 +140,21 @@ export function WatchPlaylistPanel({
           />
         </button>
       </div>
+      {!collapsed && (
+        <div className="flex items-center gap-3 border-border border-b px-3 py-2">
+          <WatchPlaylistShuffleControl
+            shuffle={shuffle}
+            allowContinuous={allowContinuous}
+            onShuffleChange={onShuffleChange}
+          />
+          <div className="ml-auto">
+            <WatchPlaylistVisibilityToggle
+              hidden={visibility.hidden}
+              onToggleHidden={visibility.toggle}
+            />
+          </div>
+        </div>
+      )}
       {!collapsed && sections && sections.length > 1 && (
         <div className="flex items-center gap-1.5 overflow-x-auto border-border border-b px-3 py-2 no-scrollbar">
           {sections.map((section) => {
@@ -174,6 +182,7 @@ export function WatchPlaylistPanel({
       {!collapsed && (
         <ul className="max-h-[24rem] list-none overflow-y-auto py-1" onScroll={handleScroll}>
           {displayVideos.map((video, index) => {
+            if (visibility.hidden && currentIndex >= 0 && index > currentIndex) return null;
             const isCurrent = index === currentIndex;
 
             return (

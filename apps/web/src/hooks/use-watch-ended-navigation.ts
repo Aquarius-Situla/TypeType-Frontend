@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { upcomingPlaylistDisplay } from "../lib/upcoming-playlist-display";
 import { markWatchAutoplayIntent } from "../lib/watch-autoplay-intent";
-import { m } from "../paraglide/messages.js";
 import type { WatchPlaylistItem } from "../types/playlist";
 import type { VideoStream } from "../types/stream";
 
@@ -21,6 +21,7 @@ export type AutoplayTarget = {
   source: "playlist" | "related";
   duration?: number;
   search: WatchSearch;
+  hidden?: boolean;
 };
 
 export type AutoplayState = {
@@ -39,6 +40,7 @@ type Params = {
   nextVideo?: WatchPlaylistItem | null;
   list?: string;
   shuffle?: string;
+  hideUpcoming: boolean;
   related?: VideoStream[];
 };
 
@@ -52,6 +54,7 @@ export function useWatchEndedNavigation({
   nextVideo,
   list,
   shuffle,
+  hideUpcoming,
   related,
 }: Params) {
   const navigate = useNavigate();
@@ -67,9 +70,7 @@ export function useWatchEndedNavigation({
     if (nextParam) {
       return {
         id: nextParam,
-        title: nextVideo?.title ?? m.player_next_video_fallback(),
-        thumbnail: nextVideo?.thumbnail ?? "",
-        channelName: nextVideo?.channelName ?? "",
+        ...upcomingPlaylistDisplay(nextVideo, hideUpcoming),
         source: "playlist",
         search: { v: nextParam, list, ...(shuffle ? { shuffle } : {}) },
       };
@@ -86,7 +87,7 @@ export function useWatchEndedNavigation({
       duration: relatedVideo.duration,
       search: { v: relatedVideo.id },
     };
-  }, [nextParam, nextVideo, list, shuffle, hideRelatedVideos, related]);
+  }, [nextParam, nextVideo, list, shuffle, hideRelatedVideos, hideUpcoming, related]);
   const nextTargetRef = useRef(nextTarget);
   nextTargetRef.current = nextTarget;
 

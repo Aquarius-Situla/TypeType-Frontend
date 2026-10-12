@@ -132,6 +132,14 @@ export function SettingsPlayback() {
           }
         />
         <PlaybackToggleRow
+          title={m.ui_hide_upcoming_playlist_videos()}
+          description={m.ui_hide_upcoming_playlist_description()}
+          checked={settings.hideUpcomingPlaylistVideos}
+          onClick={() =>
+            update.mutate({ hideUpcomingPlaylistVideos: !settings.hideUpcomingPlaylistVideos })
+          }
+        />
+        <PlaybackToggleRow
           title={m.ui_audio_only_playback()}
           description={m.ui_load_a_backend_provided_audio_stream_when_available()}
           checked={settings.audioOnlyPlayback}
