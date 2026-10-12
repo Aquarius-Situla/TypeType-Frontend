@@ -2,8 +2,8 @@
   "name": "@typetype/frontend",
   "version": "1.9.1",
   "devDependencies": {
-    "@biomejs/biome": "^2.5.12",
-    "knip": "^6.35.1",
+    "@biomejs/biome": "^2.5.15",
+    "knip": "^6.41.0",
     "sherif": "^1.13.0"
   },
   "overrides": {
