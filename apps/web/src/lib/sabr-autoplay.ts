@@ -115,3 +115,16 @@ export class SabrAutoplayDeadline {
     this.timer = undefined;
   }
 }
+
+export function confirmAutoplayOnPlaying(
+  video: HTMLVideoElement,
+  attempt: SabrAutoplayAttempt,
+  deadline: SabrAutoplayDeadline,
+): () => void {
+  const confirm = () => {
+    deadline.clear();
+    attempt.resolve();
+  };
+  video.addEventListener("playing", confirm);
+  return () => video.removeEventListener("playing", confirm);
+}

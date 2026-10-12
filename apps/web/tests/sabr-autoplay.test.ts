@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import {
+  confirmAutoplayOnPlaying,
   guardAutoplay,
   isAutoplayPolicyError,
   SabrAutoplayAttempt,
@@ -201,6 +202,27 @@ test("cancels an armed autoplay deadline", async () => {
   await Bun.sleep(10);
 
   expect(expirations).toBe(0);
+});
+
+test("confirms playback before the pending play promise deadline", async () => {
+  const video = new EventTarget() as HTMLVideoElement;
+  const attempt = new SabrAutoplayAttempt();
+  let expirations = 0;
+  const deadline = new SabrAutoplayDeadline(() => {
+    expirations += 1;
+    attempt.expire();
+  }, 5);
+
+  attempt.begin();
+  const unconfirm = confirmAutoplayOnPlaying(video, attempt, deadline);
+  deadline.arm();
+  video.dispatchEvent(new Event("playing"));
+  await Bun.sleep(10);
+  unconfirm();
+
+  expect(expirations).toBe(0);
+  expect(attempt.isConfirmed).toBe(true);
+  expect(attempt.isExpired).toBe(false);
 });
 
 test("stops autoplay after a browser policy rejection", () => {
