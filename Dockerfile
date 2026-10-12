@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM oven/bun:1.4.2-alpine AS builder
+FROM --platform=$BUILDPLATFORM oven/bun:1.4.3-alpine AS builder
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ RUN find apps/web/dist -type f \
         \( -name '*.css' -o -name '*.html' -o -name '*.js' -o -name '*.json' -o -name '*.svg' \) \
         -exec gzip -9 -k '{}' \;
 
-FROM nginx:1.31.3-alpine AS runner
+FROM nginx:1.31.6-alpine AS runner
 ARG BUILD_VERSION=0.1.0
 ARG BUILD_REVISION=development
 ARG BUILD_TIME=unknown
@@ -30,7 +30,7 @@ ENV NGINX_ENTRYPOINT_LOCAL_RESOLVERS=1 \
     TYPETYPE_DOWNLOADER_HOST=typetype-downloader \
     TYPETYPE_DOWNLOADER_PORT=18093
 
-RUN apk upgrade --no-cache libxml2 libcrypto3 libssl3 libexpat
+RUN apk upgrade --no-cache
 
 COPY --from=builder /app/apps/web/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/templates/default.conf.template
