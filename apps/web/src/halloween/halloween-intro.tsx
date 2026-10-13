@@ -1,6 +1,7 @@
-import { Ghost, TriangleAlert } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { getOpenMojiUrl } from "../lib/openmoji";
 import { m } from "../paraglide/messages.js";
 
 type Props = {
@@ -38,7 +39,12 @@ export function HalloweenIntro({ ready, onEnter, onClose }: Props) {
         className="fixed top-1/2 left-1/2 z-50 flex max-h-[90vh] w-[min(92vw,28rem)] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 overflow-y-auto rounded-xl border border-border-strong bg-surface p-5 shadow-2xl"
       >
         <div className="flex items-center gap-2.5">
-          <Ghost size={20} className="text-accent" aria-hidden="true" />
+          <img
+            src={getOpenMojiUrl("1F383")}
+            alt=""
+            aria-hidden="true"
+            className="size-5 shrink-0"
+          />
           <p id="halloween-intro-title" className="text-base font-semibold text-fg">
             {m.halloween_mode()}
           </p>
