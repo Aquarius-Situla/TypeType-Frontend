@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  workflow_call:
   workflow_dispatch:
 
 env:
@@ -8,7 +9,7 @@ env:
 
 jobs:
   quality:
-    runs-on: [self-hosted, Linux, X64, ci-stack]
+    runs-on: ${{ github.event_name == 'pull_request' && 'ubuntu-24.04' || fromJSON('["self-hosted","Linux","X64","ci-stack"]') }}
     steps:
       - uses: actions/checkout@v7.0.1
 
@@ -67,7 +68,7 @@ jobs:
 
   build:
     needs: quality
-    runs-on: [self-hosted, Linux, X64, ci-stack]
+    runs-on: ${{ github.event_name == 'pull_request' && 'ubuntu-24.04' || fromJSON('["self-hosted","Linux","X64","ci-stack"]') }}
     steps:
       - uses: actions/checkout@v7.0.1
 

@@ -36,7 +36,7 @@ function BiliBiliSessionPage() {
   }, [returnTo, session.qrPhase]);
 
   return (
-    <div className="flex w-full max-w-none flex-col gap-8 pt-2">
+    <div className="flex w-full max-w-none flex-col gap-8 pt-2 [animation:page-fade-in_0.2s_ease-out]">
       <div className="flex flex-wrap items-center justify-between gap-4 px-1">
         <Link to="/" className="w-fit text-fg-soft text-xs transition-colors hover:text-fg">
           {m.ui_back_home()}

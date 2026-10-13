@@ -26,7 +26,7 @@ export function VideoPlayerPlaybackTools(props: Props) {
   const compact = floating && !fullscreen;
   return (
     <>
-      {!compact && <PlayerHotkeys canSeek={props.canSeek} sabrVideo={props.sabrVideo} />}
+      <PlayerHotkeys canSeek={props.canSeek} sabrVideo={props.sabrVideo} compact={compact} />
       {shouldRunSponsorBlockAutoSkip(props) && props.autoSkipSegments && (
         <SponsorBlockSkipper
           segments={props.autoSkipSegments}

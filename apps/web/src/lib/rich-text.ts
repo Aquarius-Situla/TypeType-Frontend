@@ -1,3 +1,5 @@
+import { youtubeVideoId } from "./watch-url";
+
 export type RichTextSegment =
   | { id: string; type: "text"; value: string }
   | { id: string; type: "url"; value: string }
@@ -134,6 +136,34 @@ function parseTimestampToSeconds(value: string): number | null {
     return hours * 3600 + minutes * 60 + seconds;
   }
   return null;
+}
+
+function parseTimestampParameter(value: string | null): number | null {
+  if (!value) return null;
+  if (/^\d+$/.test(value)) {
+    const seconds = Number(value);
+    return Number.isSafeInteger(seconds) ? seconds : null;
+  }
+
+  const clockSeconds = parseTimestampToSeconds(value);
+  if (clockSeconds !== null) return clockSeconds;
+
+  const match = value.match(/^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$/i);
+  if (!match?.slice(1).some(Boolean)) return null;
+  const seconds = Number(match[1] ?? 0) * 3600 + Number(match[2] ?? 0) * 60 + Number(match[3] ?? 0);
+  return Number.isSafeInteger(seconds) ? seconds : null;
+}
+
+export function sameVideoTimestampSeconds(href: string, videoUrl: string): number | null {
+  const currentVideoId = youtubeVideoId(videoUrl);
+  if (!currentVideoId || youtubeVideoId(href) !== currentVideoId) return null;
+
+  try {
+    const url = new URL(href);
+    return parseTimestampParameter(url.searchParams.get("t") ?? url.searchParams.get("start"));
+  } catch {
+    return null;
+  }
 }
 
 export function parseTextSegments(text: string, idPrefix = ""): RichTextSegment[] {

@@ -12,7 +12,7 @@ import { useHoldFastForward } from "./use-hold-fast-forward";
 const SEEK_THROTTLE_MS = 80;
 const SCRUB_RANGE_SECONDS = 90;
 
-export function usePlayerGestures(canSeek: boolean) {
+export function usePlayerGestures(canSeek: boolean, enabled = true) {
   const player = useMediaPlayer();
   const remote = useMediaRemote();
   const currentTime = useMediaState("currentTime");
@@ -33,6 +33,8 @@ export function usePlayerGestures(canSeek: boolean) {
   durationRef.current = Number.isFinite(duration) ? duration : 0;
 
   useEffect(() => {
+    if (!enabled) return;
+
     function endScrub(commit: boolean) {
       if (!scrubbingRef.current) return;
       scrubbingRef.current = false;
@@ -120,7 +122,7 @@ export function usePlayerGestures(canSeek: boolean) {
       endScrub(false);
       restore(false);
     };
-  }, [canSeek, player, remote, start, restore, isActive]);
+  }, [canSeek, enabled, player, remote, start, restore, isActive]);
 
   return holding;
 }

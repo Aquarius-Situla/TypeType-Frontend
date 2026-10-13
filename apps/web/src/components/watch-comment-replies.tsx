@@ -35,7 +35,12 @@ export function WatchCommentReplies({ videoUrl, repliesPage, locale, onSeekTimes
           className="animate-card-pop-in"
           style={{ animationDelay: `${Math.min(i * 25, 150)}ms` }}
         >
-          <WatchReply reply={reply} locale={locale} onSeekTimestamp={onSeekTimestamp} />
+          <WatchReply
+            reply={reply}
+            videoUrl={videoUrl}
+            locale={locale}
+            onSeekTimestamp={onSeekTimestamp}
+          />
         </div>
       ))}
       {(isLoading || isFetchingNextPage) &&

@@ -1,22 +1,33 @@
 import { type ReactNode, useState } from "react";
-import { parseRichTextMarkup, parseTextSegments, type RichTextNode } from "../lib/rich-text";
+import {
+  parseRichTextMarkup,
+  parseTextSegments,
+  type RichTextNode,
+  sameVideoTimestampSeconds,
+} from "../lib/rich-text";
 import { ExternalLinkModal } from "./external-link-modal";
 
 type RichTextProps = {
   text: string;
+  videoUrl?: string;
   onSeekTimestamp?: (seconds: number) => void;
 };
 
-export function RichText({ text, onSeekTimestamp }: RichTextProps) {
+export function RichText({ text, videoUrl, onSeekTimestamp }: RichTextProps) {
   const [pendingUrl, setPendingUrl] = useState<string | null>(null);
   const nodes = parseRichTextMarkup(text);
 
-  function renderNodes(children: RichTextNode[], keyPrefix: string): ReactNode[] {
-    return children.flatMap((node, index) => renderNode(node, `${keyPrefix}-${index}`));
+  function renderNodes(
+    children: RichTextNode[],
+    keyPrefix: string,
+    insideLink = false,
+  ): ReactNode[] {
+    return children.flatMap((node, index) => renderNode(node, `${keyPrefix}-${index}`, insideLink));
   }
 
-  function renderNode(node: RichTextNode, key: string): ReactNode[] {
+  function renderNode(node: RichTextNode, key: string, insideLink: boolean): ReactNode[] {
     if (node.type === "text") {
+      if (insideLink) return [<span key={key}>{node.value}</span>];
       return parseTextSegments(node.value, `${key}-`).map((segment) =>
         segment.type === "text" ? (
           <span key={segment.id}>{segment.value}</span>
@@ -26,6 +37,11 @@ export function RichText({ text, onSeekTimestamp }: RichTextProps) {
             href={segment.value}
             onClick={(event) => {
               event.preventDefault();
+              const seconds = videoUrl ? sameVideoTimestampSeconds(segment.value, videoUrl) : null;
+              if (seconds !== null && onSeekTimestamp) {
+                onSeekTimestamp(seconds);
+                return;
+              }
               setPendingUrl(segment.value);
             }}
             className="text-accent hover:text-accent-strong underline underline-offset-2 transition-colors break-all text-left align-baseline"
@@ -48,6 +64,20 @@ export function RichText({ text, onSeekTimestamp }: RichTextProps) {
     }
     if (node.type === "break") return [<br key={key} />];
     if (node.type === "link") {
+      if (insideLink) return renderNodes(node.children, key, true);
+      const seconds = videoUrl ? sameVideoTimestampSeconds(node.href, videoUrl) : null;
+      if (seconds !== null && onSeekTimestamp) {
+        return [
+          <button
+            key={key}
+            type="button"
+            onClick={() => onSeekTimestamp(seconds)}
+            className="text-accent hover:text-accent-strong underline underline-offset-2 transition-colors"
+          >
+            {renderNodes(node.children, key, true)}
+          </button>,
+        ];
+      }
       return [
         <a
           key={key}
@@ -58,11 +88,11 @@ export function RichText({ text, onSeekTimestamp }: RichTextProps) {
           }}
           className="text-accent hover:text-accent-strong underline underline-offset-2 transition-colors break-all text-left align-baseline"
         >
-          {renderNodes(node.children, key)}
+          {renderNodes(node.children, key, true)}
         </a>,
       ];
     }
-    const children = renderNodes(node.children, key);
+    const children = renderNodes(node.children, key, insideLink);
     switch (node.tag) {
       case "strong":
         return [<strong key={key}>{children}</strong>];

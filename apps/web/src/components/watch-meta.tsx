@@ -22,6 +22,7 @@ export function WatchMeta({ stream, showComments = true, onSeekTimestamp, audioO
       {stream.description && (
         <WatchDescription
           description={stream.description}
+          videoUrl={stream.id}
           uploadedAt={stream.publishedAt}
           onSeekTimestamp={onSeekTimestamp}
         />

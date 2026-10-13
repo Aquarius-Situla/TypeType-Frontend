@@ -6,11 +6,12 @@ import { RichText } from "./rich-text";
 
 type Props = {
   description: string;
+  videoUrl: string;
   uploadedAt?: number;
   onSeekTimestamp?: (seconds: number) => void;
 };
 
-export function WatchDescription({ description, uploadedAt, onSeekTimestamp }: Props) {
+export function WatchDescription({ description, videoUrl, uploadedAt, onSeekTimestamp }: Props) {
   const [expanded, setExpanded] = useState(false);
   const { locale } = useInterfaceLocale();
   const exactDate = formatExactDate(uploadedAt, locale);
@@ -19,7 +20,7 @@ export function WatchDescription({ description, uploadedAt, onSeekTimestamp }: P
     return (
       <div className="w-full rounded-xl bg-surface px-4 py-3 text-left transition-colors hover:bg-surface-strong">
         <p className="text-sm text-fg leading-relaxed line-clamp-3 whitespace-pre-wrap">
-          <RichText text={description} onSeekTimestamp={onSeekTimestamp} />
+          <RichText text={description} videoUrl={videoUrl} onSeekTimestamp={onSeekTimestamp} />
         </p>
         <button
           type="button"
@@ -36,7 +37,7 @@ export function WatchDescription({ description, uploadedAt, onSeekTimestamp }: P
     <div className="bg-surface rounded-xl px-4 py-3">
       {exactDate && <p className="mb-2 text-xs font-medium text-fg-muted">{exactDate}</p>}
       <p className="text-sm text-fg leading-relaxed whitespace-pre-wrap">
-        <RichText text={description} onSeekTimestamp={onSeekTimestamp} />
+        <RichText text={description} videoUrl={videoUrl} onSeekTimestamp={onSeekTimestamp} />
       </p>
       <button
         type="button"

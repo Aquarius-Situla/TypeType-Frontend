@@ -32,6 +32,10 @@ export function keyboardSeekOffset(code: string): number | null {
   return null;
 }
 
+export function isPlaybackToggleShortcut(code: string): boolean {
+  return code === "KeyK";
+}
+
 export type KeyboardSeekTarget = {
   position: number;
   updatedAt: number;

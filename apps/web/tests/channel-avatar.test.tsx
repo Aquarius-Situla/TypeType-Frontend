@@ -1,8 +1,17 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import { ChannelAvatar } from "../src/components/channel-avatar";
+import { avatarRetryDelayMs, ChannelAvatar } from "../src/components/channel-avatar";
 
 describe("channel avatar", () => {
+  test("backs off indefinitely without exceeding five minutes", () => {
+    expect([
+      avatarRetryDelayMs(0),
+      avatarRetryDelayMs(1),
+      avatarRetryDelayMs(8),
+      avatarRetryDelayMs(9),
+    ]).toEqual([1_000, 2_000, 256_000, 300_000]);
+  });
+
   test("renders a skeleton while a remote image is loading", () => {
     const html = renderToStaticMarkup(
       <ChannelAvatar src="/api/proxy?url=https%3A%2F%2Fexample.test%2Favatar.jpg" name="Channel" />,

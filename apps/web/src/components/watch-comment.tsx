@@ -72,7 +72,7 @@ export function WatchComment({ comment, videoUrl, onSeekTimestamp }: Props) {
           ref={textRef}
           className={`text-sm text-fg leading-relaxed whitespace-pre-wrap${expanded ? "" : " line-clamp-5"}`}
         >
-          <RichText text={comment.text} onSeekTimestamp={onSeekTimestamp} />
+          <RichText text={comment.text} videoUrl={videoUrl} onSeekTimestamp={onSeekTimestamp} />
         </p>
         {(overflows || expanded) && (
           <button
