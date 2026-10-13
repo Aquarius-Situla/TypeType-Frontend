@@ -18,6 +18,7 @@ import { AlgorithmOverview } from "../components/algorithm/algorithm-overview";
 import { AlgorithmProfile } from "../components/algorithm/algorithm-profile";
 import { SectionShell, type SectionShellItem } from "../components/section-shell";
 import { useInstance } from "../hooks/use-instance";
+import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { useRecommender } from "../hooks/use-recommender";
 import {
   type AlgorithmSection,
@@ -75,6 +76,7 @@ function items(): SectionShellItem<AlgorithmSection>[] {
 }
 
 function AlgorithmPage() {
+  useInterfaceLocale();
   const { section, category } = Route.useSearch();
   const navigate = useNavigate({ from: "/algorithm" });
   const instance = useInstance();
