@@ -19,8 +19,9 @@ function validateChannelPathSearch(search: Record<string, unknown>): ChannelPath
 
 function CanonicalChannelPage() {
   const { provider, channelId } = Route.useParams();
+  const isBilibili = provider === "bilibili";
   const { sort: searchSort, q } = Route.useSearch();
-  const sort = searchSort ?? "latest";
+  const sort = channelSortOrDefault(searchSort, isBilibili);
   const searchQuery = q ?? "";
   const tab = channelTabOrDefault(Route.useSearch().tab);
   const sourceUrl =

@@ -2,7 +2,7 @@ import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
 import type { ChannelSort } from "../lib/api-discovery";
 import type { ChannelTab } from "../lib/channel-route-url";
-import { CHANNEL_SORT_OPTIONS, channelSortOrDefault } from "../lib/channel-sort";
+import { channelSortOptions, channelSortOrDefault } from "../lib/channel-sort";
 import { m } from "../paraglide/messages.js";
 
 function channelTabs(isBilibili = false): { tab: ChannelTab; label: string }[] {
@@ -115,13 +115,13 @@ export function ChannelFilterBar({
         )}
         {!isSearching && tab === "videos" && (
           <div className="flex max-w-full flex-wrap items-center gap-2 text-sm">
-            {CHANNEL_SORT_OPTIONS.map((option) => {
+            {channelSortOptions(isBilibili).map((option) => {
               const selected = option.value === sort;
               return (
                 <button
                   key={option.value}
                   type="button"
-                  onClick={() => onSortChange(channelSortOrDefault(option.value))}
+                  onClick={() => onSortChange(channelSortOrDefault(option.value, isBilibili))}
                   className={`typetype-adaptive-control inline-flex max-w-full border-border-strong border-b py-1 font-medium transition-colors ${
                     selected ? "border-fg text-fg" : "border-transparent text-fg-soft hover:text-fg"
                   }`}
