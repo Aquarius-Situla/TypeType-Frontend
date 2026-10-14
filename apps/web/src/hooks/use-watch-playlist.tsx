@@ -45,7 +45,11 @@ export function useWatchPlaylist(
   const { filter } = useBlockedFilter();
   const managedList = list && isManagedPlaylistId(list) ? list : "";
   const publicListUrl =
-    list && !isManagedPlaylistId(list) ? `https://www.youtube.com/playlist?list=${list}` : "";
+    list && !isManagedPlaylistId(list)
+      ? list.startsWith("http") || list.startsWith("bilibili:")
+        ? list
+        : `https://www.youtube.com/playlist?list=${list}`
+      : "";
   const managedPlaylist = usePlaylist(managedList);
   const publicPlaylist = usePublicPlaylist(publicListUrl);
   const { reorder } = usePlaylists();

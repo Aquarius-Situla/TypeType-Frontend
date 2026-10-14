@@ -18,6 +18,9 @@ function parseUrl(value: string): URL | null {
     return new URL(trimmed);
   } catch {
     try {
+      if (trimmed.startsWith("/")) {
+        return new URL(trimmed, "https://www.youtube.com");
+      }
       return new URL(`https://${trimmed}`);
     } catch {
       return null;

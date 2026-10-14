@@ -1,8 +1,13 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
+import {
+  extractBilibiliChannelMid,
+  fetchBilibiliChannelSearch,
+} from "../lib/api-bilibili-channel-collections";
 import { type ChannelSort, fetchChannel } from "../lib/api-discovery";
 import { buildChannelRequestUrl } from "../lib/channel-search-url";
 import { mapVideoItem } from "../lib/mappers";
+import { detectProvider } from "../lib/provider";
 import { proxyImage } from "../lib/proxy";
 import type { VideoStream } from "../types/stream";
 
@@ -33,10 +38,28 @@ export function useChannel(
   live: boolean,
 ) {
   const lastMeta = useRef<CachedChannelMeta | null>(null);
+  const provider = detectProvider(channelUrl);
+  const trimmedQuery = searchQuery.trim();
+  const isBilibiliSearch = provider === "bilibili" && trimmedQuery.length > 0;
+  const bilibiliMid = isBilibiliSearch ? extractBilibiliChannelMid(channelUrl) : null;
   const requestUrl = buildChannelRequestUrl(channelUrl, searchQuery, live);
+
   const channelQuery = useInfiniteQuery({
     queryKey: ["channel", channelUrl, sort, searchQuery, live],
     queryFn: async ({ pageParam }): Promise<ChannelPage> => {
+      if (isBilibiliSearch && bilibiliMid) {
+        const res = await fetchBilibiliChannelSearch(
+          bilibiliMid,
+          trimmedQuery,
+          pageParam as string | undefined,
+        );
+        return {
+          meta: null,
+          videos: res.videos.map(mapVideoItem),
+          nextpage: res.nextpage,
+        };
+      }
+
       const res = await fetchChannel(requestUrl, pageParam as string | undefined, sort);
       const isFirstPage = pageParam === undefined;
       return {
