@@ -85,21 +85,18 @@ function PublicPlaylistPage() {
         onSuccess: () => setToast(m.ui_playlist_removed()),
         onError: (err: unknown) => {
           const msg = err instanceof Error ? err.message : String(err);
-          setToast(msg || m.ui_error());
+          setToast(msg || m.ui_failed());
         },
       });
       return;
     }
-    savedPlaylists.save.mutate(
-      info ? { url: playlistUrl, info } : playlistUrl,
-      {
-        onSuccess: () => setToast(m.ui_playlist_saved()),
-        onError: (err: unknown) => {
-          const msg = err instanceof Error ? err.message : String(err);
-          setToast(msg || m.ui_error());
-        },
+    savedPlaylists.save.mutate(info ? { url: playlistUrl, info } : playlistUrl, {
+      onSuccess: () => setToast(m.ui_playlist_saved()),
+      onError: (err: unknown) => {
+        const msg = err instanceof Error ? err.message : String(err);
+        setToast(msg || m.ui_failed());
       },
-    );
+    });
   }
 
   return (
