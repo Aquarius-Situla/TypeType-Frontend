@@ -55,6 +55,24 @@ export function proxyDashManifest(url: string): string {
   return isRemoteUrl(url) ? proxyUrl(url) : url;
 }
 
+function normalizeBilibiliImageUrl(url: string): string {
+  let normalized = url.trim();
+  if (normalized.startsWith("//")) {
+    normalized = `https:${normalized}`;
+  }
+  normalized = normalized.replace(/^http:\/\//, "https://");
+  try {
+    const parsed = new URL(normalized);
+    if (parsed.hostname.endsWith("biliimg.com")) {
+      parsed.hostname = "i0.hdslb.com";
+      return parsed.toString();
+    }
+  } catch {
+    // ignore
+  }
+  return normalized;
+}
+
 function needsProxy(url: string): boolean {
   try {
     const parsed = new URL(url);
@@ -64,6 +82,7 @@ function needsProxy(url: string): boolean {
       host.endsWith("ggpht.com") ||
       host.endsWith("googleusercontent.com") ||
       host.endsWith("hdslb.com") ||
+      host.endsWith("biliimg.com") ||
       host.endsWith("ytimg.com")
     );
   } catch {
@@ -74,7 +93,9 @@ function needsProxy(url: string): boolean {
 export function proxyImage(url: string): string {
   if (!url) return url;
   const raw = extractProxyTarget(url) ?? url;
-  const normalized = raw.startsWith("httpss://") ? `https://${raw.slice(9)}` : raw;
+  const normalized = normalizeBilibiliImageUrl(
+    raw.startsWith("httpss://") ? `https://${raw.slice(9)}` : raw,
+  );
   if (!needsProxy(normalized)) return normalized;
   return proxyUrl(normalized);
 }

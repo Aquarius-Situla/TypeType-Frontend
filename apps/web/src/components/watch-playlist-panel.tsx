@@ -108,10 +108,18 @@ export function WatchPlaylistPanel({
     if (savedPublic) {
       savedPlaylists.remove.mutate(savedPublic.id, {
         onSuccess: () => setToastMsg(m.ui_playlist_removed()),
+        onError: (err: unknown) => {
+          const msg = err instanceof Error ? err.message : String(err);
+          setToastMsg(msg || m.ui_error());
+        },
       });
     } else {
       savedPlaylists.save.mutate(publicListUrl, {
         onSuccess: () => setToastMsg(m.ui_playlist_saved()),
+        onError: (err: unknown) => {
+          const msg = err instanceof Error ? err.message : String(err);
+          setToastMsg(msg || m.ui_error());
+        },
       });
     }
   }

@@ -83,10 +83,23 @@ function PublicPlaylistPage() {
     if (saved) {
       savedPlaylists.remove.mutate(saved.id, {
         onSuccess: () => setToast(m.ui_playlist_removed()),
+        onError: (err: unknown) => {
+          const msg = err instanceof Error ? err.message : String(err);
+          setToast(msg || m.ui_error());
+        },
       });
       return;
     }
-    savedPlaylists.save.mutate(playlistUrl, { onSuccess: () => setToast(m.ui_playlist_saved()) });
+    savedPlaylists.save.mutate(
+      info ? { url: playlistUrl, info } : playlistUrl,
+      {
+        onSuccess: () => setToast(m.ui_playlist_saved()),
+        onError: (err: unknown) => {
+          const msg = err instanceof Error ? err.message : String(err);
+          setToast(msg || m.ui_error());
+        },
+      },
+    );
   }
 
   return (
