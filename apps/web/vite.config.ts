@@ -33,6 +33,16 @@ export default defineConfig(({ mode }) => {
     server: {
       allowedHosts: true,
       proxy: {
+        "/api/bilibili": {
+          target: "https://api.bilibili.com",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/bilibili/, ""),
+          headers: {
+            Referer: "https://space.bilibili.com/",
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          },
+        },
         "/api": {
           target: apiTarget,
           rewrite: (path) => path.replace(/^\/api/, ""),
