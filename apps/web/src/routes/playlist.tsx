@@ -10,6 +10,7 @@ import { VideoGridSkeleton } from "../components/video-grid-skeleton";
 import { useBlockedFilter } from "../hooks/use-blocked-filter";
 import { usePublicPlaylist } from "../hooks/use-public-playlist";
 import { useSavedPlaylists } from "../hooks/use-saved-playlists";
+import { isBilibiliCollectionUrl } from "../lib/api-bilibili-channel-collections";
 import { randomShuffleSeed, shuffleByKey } from "../lib/playlist-shuffle";
 import { playlistListId } from "../lib/playlist-url";
 import { markWatchAutoplayIntent } from "../lib/watch-autoplay-intent";
@@ -18,8 +19,17 @@ import { m } from "../paraglide/messages.js";
 
 function PublicPlaylistPage() {
   const { list, url } = Route.useSearch();
-  const playlistUrl = url || (list ? `https://www.youtube.com/playlist?list=${list}` : "");
-  const listId = list || playlistListId(playlistUrl) || undefined;
+  const playlistUrl =
+    url ||
+    (list
+      ? list.startsWith("http") || list.startsWith("bilibili:")
+        ? list
+        : `https://www.youtube.com/playlist?list=${list}`
+      : "");
+  const listId =
+    list ||
+    playlistListId(playlistUrl) ||
+    (isBilibiliCollectionUrl(playlistUrl) ? playlistUrl : undefined);
   const { data, isLoading, isError, isFetchingNextPage, hasNextPage, fetchNextPage } =
     usePublicPlaylist(playlistUrl);
   const savedPlaylists = useSavedPlaylists();
@@ -73,10 +83,20 @@ function PublicPlaylistPage() {
     if (saved) {
       savedPlaylists.remove.mutate(saved.id, {
         onSuccess: () => setToast(m.ui_playlist_removed()),
+        onError: (err: unknown) => {
+          const msg = err instanceof Error ? err.message : String(err);
+          setToast(msg || m.ui_failed());
+        },
       });
       return;
     }
-    savedPlaylists.save.mutate(playlistUrl, { onSuccess: () => setToast(m.ui_playlist_saved()) });
+    savedPlaylists.save.mutate(info ? { url: playlistUrl, info } : playlistUrl, {
+      onSuccess: () => setToast(m.ui_playlist_saved()),
+      onError: (err: unknown) => {
+        const msg = err instanceof Error ? err.message : String(err);
+        setToast(msg || m.ui_failed());
+      },
+    });
   }
 
   return (

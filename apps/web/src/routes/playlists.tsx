@@ -96,7 +96,6 @@ function PlaylistsPage() {
         onDelete={() => setConfirmIds([...selectedIds])}
         onCreate={() => setCreating(true)}
       />
-      <SavedPlaylistsSection playlists={saved} onDelete={setSavedConfirm} />
       {!hasLocalCollections && saved.length === 0 ? (
         <PlaylistsEmptyState />
       ) : hasLocalCollections ? (
@@ -130,6 +129,7 @@ function PlaylistsPage() {
           ))}
         </div>
       ) : null}
+      <SavedPlaylistsSection playlists={saved} onDelete={setSavedConfirm} />
       {creating && (
         <PlaylistCreateModal
           onConfirm={(name) => {
