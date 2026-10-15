@@ -8,6 +8,7 @@ import { watchRouteSearch } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
 import type { NotificationItem } from "../types/notifications";
 import { ServiceIcon } from "./service-icon";
+import { VideoMembershipBadge } from "./video-membership-badge";
 
 type Props = {
   item: NotificationItem;
@@ -45,6 +46,7 @@ export function NotificationRow({ item, onOpen }: Props) {
       />
       <div className="min-w-0">
         <p className="line-clamp-2 text-sm font-medium leading-tight text-fg">{branding.title}</p>
+        {item.video.requiresMembership && <VideoMembershipBadge compact />}
         <div className="mt-1 flex min-w-0 items-center gap-1.5">
           <img
             src={proxyImage(item.channelAvatarUrl)}

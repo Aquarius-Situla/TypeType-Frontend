@@ -9,8 +9,9 @@ const CHANNEL_NOTIFICATION_PREFERENCES_KEY = ["channel-notification-preferences"
 
 export function useChannelNotificationPreferences() {
   const queryClient = useQueryClient();
-  const { authReady, isAuthed, isGuest } = useAuth();
+  const { authReady, isAuthed, isGuest, me } = useAuth();
   const enabled = authReady && isAuthed && !isGuest;
+  const profileId = me?.id ?? null;
   const query = useQuery({
     queryKey: CHANNEL_NOTIFICATION_PREFERENCES_KEY,
     queryFn: fetchChannelNotificationPreferences,
@@ -21,8 +22,14 @@ export function useChannelNotificationPreferences() {
   const update = useMutation({
     mutationFn: ({ channelUrl, enabled: next }: { channelUrl: string; enabled: boolean }) =>
       updateChannelNotificationPreference(channelUrl, next),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: CHANNEL_NOTIFICATION_PREFERENCES_KEY }),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: CHANNEL_NOTIFICATION_PREFERENCES_KEY }),
+        queryClient.invalidateQueries({ queryKey: ["notifications", profileId] }),
+        queryClient.invalidateQueries({ queryKey: ["notifications-unread-count", profileId] }),
+        queryClient.invalidateQueries({ queryKey: ["notification-toast-candidates", profileId] }),
+      ]);
+    },
   });
 
   return { query, update };

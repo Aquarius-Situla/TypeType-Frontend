@@ -7,12 +7,10 @@ import type { HomeRecommendationsResponse } from "../types/api";
 import type { HomeRecommendationRow } from "../types/recommender";
 import type { VideoStream } from "../types/stream";
 import { useAuth } from "./use-auth";
-import { usePreparingWindow } from "./use-preparing-window";
 import { useSettings } from "./use-settings";
 
 const PAGE_SIZE = 30;
-const WAIT_MS = 3_000;
-const MAX_WAITS = 30;
+const WAIT_MS = 10_000;
 
 type Result = {
   streams: VideoStream[];
@@ -65,7 +63,7 @@ export function useHomeRecommendations(): Result {
     // Server serves the standard page while the algorithm builds its own, and says so: the
     // home page is asked again until the algorithm's page is there.
     refetchInterval: (state) =>
-      state.state.data?.pages[0]?.preparing === true && state.state.dataUpdateCount <= MAX_WAITS
+      state.state.data?.pages[0]?.preparing === true
         ? WAIT_MS
         : false,
   });
@@ -75,11 +73,7 @@ export function useHomeRecommendations(): Result {
     [query.data],
   );
 
-  const isPreparing = usePreparingWindow(
-    query.data?.pages[0]?.preparing === true,
-    query.dataUpdatedAt,
-    WAIT_MS * MAX_WAITS,
-  );
+  const isPreparing = query.data?.pages[0]?.preparing === true;
   const rows = useMemo(() => mergeRows(query.data?.pages ?? []), [query.data]);
 
   return {

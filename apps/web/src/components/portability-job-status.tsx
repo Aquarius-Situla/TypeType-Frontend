@@ -101,7 +101,6 @@ export function PortabilityJobStatus({ job, onCancel, cancelling, locale = getLo
             <p className="text-sm font-medium text-fg">{stateLabel(job, locale)}</p>
             {job.progress && (
               <p className="mt-1 text-xs text-fg-soft">
-                {job.progress.processed.toLocaleString()}
                 {job.progress.total
                   ? m.portability_progress_of(
                       {
