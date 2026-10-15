@@ -62,10 +62,7 @@ export function useHomeRecommendations(): Result {
     staleTime: 90 * 1000,
     // Server serves the standard page while the algorithm builds its own, and says so: the
     // home page is asked again until the algorithm's page is there.
-    refetchInterval: (state) =>
-      state.state.data?.pages[0]?.preparing === true
-        ? WAIT_MS
-        : false,
+    refetchInterval: (state) => (state.state.data?.pages[0]?.preparing === true ? WAIT_MS : false),
   });
 
   const streams = useMemo(
