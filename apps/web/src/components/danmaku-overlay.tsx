@@ -1,6 +1,11 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { displayDuration, N_LANES, REGULAR_DISPLAY_MS } from "../lib/danmaku";
-import { useMediaState } from "../lib/vidstack";
+import {
+  displayDuration,
+  isDanmakuPlaybackPaused,
+  N_LANES,
+  REGULAR_DISPLAY_MS,
+} from "../lib/danmaku";
+import { useMediaPlayer, useMediaState } from "../lib/vidstack";
 import { useDanmakuStore } from "../stores/danmaku-store";
 import type { BulletCommentItem } from "../types/api";
 import { DanmakuItem } from "./danmaku-item";
@@ -18,38 +23,126 @@ const PRE_MOUNT_MS = 1000;
 export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Props) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const player = useMediaPlayer();
   const [visible, setVisible] = useState<IndexedComment[]>([]);
   const startMsMap = useRef(new Map<number, number>());
   const lastMsRef = useRef<number | null>(null);
   const [seekEpoch, setSeekEpoch] = useState(0);
   const [videoPaused, setVideoPaused] = useState(false);
+  const [videoWaiting, setVideoWaiting] = useState(false);
+  const [videoSeeking, setVideoSeeking] = useState(false);
+  const [isStalled, setIsStalled] = useState(false);
+  const isStalledRef = useRef(false);
+  const needsResetRef = useRef(false);
   const [videoRate, setVideoRate] = useState(1);
   const { speed, size } = useDanmakuStore();
 
   const mediaPaused = useMediaState("paused");
+  const mediaWaiting = useMediaState("waiting");
+  const mediaSeeking = useMediaState("seeking");
   const mediaPlaybackRate = useMediaState("playbackRate");
-  const paused = pausedProp ?? (videoPaused || mediaPaused);
+
+  const paused = isDanmakuPlaybackPaused({
+    pausedProp,
+    videoPaused,
+    mediaPaused,
+    videoWaiting,
+    mediaWaiting,
+    mediaSeeking,
+    videoSeeking,
+    isStalled,
+  });
   const playbackRate = videoRate || mediaPlaybackRate || 1;
 
   useEffect(() => {
-    const el = overlayRef.current;
-    const video =
-      el?.closest(".vds-media-player")?.querySelector("video") || document.querySelector("video");
-    videoRef.current = video;
-    if (!video) return;
+    let cleanup: (() => void) | null = null;
 
-    const update = () => {
-      setVideoPaused(video.paused);
-      setVideoRate(video.playbackRate || 1);
-    };
-    update();
+    function attach(): boolean {
+      if (cleanup) return true;
+      const root = player?.el || overlayRef.current?.closest(".vds-media-player") || document;
+      const video =
+        root.querySelector<HTMLVideoElement>("video") ||
+        document.querySelector<HTMLVideoElement>("video");
+      if (!video) return false;
+      videoRef.current = video;
 
-    const events = ["play", "pause", "seeking", "seeked", "waiting", "playing", "ratechange"];
-    for (const ev of events) video.addEventListener(ev, update);
+      const update = () => {
+        const isPaused = video.paused;
+        const isSeeking = video.seeking;
+        const isWaiting = !isPaused && (video.readyState < 3 || isSeeking);
+        setVideoPaused(isPaused);
+        setVideoSeeking(isSeeking);
+        setVideoWaiting(isWaiting);
+        setVideoRate(video.playbackRate || 1);
+      };
+      update();
+
+      const onWaiting = () => setVideoWaiting(true);
+      const onPlaying = () => {
+        setVideoWaiting(false);
+        setVideoPaused(false);
+        setVideoSeeking(false);
+        if (isStalledRef.current) {
+          isStalledRef.current = false;
+          setIsStalled(false);
+        }
+      };
+      const onSeeking = () => {
+        setVideoSeeking(true);
+        setVideoWaiting(true);
+      };
+      const onSeeked = () => {
+        setVideoSeeking(false);
+        needsResetRef.current = true;
+        update();
+      };
+
+      video.addEventListener("waiting", onWaiting);
+      video.addEventListener("stalled", onWaiting);
+      video.addEventListener("playing", onPlaying);
+      video.addEventListener("seeking", onSeeking);
+      video.addEventListener("seeked", onSeeked);
+
+      const events = [
+        "play",
+        "pause",
+        "ratechange",
+        "canplay",
+        "canplaythrough",
+        "loadstart",
+        "emptied",
+      ];
+      for (const ev of events) video.addEventListener(ev, update);
+
+      cleanup = () => {
+        video.removeEventListener("waiting", onWaiting);
+        video.removeEventListener("stalled", onWaiting);
+        video.removeEventListener("playing", onPlaying);
+        video.removeEventListener("seeking", onSeeking);
+        video.removeEventListener("seeked", onSeeked);
+        for (const ev of events) video.removeEventListener(ev, update);
+      };
+      return true;
+    }
+
+    if (attach()) return () => cleanup?.();
+
+    const observer = new MutationObserver(() => {
+      if (attach()) observer.disconnect();
+    });
+    const observeTarget =
+      player?.el ||
+      overlayRef.current?.closest(".vds-media-player") ||
+      (typeof document !== "undefined" ? document.body : null);
+    if (observeTarget) {
+      observer.observe(observeTarget, { childList: true, subtree: true });
+    }
+
     return () => {
-      for (const ev of events) video.removeEventListener(ev, update);
+      observer.disconnect();
+      cleanup?.();
     };
-  }, []);
+  }, [player]);
 
   const indexed = useMemo<IndexedComment[]>(
     () => comments.map((c, i) => ({ ...c, lane: i % N_LANES, id: i })),
@@ -67,8 +160,17 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
   useEffect(() => {
     let rafId: number;
     let prevKey = "";
+    let lastAdvTime = typeof performance !== "undefined" ? performance.now() : Date.now();
+    let lastVideoTime = -1;
 
     function tick() {
+      if (!videoRef.current) {
+        const root = player?.el || overlayRef.current?.closest(".vds-media-player") || document;
+        const v =
+          root.querySelector<HTMLVideoElement>("video") ||
+          document.querySelector<HTMLVideoElement>("video");
+        if (v) videoRef.current = v;
+      }
       const video = videoRef.current;
       const ms =
         video && !Number.isNaN(video.currentTime) && video.currentTime > 0
@@ -76,8 +178,40 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
           : (positionRef.current ?? 0);
 
       const currentSpeed = useDanmakuStore.getState().speed;
+      const now = typeof performance !== "undefined" ? performance.now() : Date.now();
 
-      if (lastMsRef.current !== null && Math.abs(ms - lastMsRef.current) > 1500) {
+      if (video) {
+        if (!video.paused && !video.ended && video.playbackRate > 0) {
+          if (video.currentTime !== lastVideoTime) {
+            lastVideoTime = video.currentTime;
+            lastAdvTime = now;
+            if (isStalledRef.current) {
+              isStalledRef.current = false;
+              setIsStalled(false);
+            }
+          } else {
+            const stallThreshold = Math.max(300, 350 / (video.playbackRate || 1));
+            if (now - lastAdvTime > stallThreshold) {
+              if (!isStalledRef.current) {
+                isStalledRef.current = true;
+                setIsStalled(true);
+              }
+            }
+          }
+        } else {
+          lastAdvTime = now;
+          if (isStalledRef.current) {
+            isStalledRef.current = false;
+            setIsStalled(false);
+          }
+        }
+      }
+
+      if (
+        needsResetRef.current ||
+        (lastMsRef.current !== null && Math.abs(ms - lastMsRef.current) > 1000)
+      ) {
+        needsResetRef.current = false;
         startMsMap.current.clear();
         setSeekEpoch((e) => e + 1);
         prevKey = "";
@@ -113,7 +247,7 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
 
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
-  }, [indexed, positionRef]);
+  }, [indexed, positionRef, player?.el]);
 
   const [containerWidth, setContainerWidth] = useState(0);
 
