@@ -11,3 +11,27 @@ export function argbToColor(argb: number): string {
 export function displayDuration(position: string): number {
   return position === "REGULAR" ? REGULAR_DISPLAY_MS : STATIC_DISPLAY_MS;
 }
+
+export type DanmakuPlaybackSyncState = {
+  pausedProp?: boolean;
+  videoPaused?: boolean;
+  mediaPaused?: boolean;
+  videoWaiting?: boolean;
+  mediaWaiting?: boolean;
+  mediaSeeking?: boolean;
+  videoSeeking?: boolean;
+  isStalled?: boolean;
+};
+
+export function isDanmakuPlaybackPaused(state: DanmakuPlaybackSyncState): boolean {
+  return Boolean(
+    state.pausedProp ||
+      state.videoPaused ||
+      state.mediaPaused ||
+      state.videoWaiting ||
+      state.mediaWaiting ||
+      state.mediaSeeking ||
+      state.videoSeeking ||
+      state.isStalled,
+  );
+}
