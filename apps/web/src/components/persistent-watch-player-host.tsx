@@ -31,6 +31,14 @@ function clampPosition(left: number, top: number, width: number, height: number)
   };
 }
 
+const resetDirectFrameStyles = (frame: HTMLDivElement | null) => {
+  if (!frame) return;
+  frame.style.top = "";
+  frame.style.left = "";
+  frame.style.width = "";
+  frame.style.height = "";
+};
+
 export function PersistentWatchPlayerHost() {
   const entry = usePersistentWatchPlayerStore((state) => state.entry);
   const position = usePersistentWatchPlayerStore((state) => state.position);
@@ -60,41 +68,80 @@ export function PersistentWatchPlayerHost() {
     return () => media.removeEventListener("change", update);
   }, []);
 
-  const updateAnchorRect = useCallback(() => {
-    const anchor = entry?.anchor;
-    if (!watchPage || !anchor) {
-      setAnchorRect(null);
-      setOutsideViewport(false);
-      return;
-    }
-    const rect = anchor.getBoundingClientRect();
-    setOutsideViewport((previous) => isPlayerOutsideViewport(rect.bottom, previous));
-    setAnchorRect((previous) =>
-      previous &&
-      previous.left === rect.left &&
-      previous.top === rect.top &&
-      previous.width === rect.width &&
-      previous.height === rect.height
-        ? previous
-        : { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
-    );
-  }, [entry?.anchor, watchPage]);
+  const syncFrame = useCallback(
+    (commitState = true) => {
+      const anchor = entry?.anchor;
+      const frame = frameRef.current;
+      if (!anchor || !watchPage) {
+        if (frame) resetDirectFrameStyles(frame);
+        if (commitState) {
+          setAnchorRect(null);
+          setOutsideViewport(false);
+        }
+        return;
+      }
+      const rect = anchor.getBoundingClientRect();
+      const docTop = rect.top + window.scrollY;
+      const docLeft = rect.left + window.scrollX;
+
+      if (frame) {
+        if (!outsideViewport && watchPage && !webFullscreen) {
+          frame.style.top = `${docTop}px`;
+          frame.style.left = `${docLeft}px`;
+          frame.style.width = `${rect.width}px`;
+          frame.style.height = `${rect.height}px`;
+        } else {
+          resetDirectFrameStyles(frame);
+        }
+      }
+
+      setOutsideViewport((previous) => isPlayerOutsideViewport(rect.bottom, previous));
+
+      if (commitState) {
+        setAnchorRect((previous) =>
+          previous &&
+          previous.left === docLeft &&
+          previous.top === docTop &&
+          previous.width === rect.width &&
+          previous.height === rect.height
+            ? previous
+            : { left: docLeft, top: docTop, width: rect.width, height: rect.height },
+        );
+      }
+    },
+    [entry?.anchor, outsideViewport, watchPage, webFullscreen],
+  );
 
   useLayoutEffect(() => {
-    updateAnchorRect();
-  }, [updateAnchorRect]);
+    syncFrame(true);
+  }, [syncFrame]);
 
   useEffect(() => {
-    const observer = new ResizeObserver(updateAnchorRect);
+    const handleSync = () => syncFrame(true);
+    const observer = new ResizeObserver(handleSync);
     if (entry?.anchor) observer.observe(entry.anchor);
-    window.addEventListener("scroll", updateAnchorRect, true);
-    window.addEventListener("resize", updateAnchorRect);
+
+    const handleScroll = () => {
+      const anchor = entry?.anchor;
+      if (!anchor || !watchPage) return;
+      const rect = anchor.getBoundingClientRect();
+      const next = isPlayerOutsideViewport(rect.bottom, outsideViewport);
+      if (next !== outsideViewport) {
+        setOutsideViewport(next);
+        if (!next) {
+          syncFrame(true);
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true, capture: true });
+    window.addEventListener("resize", handleSync);
     return () => {
       observer.disconnect();
-      window.removeEventListener("scroll", updateAnchorRect, true);
-      window.removeEventListener("resize", updateAnchorRect);
+      window.removeEventListener("scroll", handleScroll, true);
+      window.removeEventListener("resize", handleSync);
     };
-  }, [updateAnchorRect, entry?.anchor]);
+  }, [syncFrame, entry?.anchor, outsideViewport, watchPage]);
 
   const floating =
     !watchPage || (!cinemaMode && !webFullscreen && !landscapeWatch && outsideViewport);
@@ -149,20 +196,27 @@ export function PersistentWatchPlayerHost() {
 
   if (!entry?.enabled || hiddenPage) return null;
 
-  const style =
-    !floating && anchorRect
-      ? {
-          left: anchorRect.left,
-          top: anchorRect.top,
-          width: anchorRect.width,
-          height: anchorRect.height,
-        }
-      : position
-        ? { left: position.left, top: position.top }
-        : {
-            right: "1rem",
-            bottom: `calc(${isMobile ? "4.5rem" : "1rem"} + env(safe-area-inset-bottom, 0px))`,
-          };
+  const style: React.CSSProperties =
+    webFullscreen && watchPage
+      ? {}
+      : !floating && anchorRect
+        ? {
+            left: anchorRect.left,
+            top: anchorRect.top,
+            width: anchorRect.width,
+            height: anchorRect.height,
+          }
+        : !floating
+          ? {
+              opacity: 0,
+              pointerEvents: "none",
+            }
+          : position
+            ? { left: position.left, top: position.top }
+            : {
+                right: "1rem",
+                bottom: `calc(${isMobile ? "4.5rem" : "1rem"} + env(safe-area-inset-bottom, 0px))`,
+              };
 
   const beginDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
     if (!floating || !frameRef.current || !event.isPrimary || event.button !== 0) return;
@@ -182,7 +236,13 @@ export function PersistentWatchPlayerHost() {
   return (
     <div
       ref={frameRef}
-      className={`typetype-persistent-player-frame fixed overflow-hidden bg-black ${webFullscreen && watchPage ? "z-[60]" : "z-30"} ${floating ? "rounded-lg shadow-2xl ring-1 ring-black/30" : "rounded-none"}`}
+      className={`typetype-persistent-player-frame overflow-hidden bg-black transition-[box-shadow,ring-width] duration-200 ${
+        webFullscreen && watchPage
+          ? "fixed inset-0 z-[60] rounded-none shadow-none ring-0"
+          : floating
+            ? "fixed z-30 rounded-lg shadow-2xl ring-1 ring-black/30"
+            : "absolute z-10 rounded-none shadow-none ring-0"
+      }`}
       data-web-fullscreen={webFullscreen && watchPage ? "" : undefined}
       data-floating={floating ? "" : undefined}
       data-dragging={dragging ? "" : undefined}
