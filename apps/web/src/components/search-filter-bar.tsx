@@ -2,6 +2,7 @@ import { SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
   activeSearchFilterOptions,
+  liveSearchCategory,
   searchFilterGroups,
   searchFilterLabel,
   toggleSearchFilter,
@@ -34,6 +35,7 @@ type Props = {
   selectedFilters: readonly string[];
   onContentChange: (value: string | undefined) => void;
   onFiltersChange: (values: string[]) => void;
+  onLiveChange: (enabled: boolean) => void;
 };
 
 export function SearchFilterBar({
@@ -42,11 +44,19 @@ export function SearchFilterBar({
   selectedFilters,
   onContentChange,
   onFiltersChange,
+  onLiveChange,
 }: Props) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const groups = searchFilterGroups(filters);
-  const activeOptions = activeSearchFilterOptions(groups, selectedFilters);
+  const liveCategory = liveSearchCategory(filters);
+  const liveSelected =
+    liveCategory !== null &&
+    contentFilter === liveCategory.contentFilter &&
+    selectedFilters.includes(liveCategory.filterValue);
+  const activeOptions = activeSearchFilterOptions(groups, selectedFilters).filter(
+    (option) => option.value !== liveCategory?.filterValue,
+  );
   const contentOptions = filters.contentFilters.filter(
     (option) => !option.isDefault && searchFilterLabel(option.label).toLowerCase() !== "all",
   );
@@ -90,6 +100,15 @@ export function SearchFilterBar({
               {searchFilterLabel(option.label)}
             </button>
           ))}
+          {liveCategory && (
+            <button
+              type="button"
+              onClick={() => onLiveChange(!liveSelected)}
+              className={chipClass(liveSelected)}
+            >
+              {m.ui_live_streams()}
+            </button>
+          )}
         </div>
         {groups.length > 0 && (
           <button

@@ -53,6 +53,41 @@ export function searchFilterGroups(filters: SearchFiltersResponse): SearchFilter
   ];
 }
 
+export function liveSearchCategory(
+  filters: SearchFiltersResponse,
+): { contentFilter: string; filterValue: string } | null {
+  const videos = filters.contentFilters.find((option) => {
+    const value = option.value.toLowerCase();
+    const label = option.label.toLowerCase();
+    return /(?:^|[|:_-])videos?(?:$|[|:_-])/.test(value) || /\bvideos?\b/.test(label);
+  });
+  const live = searchFilterGroups(filters)
+    .flatMap((group) => group.options)
+    .find((option) => {
+      const value = option.value.toLowerCase();
+      const label = option.label.trim().toLowerCase();
+      return /(?:^|[|:_-])live(?:$|[|:_-])/.test(value) || /^(?:live|live streams?)$/.test(label);
+    });
+  return videos && live ? { contentFilter: videos.value, filterValue: live.value } : null;
+}
+
+export function updateLiveSearchCategory(
+  filters: SearchFiltersResponse,
+  contentFilter: string | undefined,
+  selectedFilters: readonly string[],
+  enabled: boolean,
+): { contentFilter: string | undefined; filters: string[] } | null {
+  const category = liveSearchCategory(filters);
+  if (!category) return null;
+  const nextFilters = enabled
+    ? [...new Set([...selectedFilters, category.filterValue])]
+    : selectedFilters.filter((value) => value !== category.filterValue);
+  return {
+    contentFilter: enabled ? category.contentFilter : contentFilter,
+    filters: nextFilters,
+  };
+}
+
 export function sanitizeSearchFilters(
   groups: readonly SearchFilterGroup[],
   selected: readonly string[],
