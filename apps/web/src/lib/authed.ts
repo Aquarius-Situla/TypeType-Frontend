@@ -4,6 +4,7 @@ import { recordApiError } from "./api-error-log";
 import { isRefreshSessionRejected, refreshSession } from "./auth-session";
 import { extractRequestId, recordClientEvent } from "./client-debug-log";
 import { sanitizeDebugText, sanitizeRequestPath } from "./debug-sanitize";
+import { isTokenExpired } from "./jwt";
 import { normalizeApiPayload } from "./text-normalize";
 
 function withBearer(init: RequestInit | undefined, token: string): RequestInit {
@@ -65,7 +66,7 @@ export async function authed(
   const method = init?.method ?? "GET";
   const path = sanitizeRequestPath(url);
   let token = useAuthStore.getState().token;
-  if (!token) {
+  if (!token || isTokenExpired(token)) {
     recordClientEvent("auth.missing_token_try_refresh", { method, path });
     try {
       token = await refreshSession();

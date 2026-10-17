@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { addFavorite, fetchFavorite, removeFavorite } from "../lib/api-collections";
+import { addFavorite, fetchFavorites, removeFavorite } from "../lib/api-collections";
 import type { FavoriteItem } from "../types/user";
 import { useAuth } from "./use-auth";
 
@@ -10,20 +10,22 @@ export function useFavoriteStatus(videoUrl: string) {
   const { authReady, isAuthed } = useAuth();
   const queryClient = useQueryClient();
   const [intent, setIntent] = useState<boolean | null>(null);
-  const queryKey = [...FAVORITES_KEY, videoUrl] as const;
   const query = useQuery({
-    queryKey,
-    queryFn: () => fetchFavorite(videoUrl),
+    queryKey: FAVORITES_KEY,
+    queryFn: fetchFavorites,
     enabled: authReady && isAuthed,
   });
-  const isFavorite = intent ?? (query.data !== null && query.data !== undefined);
+  const isInFavorites = query.data?.some((item) => item.videoUrl === videoUrl) ?? false;
+  const isFavorite = intent ?? isInFavorites;
 
   async function add(): Promise<void> {
     if (isFavorite) return;
     setIntent(true);
     try {
       const favorite = await addFavorite(videoUrl);
-      queryClient.setQueryData<FavoriteItem | null>(queryKey, favorite);
+      queryClient.setQueryData<FavoriteItem[]>(FAVORITES_KEY, (prev) =>
+        prev ? [favorite, ...prev.filter((item) => item.videoUrl !== videoUrl)] : [favorite],
+      );
       await queryClient.invalidateQueries({
         queryKey: FAVORITES_KEY,
         exact: true,
@@ -40,7 +42,9 @@ export function useFavoriteStatus(videoUrl: string) {
     setIntent(false);
     try {
       await removeFavorite(videoUrl);
-      queryClient.setQueryData<FavoriteItem | null>(queryKey, null);
+      queryClient.setQueryData<FavoriteItem[]>(FAVORITES_KEY, (prev) =>
+        prev ? prev.filter((item) => item.videoUrl !== videoUrl) : [],
+      );
       await queryClient.invalidateQueries({
         queryKey: FAVORITES_KEY,
         exact: true,
@@ -60,3 +64,4 @@ export function useFavoriteStatus(videoUrl: string) {
     isPending: (authReady && isAuthed && query.isPending) || intent !== null,
   };
 }
+

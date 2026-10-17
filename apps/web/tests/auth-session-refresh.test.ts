@@ -192,4 +192,39 @@ describe("session refresh failures", () => {
     useAuthStore.getState().setBootstrapping();
     expect(useAuthStore.getState().status).toBe("authenticated");
   });
+
+  test("proactively refreshes an expired JWT token before sending request", async () => {
+    const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+    const payload = btoa(JSON.stringify({ sub: "user-1", exp: Math.floor(Date.now() / 1000) - 300 }))
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+    const expiredJwt = `${header}.${payload}.sig`;
+
+    useAuthStore.getState().setSession(expiredJwt, me);
+
+    const receivedTokens: string[] = [];
+    globalThis.fetch = mock(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.endsWith("/auth/refresh")) {
+        return jsonResponse(200, { accessToken: "proactively-refreshed-token" });
+      }
+      if (url.endsWith("/auth/me")) {
+        return jsonResponse(200, me);
+      }
+      if (url === "/api/settings") {
+        const auth = new Headers(init?.headers).get("Authorization") ?? "";
+        receivedTokens.push(auth.replace("Bearer ", ""));
+        return jsonResponse(200, { ok: true });
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    });
+
+    const res = await authed("/api/settings");
+    expect(res.status).toBe(200);
+    // Notice: /api/settings should only receive the FRESH token, never the expired JWT!
+    expect(receivedTokens).toEqual(["proactively-refreshed-token"]);
+    expect(useAuthStore.getState().token).toBe("proactively-refreshed-token");
+  });
 });
+

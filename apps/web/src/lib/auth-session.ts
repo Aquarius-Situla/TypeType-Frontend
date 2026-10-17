@@ -4,6 +4,7 @@ import { ApiError } from "./api";
 import { fetchMe, loginAuth, logoutAuth, refreshAuth, registerAuth } from "./api-auth";
 import { completeOidc } from "./api-oidc";
 import { switchAccountProfile } from "./api-profiles";
+import { isTokenExpired } from "./jwt";
 
 type Credentials = {
   identifier: string;
@@ -56,6 +57,19 @@ export async function bootstrapSession(): Promise<void> {
   const { token, me, setBootstrapping, setSession, setSignedOut } = useAuthStore.getState();
   if (!token) return;
   setBootstrapping();
+  if (isTokenExpired(token)) {
+    try {
+      await refreshSession();
+      return;
+    } catch (refreshError) {
+      if (isRefreshSessionRejected(refreshError) || !me) {
+        setSignedOut();
+        return;
+      }
+      setSession(token, me);
+      return;
+    }
+  }
   try {
     await hydrateSession(token);
   } catch (error) {
