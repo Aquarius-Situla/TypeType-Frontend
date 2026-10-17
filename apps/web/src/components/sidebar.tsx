@@ -72,18 +72,12 @@ export function Sidebar({ overlay = false }: Props) {
       : "translate-x-0"
     : "";
   const baseClasses = isMobile
-    ? `fixed left-0 bottom-0 z-50 w-72 max-w-[85vw] border-r border-border bg-app flex flex-col py-4 transition-transform duration-200 ${
+    ? `fixed top-14 left-0 bottom-0 z-50 w-72 max-w-[85vw] border-r border-border bg-app flex flex-col py-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] transition-transform duration-200 ${
         mobileOpen ? "translate-x-0" : "-translate-x-full"
       }`
     : `fixed top-14 left-0 bottom-0 ${desktopShell} ${desktopMotion} flex flex-col py-4 transition-all duration-200 ${
         visualCollapsed ? "w-14" : "typetype-sidebar-expanded"
       }`;
-  const mobileSidebarStyle: React.CSSProperties = isMobile
-    ? {
-        top: "calc(3.5rem + env(safe-area-inset-top, 0px))",
-        paddingBottom: "calc(1rem + env(safe-area-inset-bottom, 0px))",
-      }
-    : {};
   const sectionPadding = isMobile ? "px-3" : "px-2";
   const itemLayout = isMobile
     ? "justify-start gap-3 px-2"
@@ -99,12 +93,11 @@ export function Sidebar({ overlay = false }: Props) {
         <button
           type="button"
           aria-label={m.nav_close_sidebar()}
-          className="fixed inset-0 z-40 bg-black/50"
-          style={{ top: "calc(3.5rem + env(safe-area-inset-top, 0px))" }}
+          className="fixed inset-0 top-14 z-40 bg-black/50"
           onClick={closeMobileSidebar}
         />
       )}
-      <aside className={baseClasses} style={mobileSidebarStyle}>
+      <aside className={baseClasses}>
         <div className={`flex flex-col gap-1 ${sectionPadding}`}>
           {navItems.map((item) => {
             const aliasActive = item.activePaths?.includes(loc.pathname) ?? false;

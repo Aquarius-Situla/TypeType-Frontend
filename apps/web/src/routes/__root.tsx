@@ -46,7 +46,7 @@ function RootLayoutContent() {
   const webFullscreen = useWatchLayoutStore((s) => s.webFullscreen);
   const { isAuthed, isAdmin, isGuest, status, authReady } = useAuth();
   const setSignedOut = useAuthStore((s) => s.setSignedOut);
-  const { data: instance, isLoading: instanceLoading } = useInstance();
+  const { data: instance } = useInstance();
   const location = useRouterState({ select: (state) => state.location });
   const notFoundPage = useRouterState({
     select: (state) => state.matches.some((match) => match.status === "notFound"),
@@ -105,7 +105,7 @@ function RootLayoutContent() {
   }, [watchPage, isMobile, setSidebarCollapsed]);
 
   useEffect(() => {
-    if (status === "loading" || (instanceLoading && (!isAuthed || isGuest))) return;
+    if (status === "loading") return;
     if (registerStatus.data?.bootstrapAvailable && shouldEnforceBootstrapRegistration(pathname)) {
       setSignedOut();
       if (pathname !== "/register") {
@@ -115,27 +115,6 @@ function RootLayoutContent() {
         window.location.replace(`/register${redirect}`);
       }
       return;
-    }
-    const isGuestDisabled = instance?.guestAllowed === false;
-    const isRegistrationDisabled = Boolean(
-      registerStatus.data &&
-        !registerStatus.data.allowRegistration &&
-        !registerStatus.data.bootstrapAvailable,
-    );
-    if (isGuestDisabled && isRegistrationDisabled && (!isAuthed || isGuest)) {
-      if (!isAuthPage(pathname) && !embedPage) {
-        const redirect =
-          pathname === "/" && !location.searchStr
-            ? ""
-            : `?redirect=${encodeURIComponent(pathWithSearch)}`;
-        window.location.replace(`/login${redirect}`);
-        return;
-      }
-      if (pathname === "/register") {
-        const redirect = location.searchStr || "";
-        window.location.replace(`/login${redirect}`);
-        return;
-      }
     }
     if (!isAuthed && isAdminRoute(pathname)) {
       const redirect = encodeURIComponent(pathWithSearch);
@@ -154,25 +133,14 @@ function RootLayoutContent() {
   }, [
     isAuthed,
     isAdmin,
-    isGuest,
-    instanceLoading,
-    instance?.guestAllowed,
-    registerStatus.data?.allowRegistration,
     registerStatus.data?.bootstrapAvailable,
     status,
     pathname,
     pathWithSearch,
-    location.searchStr,
-    embedPage,
     setSignedOut,
   ]);
 
-  const authPage = isAuthPage(pathname);
-
-  if (
-    (status === "loading" && (requiresAuth(pathname) || isAdminRoute(pathname))) ||
-    (instanceLoading && (!isAuthed || isGuest) && !authPage && !embedPage)
-  ) {
+  if (status === "loading" && (requiresAuth(pathname) || isAdminRoute(pathname))) {
     return (
       <div className="min-h-screen bg-app text-fg flex items-center justify-center">
         <p className="text-sm text-fg-muted">{m.ui_loading_session()}</p>
@@ -180,35 +148,19 @@ function RootLayoutContent() {
     );
   }
 
+  const authPage = isAuthPage(pathname);
+
   if (notFoundPage) {
     return <NotFoundPage />;
   }
 
-  const isGuestDisabled = instance?.guestAllowed === false;
-  const isRegistrationDisabled = Boolean(
-    registerStatus.data &&
-      !registerStatus.data.allowRegistration &&
-      !registerStatus.data.bootstrapAvailable,
-  );
-
   if (
-    isGuestDisabled &&
+    instance?.guestAllowed === false &&
     authReady &&
     (!isAuthed || isGuest) &&
     !authPage &&
     !embedPage
   ) {
-    if (
-      isRegistrationDisabled ||
-      registerStatus.isLoading ||
-      (!registerStatus.data && !registerStatus.isError)
-    ) {
-      return (
-        <div className="min-h-screen bg-app text-fg flex items-center justify-center">
-          <p className="text-sm text-fg-muted">{m.ui_loading_session()}</p>
-        </div>
-      );
-    }
     return <GuestDisabledScreen />;
   }
 
@@ -255,13 +207,9 @@ function RootLayoutContent() {
     : { paddingTop: "calc(3.5rem + env(safe-area-inset-top, 0px))" };
   const showTabBar =
     isMobile && !shortsPage && !watchCinemaPage && !watchWebFullscreenPage && !embedPage;
-  const mainBottomPad = showTabBar ? "" : "pb-5 sm:pb-6";
-  const mainStyle: React.CSSProperties = {
-    ...topPadding,
-    ...(showTabBar
-      ? { paddingBottom: "calc(4.5rem + env(safe-area-inset-bottom, 0px))" }
-      : {}),
-  };
+  const mainBottomPad = showTabBar
+    ? "pb-[calc(env(safe-area-inset-bottom)+4.5rem)]"
+    : "pb-5 sm:pb-6";
   const mainClasses = watchWebFullscreenPage
     ? "watch-page-main p-0 m-0 w-full h-full"
     : watchCinemaPage
@@ -286,7 +234,7 @@ function RootLayoutContent() {
         (watchCinemaPage ? !isMobile && <Sidebar overlay /> : <Sidebar />)}
       <main
         className={`${mainClasses} ${pathname === "/subscriptions/groups" ? "sg-page" : ""}`}
-        style={mainStyle}
+        style={topPadding}
       >
         <Outlet />
         {!watchWebFullscreenPage && <AppFooter />}

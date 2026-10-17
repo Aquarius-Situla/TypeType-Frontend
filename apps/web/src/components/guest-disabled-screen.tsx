@@ -1,13 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { useRegisterStatus } from "../hooks/use-register-status";
 import { m } from "../paraglide/messages.js";
 import { AuthBackdrop } from "./auth-backdrop";
 
 export function GuestDisabledScreen() {
-  const registerStatus = useRegisterStatus();
-  const allowRegistration = Boolean(
-    registerStatus.data?.allowRegistration || registerStatus.data?.bootstrapAvailable,
-  );
   return (
     <AuthBackdrop
       fixed
@@ -31,16 +26,14 @@ export function GuestDisabledScreen() {
           {m.ui_to_use_this_typetype_instance_create_an_account_or_sign_in_with_an_ex()}
         </p>
       </div>
-      <div className="relative z-10 flex min-h-[2.5rem] w-full max-w-xs flex-col justify-center gap-2.5 sm:max-w-none sm:flex-row">
-        {allowRegistration && (
-          <Link
-            to="/register"
-            search={{ redirect: undefined }}
-            className="cursor-pointer rounded-md border border-white/50 bg-white/70 px-5 py-2.5 text-center text-sm font-medium text-fg shadow-lg backdrop-blur transition-colors hover:bg-white/85 dark:border-white/15 dark:bg-white/10 dark:hover:bg-white/15"
-          >
-            {m.login_create_account()}
-          </Link>
-        )}
+      <div className="relative z-10 flex w-full max-w-xs flex-col justify-center gap-2.5 sm:max-w-none sm:flex-row">
+        <Link
+          to="/register"
+          search={{ redirect: undefined }}
+          className="cursor-pointer rounded-md border border-white/50 bg-white/70 px-5 py-2.5 text-center text-sm font-medium text-fg shadow-lg backdrop-blur transition-colors hover:bg-white/85 dark:border-white/15 dark:bg-white/10 dark:hover:bg-white/15"
+        >
+          {m.login_create_account()}
+        </Link>
         <Link
           to="/login"
           search={{ redirect: undefined }}
