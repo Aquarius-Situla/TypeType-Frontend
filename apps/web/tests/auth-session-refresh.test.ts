@@ -11,6 +11,7 @@ if (!("localStorage" in globalThis)) {
 }
 
 const { authed } = await import("../src/lib/authed");
+const { fetchChannel } = await import("../src/lib/api-discovery");
 const { bootstrapSession, refreshSession } = await import("../src/lib/auth-session");
 const { syncAuthStoreFromStorage, useAuthStore } = await import("../src/stores/auth-store");
 
@@ -139,6 +140,41 @@ describe("session refresh failures", () => {
       me: null,
       status: "signed_out",
     });
+  });
+
+  test("refreshes an expired bearer before fetching a channel", async () => {
+    let channelRequests = 0;
+    globalThis.fetch = mock(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url === "/api/channel/page") {
+        channelRequests += 1;
+        const expectedToken = channelRequests === 1 ? "stale-token" : "fresh-token";
+        expect(new Headers(init?.headers).get("Authorization")).toBe(`Bearer ${expectedToken}`);
+        return channelRequests === 1
+          ? jsonResponse(401, { error: "Invalid token" })
+          : jsonResponse(200, {
+              name: "Test Channel",
+              description: "",
+              avatarUrl: "",
+              bannerUrl: "",
+              subscriberCount: 0,
+              isVerified: false,
+              videos: [],
+              nextpage: null,
+            });
+      }
+      if (url.endsWith("/auth/refresh")) {
+        return jsonResponse(200, { accessToken: "fresh-token" });
+      }
+      if (url.endsWith("/auth/me")) return jsonResponse(200, me);
+      throw new Error(`Unexpected request: ${url}`);
+    });
+
+    await expect(fetchChannel("https://space.bilibili.com/546195")).resolves.toMatchObject({
+      name: "Test Channel",
+    });
+    expect(channelRequests).toBe(2);
+    expect(useAuthStore.getState().token).toBe("fresh-token");
   });
 
   test("adopts a refreshed session from another browser context", async () => {

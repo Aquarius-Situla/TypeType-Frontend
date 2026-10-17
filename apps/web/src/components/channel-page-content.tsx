@@ -96,16 +96,27 @@ export function ChannelPageContent({ sourceUrl, sort, searchQuery, tab, onNaviga
     }
     const message = m.ui_unable_to_load_channel_right_now();
     return (
-      <div className="rounded-xl border border-border bg-surface p-6 flex flex-col gap-3 max-w-xl">
-        <p className="text-sm text-fg">{message}</p>
+      <section
+        role="alert"
+        className="flex w-full flex-col items-center justify-center gap-4 px-4 py-12 text-center"
+      >
+        <img
+          src="/error-cat.gif"
+          alt=""
+          width={140}
+          height={140}
+          className="size-28 rounded-2xl object-cover"
+        />
+        <h2 className="max-w-sm text-sm font-semibold leading-6 text-fg">{message}</h2>
         <button
           type="button"
-          onClick={() => refetch()}
-          className="h-9 w-fit rounded-md bg-fg px-3 text-xs font-medium text-app hover:bg-fg-strong"
+          onClick={() => void refetch()}
+          disabled={isFetching}
+          className="inline-flex h-10 items-center justify-center rounded-md bg-fg px-4 text-sm font-medium text-app transition-colors hover:bg-fg-strong disabled:cursor-wait disabled:opacity-60"
         >
-          {m.ui_retry()}
+          {isFetching ? m.ui_loading() : m.ui_retry()}
         </button>
-      </div>
+      </section>
     );
   }
   if (meta && isChannelIdentityBlocked({ url: sourceUrl, name: meta.name })) {

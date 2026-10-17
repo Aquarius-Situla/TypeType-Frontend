@@ -1,5 +1,7 @@
+import { useAuthStore } from "../stores/auth-store";
 import type { ChannelResponse, SearchFiltersResponse, SearchPageResponse } from "../types/api";
 import { request } from "./api";
+import { authedJson } from "./authed";
 import { API_BASE as BASE } from "./env";
 import { optionalBearer } from "./optional-bearer";
 
@@ -35,12 +37,13 @@ export function fetchChannel(
   nextpage?: string,
   sort?: ChannelSort,
 ): Promise<ChannelResponse> {
-  return request(
-    `${BASE}/channel/page`,
-    optionalBearer({
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url, nextpage: nextpage ?? null, sort: sort ?? null }),
-    }),
-  );
+  const endpoint = `${BASE}/channel/page`;
+  const init = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url, nextpage: nextpage ?? null, sort: sort ?? null }),
+  };
+  return useAuthStore.getState().token
+    ? authedJson<ChannelResponse>(endpoint, init)
+    : request<ChannelResponse>(endpoint, init);
 }
