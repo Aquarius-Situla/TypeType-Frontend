@@ -1,4 +1,10 @@
-import { argbToColor, LANE_HEIGHT_PX, REGULAR_DISPLAY_MS } from "../lib/danmaku";
+import {
+  argbToColor,
+  estimateDanmakuWidth,
+  LANE_HEIGHT_PX,
+  parseDanmakuContent,
+  REGULAR_DISPLAY_MS,
+} from "../lib/danmaku";
 import type { BulletCommentItem } from "../types/api";
 
 type Props = {
@@ -42,6 +48,36 @@ export function DanmakuItem({
   const fontSize = Math.round(20 * comment.relativeFontSize * sizeMultiplier);
   const effectiveSpeed = speedMultiplier * playbackRate;
   const durationMs = REGULAR_DISPLAY_MS / effectiveSpeed;
+  const tokens = parseDanmakuContent(comment.text);
+
+  const renderedContent = tokens.map((token, index) => {
+    if (token.type === "text") {
+      return <span key={index}>{token.text}</span>;
+    }
+    const ratio = token.emote.aspectRatio ?? 1;
+    return (
+      <img
+        key={index}
+        src={token.emote.url}
+        alt={token.emote.name}
+        title={token.emote.name}
+        referrerPolicy="no-referrer"
+        style={{
+          display: "inline-block",
+          height: "1.25em",
+          width: ratio !== 1 ? `${1.25 * ratio}em` : "1.25em",
+          margin: "0 0.15em",
+          verticalAlign: "-0.2em",
+          objectFit: "contain",
+          pointerEvents: "none",
+          userSelect: "none",
+        }}
+        onError={(e) => {
+          (e.currentTarget as HTMLElement).style.display = "none";
+        }}
+      />
+    );
+  });
 
   if (comment.position === "REGULAR") {
     let animDelayMs: number;
@@ -72,7 +108,7 @@ export function DanmakuItem({
           } as React.CSSProperties
         }
       >
-        {comment.text}
+        {renderedContent}
       </span>
     );
   }
@@ -96,7 +132,7 @@ export function DanmakuItem({
           WebkitTransform: "translate3d(-50%, 0, 0)",
         }}
       >
-        {comment.text}
+        {renderedContent}
       </span>
     );
   }
@@ -115,7 +151,7 @@ export function DanmakuItem({
           WebkitTransform: "translate3d(-50%, 0, 0)",
         }}
       >
-        {comment.text}
+        {renderedContent}
       </span>
     );
   }

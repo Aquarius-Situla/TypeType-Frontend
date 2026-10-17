@@ -1,0 +1,272 @@
+[
+  {
+    "id": "ohh",
+    "name": "OHH",
+    "patterns": ["[ohh]", "ohh", "OHH", "Ohh", "oHH", "ahh", "Ahh", "AHH"],
+    "url": "https://i0.hdslb.com/bfs/feed-admin/d831cbae67aee1a8fe1cc463fb23c9110ee46807.png",
+    "aspectRatio": 3,
+    "description": "Bilibili OHH 彩蛋特效弹幕"
+  },
+  {
+    "id": "high-energy",
+    "name": "前方高能",
+    "patterns": ["[前方高能]", "前方高能"],
+    "url": "https://i0.hdslb.com/bfs/feed-admin/bd90726bb0c982c161eab7ad67e8460258a8959c.png",
+    "aspectRatio": 3,
+    "description": "Bilibili 前方高能特效弹幕"
+  },
+  {
+    "id": "doge",
+    "name": "doge",
+    "patterns": ["[doge]"],
+    "url": "https://i0.hdslb.com/bfs/emote/3087d273a78ccaff4bb1e9972e2ba2a7583c9f11.png",
+    "description": "doge / 狗头"
+  },
+  {
+    "id": "huaji",
+    "name": "滑稽",
+    "patterns": ["[滑稽]"],
+    "url": "https://i0.hdslb.com/bfs/emote/d15121545a99ac46774f1f4465b895fe2d1411c3.png",
+    "description": "滑稽"
+  },
+  {
+    "id": "dakou",
+    "name": "大哭",
+    "patterns": ["[大哭]"],
+    "url": "https://i0.hdslb.com/bfs/emote/2caafee2e5db4db72104650d87810cc2c123fc86.png",
+    "description": "大哭"
+  },
+  {
+    "id": "layanjing",
+    "name": "辣眼睛",
+    "patterns": ["[辣眼睛]"],
+    "url": "https://i0.hdslb.com/bfs/emote/35d62c496d1e4ea9e091243fa812866f5fecc101.png",
+    "description": "辣眼睛"
+  },
+  {
+    "id": "weixiao",
+    "name": "微笑",
+    "patterns": ["[微笑]"],
+    "url": "https://i0.hdslb.com/bfs/emote/685612eadc33f6bc233776c6241813385844f182.png",
+    "description": "微笑"
+  },
+  {
+    "id": "xiao",
+    "name": "笑",
+    "patterns": ["[笑]"],
+    "url": "https://i0.hdslb.com/bfs/emote/81edf17314cea3b48674312b4364df44d5c01f17.png",
+    "description": "笑"
+  },
+  {
+    "id": "kouzhao",
+    "name": "口罩",
+    "patterns": ["[口罩]"],
+    "url": "https://i0.hdslb.com/bfs/emote/3ad2f66b151496d2a5fb0a8ea75f32265d778dd3.png",
+    "description": "口罩"
+  },
+  {
+    "id": "miao-a",
+    "name": "妙啊",
+    "patterns": ["[妙啊]", "妙啊"],
+    "url": "https://i0.hdslb.com/bfs/live/7b7a2567ad1520f962ee226df777eaf3ca368fbc.png",
+    "aspectRatio": 2.3,
+    "description": "妙啊"
+  },
+  {
+    "id": "dianzan",
+    "name": "点赞",
+    "patterns": ["[点赞]", "[赞]"],
+    "url": "https://i0.hdslb.com/bfs/live/bbd9045570d0c022a984c637e406cb0e1f208aa9.png",
+    "aspectRatio": 2.5,
+    "description": "赞 / 点赞"
+  },
+  {
+    "id": "dacall",
+    "name": "打call",
+    "patterns": ["[打call]", "打call"],
+    "url": "https://i0.hdslb.com/bfs/live/fa1eb4dce3ad198bb8650499830560886ce1116c.png",
+    "aspectRatio": 3.25,
+    "description": "打call"
+  },
+  {
+    "id": "ganbei",
+    "name": "干杯",
+    "patterns": ["[干杯]", "干杯"],
+    "url": "https://i0.hdslb.com/bfs/live/8fedede4028a72e71dae31270eedff5f706f7d18.png",
+    "aspectRatio": 2.7,
+    "description": "干杯"
+  },
+  {
+    "id": "2333",
+    "name": "2333",
+    "patterns": ["[2333]", "2333"],
+    "url": "https://i0.hdslb.com/bfs/live/a98e35996545509188fe4d24bd1a56518ea5af48.png",
+    "aspectRatio": 3,
+    "description": "2333"
+  },
+  {
+    "id": "awsl",
+    "name": "awsl",
+    "patterns": ["[awsl]", "awsl", "AWSL"],
+    "url": "https://i0.hdslb.com/bfs/live/328e93ce9304090f4035e3aa7ef031d015bbc915.png",
+    "aspectRatio": 2.7,
+    "description": "awsl"
+  },
+  {
+    "id": "tietie",
+    "name": "贴贴",
+    "patterns": ["[贴贴]", "贴贴"],
+    "url": "https://i0.hdslb.com/bfs/live/88b49dac03bfd5d4cb49672956f78beb2ebd0d0b.png",
+    "aspectRatio": 2.7,
+    "description": "贴贴"
+  },
+  {
+    "id": "bixin",
+    "name": "比心",
+    "patterns": ["[比心]", "比心"],
+    "url": "https://i0.hdslb.com/bfs/live/1ba5126b10e5efe3e4e29509d033a37f128beab2.png",
+    "aspectRatio": 2.2,
+    "description": "比心"
+  },
+  {
+    "id": "leimu",
+    "name": "泪目",
+    "patterns": ["[泪目]", "[热词系列_泪目]", "泪目"],
+    "url": "https://i0.hdslb.com/bfs/live/aa93b9af7ba03b50df23b64e9afd0d271955cd71.png",
+    "aspectRatio": 2.4,
+    "description": "泪目"
+  },
+  {
+    "id": "xiaciyiding",
+    "name": "下次一定",
+    "patterns": ["[下次一定]", "下次一定"],
+    "url": "https://i0.hdslb.com/bfs/live/cc2652cef69b22117f1911391567bd2957f27e08.png",
+    "aspectRatio": 2.95,
+    "description": "下次一定"
+  },
+  {
+    "id": "jinzhitaowa",
+    "name": "禁止套娃",
+    "patterns": ["[禁止套娃]", "禁止套娃"],
+    "url": "https://i0.hdslb.com/bfs/live/6a644577437d0bd8a314990dd8ccbec0f3b30c92.png",
+    "aspectRatio": 3.4,
+    "description": "禁止套娃"
+  },
+  {
+    "id": "haojiahuo",
+    "name": "好家伙",
+    "patterns": ["[好家伙]", "好家伙"],
+    "url": "https://i0.hdslb.com/bfs/live/c2650bf9bbc79b682a4b67b24df067fdd3e5e9ca.png",
+    "aspectRatio": 2.75,
+    "description": "好家伙"
+  },
+  {
+    "id": "anzhongguancha",
+    "name": "暗中观察",
+    "patterns": ["[暗中观察]", "暗中观察"],
+    "url": "https://i0.hdslb.com/bfs/live/18af5576a4582535a3c828c3ae46a7855d9c6070.png",
+    "aspectRatio": 2.6,
+    "description": "暗中观察"
+  },
+  {
+    "id": "taikula",
+    "name": "泰裤辣",
+    "patterns": ["[泰裤辣]", "泰裤辣"],
+    "url": "https://i0.hdslb.com/bfs/live/82c38fc930ae764b4c6215f544bf8e1dba73b51c.png",
+    "aspectRatio": 3.3,
+    "description": "泰裤辣"
+  },
+  {
+    "id": "yingmale",
+    "name": "赢麻了",
+    "patterns": ["[赢麻了]", "赢麻了"],
+    "url": "https://i0.hdslb.com/bfs/live/1d4c71243548a1241f422e90cd8ba2b75c282f6b.png",
+    "aspectRatio": 2.6,
+    "description": "赢麻了"
+  },
+  {
+    "id": "dunjiao",
+    "name": "钝角",
+    "patterns": ["[钝角]", "钝角"],
+    "url": "https://i0.hdslb.com/bfs/live/38cf68c25d9ff5d364468a062fc79571db942ff3.png",
+    "aspectRatio": 2.55,
+    "description": "钝角"
+  },
+  {
+    "id": "queshi",
+    "name": "雀食",
+    "patterns": ["[雀食]", "雀食"],
+    "url": "https://i0.hdslb.com/bfs/live/7251dc7df587388a3933743bf38394d12a922cd7.png",
+    "aspectRatio": 2.65,
+    "description": "雀食"
+  },
+  {
+    "id": "baoshuma",
+    "name": "保熟吗",
+    "patterns": ["[保熟吗]", "保熟吗"],
+    "url": "https://i0.hdslb.com/bfs/live/0e28444c8e2faef3169e98e1a41c487144d877d4.png",
+    "aspectRatio": 2.7,
+    "description": "保熟吗"
+  },
+  {
+    "id": "henyoujingshen",
+    "name": "很有精神",
+    "patterns": ["[很有精神]", "很有精神"],
+    "url": "https://i0.hdslb.com/bfs/live/e91cbe30b2db1e624bd964ad1f949661501f42f8.png",
+    "aspectRatio": 3.35,
+    "description": "很有精神"
+  },
+  {
+    "id": "youdongxi",
+    "name": "有点东西",
+    "patterns": ["[有点东西]", "有点东西"],
+    "url": "https://i0.hdslb.com/bfs/live/39e518474a3673c35245bf6ef8ebfff2c003fdc3.png",
+    "aspectRatio": 3.1,
+    "description": "有点东西"
+  },
+  {
+    "id": "zhegehaoye",
+    "name": "这个好耶",
+    "patterns": ["[这个好耶]", "这个好耶"],
+    "url": "https://i0.hdslb.com/bfs/live/2ce08b31618d3ad0d34877bf949ef0089a0438b7.png",
+    "aspectRatio": 3.3,
+    "description": "这个好耶"
+  },
+  {
+    "id": "chongya",
+    "name": "冲鸭",
+    "patterns": ["[冲鸭]", "冲鸭"],
+    "url": "https://i0.hdslb.com/bfs/live/dea7fbbc1c3d3c80f4c7b27263e13460f21874e4.png",
+    "aspectRatio": 3.3,
+    "description": "冲鸭"
+  },
+  {
+    "id": "upup",
+    "name": "upup",
+    "patterns": ["[upup]", "upup", "UPUP"],
+    "url": "https://i0.hdslb.com/bfs/live/38d84a4cd2f40069202ee13bbdca5b23d29710fb.png",
+    "aspectRatio": 3.3,
+    "description": "upup"
+  },
+  {
+    "id": "recixilie-baohu",
+    "name": "保护",
+    "patterns": ["[热词系列_保护]"],
+    "url": "https://i0.hdslb.com/bfs/emote/55f8f6445ca7c3170cdfc5b16036abf639ce9b57.png",
+    "description": "热词系列_保护"
+  },
+  {
+    "id": "recixilie-zhishizengjia",
+    "name": "知识增加",
+    "patterns": ["[热词系列_知识增加]"],
+    "url": "https://i0.hdslb.com/bfs/emote/142409b595982b8210b2958f3d340f3b47942645.png",
+    "description": "热词系列_知识增加"
+  },
+  {
+    "id": "recixilie-xiwangmeishi",
+    "name": "希望没事",
+    "patterns": ["[热词系列_希望没事]"],
+    "url": "https://i0.hdslb.com/bfs/emote/6c0d2e6c486d1ba5afd6204a96e102652464a01d.png",
+    "description": "热词系列_希望没事"
+  }
+]
