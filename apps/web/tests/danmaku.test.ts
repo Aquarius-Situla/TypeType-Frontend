@@ -5,6 +5,7 @@ import {
   DANMAKU_EMOTES,
   displayDuration,
   estimateDanmakuWidth,
+  isDanmakuPlaybackPaused,
   N_LANES,
   parseDanmakuContent,
   REGULAR_DISPLAY_MS,
@@ -49,6 +50,42 @@ describe("danmaku utilities", () => {
     const elapsed = mediaTimeAt2x - commentDurationMs;
     // At 2x playback, the comment must still be visible in its media time window (3500ms < 6300ms)
     expect(elapsed < normalWindow).toBe(true);
+  });
+
+  it("accurately pauses danmaku on video stutter, waiting, seeking, and pause states", () => {
+    // Normal active playback
+    expect(
+      isDanmakuPlaybackPaused({
+        videoPaused: false,
+        mediaPaused: false,
+        videoWaiting: false,
+        mediaWaiting: false,
+        mediaSeeking: false,
+        videoSeeking: false,
+        isStalled: false,
+      }),
+    ).toBe(false);
+
+    // Video buffering / stuttering (waiting event or readyState < 3)
+    expect(isDanmakuPlaybackPaused({ videoWaiting: true })).toBe(true);
+    expect(isDanmakuPlaybackPaused({ mediaWaiting: true })).toBe(true);
+    expect(isDanmakuPlaybackPaused({ isStalled: true })).toBe(true);
+
+    // User paused
+    expect(isDanmakuPlaybackPaused({ videoPaused: true })).toBe(true);
+    expect(isDanmakuPlaybackPaused({ mediaPaused: true })).toBe(true);
+
+    // Seeking
+    expect(isDanmakuPlaybackPaused({ videoSeeking: true })).toBe(true);
+    expect(isDanmakuPlaybackPaused({ mediaSeeking: true })).toBe(true);
+
+    // Explicit pause override pauses danmaku
+    expect(isDanmakuPlaybackPaused({ pausedProp: true, videoWaiting: false })).toBe(true);
+    // Buffering or stalling overrides an explicit non-paused prop to maintain video alignment
+    expect(isDanmakuPlaybackPaused({ pausedProp: false, videoWaiting: true })).toBe(true);
+    expect(isDanmakuPlaybackPaused({ pausedProp: false, isStalled: true })).toBe(true);
+    // When not stalled and not waiting, pausedProp: false allows playback
+    expect(isDanmakuPlaybackPaused({ pausedProp: false, videoWaiting: false, isStalled: false })).toBe(false);
   });
 });
 

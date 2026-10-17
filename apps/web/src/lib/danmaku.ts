@@ -4,6 +4,7 @@ export const REGULAR_DISPLAY_MS = 6000;
 const STATIC_DISPLAY_MS = 3000;
 export const N_LANES = 8;
 export const LANE_HEIGHT_PX = 36;
+export const CHAR_WIDTH_PX = 14;
 
 export function argbToColor(argb: number): string {
   const rgb = (argb >>> 0) & 0x00ffffff;
@@ -12,6 +13,30 @@ export function argbToColor(argb: number): string {
 
 export function displayDuration(position: string): number {
   return position === "REGULAR" ? REGULAR_DISPLAY_MS : STATIC_DISPLAY_MS;
+}
+
+export type DanmakuPlaybackSyncState = {
+  pausedProp?: boolean;
+  videoPaused?: boolean;
+  mediaPaused?: boolean;
+  videoWaiting?: boolean;
+  mediaWaiting?: boolean;
+  mediaSeeking?: boolean;
+  videoSeeking?: boolean;
+  isStalled?: boolean;
+};
+
+export function isDanmakuPlaybackPaused(state: DanmakuPlaybackSyncState): boolean {
+  return Boolean(
+    state.pausedProp ||
+      state.videoPaused ||
+      state.mediaPaused ||
+      state.videoWaiting ||
+      state.mediaWaiting ||
+      state.mediaSeeking ||
+      state.videoSeeking ||
+      state.isStalled,
+  );
 }
 
 export interface DanmakuEmote {
