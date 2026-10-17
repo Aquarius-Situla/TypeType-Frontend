@@ -120,8 +120,10 @@ function LoginPage() {
           )
         )}
         {localEnabled && (
-          <div className="mt-4 text-xs text-fg-soft flex items-center justify-between">
-            {allowRegistration && (
+          <div className="mt-4 text-xs text-fg-soft flex items-center justify-between min-h-[1.25rem]">
+            {registerStatus.isLoading ? (
+              <span className="inline-block h-3 w-16" />
+            ) : allowRegistration ? (
               <Link
                 to="/register"
                 search={{ redirect }}
@@ -129,7 +131,7 @@ function LoginPage() {
               >
                 {m.login_create_account({}, { locale })}
               </Link>
-            )}
+            ) : null}
             <Link
               to="/reset-password"
               className="text-fg-muted hover:text-fg underline underline-offset-2 ml-auto"

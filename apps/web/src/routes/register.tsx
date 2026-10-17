@@ -53,8 +53,13 @@ function RegisterPage() {
   const bannerMessage =
     error ?? (closedByPolicy ? m.ui_registrations_are_currently_closed() : null);
 
+  useEffect(() => {
+    if (isGuestDisabled && closedByPolicy && (!isAuthed || isGuest)) {
+      window.location.replace(`/login${redirect ? `?redirect=${encodeURIComponent(target)}` : ""}`);
+    }
+  }, [isGuestDisabled, closedByPolicy, isAuthed, isGuest, redirect, target]);
+
   if (isGuestDisabled && closedByPolicy && (!isAuthed || isGuest)) {
-    window.location.replace(`/login${redirect ? `?redirect=${encodeURIComponent(target)}` : ""}`);
     return null;
   }
 

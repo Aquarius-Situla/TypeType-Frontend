@@ -31,7 +31,7 @@ export function GuestDisabledScreen() {
           {m.ui_to_use_this_typetype_instance_create_an_account_or_sign_in_with_an_ex()}
         </p>
       </div>
-      <div className="relative z-10 flex w-full max-w-xs flex-col justify-center gap-2.5 sm:max-w-none sm:flex-row">
+      <div className="relative z-10 flex min-h-[2.5rem] w-full max-w-xs flex-col justify-center gap-2.5 sm:max-w-none sm:flex-row">
         {allowRegistration && (
           <Link
             to="/register"
