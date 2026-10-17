@@ -220,7 +220,7 @@ function RootLayoutContent() {
 
   return (
     <div
-      className={`min-h-screen bg-app text-fg ${watchPage ? "watch-page-shell watch-page-shell-dark" : ""} ${
+      className={`min-h-screen bg-app text-fg relative ${watchPage ? "watch-page-shell watch-page-shell-dark" : ""} ${
         watchWebFullscreenPage ? "watch-web-fullscreen" : ""
       }`}
     >

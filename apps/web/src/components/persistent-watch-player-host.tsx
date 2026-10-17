@@ -9,6 +9,7 @@ import {
 } from "../hooks/use-persistent-watch-player";
 import { isPlayerOutsideViewport } from "../lib/compact-player-position";
 import { m } from "../paraglide/messages.js";
+import { useUiStore } from "../stores/ui-store";
 import { useWatchLayoutStore } from "../stores/watch-layout-store";
 import { WatchStagePlayer } from "./watch-stage-player";
 
@@ -31,6 +32,37 @@ function clampPosition(left: number, top: number, width: number, height: number)
   };
 }
 
+const resetDirectFrameStyles = (frame: HTMLDivElement | null) => {
+  if (!frame) return;
+  frame.style.top = "";
+  frame.style.left = "";
+  frame.style.width = "";
+  frame.style.height = "";
+};
+
+const isAnchorLayoutTransition = (event: TransitionEvent, anchor: HTMLElement | null): boolean => {
+  if (!anchor || !(event.target instanceof Element)) return false;
+  if (!event.target.contains(anchor)) return false;
+  const prop = event.propertyName;
+  return (
+    prop === "margin" ||
+    prop.startsWith("margin-") ||
+    prop === "padding" ||
+    prop.startsWith("padding-") ||
+    prop === "width" ||
+    prop === "max-width" ||
+    prop === "min-width" ||
+    prop === "height" ||
+    prop === "max-height" ||
+    prop === "min-height" ||
+    prop === "transform" ||
+    prop === "left" ||
+    prop === "top" ||
+    prop === "right" ||
+    prop === "bottom"
+  );
+};
+
 export function PersistentWatchPlayerHost() {
   const entry = usePersistentWatchPlayerStore((state) => state.entry);
   const position = usePersistentWatchPlayerStore((state) => state.position);
@@ -39,6 +71,7 @@ export function PersistentWatchPlayerHost() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const cinemaMode = useWatchLayoutStore((state) => state.cinemaMode);
   const webFullscreen = useWatchLayoutStore((state) => state.webFullscreen);
+  const sidebarCollapsed = useUiStore((state) => state.sidebarCollapsed);
   const isMobile = useMobile();
   const frameRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragState | null>(null);
@@ -60,44 +93,157 @@ export function PersistentWatchPlayerHost() {
     return () => media.removeEventListener("change", update);
   }, []);
 
-  const updateAnchorRect = useCallback(() => {
-    const anchor = entry?.anchor;
-    if (!watchPage || !anchor) {
-      setAnchorRect(null);
-      setOutsideViewport(false);
-      return;
-    }
-    const rect = anchor.getBoundingClientRect();
-    setOutsideViewport((previous) => isPlayerOutsideViewport(rect.bottom, previous));
-    setAnchorRect((previous) =>
-      previous &&
-      previous.left === rect.left &&
-      previous.top === rect.top &&
-      previous.width === rect.width &&
-      previous.height === rect.height
-        ? previous
-        : { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
-    );
-  }, [entry?.anchor, watchPage]);
+  const syncFrame = useCallback(
+    (commitState = true) => {
+      const anchor = entry?.anchor;
+      const frame = frameRef.current;
+      if (!anchor || !watchPage) {
+        if (frame) resetDirectFrameStyles(frame);
+        if (commitState) {
+          setAnchorRect(null);
+          setOutsideViewport(false);
+        }
+        return;
+      }
+      const rect = anchor.getBoundingClientRect();
+      const docTop = rect.top + window.scrollY;
+      const docLeft = rect.left + window.scrollX;
+
+      if (frame) {
+        if (!outsideViewport && watchPage && !webFullscreen) {
+          frame.style.top = `${docTop}px`;
+          frame.style.left = `${docLeft}px`;
+          frame.style.width = `${rect.width}px`;
+          frame.style.height = `${rect.height}px`;
+        } else {
+          resetDirectFrameStyles(frame);
+        }
+      }
+
+      setOutsideViewport((previous) => isPlayerOutsideViewport(rect.bottom, previous));
+
+      if (commitState) {
+        setAnchorRect((previous) =>
+          previous &&
+          previous.left === docLeft &&
+          previous.top === docTop &&
+          previous.width === rect.width &&
+          previous.height === rect.height
+            ? previous
+            : { left: docLeft, top: docTop, width: rect.width, height: rect.height },
+        );
+      }
+    },
+    [entry?.anchor, outsideViewport, watchPage, webFullscreen],
+  );
 
   useLayoutEffect(() => {
-    updateAnchorRect();
-  }, [updateAnchorRect]);
+    syncFrame(true);
+  }, [syncFrame]);
 
   useEffect(() => {
-    const observer = new ResizeObserver(updateAnchorRect);
+    const handleSync = () => syncFrame(true);
+    const observer = new ResizeObserver(handleSync);
     if (entry?.anchor) observer.observe(entry.anchor);
-    window.addEventListener("scroll", updateAnchorRect, true);
-    window.addEventListener("resize", updateAnchorRect);
+
+    const handleScroll = () => {
+      const anchor = entry?.anchor;
+      if (!anchor || !watchPage) return;
+      const rect = anchor.getBoundingClientRect();
+      const next = isPlayerOutsideViewport(rect.bottom, outsideViewport);
+      if (next !== outsideViewport) {
+        setOutsideViewport(next);
+        if (!next) {
+          syncFrame(true);
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true, capture: true });
+    window.addEventListener("resize", handleSync);
     return () => {
       observer.disconnect();
-      window.removeEventListener("scroll", updateAnchorRect, true);
-      window.removeEventListener("resize", updateAnchorRect);
+      window.removeEventListener("scroll", handleScroll, true);
+      window.removeEventListener("resize", handleSync);
     };
-  }, [updateAnchorRect, entry?.anchor]);
+  }, [syncFrame, entry?.anchor, outsideViewport, watchPage]);
+
+  // Consolidated transition animation tracking loop without per-frame React state churn
+  const animRafRef = useRef<number | null>(null);
+  const startTransitionLoop = useCallback(() => {
+    if (!watchPage || outsideViewport || webFullscreen) return;
+    if (animRafRef.current !== null) {
+      cancelAnimationFrame(animRafRef.current);
+    }
+    const start = performance.now();
+    const duration = 280;
+    const tick = (now: number) => {
+      if (now - start < duration) {
+        const anchor = entry?.anchor;
+        const frame = frameRef.current;
+        if (anchor && frame) {
+          const rect = anchor.getBoundingClientRect();
+          const docTop = rect.top + window.scrollY;
+          const docLeft = rect.left + window.scrollX;
+          frame.style.top = `${docTop}px`;
+          frame.style.left = `${docLeft}px`;
+          frame.style.width = `${rect.width}px`;
+          frame.style.height = `${rect.height}px`;
+        }
+        animRafRef.current = requestAnimationFrame(tick);
+      } else {
+        syncFrame(true);
+        animRafRef.current = null;
+      }
+    };
+    animRafRef.current = requestAnimationFrame(tick);
+  }, [watchPage, outsideViewport, webFullscreen, entry?.anchor, syncFrame]);
+
+  useEffect(() => {
+    if (sidebarCollapsed !== undefined || cinemaMode !== undefined) {
+      startTransitionLoop();
+    }
+    return () => {
+      if (animRafRef.current !== null) {
+        cancelAnimationFrame(animRafRef.current);
+        animRafRef.current = null;
+      }
+    };
+  }, [sidebarCollapsed, cinemaMode, startTransitionLoop]);
+
+  useEffect(() => {
+    const anchor = entry?.anchor;
+    if (!watchPage || outsideViewport || webFullscreen || !anchor) return;
+    const handleTransition = (event: TransitionEvent) => {
+      if (isAnchorLayoutTransition(event, anchor)) {
+        startTransitionLoop();
+      }
+    };
+    const handleEnd = (event: TransitionEvent) => {
+      if (isAnchorLayoutTransition(event, anchor)) {
+        if (animRafRef.current !== null) {
+          cancelAnimationFrame(animRafRef.current);
+          animRafRef.current = null;
+        }
+        syncFrame(true);
+      }
+    };
+
+    window.addEventListener("transitionrun", handleTransition);
+    window.addEventListener("transitionend", handleEnd);
+    return () => {
+      if (animRafRef.current !== null) {
+        cancelAnimationFrame(animRafRef.current);
+        animRafRef.current = null;
+      }
+      window.removeEventListener("transitionrun", handleTransition);
+      window.removeEventListener("transitionend", handleEnd);
+    };
+  }, [watchPage, outsideViewport, webFullscreen, entry?.anchor, startTransitionLoop, syncFrame]);
 
   const floating =
     !watchPage || (!cinemaMode && !webFullscreen && !landscapeWatch && outsideViewport);
+
   const handlePointerMove = useCallback(
     (event: PointerEvent) => {
       const drag = dragRef.current;
@@ -115,6 +261,7 @@ export function PersistentWatchPlayerHost() {
     },
     [setPosition],
   );
+
   const handlePointerUp = useCallback(() => {
     dragRef.current = null;
     setDragging(false);
@@ -149,20 +296,27 @@ export function PersistentWatchPlayerHost() {
 
   if (!entry?.enabled || hiddenPage) return null;
 
-  const style =
-    !floating && anchorRect
-      ? {
-          left: anchorRect.left,
-          top: anchorRect.top,
-          width: anchorRect.width,
-          height: anchorRect.height,
-        }
-      : position
-        ? { left: position.left, top: position.top }
-        : {
-            right: "1rem",
-            bottom: `calc(${isMobile ? "4.5rem" : "1rem"} + env(safe-area-inset-bottom, 0px))`,
-          };
+  const style: React.CSSProperties =
+    webFullscreen && watchPage
+      ? {}
+      : !floating && anchorRect
+        ? {
+            left: anchorRect.left,
+            top: anchorRect.top,
+            width: anchorRect.width,
+            height: anchorRect.height,
+          }
+        : !floating
+          ? {
+              opacity: 0,
+              pointerEvents: "none",
+            }
+          : position
+            ? { left: position.left, top: position.top }
+            : {
+                right: "1rem",
+                bottom: `calc(${isMobile ? "4.5rem" : "1rem"} + env(safe-area-inset-bottom, 0px))`,
+              };
 
   const beginDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
     if (!floating || !frameRef.current || !event.isPrimary || event.button !== 0) return;
@@ -182,7 +336,13 @@ export function PersistentWatchPlayerHost() {
   return (
     <div
       ref={frameRef}
-      className={`typetype-persistent-player-frame fixed overflow-hidden bg-black ${webFullscreen && watchPage ? "z-[60]" : "z-30"} ${floating ? "rounded-lg shadow-2xl ring-1 ring-black/30" : "rounded-none"}`}
+      className={`typetype-persistent-player-frame overflow-hidden bg-black transition-[box-shadow,ring-width] duration-200 ${
+        webFullscreen && watchPage
+          ? "fixed inset-0 z-[60] rounded-none shadow-none ring-0"
+          : floating
+            ? "fixed z-30 rounded-lg shadow-2xl ring-1 ring-black/30"
+            : "absolute z-10 rounded-none shadow-none ring-0"
+      }`}
       data-web-fullscreen={webFullscreen && watchPage ? "" : undefined}
       data-floating={floating ? "" : undefined}
       data-dragging={dragging ? "" : undefined}

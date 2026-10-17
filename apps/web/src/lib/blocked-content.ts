@@ -11,6 +11,8 @@ export type BlockableVideo = BlockedChannelIdentity & {
   channelUrl?: string | null;
   channelName?: string | null;
   requiresMembership?: boolean;
+  isShortFormContent?: boolean;
+  streamType?: string;
 };
 
 type BlockedItem = {

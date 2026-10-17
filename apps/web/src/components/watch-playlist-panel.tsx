@@ -57,6 +57,7 @@ export function WatchPlaylistPanel({
   const [overIndex, setOverIndex] = useState<number | null>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const currentElement = useRef<HTMLLIElement | null>(null);
+  const listRef = useRef<HTMLUListElement | null>(null);
 
   const sectionWithCurrent = sections?.find((sec) =>
     sec.videos.some((video) => toPublicWatchParam(video.url) === currentParam),
@@ -269,7 +270,11 @@ export function WatchPlaylistPanel({
         </div>
       )}
       {!collapsed && (
-        <ul className="max-h-[24rem] list-none overflow-y-auto py-1" onScroll={handleScroll}>
+        <ul
+          ref={listRef}
+          className="max-h-[24rem] list-none overflow-y-auto py-1"
+          onScroll={handleScroll}
+        >
           {displayVideos.map((video, index) => {
             if (visibility.hidden && currentIndex >= 0 && index > currentIndex) return null;
             const isCurrent = index === currentIndex;

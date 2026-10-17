@@ -4,7 +4,12 @@ import {
   type BlockedChannelIdentity,
   createBlockedContentMatcher,
 } from "../lib/blocked-content";
-import { filterMembersOnlyContent, isMembersOnlyContentHidden } from "../lib/video-visibility";
+import {
+  filterMembersOnlyContent,
+  filterShortFormContent,
+  isMembersOnlyContentHidden,
+  isShortFormContentHidden,
+} from "../lib/video-visibility";
 import type { ChannelResultItem } from "../types/api";
 import type { PublicPlaylistInfo } from "../types/playlist";
 import { useAuth } from "./use-auth";
@@ -33,15 +38,19 @@ export function useBlockedFilter() {
 
   const filter = useCallback(
     <T extends BlockableVideo>(streams: T[]): T[] =>
-      filterMembersOnlyContent(matcher.filterVideos(streams), settings.hideMembersOnlyContent),
-    [matcher, settings.hideMembersOnlyContent],
+      filterShortFormContent(
+        filterMembersOnlyContent(matcher.filterVideos(streams), settings.hideMembersOnlyContent),
+        settings.hideShorts,
+      ),
+    [matcher, settings.hideMembersOnlyContent, settings.hideShorts],
   );
 
   const isHidden = useCallback(
     (stream: BlockableVideo): boolean =>
       matcher.isVideoBlocked(stream) ||
-      isMembersOnlyContentHidden(stream, settings.hideMembersOnlyContent),
-    [matcher, settings.hideMembersOnlyContent],
+      isMembersOnlyContentHidden(stream, settings.hideMembersOnlyContent) ||
+      isShortFormContentHidden(stream, settings.hideShorts),
+    [matcher, settings.hideMembersOnlyContent, settings.hideShorts],
   );
 
   const isChannelIdentityBlocked = useCallback(

@@ -1,10 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import {
   activeSearchFilterOptions,
+  liveSearchCategory,
   sanitizeSearchFilters,
   searchFilterGroups,
   searchFilterLabel,
   toggleSearchFilter,
+  updateLiveSearchCategory,
 } from "../src/lib/search-filter-selection";
 import type { SearchFilterGroup } from "../src/types/api";
 
@@ -39,6 +41,35 @@ function option(groupKey: string, value: string) {
 }
 
 describe("search filter selection", () => {
+  test("maps the live category to the provider video and live filters", () => {
+    expect(
+      liveSearchCategory({
+        contentFilters: [
+          { value: "|1|videos", label: "Videos" },
+          { value: "|2|channels", label: "Channels" },
+        ],
+        sortFilters: [],
+        filterGroups: [
+          {
+            key: "features",
+            label: "Features",
+            multiSelect: true,
+            options: [{ value: "features|27|Live", label: "Live" }],
+          },
+        ],
+      }),
+    ).toEqual({ contentFilter: "|1|videos", filterValue: "features|27|Live" });
+  });
+
+  test("does not invent a live category when the provider omits that filter", () => {
+    expect(
+      liveSearchCategory({
+        contentFilters: [{ value: "videos", label: "Videos" }],
+        sortFilters: [],
+      }),
+    ).toBeNull();
+  });
+
   test("keeps one exclusive value and multiple feature values", () => {
     expect(sanitizeSearchFilters(groups, ["views", "rating", "hd", "captions"])).toEqual([
       "views",
@@ -88,5 +119,28 @@ describe("search filter selection", () => {
     ).toEqual(["views", "hd"]);
     expect(searchFilterLabel("upload_date")).toBe("Upload date");
     expect(searchFilterLabel("sort_view")).toBe("View count");
+  });
+
+  test("live toggle preserves other filters and removes only the live category", () => {
+    const filters = {
+      contentFilters: [{ value: "videos", label: "Videos" }],
+      sortFilters: [],
+      filterGroups: [
+        {
+          key: "features",
+          label: "Features",
+          multiSelect: true,
+          options: [
+            { value: "live", label: "Live" },
+            { value: "hdr", label: "HDR" },
+          ],
+        },
+      ],
+    };
+    const enabled = updateLiveSearchCategory(filters, undefined, ["hdr"], true);
+    expect(enabled).toEqual({ contentFilter: "videos", filters: ["hdr", "live"] });
+    expect(
+      updateLiveSearchCategory(filters, enabled?.contentFilter, enabled?.filters ?? [], false),
+    ).toEqual({ contentFilter: "videos", filters: ["hdr"] });
   });
 });

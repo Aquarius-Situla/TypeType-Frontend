@@ -9,6 +9,7 @@ import { useBlockedFilter } from "../hooks/use-blocked-filter";
 import { useSearch } from "../hooks/use-search";
 import { useSearchFilters } from "../hooks/use-search-filters";
 import { useSettings } from "../hooks/use-settings";
+import { updateLiveSearchCategory } from "../lib/search-filter-selection";
 import { m } from "../paraglide/messages.js";
 
 function SearchPage() {
@@ -79,6 +80,22 @@ function SearchPage() {
     });
   }
 
+  function setLiveCategory(enabled: boolean) {
+    const selection = filters.data
+      ? updateLiveSearchCategory(filters.data, contentFilter, searchFilters, enabled)
+      : null;
+    if (!selection) return;
+    navigate({
+      to: "/search",
+      search: {
+        q,
+        service,
+        contentFilter: selection.contentFilter,
+        ...(selection.filters.length > 0 ? { filters: selection.filters } : {}),
+      },
+    });
+  }
+
   const filterBar = filters.data ? (
     <SearchFilterBar
       filters={filters.data}
@@ -86,6 +103,7 @@ function SearchPage() {
       selectedFilters={searchFilters}
       onContentChange={setContentFilter}
       onFiltersChange={setSearchFilters}
+      onLiveChange={setLiveCategory}
     />
   ) : null;
 
