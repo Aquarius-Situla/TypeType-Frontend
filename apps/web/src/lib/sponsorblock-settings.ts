@@ -123,7 +123,10 @@ export function getSponsorBlockStartTime(segment: SponsorBlockSegmentItem, durat
 }
 
 export function getSponsorBlockEndTime(segment: SponsorBlockSegmentItem, duration: number) {
-  return shouldNormalizeMilliseconds(segment, duration) ? segment.endTime / 1000 : segment.endTime;
+  const end = shouldNormalizeMilliseconds(segment, duration)
+    ? segment.endTime / 1000
+    : segment.endTime;
+  return duration > 0 ? Math.min(duration, Math.max(0, end)) : Math.max(0, end);
 }
 
 function shouldNormalizeMilliseconds(segment: SponsorBlockSegmentItem, duration: number) {
@@ -158,6 +161,10 @@ export function filterAutoSkipSponsorBlockSegments(
   if (!segments || settings.sponsorBlockMode !== "auto_skip") return undefined;
   const skipped = segments.filter((segment) => {
     if (settings.sponsorBlockCategoryActions[segment.category] !== "auto_skip") return false;
+    const start = getSponsorBlockStartTime(segment, duration);
+    const end = getSponsorBlockEndTime(segment, duration);
+    const segmentDuration = end - start;
+    if (segmentDuration > 1800 || (duration > 0 && segmentDuration > duration * 0.5)) return false;
     if (
       settings.sponsorBlockManualSkipOnFullVideo &&
       isFullVideoSponsorBlockSegment(segment, duration)

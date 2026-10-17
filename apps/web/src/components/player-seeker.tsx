@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 import { recordClientEvent } from "../lib/client-debug-log";
+import { useDashPlayerSnapshot } from "../lib/dash-player-store";
+import { clearVidstackEndedState } from "../lib/player-ended-state";
 import { useMediaPlayer, useMediaRemote, useMediaState } from "../lib/vidstack";
 
 const SEEK_SETTLE_DELAY_MS = 750;
@@ -7,6 +9,8 @@ const MAX_SEEK_APPLIES = 12;
 
 function seekable(media: HTMLMediaElement, target: number) {
   if (media.readyState < 2) return false;
+  if (!Number.isFinite(media.duration) || media.duration <= 0 || target > media.duration)
+    return false;
   if (media.seekable.length === 0) return true;
   for (let index = 0; index < media.seekable.length; index += 1) {
     if (target >= media.seekable.start(index) && target <= media.seekable.end(index)) return true;
@@ -18,6 +22,7 @@ export function PlayerSeeker({ startTime }: { startTime: number }) {
   const player = useMediaPlayer();
   const remote = useMediaRemote();
   const canPlay = useMediaState("canPlay");
+  const { player: dashPlayer } = useDashPlayerSnapshot();
   const seeked = useRef(false);
   const startTimeRef = useRef(startTime);
   if (startTimeRef.current !== startTime) {
@@ -45,7 +50,20 @@ export function PlayerSeeker({ startTime }: { startTime: number }) {
       }
       applying = true;
       attempts += 1;
+      if (dashPlayer && typeof dashPlayer.seek === "function" && dashPlayer.isReady?.()) {
+        try {
+          dashPlayer.seek(target);
+        } catch {
+          // ignore error
+        }
+      }
+      try {
+        media.currentTime = target;
+      } catch {
+        // ignore
+      }
       remote.seek(target);
+      clearVidstackEndedState(player, media);
       recordClientEvent("player.seek_apply", {
         targetMs: Math.round(target * 1000),
         currentMs: Math.round(media.currentTime * 1000),
@@ -53,7 +71,8 @@ export function PlayerSeeker({ startTime }: { startTime: number }) {
       });
       timeout = window.setTimeout(() => {
         applying = false;
-        if (Math.abs(media.currentTime - target) <= 1.5 || media.currentTime > target) {
+        clearVidstackEndedState(player, media);
+        if (Math.abs(media.currentTime - target) <= 2.5) {
           recordClientEvent("player.seek_settled", {
             targetMs: Math.round(target * 1000),
             currentMs: Math.round(media.currentTime * 1000),
@@ -75,10 +94,20 @@ export function PlayerSeeker({ startTime }: { startTime: number }) {
       const media = rootElement.querySelector<HTMLMediaElement>("video,audio");
       if (!media) return false;
       const seek = () => seekMedia(media);
+      const onSeeked = () => {
+        if (
+          Number.isFinite(media.duration) &&
+          media.duration > 0 &&
+          media.currentTime < media.duration - 2
+        ) {
+          clearVidstackEndedState(player, media);
+        }
+      };
       media.addEventListener("loadedmetadata", seek);
       media.addEventListener("durationchange", seek);
       media.addEventListener("canplay", seek);
       media.addEventListener("progress", seek);
+      media.addEventListener("seeked", onSeeked);
       seek();
       cleanup = () => {
         window.clearTimeout(timeout);
@@ -86,6 +115,7 @@ export function PlayerSeeker({ startTime }: { startTime: number }) {
         media.removeEventListener("durationchange", seek);
         media.removeEventListener("canplay", seek);
         media.removeEventListener("progress", seek);
+        media.removeEventListener("seeked", onSeeked);
       };
       return true;
     }
@@ -99,6 +129,6 @@ export function PlayerSeeker({ startTime }: { startTime: number }) {
       observer.disconnect();
       cleanup?.();
     };
-  }, [canPlay, player, remote, startTime]);
+  }, [canPlay, dashPlayer, player, remote, startTime]);
   return null;
 }

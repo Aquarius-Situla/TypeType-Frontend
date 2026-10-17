@@ -6,6 +6,21 @@ import { VideoProviderLoader } from "./vidstack";
 
 type MpegtsPlayer = ReturnType<typeof import("mpegts.js").default.createPlayer>;
 
+export function createBilibiliMpegtsConfig(
+  token?: string | null,
+  enableWorker = typeof Worker !== "undefined",
+) {
+  return {
+    enableWorker,
+    lazyLoad: false,
+    stashInitialSize: 384 * 1024,
+    autoCleanupSourceBuffer: true,
+    autoCleanupMaxBackwardDuration: 120,
+    autoCleanupMinBackwardDuration: 60,
+    ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {}),
+  };
+}
+
 class BilibiliFlvVideoProviderLoader implements MediaProviderLoader<VideoProvider> {
   private readonly videoLoader = new VideoProviderLoader();
   private currentTarget: HTMLElement | null = null;
@@ -74,10 +89,7 @@ class BilibiliFlvVideoProviderLoader implements MediaProviderLoader<VideoProvide
         const token = useAuthStore.getState().token;
         const player = mpegts.createPlayer(
           { type: "flv", isLive: true, url: toAbsoluteApiUrl(mediaHandleUrl) },
-          {
-            autoCleanupSourceBuffer: true,
-            ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {}),
-          },
+          createBilibiliMpegtsConfig(token),
         );
         let errorDispatched = false;
         player.on(mpegts.Events.ERROR, () => {

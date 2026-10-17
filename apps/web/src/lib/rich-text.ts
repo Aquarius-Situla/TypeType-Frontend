@@ -167,7 +167,7 @@ export function sameVideoTimestampSeconds(href: string, videoUrl: string): numbe
 }
 
 export function parseTextSegments(text: string, idPrefix = ""): RichTextSegment[] {
-  const regex = /https?:\/\/[^\s\])"',;:!>]+|\b(?:\d{1,2}:)?[0-5]?\d:[0-5]\d\b/g;
+  const regex = /https?:\/\/[^\s\])"',;:!>]+|\b(?:\d+:)?[0-5]?\d:[0-5]\d\b/g;
   const segments: RichTextSegment[] = [];
   let lastIndex = 0;
   let counter = 0;

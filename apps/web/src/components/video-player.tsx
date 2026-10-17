@@ -100,6 +100,7 @@ export function VideoPlayer({
       logLevel="warn"
       crossOrigin
       playsInline
+      preload="auto"
       {...(ios ? { "webkit-playsinline": "true" } : {})}
       autoPlay={sabrConfig ? false : autoplay}
       storage={null}
