@@ -116,6 +116,28 @@ function RootLayoutContent() {
       }
       return;
     }
+    const isGuestDisabled = instance?.guestAllowed === false;
+    const isRegistrationDisabled = Boolean(
+      registerStatus.data &&
+        !registerStatus.data.allowRegistration &&
+        !registerStatus.data.bootstrapAvailable,
+    );
+    if (isGuestDisabled && isRegistrationDisabled && (!isAuthed || isGuest)) {
+      if (!isAuthPage(pathname) && !embedPage) {
+        const redirect =
+          pathname === "/" && !location.searchStr
+            ? ""
+            : `?redirect=${encodeURIComponent(pathWithSearch)}`;
+        window.location.replace(`/login${redirect}`);
+        return;
+      }
+      if (pathname === "/register") {
+        const search = location.searchStr || "";
+        const query = search.startsWith("?") ? search : search ? `?${search}` : "";
+        window.location.replace(`/login${query}`);
+        return;
+      }
+    }
     if (!isAuthed && isAdminRoute(pathname)) {
       const redirect = encodeURIComponent(pathWithSearch);
       window.location.replace(`/login?redirect=${redirect}`);
@@ -133,10 +155,15 @@ function RootLayoutContent() {
   }, [
     isAuthed,
     isAdmin,
+    isGuest,
+    instance?.guestAllowed,
+    registerStatus.data?.allowRegistration,
     registerStatus.data?.bootstrapAvailable,
     status,
     pathname,
     pathWithSearch,
+    location.searchStr,
+    embedPage,
     setSignedOut,
   ]);
 
@@ -154,13 +181,27 @@ function RootLayoutContent() {
     return <NotFoundPage />;
   }
 
+  const isGuestDisabled = instance?.guestAllowed === false;
+  const isRegistrationDisabled = Boolean(
+    registerStatus.data &&
+      !registerStatus.data.allowRegistration &&
+      !registerStatus.data.bootstrapAvailable,
+  );
+
   if (
-    instance?.guestAllowed === false &&
+    isGuestDisabled &&
     authReady &&
     (!isAuthed || isGuest) &&
     !authPage &&
     !embedPage
   ) {
+    if (registerStatus.isLoading || !registerStatus.data || isRegistrationDisabled) {
+      return (
+        <div className="min-h-screen bg-app text-fg flex items-center justify-center">
+          <p className="text-sm text-fg-muted">{m.ui_loading_session()}</p>
+        </div>
+      );
+    }
     return <GuestDisabledScreen />;
   }
 
@@ -207,9 +248,13 @@ function RootLayoutContent() {
     : { paddingTop: "calc(3.5rem + env(safe-area-inset-top, 0px))" };
   const showTabBar =
     isMobile && !shortsPage && !watchCinemaPage && !watchWebFullscreenPage && !embedPage;
-  const mainBottomPad = showTabBar
-    ? "pb-[calc(env(safe-area-inset-bottom)+4.5rem)]"
-    : "pb-5 sm:pb-6";
+  const mainBottomPad = showTabBar ? "" : "pb-5 sm:pb-6";
+  const mainStyle: React.CSSProperties = {
+    ...topPadding,
+    ...(showTabBar
+      ? { paddingBottom: "calc(4.5rem + env(safe-area-inset-bottom, 0px))" }
+      : {}),
+  };
   const mainClasses = watchWebFullscreenPage
     ? "watch-page-main p-0 m-0 w-full h-full"
     : watchCinemaPage
@@ -234,7 +279,7 @@ function RootLayoutContent() {
         (watchCinemaPage ? !isMobile && <Sidebar overlay /> : <Sidebar />)}
       <main
         className={`${mainClasses} ${pathname === "/subscriptions/groups" ? "sg-page" : ""}`}
-        style={topPadding}
+        style={mainStyle}
       >
         <Outlet />
         {!watchWebFullscreenPage && <AppFooter />}

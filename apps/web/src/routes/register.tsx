@@ -6,6 +6,7 @@ import { AuthErrorBanner } from "../components/auth-error-banner";
 import { OidcSignInButton } from "../components/oidc-sign-in-button";
 import { Toast } from "../components/toast";
 import { useAuth } from "../hooks/use-auth";
+import { useInstance } from "../hooks/use-instance";
 import { useOidcStatus } from "../hooks/use-oidc-status";
 import { REGISTER_STATUS_KEY, useRegisterStatus } from "../hooks/use-register-status";
 import { ApiError } from "../lib/api";
@@ -19,6 +20,7 @@ function RegisterPage() {
   const queryClient = useQueryClient();
   const { redirect } = Route.useSearch();
   const target = sanitizeRedirect(redirect);
+  const { data: instance } = useInstance();
   const registerStatus = useRegisterStatus();
   const status = registerStatus.data;
   const { data: oidc } = useOidcStatus();
@@ -40,6 +42,7 @@ function RegisterPage() {
   }, [toast]);
 
   const closedByPolicy = status ? !status.allowRegistration && !status.bootstrapAvailable : false;
+  const isGuestDisabled = instance?.guestAllowed === false;
   const subtitle = !localEnabled
     ? m.ui_local_registration_is_disabled()
     : bootstrapAvailable
@@ -49,6 +52,11 @@ function RegisterPage() {
         : m.ui_use_your_email_to_create_an_account_you_can_sign_in_with_email_or_use();
   const bannerMessage =
     error ?? (closedByPolicy ? m.ui_registrations_are_currently_closed() : null);
+
+  if (isGuestDisabled && closedByPolicy && (!isAuthed || isGuest)) {
+    window.location.replace(`/login${redirect ? `?redirect=${encodeURIComponent(target)}` : ""}`);
+    return null;
+  }
 
   if (isAuthed && !isGuest && status && !bootstrapAvailable) {
     goto(postAuthTarget);
