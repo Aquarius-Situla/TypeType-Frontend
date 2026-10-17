@@ -54,7 +54,12 @@ export function MobileTabBar() {
   return (
     <nav
       aria-label={m.nav_primary()}
-      className="fixed bottom-0 left-0 right-0 z-30 flex items-stretch border-t border-border bg-app pb-[env(safe-area-inset-bottom)]"
+      className="fixed bottom-0 left-0 right-0 z-30 flex items-start border-t border-border bg-app"
+      style={{
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+        paddingLeft: "env(safe-area-inset-left, 0px)",
+        paddingRight: "env(safe-area-inset-right, 0px)",
+      }}
     >
       {items.map((item) => {
         const label = item.label();

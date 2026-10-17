@@ -47,8 +47,16 @@ export function Navbar() {
   const canOpenSearch = !authPage;
   const showBackButton = isMobile && canOpenSearch && pathname !== "/";
   const navClass = isMobile
-    ? "fixed top-0 left-0 right-0 z-50 h-14 bg-app/95 backdrop-blur border-b border-border flex items-center px-2 gap-1.5"
+    ? "fixed top-0 left-0 right-0 z-50 bg-app/95 backdrop-blur border-b border-border flex items-center px-2 gap-1.5"
     : "fixed top-0 left-0 right-0 z-50 h-14 bg-app/95 backdrop-blur border-b border-border flex items-center px-4 gap-4";
+  const navStyle: React.CSSProperties = isMobile
+    ? {
+        height: "calc(3.5rem + env(safe-area-inset-top, 0px))",
+        paddingTop: "env(safe-area-inset-top, 0px)",
+        paddingLeft: "max(0.5rem, env(safe-area-inset-left, 0px))",
+        paddingRight: "max(0.5rem, env(safe-area-inset-right, 0px))",
+      }
+    : {};
 
   function handleBack() {
     if (window.history.length > 1) {
@@ -62,7 +70,7 @@ export function Navbar() {
 
   return (
     <>
-      <nav className={navClass}>
+      <nav className={navClass} style={navStyle}>
         <div className="flex shrink-0 items-center gap-2">
           <NavbarLeadingControl
             authPage={authPage}
