@@ -155,6 +155,10 @@ export function fetchFavorites(): Promise<FavoriteItem[]> {
   return authedJson(`${BASE}/favorites`);
 }
 
+/**
+ * @deprecated Prefer querying from the cached favorites collection (e.g. `useFavoriteStatus` or `fetchFavorites`)
+ * to avoid triggering single-item 404 responses in the browser console.
+ */
 export async function fetchFavorite(videoUrl: string): Promise<FavoriteItem | null> {
   const res = await authed(`${BASE}/favorites/${encodeURIComponent(videoUrl)}`, undefined, {
     silentStatuses: [404],

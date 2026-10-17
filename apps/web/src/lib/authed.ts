@@ -66,8 +66,12 @@ export async function authed(
   const method = init?.method ?? "GET";
   const path = sanitizeRequestPath(url);
   let token = useAuthStore.getState().token;
-  if (!token || isTokenExpired(token)) {
-    recordClientEvent("auth.missing_token_try_refresh", { method, path });
+  const expired = Boolean(token && isTokenExpired(token));
+  if (!token || expired) {
+    recordClientEvent(expired ? "auth.expired_token_try_refresh" : "auth.missing_token_try_refresh", {
+      method,
+      path,
+    });
     try {
       token = await refreshSession();
     } catch (error) {
