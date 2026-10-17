@@ -160,12 +160,8 @@ export function fetchFavorites(): Promise<FavoriteItem[]> {
  * to avoid triggering single-item 404 responses in the browser console.
  */
 export async function fetchFavorite(videoUrl: string): Promise<FavoriteItem | null> {
-  const res = await authed(`${BASE}/favorites/${encodeURIComponent(videoUrl)}`, undefined, {
-    silentStatuses: [404],
-  });
-  if (res.status === 404) return null;
-  await throwIfFailed(res, "favorite lookup failed");
-  return (await res.json()) as FavoriteItem;
+  const favorites = await fetchFavorites();
+  return favorites.find((item) => item.videoUrl === videoUrl) ?? null;
 }
 
 export function addFavorite(videoUrl: string): Promise<FavoriteItem> {
