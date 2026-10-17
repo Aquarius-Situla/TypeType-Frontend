@@ -102,7 +102,7 @@ type BilibiliRecArchivesResponse = {
   };
 };
 
-export type BilibiliCardData = {
+type BilibiliCardData = {
   card?: {
     mid?: string;
     name?: string;
@@ -154,7 +154,7 @@ export async function fetchBilibiliChannelMeta(mid: string): Promise<{
   }
 }
 
-export async function fetchBilibiliUploaderName(mid: string): Promise<string> {
+async function fetchBilibiliUploaderName(mid: string): Promise<string> {
   if (!mid) return "";
   try {
     const meta = await fetchBilibiliChannelMeta(mid);

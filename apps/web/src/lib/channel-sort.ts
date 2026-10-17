@@ -1,7 +1,7 @@
 import { m } from "../paraglide/messages.js";
 import type { ChannelSort } from "./api-discovery";
 
-export const CHANNEL_SORT_OPTIONS: { value: ChannelSort; label: () => string }[] = [
+const CHANNEL_SORT_OPTIONS: { value: ChannelSort; label: () => string }[] = [
   { value: "latest", label: () => m.channel_sort_newest() },
   { value: "popular", label: () => m.channel_sort_popular() },
   { value: "oldest", label: () => m.channel_sort_oldest() },
