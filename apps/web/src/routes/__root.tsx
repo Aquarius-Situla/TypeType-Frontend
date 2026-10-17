@@ -207,9 +207,19 @@ function RootLayoutContent() {
     : { paddingTop: "calc(3.5rem + env(safe-area-inset-top, 0px))" };
   const showTabBar =
     isMobile && !shortsPage && !watchCinemaPage && !watchWebFullscreenPage && !embedPage;
-  const mainBottomPad = showTabBar
-    ? "pb-[calc(env(safe-area-inset-bottom)+4.5rem)]"
-    : "pb-5 sm:pb-6";
+  const mainBottomPad = showTabBar ? "" : "pb-5 sm:pb-6";
+  const mainStyle: React.CSSProperties = {
+    ...topPadding,
+    ...(showTabBar
+      ? { paddingBottom: "calc(4.5rem + env(safe-area-inset-bottom, 0px))" }
+      : {}),
+    ...(isMobile
+      ? {
+          paddingLeft: "max(0.5rem, env(safe-area-inset-left, 0px))",
+          paddingRight: "max(0.5rem, env(safe-area-inset-right, 0px))",
+        }
+      : {}),
+  };
   const mainClasses = watchWebFullscreenPage
     ? "watch-page-main p-0 m-0 w-full h-full"
     : watchCinemaPage
@@ -234,7 +244,7 @@ function RootLayoutContent() {
         (watchCinemaPage ? !isMobile && <Sidebar overlay /> : <Sidebar />)}
       <main
         className={`${mainClasses} ${pathname === "/subscriptions/groups" ? "sg-page" : ""}`}
-        style={topPadding}
+        style={mainStyle}
       >
         <Outlet />
         {!watchWebFullscreenPage && <AppFooter />}

@@ -29,7 +29,13 @@ export function AuthBackdrop({ children, fixed = false, contentClassName }: Prop
         <div className="absolute -top-24 right-[12%] h-72 w-72 rounded-full bg-sky-300/30 blur-3xl dark:bg-sky-500/10" />
         <div className="absolute bottom-0 left-[8%] h-80 w-80 rounded-full bg-cyan-300/24 blur-3xl dark:bg-cyan-500/10" />
       </div>
-      <div className="absolute right-4 top-4 z-20 sm:right-6 sm:top-6">
+      <div
+        className="absolute right-4 top-4 z-20 sm:right-6 sm:top-6"
+        style={{
+          top: "max(1rem, env(safe-area-inset-top, 0px))",
+          right: "max(1rem, env(safe-area-inset-right, 0px))",
+        }}
+      >
         <ThemeToggleButton className="border-white/40 bg-white/65 shadow-lg backdrop-blur dark:border-white/15 dark:bg-white/10" />
       </div>
       <main className={`relative z-10 ${contentClassName}`}>{children}</main>
