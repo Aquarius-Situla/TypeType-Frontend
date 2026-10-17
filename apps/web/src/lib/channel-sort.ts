@@ -7,7 +7,9 @@ export const CHANNEL_SORT_OPTIONS: { value: ChannelSort; label: () => string }[]
   { value: "oldest", label: () => m.channel_sort_oldest() },
 ];
 
-export function channelSortOptions(isBilibili = false): { value: ChannelSort; label: () => string }[] {
+export function channelSortOptions(
+  isBilibili = false,
+): { value: ChannelSort; label: () => string }[] {
   if (isBilibili) {
     return CHANNEL_SORT_OPTIONS.filter((option) => option.value !== "oldest");
   }

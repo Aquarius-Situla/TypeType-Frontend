@@ -51,12 +51,10 @@ export function useChannel(
       const isFirstPage = pageParam === undefined;
       if (isBilibiliSearch && bilibiliMid) {
         const [res, channelMeta] = await Promise.all([
-          fetchBilibiliChannelSearch(
-            bilibiliMid,
-            trimmedQuery,
-            pageParam as string | undefined,
-          ),
-          isFirstPage && !lastMeta.current ? fetchBilibiliChannelMeta(bilibiliMid) : Promise.resolve(null),
+          fetchBilibiliChannelSearch(bilibiliMid, trimmedQuery, pageParam as string | undefined),
+          isFirstPage && !lastMeta.current
+            ? fetchBilibiliChannelMeta(bilibiliMid)
+            : Promise.resolve(null),
         ]);
         return {
           meta: channelMeta,
@@ -66,7 +64,6 @@ export function useChannel(
       }
 
       const res = await fetchChannel(requestUrl, pageParam as string | undefined, sort);
-      const isFirstPage = pageParam === undefined;
       return {
         meta: isFirstPage
           ? {

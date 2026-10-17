@@ -1,5 +1,8 @@
 import type { SavedPlaylistItem } from "../types/playlist";
-import { isBilibiliCollectionUrl, parseBilibiliCollectionParams } from "./api-bilibili-channel-collections";
+import {
+  isBilibiliCollectionUrl,
+  parseBilibiliCollectionParams,
+} from "./api-bilibili-channel-collections";
 
 const STORAGE_KEY = "typetype:saved_bilibili_playlists";
 
@@ -42,7 +45,11 @@ export function saveBilibiliPlaylistLocally(playlist: SavedPlaylistItem): void {
     // Remove if already exists (same id or same bilibili params)
     const targetParams = parseBilibiliCollectionParams(playlist.url);
     const filtered = current.filter((item) => {
-      if (item.id === playlist.id || item.url === playlist.url || item.publicPlaylistId === playlist.publicPlaylistId) {
+      if (
+        item.id === playlist.id ||
+        item.url === playlist.url ||
+        item.publicPlaylistId === playlist.publicPlaylistId
+      ) {
         return false;
       }
       if (targetParams) {

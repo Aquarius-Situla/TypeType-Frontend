@@ -17,9 +17,7 @@ afterEach(() => {
 
 test("does not send the TypeType bearer token to the Bilibili proxy", async () => {
   useAuthStore.setState({ token: "test-token" });
-  const fetchMock = mock(async () =>
-    Response.json({ code: 0, data: { card: { name: "Test" } } }),
-  );
+  const fetchMock = mock(async () => Response.json({ code: 0, data: { card: { name: "Test" } } }));
   globalThis.fetch = fetchMock;
 
   await fetchBilibiliChannelMeta("546195");
@@ -42,14 +40,10 @@ describe("bilibili channel and collection url parser", () => {
     expect(isBilibiliCollectionUrl("bilibili:season:546195:100")).toBe(true);
     expect(isBilibiliCollectionUrl("bilibili:series:546195:200")).toBe(true);
     expect(
-      isBilibiliCollectionUrl(
-        "https://space.bilibili.com/546195/channel/collectiondetail?sid=123",
-      ),
+      isBilibiliCollectionUrl("https://space.bilibili.com/546195/channel/collectiondetail?sid=123"),
     ).toBe(true);
     expect(
-      isBilibiliCollectionUrl(
-        "https://space.bilibili.com/546195/channel/seriesdetail?sid=456",
-      ),
+      isBilibiliCollectionUrl("https://space.bilibili.com/546195/channel/seriesdetail?sid=456"),
     ).toBe(true);
     expect(isBilibiliCollectionUrl("https://www.youtube.com/playlist?list=PL123")).toBe(false);
   });
