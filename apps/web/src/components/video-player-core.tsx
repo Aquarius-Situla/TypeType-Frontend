@@ -43,6 +43,9 @@ function configureDashPlayer(player: dashjs.MediaPlayerClass, library: typeof da
   player.on(library.MediaPlayer.events.TRACK_CHANGE_RENDERED, onDashUpdate);
   player.on(library.MediaPlayer.events.QUALITY_CHANGE_RENDERED, onDashUpdate);
   player.updateSettings({
+    debug: {
+      logLevel: library.Debug.LOG_LEVEL_ERROR,
+    },
     streaming: {
       ...createDashSettings(),
       cmcd: { enabled: false },
