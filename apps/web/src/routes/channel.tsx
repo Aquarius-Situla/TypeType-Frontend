@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { ChannelPageContent } from "../components/channel-page-content";
 import { PageSpinner } from "../components/page-spinner";
@@ -36,7 +36,7 @@ function LegacyChannelPage() {
   const tab = channelTabOrDefault(Route.useSearch().tab);
   const sourceUrl = toChannelSourceUrl(url);
   const canonicalRoute = toCanonicalChannelRoute(sourceUrl);
-  const navigate = useNavigate({ from: "/channel" });
+  const navigate = Route.useNavigate();
 
   useEffect(() => {
     if (!canonicalRoute) return;
@@ -58,7 +58,7 @@ function LegacyChannelPage() {
       tab={tab}
       onNavigate={(nextSort, nextQuery, nextTab) =>
         navigate({
-          search: channelLegacySearch(sourceUrl, nextSort, nextQuery, nextTab),
+          search: () => channelLegacySearch(sourceUrl, nextSort, nextQuery, nextTab),
           replace: true,
         })
       }

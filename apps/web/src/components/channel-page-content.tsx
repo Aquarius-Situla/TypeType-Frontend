@@ -48,9 +48,17 @@ export function ChannelPageContent({ sourceUrl, sort, searchQuery, tab, onNaviga
 
   const subscribed = isSubscribed(sourceUrl);
   const provider = detectProvider(sourceUrl);
-  const searchAvailable = provider === "youtube";
-  const tabsAvailable = provider === "youtube" || provider === "nicovideo";
-  const visibleVideos = useMemo(() => filter(videos), [filter, videos]);
+  const isBilibili = provider === "bilibili";
+  const searchAvailable = provider === "youtube" || isBilibili;
+  const tabsAvailable = provider === "youtube" || provider === "nicovideo" || isBilibili;
+  const visibleVideos = useMemo(() => {
+    const list = filter(videos);
+    if (!isBilibili) return list;
+    if (sort === "popular") {
+      return [...list].sort((a, b) => (b.views ?? 0) - (a.views ?? 0));
+    }
+    return list;
+  }, [filter, videos, isBilibili, sort]);
   const progressByUrl = useVideoProgressMap(visibleVideos);
   const isInitialLoading = isLoading && !meta;
   const isReplacingVideos = isFetching && !isFetchingNextPage && visibleVideos.length === 0;
@@ -132,6 +140,7 @@ export function ChannelPageContent({ sourceUrl, sort, searchQuery, tab, onNaviga
         tab={tab}
         tabsAvailable={tabsAvailable}
         searchAvailable={searchAvailable}
+        isBilibili={isBilibili}
         onSearch={searchChannel}
         onTabChange={selectTab}
         onSortChange={selectSort}

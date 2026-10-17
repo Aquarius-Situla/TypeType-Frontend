@@ -85,4 +85,7 @@ test("restricts v parameter extraction to valid IDs matching the host", () => {
   expect(toWatchSourceUrl("https://www.youtube.com/watch?v=Z05XGDSTe7U")).toBe(
     "https://www.youtube.com/watch?v=Z05XGDSTe7U",
   );
+
+  // Relative /watch?v= URLs are correctly handled
+  expect(toPublicWatchParam("/watch?v=Z05XGDSTe7U")).toBe("Z05XGDSTe7U");
 });
