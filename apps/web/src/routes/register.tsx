@@ -16,11 +16,11 @@ import { goto } from "../lib/route-redirect";
 import { m } from "../paraglide/messages.js";
 
 function RegisterPage() {
-  const { isAuthed, isGuest } = useAuth();
+  const { isAuthed, isGuest, authReady } = useAuth();
   const queryClient = useQueryClient();
   const { redirect } = Route.useSearch();
   const target = sanitizeRedirect(redirect);
-  const { data: instance } = useInstance();
+  const { data: instance, isLoading: instanceLoading } = useInstance();
   const registerStatus = useRegisterStatus();
   const status = registerStatus.data;
   const { data: oidc } = useOidcStatus();
@@ -58,6 +58,10 @@ function RegisterPage() {
       window.location.replace(`/login${redirect ? `?redirect=${encodeURIComponent(target)}` : ""}`);
     }
   }, [isGuestDisabled, closedByPolicy, isAuthed, isGuest, redirect, target]);
+
+  if (!authReady || registerStatus.isLoading || instanceLoading) {
+    return null;
+  }
 
   if (isGuestDisabled && closedByPolicy && (!isAuthed || isGuest)) {
     return null;
