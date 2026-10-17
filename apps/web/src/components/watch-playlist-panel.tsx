@@ -52,6 +52,7 @@ export function WatchPlaylistPanel({
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
   const currentElement = useRef<HTMLLIElement | null>(null);
+  const listRef = useRef<HTMLUListElement | null>(null);
 
   const sectionWithCurrent = sections?.find((sec) =>
     sec.videos.some((video) => toPublicWatchParam(video.url) === currentParam),
@@ -80,7 +81,17 @@ export function WatchPlaylistPanel({
 
   useEffect(() => {
     if (!collapsed && currentIndex >= 0) {
-      currentElement.current?.scrollIntoView({ block: "nearest" });
+      const list = listRef.current;
+      const element = currentElement.current;
+      if (list && element) {
+        const listRect = list.getBoundingClientRect();
+        const elementRect = element.getBoundingClientRect();
+        if (elementRect.top < listRect.top) {
+          list.scrollTop -= listRect.top - elementRect.top;
+        } else if (elementRect.bottom > listRect.bottom) {
+          list.scrollTop += elementRect.bottom - listRect.bottom;
+        }
+      }
     }
   }, [collapsed, currentIndex]);
 
@@ -180,7 +191,11 @@ export function WatchPlaylistPanel({
         </div>
       )}
       {!collapsed && (
-        <ul className="max-h-[24rem] list-none overflow-y-auto py-1" onScroll={handleScroll}>
+        <ul
+          ref={listRef}
+          className="max-h-[24rem] list-none overflow-y-auto py-1"
+          onScroll={handleScroll}
+        >
           {displayVideos.map((video, index) => {
             if (visibility.hidden && currentIndex >= 0 && index > currentIndex) return null;
             const isCurrent = index === currentIndex;
