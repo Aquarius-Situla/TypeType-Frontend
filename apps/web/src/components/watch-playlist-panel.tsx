@@ -140,10 +140,17 @@ export function WatchPlaylistPanel({
 
   useEffect(() => {
     if (!collapsed && currentIndex >= 0) {
-      const frame = requestAnimationFrame(() => {
-        currentElement.current?.scrollIntoView({ block: "center", behavior: "smooth" });
-      });
-      return () => cancelAnimationFrame(frame);
+      const list = listRef.current;
+      const element = currentElement.current;
+      if (list && element) {
+        const listRect = list.getBoundingClientRect();
+        const elementRect = element.getBoundingClientRect();
+        if (elementRect.top < listRect.top) {
+          list.scrollTop -= listRect.top - elementRect.top;
+        } else if (elementRect.bottom > listRect.bottom) {
+          list.scrollTop += elementRect.bottom - listRect.bottom;
+        }
+      }
     }
   }, [collapsed, currentIndex]);
 

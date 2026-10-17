@@ -6,7 +6,6 @@ import type {
 } from "../types/playlist";
 import { request } from "./api";
 import { API_BASE as BASE } from "./env";
-import { optionalBearer } from "./optional-bearer";
 import { proxyImage } from "./proxy";
 
 type BilibiliSeasonOrSeriesMeta = {
@@ -132,7 +131,7 @@ export async function fetchBilibiliChannelMeta(mid: string): Promise<{
   if (!mid) return null;
   try {
     const url = `${BASE}/bilibili/x/web-interface/card?mid=${encodeURIComponent(mid)}`;
-    const res = await request<{ code: number; data?: BilibiliCardData }>(url, optionalBearer());
+    const res = await request<{ code: number; data?: BilibiliCardData }>(url);
     const card = res.data?.card;
     if (!card) return null;
     const name = card.name || "";
@@ -285,7 +284,7 @@ export async function fetchBilibiliChannelCollections(
   const url = `${BASE}/bilibili/x/polymer/web-space/seasons_series_list?mid=${encodeURIComponent(mid)}&page_num=${pageNum}&page_size=${pageSize}`;
 
   const [res, uploaderName] = await Promise.all([
-    request<BilibiliSeasonsSeriesListResponse>(url, optionalBearer()),
+    request<BilibiliSeasonsSeriesListResponse>(url),
     fetchBilibiliUploaderName(mid),
   ]);
   if (res.code !== 0) {
@@ -356,7 +355,7 @@ export async function fetchBilibiliCollectionEpisodes(
   if (parsed.kind === "season") {
     const url = `${BASE}/bilibili/x/polymer/web-space/seasons_archives_list?mid=${encodeURIComponent(parsed.mid)}&season_id=${encodeURIComponent(parsed.id)}&sort_reverse=false&page_num=${pageNum}&page_size=${pageSize}`;
     const [res, uploaderName] = await Promise.all([
-      request<BilibiliSeasonArchivesResponse>(url, optionalBearer()),
+      request<BilibiliSeasonArchivesResponse>(url),
       fetchBilibiliUploaderName(parsed.mid),
     ]);
     if (res.code !== 0) {
@@ -392,7 +391,7 @@ export async function fetchBilibiliCollectionEpisodes(
 
   const url = `${BASE}/bilibili/x/series/archives?mid=${encodeURIComponent(parsed.mid)}&series_id=${encodeURIComponent(parsed.id)}&only_normal=true&sort=asc&pn=${pageNum}&ps=${pageSize}`;
   const [res, uploaderName] = await Promise.all([
-    request<BilibiliSeriesArchivesResponse>(url, optionalBearer()),
+    request<BilibiliSeriesArchivesResponse>(url),
     fetchBilibiliUploaderName(parsed.mid),
   ]);
   if (res.code !== 0) {
@@ -436,7 +435,7 @@ export async function fetchBilibiliChannelSearch(
   const url = `${BASE}/bilibili/x/series/recArchivesByKeywords?mid=${encodeURIComponent(mid)}&keywords=${encodeURIComponent(keyword)}&pn=${pageNum}&ps=${pageSize}`;
 
   const [res, uploaderName] = await Promise.all([
-    request<BilibiliRecArchivesResponse>(url, optionalBearer()),
+    request<BilibiliRecArchivesResponse>(url),
     fetchBilibiliUploaderName(mid),
   ]);
   if (res.code !== 0) {

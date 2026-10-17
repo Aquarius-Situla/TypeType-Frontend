@@ -1,9 +1,33 @@
-import { describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, mock, test } from "bun:test";
 import {
   extractBilibiliChannelMid,
+  fetchBilibiliChannelMeta,
   isBilibiliCollectionUrl,
   parseBilibiliCollectionParams,
 } from "../src/lib/api-bilibili-channel-collections";
+import { useAuthStore } from "../src/stores/auth-store";
+
+const originalFetch = globalThis.fetch;
+const originalToken = useAuthStore.getState().token;
+
+afterEach(() => {
+  globalThis.fetch = originalFetch;
+  useAuthStore.setState({ token: originalToken });
+});
+
+test("does not send the TypeType bearer token to the Bilibili proxy", async () => {
+  useAuthStore.setState({ token: "test-token" });
+  const fetchMock = mock(async () =>
+    Response.json({ code: 0, data: { card: { name: "Test" } } }),
+  );
+  globalThis.fetch = fetchMock;
+
+  await fetchBilibiliChannelMeta("546195");
+
+  const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+  expect(url).toBe("/api/bilibili/x/web-interface/card?mid=546195");
+  expect(new Headers(init?.headers).has("Authorization")).toBe(false);
+});
 
 describe("bilibili channel and collection url parser", () => {
   test("extracts MID from various space URLs and pure numeric IDs", () => {
