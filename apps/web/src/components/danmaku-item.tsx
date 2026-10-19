@@ -1,5 +1,6 @@
 import { argbToColor, LANE_HEIGHT_PX, REGULAR_DISPLAY_MS } from "../lib/danmaku";
 import type { BulletCommentItem } from "../types/api";
+import { DanmakuRichText } from "./danmaku-rich-text";
 
 type Props = {
   comment: BulletCommentItem;
@@ -72,7 +73,7 @@ export function DanmakuItem({
           } as React.CSSProperties
         }
       >
-        {comment.text}
+        <DanmakuRichText text={comment.text} fontSize={fontSize} />
       </span>
     );
   }
@@ -96,7 +97,7 @@ export function DanmakuItem({
           WebkitTransform: "translate3d(-50%, 0, 0)",
         }}
       >
-        {comment.text}
+        <DanmakuRichText text={comment.text} fontSize={fontSize} />
       </span>
     );
   }
@@ -115,7 +116,7 @@ export function DanmakuItem({
           WebkitTransform: "translate3d(-50%, 0, 0)",
         }}
       >
-        {comment.text}
+        <DanmakuRichText text={comment.text} fontSize={fontSize} />
       </span>
     );
   }
