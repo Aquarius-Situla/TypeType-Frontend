@@ -84,7 +84,7 @@ function RelatedCardComponent({ stream, relatedStreams, size = "default", progre
           to="/watch"
           search={watchRouteSearch(stream.id)}
           preload="intent"
-          className="text-xs font-medium text-fg line-clamp-2 leading-snug hover:text-fg-strong"
+          className="text-sm font-medium text-fg line-clamp-2 leading-snug hover:text-fg-strong"
           onClick={() => setNavigation(stream, relatedStreams)}
         >
           {title}
@@ -99,7 +99,7 @@ function RelatedCardComponent({ stream, relatedStreams, size = "default", progre
               name={stream.channelName}
               className="w-4 h-4"
             />
-            <span className="min-w-0 text-xs text-fg-muted group-hover/channel:text-fg truncate flex items-center gap-1">
+            <span className="min-w-0 text-sm text-fg-muted group-hover/channel:text-fg truncate flex items-center gap-1">
               {stream.channelName}
               {stream.uploaderVerified && <VerifiedBadgeIcon />}
             </span>
@@ -111,7 +111,7 @@ function RelatedCardComponent({ stream, relatedStreams, size = "default", progre
               name={stream.channelName}
               className="w-4 h-4"
             />
-            <span className="min-w-0 text-xs text-fg-muted truncate flex items-center gap-1">
+            <span className="min-w-0 text-sm text-fg-muted truncate flex items-center gap-1">
               {stream.channelName}
               {stream.uploaderVerified && <VerifiedBadgeIcon />}
             </span>

@@ -16,8 +16,8 @@ test("five and six-column grids increase the desktop density", () => {
 });
 
 test("large related videos use wider thumbnails and a wider panel", () => {
-  expect(relatedVideoThumbnailClassName("default")).toBe("w-32 sm:w-40");
-  expect(relatedVideoThumbnailClassName("large")).toBe("w-40 sm:w-48");
-  expect(relatedVideoPanelClassName("default")).toBe("lg:min-w-64");
-  expect(relatedVideoPanelClassName("large")).toBe("lg:min-w-80");
+  expect(relatedVideoThumbnailClassName("default")).toBe("w-40 sm:w-48");
+  expect(relatedVideoThumbnailClassName("large")).toBe("w-48 sm:w-56");
+  expect(relatedVideoPanelClassName("default")).toBe("lg:min-w-72");
+  expect(relatedVideoPanelClassName("large")).toBe("lg:min-w-96");
 });

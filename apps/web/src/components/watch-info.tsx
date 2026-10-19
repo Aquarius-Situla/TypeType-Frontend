@@ -52,11 +52,11 @@ export function WatchInfo({ stream }: Props) {
 
   const channelMeta = (
     <div className="flex flex-col min-w-0">
-      <p className="text-sm font-medium text-fg truncate flex items-center gap-1">
+      <p className="text-base font-medium text-fg truncate flex items-center gap-1">
         {stream.channelName}
         {stream.uploaderVerified && <VerifiedBadgeIcon />}
       </p>
-      <p className="text-xs text-fg-soft">
+      <p className="text-sm text-fg-soft">
         {formatSubscribers(stream.uploaderSubscriberCount)}
         {publishedText && ` · ${publishedText}`}
       </p>
@@ -66,10 +66,10 @@ export function WatchInfo({ stream }: Props) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
-        <h1 className="typetype-adaptive-label min-w-0 flex-1 text-base font-semibold leading-snug text-fg">
+        <h1 className="typetype-adaptive-label min-w-0 flex-1 text-lg font-semibold leading-snug text-fg">
           {stream.title}
         </h1>
-        <span className="mt-0.5 flex flex-shrink-0 items-center gap-1.5 text-sm text-fg-muted">
+        <span className="mt-0.5 flex flex-shrink-0 items-center gap-1.5 text-base text-fg-muted">
           <Eye className="size-4" aria-hidden="true" />
           {formatViews(stream.views)}
         </span>
@@ -84,15 +84,15 @@ export function WatchInfo({ stream }: Props) {
               <ChannelAvatar
                 src={stream.channelAvatar}
                 name={stream.channelName}
-                className="w-9 h-9"
+                className="w-10 h-10"
                 priority
               />
               <div className="flex flex-col min-w-0">
-                <p className="text-sm font-medium text-fg truncate group-hover:underline flex items-center gap-1">
+                <p className="text-base font-medium text-fg truncate group-hover:underline flex items-center gap-1">
                   {stream.channelName}
                   {stream.uploaderVerified && <VerifiedBadgeIcon />}
                 </p>
-                <p className="text-xs text-fg-soft">
+                <p className="text-sm text-fg-soft">
                   {formatSubscribers(stream.uploaderSubscriberCount)}
                   {publishedText && ` · ${publishedText}`}
                 </p>
@@ -103,7 +103,7 @@ export function WatchInfo({ stream }: Props) {
               <ChannelAvatar
                 src={stream.channelAvatar}
                 name={stream.channelName}
-                className="w-9 h-9"
+                className="w-10 h-10"
                 priority
               />
               {channelMeta}

@@ -12,11 +12,11 @@ export function videoGridClassName(columns: VideoGridColumns): string {
 }
 
 export function relatedVideoThumbnailClassName(size: RelatedVideoSize): string {
-  return size === "large" ? "w-40 sm:w-48" : "w-32 sm:w-40";
+  return size === "large" ? "w-48 sm:w-56" : "w-40 sm:w-48";
 }
 
 export function relatedVideoPanelClassName(size: RelatedVideoSize): string {
-  return size === "large" ? "lg:min-w-80" : "lg:min-w-64";
+  return size === "large" ? "lg:min-w-96" : "lg:min-w-72";
 }
 
 export function watchSecondaryPanelClassName(
