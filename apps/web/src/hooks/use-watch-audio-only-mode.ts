@@ -1,4 +1,5 @@
 import { type MutableRefObject, useEffect, useRef, useState } from "react";
+import { resolveAudioOnlyModeTransition } from "../lib/audio-only-mode-transition";
 
 type Args = {
   currentParam: string;
@@ -16,16 +17,33 @@ export function useWatchAudioOnlyMode({
   readPositionMs,
 }: Args) {
   const initializedParamRef = useRef<string | null>(null);
+  const initializedDefaultRef = useRef<boolean | null>(null);
   const [active, setActive] = useState(false);
   const [switchPositionMs, setSwitchPositionMs] = useState<number | null>(null);
   const initialized = initializedParamRef.current === currentParam;
 
   useEffect(() => {
-    if (!settingsReady || initializedParamRef.current === currentParam) return;
+    if (!settingsReady) return;
+    const paramChanged = initializedParamRef.current !== currentParam;
+    const defaultChanged = initializedDefaultRef.current !== defaultEnabled;
+    if (!paramChanged && !defaultChanged) return;
+
+    const transition = resolveAudioOnlyModeTransition({
+      paramChanged,
+      defaultEnabled,
+      positionMs: paramChanged ? null : readPositionMs(),
+      fallbackPositionMs: positionRef.current,
+    });
+
     initializedParamRef.current = currentParam;
-    setActive(defaultEnabled);
-    setSwitchPositionMs(null);
-  }, [currentParam, defaultEnabled, settingsReady]);
+    initializedDefaultRef.current = defaultEnabled;
+    setActive(transition.active);
+    setSwitchPositionMs(transition.switchPositionMs);
+
+    if (transition.switchPositionMs !== null) {
+      positionRef.current = transition.switchPositionMs;
+    }
+  }, [currentParam, defaultEnabled, positionRef, readPositionMs, settingsReady]);
 
   function syncPosition() {
     const positionMs = readPositionMs();

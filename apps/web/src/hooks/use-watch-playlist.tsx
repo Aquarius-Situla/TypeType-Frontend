@@ -19,6 +19,7 @@ import type { StreamCollectionItem } from "../types/stream-collection";
 import type { StreamPartItem } from "../types/stream-parts";
 import { useBlockedFilter } from "./use-blocked-filter";
 import { usePlaylist } from "./use-playlist";
+import { usePlaylistAudioOnly } from "./use-playlist-audio-only";
 import { usePlaylistShuffle } from "./use-playlist-shuffle";
 import { usePlaylists } from "./use-playlists";
 import { usePublicPlaylist } from "./use-public-playlist";
@@ -31,6 +32,7 @@ type WatchPlaylist = {
   nextVideo: WatchPlaylistItem | null;
   playPrevious?: () => void;
   playNext?: () => void;
+  audioOnlyEnabled: boolean;
   panel: ReactNode;
 };
 
@@ -40,6 +42,7 @@ export function useWatchPlaylist(
   currentParam: string,
   collections?: StreamCollectionItem[],
   parts?: StreamPartItem[],
+  defaultAudioOnlyEnabled = false,
 ): WatchPlaylist {
   const navigate = useNavigate();
   const { filter } = useBlockedFilter();
@@ -57,6 +60,12 @@ export function useWatchPlaylist(
   const customOrder = usePlaylistOrderStore((state) => (list ? state.orders[list] : undefined));
   const isManaged = managedList.length > 0;
   const collection = activeStreamCollection(collections, currentParam);
+  const audioOnlyPlaylistId = list
+    ? `list:${list}`
+    : collection
+      ? `collection:${collection.id}`
+      : undefined;
+  const audioOnly = usePlaylistAudioOnly(audioOnlyPlaylistId, defaultAudioOnlyEnabled);
   const collectionVideos = streamCollectionPlaylistItems(collection);
   const collectionSections = streamCollectionSectionGroups(collection).map((sec) => ({
     ...sec,
@@ -152,6 +161,8 @@ export function useWatchPlaylist(
         isLoadingMore={publicPlaylist.isFetchingNextPage}
         onLoadMore={canLoadPublicPage ? loadMorePublic : undefined}
         allowContinuous={isManaged}
+        audioOnlyEnabled={audioOnly.enabled}
+        onAudioOnlyToggle={audioOnlyPlaylistId ? audioOnly.toggle : undefined}
         onShuffleChange={
           list || collection
             ? (mode) =>
@@ -191,6 +202,7 @@ export function useWatchPlaylist(
     nextVideo: nextVideo ?? null,
     playPrevious: previousParam ? playPrevious : undefined,
     playNext: nextParam ? playNext : undefined,
+    audioOnlyEnabled: audioOnly.enabled,
     panel,
   };
 }

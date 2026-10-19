@@ -12,6 +12,7 @@ import type { WatchPlaylistItem } from "../types/playlist";
 import { Toast } from "./toast";
 import {
   type PlaylistShuffleMode,
+  WatchPlaylistAudioOnlyToggle,
   WatchPlaylistShuffleControl,
   WatchPlaylistVisibilityToggle,
 } from "./watch-playlist-controls";
@@ -33,6 +34,8 @@ type Props = {
   isLoadingMore?: boolean;
   onLoadMore?: () => void;
   onShuffleChange?: (mode: PlaylistShuffleMode) => void;
+  audioOnlyEnabled?: boolean;
+  onAudioOnlyToggle?: () => void;
   allowContinuous?: boolean;
   onReorder?: (videos: WatchPlaylistItem[]) => void;
 };
@@ -47,6 +50,8 @@ export function WatchPlaylistPanel({
   isLoadingMore = false,
   onLoadMore,
   onShuffleChange,
+  audioOnlyEnabled = false,
+  onAudioOnlyToggle,
   allowContinuous = false,
   onReorder,
 }: Props) {
@@ -244,6 +249,9 @@ export function WatchPlaylistPanel({
             allowContinuous={allowContinuous}
             onShuffleChange={onShuffleChange}
           />
+          {onAudioOnlyToggle && (
+            <WatchPlaylistAudioOnlyToggle enabled={audioOnlyEnabled} onToggle={onAudioOnlyToggle} />
+          )}
           <div className="ml-auto">
             <WatchPlaylistVisibilityToggle
               hidden={visibility.hidden}

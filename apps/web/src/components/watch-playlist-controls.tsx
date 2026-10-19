@@ -1,4 +1,4 @@
-import { Eye, EyeOff, Shuffle } from "lucide-react";
+import { Eye, EyeOff, Music2, Shuffle } from "lucide-react";
 import { m } from "../paraglide/messages.js";
 
 export type PlaylistShuffleMode = "off" | "once" | "continuous";
@@ -12,6 +12,11 @@ type ShuffleProps = {
 type VisibilityProps = {
   hidden: boolean;
   onToggleHidden: () => void;
+};
+
+type AudioOnlyProps = {
+  enabled: boolean;
+  onToggle: () => void;
 };
 
 export function WatchPlaylistShuffleControl({
@@ -50,6 +55,23 @@ export function WatchPlaylistVisibilityToggle({ hidden, onToggleHidden }: Visibi
       }`}
     >
       {hidden ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
+    </button>
+  );
+}
+
+export function WatchPlaylistAudioOnlyToggle({ enabled, onToggle }: AudioOnlyProps) {
+  return (
+    <button
+      type="button"
+      aria-label={m.ui_audio_only_playback()}
+      aria-pressed={enabled}
+      title={m.ui_audio_only_playback()}
+      onClick={onToggle}
+      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded transition-colors ${
+        enabled ? "bg-fg text-app" : "text-fg-muted hover:bg-surface-strong hover:text-fg"
+      }`}
+    >
+      <Music2 size={16} aria-hidden="true" />
     </button>
   );
 }

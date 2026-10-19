@@ -7,6 +7,7 @@ import { useWatchAudioOnlySource } from "./use-watch-audio-only-source";
 
 type Args = {
   currentParam: string;
+  defaultEnabled: boolean;
   settings: SettingsItem;
   settingsReady: boolean;
   isLive: boolean;
@@ -36,6 +37,7 @@ export type WatchAudioOnlyControls = {
 
 export function useWatchAudioOnlyPlayback({
   currentParam,
+  defaultEnabled,
   settings,
   settingsReady,
   isLive,
@@ -46,7 +48,7 @@ export function useWatchAudioOnlyPlayback({
 }: Args): WatchAudioOnlyPlayback {
   const mode = useWatchAudioOnlyMode({
     currentParam,
-    defaultEnabled: settings.audioOnlyPlayback,
+    defaultEnabled,
     settingsReady,
     positionRef,
     readPositionMs,

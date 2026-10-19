@@ -57,7 +57,14 @@ export function WatchLayout({
     settings.hideRelatedVideos,
     filter,
   );
-  const playlist = useWatchPlaylist(list, shuffle, currentParam, stream.collections, stream.parts);
+  const playlist = useWatchPlaylist(
+    list,
+    shuffle,
+    currentParam,
+    stream.collections,
+    stream.parts,
+    settings.audioOnlyPlayback,
+  );
   const cinemaMode = useWatchLayoutStore((state) => state.cinemaMode);
   const webFullscreen = useWatchLayoutStore((state) => state.webFullscreen);
 
@@ -86,6 +93,7 @@ export function WatchLayout({
   const liveChat = useWatchLiveChat(stream.id, playerEvents.handleEnded);
   const audioOnly = useWatchAudioOnlyPlayback({
     currentParam,
+    defaultEnabled: playlist.audioOnlyEnabled,
     settings,
     settingsReady,
     isLive,
