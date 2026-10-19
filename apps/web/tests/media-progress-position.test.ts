@@ -29,3 +29,13 @@ test("preserves an explicit seek target during an MSE transition", () => {
 test("reports stable media positions normally", () => {
   expect(resolveMediaProgressPosition(null, 42_000)).toBe(42_000);
 });
+
+test("ignores positions while the media source is detached", () => {
+  const video = { readyState: 0 } as HTMLVideoElement;
+  expect(resolveMediaProgressPosition(video, 0)).toBeNull();
+});
+
+test("reports positions once media metadata is available", () => {
+  const video = { readyState: 4, duration: 1694.3 } as HTMLVideoElement;
+  expect(resolveMediaProgressPosition(video, 42_000)).toBe(42_000);
+});

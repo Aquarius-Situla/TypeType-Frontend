@@ -31,7 +31,9 @@ function getSabrVidstackControls(video: HTMLVideoElement): SabrVidstackControls 
 }
 
 export function isSabrPlaybackEventTransient(video: HTMLVideoElement): boolean {
-  return getSabrVidstackControls(video)?.isApplyingTransientMediaState?.() === true;
+  if (getSabrVidstackControls(video)?.isApplyingTransientMediaState?.() === true) return true;
+  // A recovered session briefly detaches the MediaSource; 0 ms at HAVE_NOTHING is not a position.
+  return video.readyState === 0;
 }
 
 export function requestSabrSeek(video: HTMLVideoElement, seconds: number): boolean {
