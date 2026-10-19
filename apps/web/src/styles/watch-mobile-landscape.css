@@ -50,6 +50,7 @@
 
 .typetype-persistent-player-frame[data-floating] {
   width: min(22rem, calc(100vw - 1rem));
+  height: calc(min(22rem, calc(100vw - 1rem)) * 9 / 16);
   aspect-ratio: 16 / 9;
 }
 
