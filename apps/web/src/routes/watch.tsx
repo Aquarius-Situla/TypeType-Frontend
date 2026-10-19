@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { lazy, Suspense, useEffect, useRef } from "react";
 import { BiliBiliSessionGateProvider } from "../components/bilibili-session-gate";
+import { ShortsHiddenScreen } from "../components/shorts-hidden-screen";
 import { StreamError } from "../components/stream-error";
 import { WatchPageSkeleton } from "../components/watch-page-skeleton";
 import { WatchStreamError } from "../components/watch-stream-error";
@@ -18,6 +19,7 @@ import { selectProgressiveWatchStream } from "../lib/progressive-watch-stream";
 import { proxyImage } from "../lib/proxy";
 import { hasSabrPlayback } from "../lib/stream-delivery";
 import { videoAvailabilityCopy } from "../lib/video-availability";
+import { isShortFormContentHidden } from "../lib/video-visibility";
 import { resolveWatchStartTime, shouldWaitForWatchProgress } from "../lib/watch-resume";
 import {
   isWatchStreamPending,
@@ -84,6 +86,8 @@ function WatchPage() {
     publicParam,
     previewRelated,
   );
+  const shortContentHidden =
+    activeStream !== undefined && isShortFormContentHidden(activeStream, settings.hideShorts);
   useDocumentTitle(activeStream?.title ?? previewStream?.title);
   const loadingPage = (
     <WatchPageSkeleton
@@ -129,7 +133,7 @@ function WatchPage() {
   }, [fullStream, list, navigate, publicParam, resumePending, shortShareUrl, shuffle]);
 
   useEffect(() => {
-    if (!activeStream || resumePending) return;
+    if (!activeStream || shortContentHidden || resumePending) return;
     if (historyAddedForRef.current === activeStream.id) return;
     const historyPositionMs =
       progressFetch.data?.position ?? (activeStream.startPosition ?? 0) * 1000;
@@ -147,7 +151,7 @@ function WatchPage() {
       viewCount: activeStream.views,
       progress,
     });
-  }, [activeStream, progressFetch.data?.position, resumePending]);
+  }, [activeStream, progressFetch.data?.position, resumePending, shortContentHidden]);
 
   const pending = isWatchStreamPending(
     streamQuery.isLoading,
@@ -174,6 +178,9 @@ function WatchPage() {
     );
   }
 
+  if (shortContentHidden) {
+    return <ShortsHiddenScreen />;
+  }
   if (activeStream.requiresMembership) {
     return (
       <StreamError

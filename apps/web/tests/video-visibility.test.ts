@@ -34,6 +34,16 @@ describe("short-form content visibility", () => {
     expect(isShortFormContentHidden(regular, true)).toBe(false);
   });
 
+  test("hides direct watch URLs when stream metadata identifies a Short", () => {
+    const directWatch = {
+      id: "https://www.youtube.com/watch?v=abc123",
+      isShortFormContent: true,
+    };
+
+    expect(isShortFormContentHidden(directWatch, true)).toBe(true);
+    expect(isShortFormContentHidden(directWatch, false)).toBe(false);
+  });
+
   test("leaves short-form videos visible when the setting is disabled", () => {
     const short = { id: "short", streamType: "short" };
     expect(filterShortFormContent([short], false)).toEqual([short]);
