@@ -1846,5 +1846,7 @@
   "halloween_credits_models": "模型",
   "halloween_credits_images": "纹理与图像",
   "halloween_credits_code": "构建工具",
-  "halloween_flashlight_toggle": "开关手电筒"
+  "halloween_flashlight_toggle": "开关手电筒",
+  "ui_enter_this_code_on_google_com_device": "Enter this code on google.com/device",
+  "ui_device_login_waiting": "Waiting for the authorization"
 }

@@ -9,7 +9,18 @@ export type YoutubeSessionState = {
   status: YoutubeSessionStatus;
   updatedAt: number;
   lastUsedAt: number;
+  authType?: string;
+  accountLabel?: string;
 };
+
+export type YoutubeDeviceStart = {
+  userCode: string;
+  verificationUrl: string;
+  expiresAt: number;
+  intervalSeconds: number;
+};
+
+export type YoutubeDeviceStatus = "pending" | "slow_down" | "connected";
 
 export type YoutubeRemoteBrowserSession = {
   sessionId: string;
@@ -52,4 +63,17 @@ export async function cancelYoutubeSessionBrowser(sessionId: string): Promise<vo
 export async function disconnectYoutubeSession(): Promise<void> {
   const res = await authed(`${BASE}/youtube-session`, { method: "DELETE" });
   if (!res.ok) throw new ApiError("Failed to disconnect YouTube session", res.status);
+}
+
+export function startYoutubeDeviceLogin(): Promise<YoutubeDeviceStart> {
+  return authedJson(`${BASE}/youtube-session/device/start`, { method: "POST" });
+}
+
+export function fetchYoutubeDeviceStatus(): Promise<{ status: YoutubeDeviceStatus }> {
+  return authedJson(`${BASE}/youtube-session/device/status`);
+}
+
+export async function cancelYoutubeDeviceLogin(): Promise<void> {
+  const res = await authed(`${BASE}/youtube-session/device/cancel`, { method: "POST" });
+  if (!res.ok) throw new ApiError("Failed to cancel the YouTube device login", res.status);
 }

@@ -1846,5 +1846,7 @@
   "halloween_credits_models": "Models",
   "halloween_credits_images": "Textures and Images",
   "halloween_credits_code": "Built With",
-  "halloween_flashlight_toggle": "Toggle flashlight"
+  "halloween_flashlight_toggle": "Toggle flashlight",
+  "ui_enter_this_code_on_google_com_device": "Enter this code on google.com/device",
+  "ui_device_login_waiting": "Waiting for the authorization"
 }

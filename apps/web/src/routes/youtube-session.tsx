@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { SessionPlatformNav } from "../components/session-platform-nav";
 import { Toast } from "../components/toast";
+import { YoutubeDeviceLoginPanel } from "../components/youtube-device-login-panel";
 import { YoutubeSessionBrowserPanel } from "../components/youtube-session-browser-panel";
 import { YoutubeSessionInfoSection } from "../components/youtube-session-info-section";
 import { YoutubeSessionStatusPanel } from "../components/youtube-session-status-panel";
@@ -97,24 +98,41 @@ function YoutubeSessionPage() {
             </p>
           </div>
 
-          <YoutubeSessionBrowserPanel
-            browserOpen={!!browserSession}
-            authReady={authReady}
-            isAuthed={isAuthed}
-            enabled={remoteLoginEnabled}
-            loaded={instance.isSuccess}
-            pending={session.startBrowser.isPending}
+          <YoutubeDeviceLoginPanel
             connected={connected}
-            returnTo={returnTo}
-            frameUrl={remote.frameUrl}
-            phase={remote.phase}
-            error={remote.error}
-            logs={remote.logs}
-            onStart={startRemoteBrowser}
-            onCancel={cancelRemoteBrowser}
-            onInput={remote.send}
-            onLog={remote.log}
+            pending={session.startDevice.isPending}
+            onStart={session.startDevice.mutateAsync}
+            onCancel={() => session.cancelDevice.mutate()}
+            onConnected={() => void refetchStatus()}
           />
+
+          {remoteLoginEnabled && !connected && (
+            <details className="max-w-3xl border-border border-t pt-4">
+              <summary className="cursor-pointer text-fg-muted text-xs">
+                {m.ui_remote_browser()}
+              </summary>
+              <div className="pt-4">
+                <YoutubeSessionBrowserPanel
+                  browserOpen={!!browserSession}
+                  authReady={authReady}
+                  isAuthed={isAuthed}
+                  enabled={remoteLoginEnabled}
+                  loaded={instance.isSuccess}
+                  pending={session.startBrowser.isPending}
+                  connected={connected}
+                  returnTo={returnTo}
+                  frameUrl={remote.frameUrl}
+                  phase={remote.phase}
+                  error={remote.error}
+                  logs={remote.logs}
+                  onStart={startRemoteBrowser}
+                  onCancel={cancelRemoteBrowser}
+                  onInput={remote.send}
+                  onLog={remote.log}
+                />
+              </div>
+            </details>
+          )}
         </div>
 
         <YoutubeSessionStatusPanel

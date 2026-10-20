@@ -1846,5 +1846,7 @@
   "halloween_credits_models": "Modèles",
   "halloween_credits_images": "Textures et images",
   "halloween_credits_code": "Construit avec",
-  "halloween_flashlight_toggle": "Allumer ou éteindre la lampe"
+  "halloween_flashlight_toggle": "Allumer ou éteindre la lampe",
+  "ui_enter_this_code_on_google_com_device": "Enter this code on google.com/device",
+  "ui_device_login_waiting": "Waiting for the authorization"
 }

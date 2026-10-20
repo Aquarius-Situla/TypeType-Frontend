@@ -1846,5 +1846,7 @@
   "halloween_credits_models": "Modelle",
   "halloween_credits_images": "Texturen und Bilder",
   "halloween_credits_code": "Erstellt mit",
-  "halloween_flashlight_toggle": "Taschenlampe umschalten"
+  "halloween_flashlight_toggle": "Taschenlampe umschalten",
+  "ui_enter_this_code_on_google_com_device": "Enter this code on google.com/device",
+  "ui_device_login_waiting": "Waiting for the authorization"
 }

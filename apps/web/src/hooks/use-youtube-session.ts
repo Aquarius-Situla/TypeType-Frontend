@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  cancelYoutubeDeviceLogin,
   cancelYoutubeSessionBrowser,
   disconnectYoutubeSession,
   fetchYoutubeSessionStatus,
+  startYoutubeDeviceLogin,
   startYoutubeSessionBrowser,
 } from "../lib/api-youtube-session";
 import { useAuth } from "./use-auth";
@@ -28,10 +30,18 @@ export function useYoutubeSession() {
     mutationFn: cancelYoutubeSessionBrowser,
   });
 
+  const startDevice = useMutation({
+    mutationFn: startYoutubeDeviceLogin,
+  });
+
+  const cancelDevice = useMutation({
+    mutationFn: cancelYoutubeDeviceLogin,
+  });
+
   const disconnect = useMutation({
     mutationFn: disconnectYoutubeSession,
     onSuccess: () => qc.invalidateQueries({ queryKey: YOUTUBE_SESSION_KEY }),
   });
 
-  return { status, startBrowser, cancelBrowser, disconnect };
+  return { status, startBrowser, cancelBrowser, startDevice, cancelDevice, disconnect };
 }
