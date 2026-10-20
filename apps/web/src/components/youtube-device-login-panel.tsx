@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { YoutubeDeviceStart } from "../lib/api-youtube-session";
 import { fetchYoutubeDeviceStatus } from "../lib/api-youtube-session";
+import { recordClientEvent } from "../lib/client-debug-log";
 import { m } from "../paraglide/messages.js";
 import { YoutubeIcon } from "./youtube-icon";
 
@@ -36,13 +37,19 @@ export function YoutubeDeviceLoginPanel({
     const timer = window.setInterval(() => {
       void fetchYoutubeDeviceStatus()
         .then((result) => {
+          recordClientEvent("youtube_device.poll", { status: result.status });
           if (result.status === "connected") {
             setDevice(null);
             setError(null);
+            recordClientEvent("youtube_device.connected", {});
             onConnected();
           }
         })
-        .catch(() => {
+        .catch((pollError: unknown) => {
+          recordClientEvent("youtube_device.poll_failed", {
+            message:
+              pollError instanceof Error ? pollError.message.slice(0, 200) : String(pollError),
+          });
           setDevice(null);
           setExpired(true);
         });
@@ -66,8 +73,18 @@ export function YoutubeDeviceLoginPanel({
     setError(null);
     setExpired(false);
     try {
-      setDevice(await onStart());
-    } catch {
+      recordClientEvent("youtube_device.start_requested", {});
+      const next = await onStart();
+      recordClientEvent("youtube_device.started", {
+        hasUserCode: next.userCode.length > 0,
+        expiresInSeconds: Math.round((next.expiresAt - Date.now()) / 1000),
+      });
+      setDevice(next);
+    } catch (startError: unknown) {
+      recordClientEvent("youtube_device.start_failed", {
+        message:
+          startError instanceof Error ? startError.message.slice(0, 200) : String(startError),
+      });
       setError(m.ui_remote_browser_connection_failed());
     }
   }

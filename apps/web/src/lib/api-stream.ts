@@ -49,7 +49,19 @@ async function fetchStreamEndpoint(
   const video = sanitizeVideoContext(url) ?? "unknown";
   if (token && mode === "authenticated_first") {
     recordClientEvent("stream.fetch_start", { authed: true, video });
-    return request<StreamResponse>(endpoint, streamInit(token, signal));
+    try {
+      const result = await request<StreamResponse>(endpoint, streamInit(token, signal));
+      recordClientEvent("stream.fetch_success", {
+        authed: true,
+        video,
+        videoStreams: result.videoOnlyStreams?.length ?? 0,
+        audioStreams: result.audioStreams?.length ?? 0,
+      });
+      return result;
+    } catch (error) {
+      logStreamFailure("stream.fetch_failed_authenticated", error, video);
+      throw error;
+    }
   }
   recordClientEvent("stream.fetch_start", { authed: false, video });
   try {
@@ -57,12 +69,36 @@ async function fetchStreamEndpoint(
     recordClientEvent("stream.fetch_success", { authed: false, video, hasHls: !!result.hlsUrl });
     return result;
   } catch (error) {
+    logStreamFailure("stream.fetch_failed_anonymous", error, video);
     if (!token || !(error instanceof ApiError)) {
       throw error;
     }
     recordClientEvent("stream.fetch_authenticated_fallback", { status: error.status, video });
-    const result = await request<StreamResponse>(endpoint, streamInit(token, signal));
+    let result: StreamResponse;
+    try {
+      result = await request<StreamResponse>(endpoint, streamInit(token, signal));
+    } catch (authError) {
+      logStreamFailure("stream.fetch_failed_authenticated", authError, video);
+      throw authError;
+    }
     recordClientEvent("stream.fetch_success", { authed: true, video, hasHls: !!result.hlsUrl });
     return result;
   }
+}
+
+function logStreamFailure(event: string, error: unknown, video: string): void {
+  if (error instanceof ApiError) {
+    recordClientEvent(event, {
+      video,
+      status: error.status,
+      code: error.code,
+      requestId: error.requestId,
+      message: error.message.slice(0, 200),
+    });
+    return;
+  }
+  recordClientEvent(event, {
+    video,
+    message: error instanceof Error ? error.message.slice(0, 200) : String(error).slice(0, 200),
+  });
 }
