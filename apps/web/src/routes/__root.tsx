@@ -157,8 +157,7 @@ function RootLayoutContent() {
     isGuest,
     instanceLoading,
     instance?.guestAllowed,
-    registerStatus.data?.allowRegistration,
-    registerStatus.data?.bootstrapAvailable,
+    registerStatus.data,
     status,
     pathname,
     pathWithSearch,
@@ -191,13 +190,7 @@ function RootLayoutContent() {
       !registerStatus.data.bootstrapAvailable,
   );
 
-  if (
-    isGuestDisabled &&
-    authReady &&
-    (!isAuthed || isGuest) &&
-    !authPage &&
-    !embedPage
-  ) {
+  if (isGuestDisabled && authReady && (!isAuthed || isGuest) && !authPage && !embedPage) {
     if (
       isRegistrationDisabled ||
       registerStatus.isLoading ||
