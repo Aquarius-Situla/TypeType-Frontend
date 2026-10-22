@@ -7,6 +7,7 @@ import { Toast } from "../components/toast";
 import { useAuth } from "../hooks/use-auth";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { useOidcStatus } from "../hooks/use-oidc-status";
+import { useRegisterStatus } from "../hooks/use-register-status";
 import { startOidc } from "../lib/api-oidc";
 import { sanitizeRedirect } from "../lib/auth-routes";
 import { loginSession } from "../lib/auth-session";
@@ -19,6 +20,10 @@ function LoginPage() {
   const { isAuthed, isGuest } = useAuth();
   const { redirect } = Route.useSearch();
   const target = sanitizeRedirect(redirect);
+  const registerStatus = useRegisterStatus();
+  const allowRegistration = Boolean(
+    registerStatus.data?.allowRegistration || registerStatus.data?.bootstrapAvailable,
+  );
   const { data: oidc } = useOidcStatus();
   const oidcEnabled = oidc?.enabled ?? false;
   const localEnabled = oidc?.localLoginEnabled ?? true;
@@ -115,17 +120,21 @@ function LoginPage() {
           )
         )}
         {localEnabled && (
-          <div className="mt-4 text-xs text-fg-soft flex items-center justify-between">
-            <Link
-              to="/register"
-              search={{ redirect }}
-              className="text-fg-muted hover:text-fg underline underline-offset-2"
-            >
-              {m.login_create_account({}, { locale })}
-            </Link>
+          <div className="mt-4 text-xs text-fg-soft flex items-center justify-between min-h-[1.25rem]">
+            {registerStatus.isLoading ? (
+              <span className="inline-block h-3 w-16" />
+            ) : allowRegistration ? (
+              <Link
+                to="/register"
+                search={{ redirect }}
+                className="text-fg-muted hover:text-fg underline underline-offset-2"
+              >
+                {m.login_create_account({}, { locale })}
+              </Link>
+            ) : null}
             <Link
               to="/reset-password"
-              className="text-fg-muted hover:text-fg underline underline-offset-2"
+              className="text-fg-muted hover:text-fg underline underline-offset-2 ml-auto"
             >
               {m.login_reset_password({}, { locale })}
             </Link>

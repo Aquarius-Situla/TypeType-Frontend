@@ -46,7 +46,7 @@ function RootLayoutContent() {
   const webFullscreen = useWatchLayoutStore((s) => s.webFullscreen);
   const { isAuthed, isAdmin, isGuest, status, authReady } = useAuth();
   const setSignedOut = useAuthStore((s) => s.setSignedOut);
-  const { data: instance } = useInstance();
+  const { data: instance, isLoading: instanceLoading } = useInstance();
   const location = useRouterState({ select: (state) => state.location });
   const notFoundPage = useRouterState({
     select: (state) => state.matches.some((match) => match.status === "notFound"),
@@ -105,7 +105,7 @@ function RootLayoutContent() {
   }, [watchPage, isMobile, setSidebarCollapsed]);
 
   useEffect(() => {
-    if (status === "loading") return;
+    if (status === "loading" || (instanceLoading && (!isAuthed || isGuest))) return;
     if (registerStatus.data?.bootstrapAvailable && shouldEnforceBootstrapRegistration(pathname)) {
       setSignedOut();
       if (pathname !== "/register") {
@@ -115,6 +115,27 @@ function RootLayoutContent() {
         window.location.replace(`/register${redirect}`);
       }
       return;
+    }
+    const isGuestDisabled = instance?.guestAllowed === false;
+    const isRegistrationDisabled = Boolean(
+      registerStatus.data &&
+        !registerStatus.data.allowRegistration &&
+        !registerStatus.data.bootstrapAvailable,
+    );
+    if (isGuestDisabled && isRegistrationDisabled && (!isAuthed || isGuest)) {
+      if (!isAuthPage(pathname) && !embedPage) {
+        const redirect =
+          pathname === "/" && !location.searchStr
+            ? ""
+            : `?redirect=${encodeURIComponent(pathWithSearch)}`;
+        window.location.replace(`/login${redirect}`);
+        return;
+      }
+      if (pathname === "/register") {
+        const redirect = location.searchStr || "";
+        window.location.replace(`/login${redirect}`);
+        return;
+      }
     }
     if (!isAuthed && isAdminRoute(pathname)) {
       const redirect = encodeURIComponent(pathWithSearch);
@@ -133,14 +154,24 @@ function RootLayoutContent() {
   }, [
     isAuthed,
     isAdmin,
-    registerStatus.data?.bootstrapAvailable,
+    isGuest,
+    instanceLoading,
+    instance?.guestAllowed,
+    registerStatus.data,
     status,
     pathname,
     pathWithSearch,
+    location.searchStr,
+    embedPage,
     setSignedOut,
   ]);
 
-  if (status === "loading" && (requiresAuth(pathname) || isAdminRoute(pathname))) {
+  const authPage = isAuthPage(pathname);
+
+  if (
+    (status === "loading" && (requiresAuth(pathname) || isAdminRoute(pathname))) ||
+    (instanceLoading && (!isAuthed || isGuest) && !authPage && !embedPage)
+  ) {
     return (
       <div className="min-h-screen bg-app text-fg flex items-center justify-center">
         <p className="text-sm text-fg-muted">{m.ui_loading_session()}</p>
@@ -148,19 +179,29 @@ function RootLayoutContent() {
     );
   }
 
-  const authPage = isAuthPage(pathname);
-
   if (notFoundPage) {
     return <NotFoundPage />;
   }
 
-  if (
-    instance?.guestAllowed === false &&
-    authReady &&
-    (!isAuthed || isGuest) &&
-    !authPage &&
-    !embedPage
-  ) {
+  const isGuestDisabled = instance?.guestAllowed === false;
+  const isRegistrationDisabled = Boolean(
+    registerStatus.data &&
+      !registerStatus.data.allowRegistration &&
+      !registerStatus.data.bootstrapAvailable,
+  );
+
+  if (isGuestDisabled && authReady && (!isAuthed || isGuest) && !authPage && !embedPage) {
+    if (
+      isRegistrationDisabled ||
+      registerStatus.isLoading ||
+      (!registerStatus.data && !registerStatus.isError)
+    ) {
+      return (
+        <div className="min-h-screen bg-app text-fg flex items-center justify-center">
+          <p className="text-sm text-fg-muted">{m.ui_loading_session()}</p>
+        </div>
+      );
+    }
     return <GuestDisabledScreen />;
   }
 
