@@ -4,8 +4,7 @@ import { AuthBackdrop } from "./auth-backdrop";
 
 export function GuestDisabledScreen() {
   return (
-    <AuthBackdrop
-      contentClassName="flex min-h-screen flex-col items-center justify-center gap-5 px-5 py-8 sm:gap-6"
+    <AuthBackdrop contentClassName="flex min-h-screen flex-col items-center justify-center gap-5 px-5 py-8 sm:gap-6"
     >
       <img
         src="/guest-disabled-bird.gif"

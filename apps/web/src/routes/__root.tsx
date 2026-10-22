@@ -210,9 +210,7 @@ function RootLayoutContent() {
   const mainBottomPad = showTabBar ? "" : "pb-5 sm:pb-6";
   const mainStyle: React.CSSProperties = {
     ...topPadding,
-    ...(showTabBar
-      ? { paddingBottom: "calc(4.5rem + env(safe-area-inset-bottom, 0px))" }
-      : {}),
+    ...(showTabBar ? { paddingBottom: "calc(4.5rem + env(safe-area-inset-bottom, 0px))" } : {}),
     ...(isMobile
       ? {
           paddingLeft: "max(0.5rem, env(safe-area-inset-left, 0px))",
