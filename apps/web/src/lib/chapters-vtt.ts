@@ -7,7 +7,7 @@ import {
 
 function formatVttTime(seconds: number): string {
   const totalSeconds = Math.floor(seconds);
-  const hours = Math.floor(totalSeconds / 3600);
+  const hours = Math.min(Math.floor(totalSeconds / 3600), 99);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const secs = totalSeconds % 60;
   const millis = Math.round((seconds - totalSeconds) * 1000);

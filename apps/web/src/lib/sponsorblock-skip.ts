@@ -14,16 +14,19 @@ declare global {
 
 const END_SKIP_THRESHOLD_SECONDS = 0.75;
 const END_SKIP_TARGET_OFFSET_SECONDS = 0.35;
+const MAX_PLAYBACK_STEP_SECONDS = 3.0;
 
 export function isSponsorBlockEndSkip(endTime: number, duration: number) {
-  return duration > 0 && endTime >= duration - END_SKIP_THRESHOLD_SECONDS;
+  return (
+    duration > 0 && endTime >= duration - END_SKIP_THRESHOLD_SECONDS && endTime <= duration + 30
+  );
 }
 
 export function sponsorBlockSkipTarget(endTime: number, duration: number) {
   if (isSponsorBlockEndSkip(endTime, duration)) {
     return Math.max(0, duration - END_SKIP_TARGET_OFFSET_SECONDS);
   }
-  return Math.max(0, endTime);
+  return Math.max(0, Math.min(duration > 0 ? duration - 1 : endTime, endTime));
 }
 
 export function crossedSponsorBlockStart(
@@ -32,6 +35,8 @@ export function crossedSponsorBlockStart(
   startTime: number,
 ) {
   if (previousTime === null || currentTime <= previousTime) return false;
+  // A seek jump (larger than normal continuous playback interval) must not trigger auto-skip
+  if (currentTime - previousTime > MAX_PLAYBACK_STEP_SECONDS) return false;
   return previousTime <= startTime + 0.5 && currentTime >= startTime;
 }
 

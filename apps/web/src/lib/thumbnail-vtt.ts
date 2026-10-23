@@ -1,20 +1,18 @@
 import type { PreviewFrameItem } from "../types/api";
 
-function formatVttTime(ms: number): string {
-  const totalSeconds = Math.floor(ms / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  const millis = ms % 1000;
-  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(millis).padStart(3, "0")}`;
+interface JsonVttCue {
+  startTime: number;
+  endTime: number;
+  text: string;
 }
 
-export function buildThumbnailVtt(frames: PreviewFrameItem[]): string | null {
+export function buildThumbnailVtt(
+  frames: PreviewFrameItem[],
+  durationSeconds?: number,
+): string | null {
   if (frames.length === 0) return null;
 
-  const lines: string[] = ["WEBVTT", ""];
-
-  let globalIndex = 0;
+  const cues: JsonVttCue[] = [];
   let currentTimeMs = 0;
 
   for (const frame of frames) {
@@ -30,16 +28,22 @@ export function buildThumbnailVtt(frames: PreviewFrameItem[]): string | null {
         const y = row * frameHeight;
         const startMs = currentTimeMs;
         const endMs = currentTimeMs + durationPerFrame;
-        lines.push(String(globalIndex + 1));
-        lines.push(`${formatVttTime(startMs)} --> ${formatVttTime(endMs)}`);
-        lines.push(`${url}#xywh=${x},${y},${frameWidth},${frameHeight}`);
-        lines.push("");
+        cues.push({
+          startTime: startMs / 1000,
+          endTime: endMs / 1000,
+          text: `${url}#xywh=${x},${y},${frameWidth},${frameHeight}`,
+        });
         currentTimeMs = endMs;
-        globalIndex++;
       }
     }
   }
 
-  const blob = new Blob([lines.join("\n")], { type: "text/vtt" });
+  if (cues.length === 0) return null;
+
+  if (durationSeconds && durationSeconds > cues[cues.length - 1].endTime) {
+    cues[cues.length - 1].endTime = durationSeconds;
+  }
+
+  const blob = new Blob([JSON.stringify(cues)], { type: "application/json" });
   return URL.createObjectURL(blob);
 }

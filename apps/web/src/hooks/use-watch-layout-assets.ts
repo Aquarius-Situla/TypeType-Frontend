@@ -37,7 +37,7 @@ export function useWatchVttAssets(
   const [chaptersVtt, setChaptersVtt] = useState<string | null>(null);
   const thumbnailAssetRef = useRef<{ key: string; vtt: string | null }>({ key: "", vtt: null });
   const chaptersAssetRef = useRef<{ key: string; vtt: string | null }>({ key: "", vtt: null });
-  const thumbnailKey = previewFramesKey(stream);
+  const thumbnailKey = `${stream.duration}:${previewFramesKey(stream)}`;
   const chaptersKey = streamSegmentsKey(stream);
   const sponsorChaptersKey = sponsorBlockSegmentsKey(sponsorBlockSegments);
 
@@ -54,11 +54,11 @@ export function useWatchVttAssets(
       ...frame,
       urls: frame.urls.map(proxyUrl),
     }));
-    const vtt = buildThumbnailVtt(proxied);
+    const vtt = buildThumbnailVtt(proxied, stream.duration);
     thumbnailAssetRef.current = { key: thumbnailKey, vtt };
     setThumbnailVtt(vtt);
     if (previousVtt) URL.revokeObjectURL(previousVtt);
-  }, [stream.previewFrames, thumbnailKey]);
+  }, [stream.previewFrames, stream.duration, thumbnailKey]);
 
   useEffect(() => {
     const key = `${showSponsorBlockChapters}:${stream.duration}:${chaptersKey}:${sponsorChaptersKey}`;
