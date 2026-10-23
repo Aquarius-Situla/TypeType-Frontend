@@ -2,6 +2,7 @@ import type { InfiniteData } from "@tanstack/react-query";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateProgress } from "../lib/api-collections";
 import { addHistory, clearHistory, fetchHistory, removeHistory } from "../lib/api-user";
+import { progressCacheScope } from "../lib/local-progress";
 import type { HistoryItem, ProgressItem } from "../types/user";
 import { useAuth } from "./use-auth";
 import { useDebouncedValue } from "./use-debounced-value";
@@ -36,7 +37,8 @@ function emptyHistoryData(data: HistoryInfiniteData | undefined): HistoryInfinit
 
 export function useHistory(searchQuery = "") {
   const qc = useQueryClient();
-  const { authReady, isAuthed } = useAuth();
+  const { authReady, isAuthed, me } = useAuth();
+  const progressScope = progressCacheScope(isAuthed ? me?.id : null);
   const debouncedQuery = useDebouncedValue(searchQuery, 300);
 
   const query = useInfiniteQuery({
@@ -79,11 +81,11 @@ export function useHistory(searchQuery = "") {
       await removeHistory(id);
     },
     onSuccess: (_, payload) => {
-      qc.setQueryData(["progress", payload.url], clearedProgress(payload.url));
+      qc.setQueryData(["progress", payload.url, progressScope], clearedProgress(payload.url));
       return qc
         .invalidateQueries({ queryKey: ["history"] })
         .then(() => qc.invalidateQueries({ queryKey: ["history-all"] }))
-        .then(() => qc.invalidateQueries({ queryKey: ["progress", payload.url] }));
+        .then(() => qc.invalidateQueries({ queryKey: ["progress", payload.url, progressScope] }));
     },
   });
 

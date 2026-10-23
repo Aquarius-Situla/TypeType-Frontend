@@ -3,6 +3,15 @@ import type { ProgressItem } from "../types/user";
 const STORAGE_PREFIX = "typetype:progress:";
 const MAX_LOCAL_ENTRIES = 500;
 
+export function progressCacheScope(userId?: string | null): string {
+  const normalized = userId?.trim();
+  return normalized ? `user:${encodeURIComponent(normalized)}` : "anonymous";
+}
+
+function storageKey(videoUrl: string, userId?: string | null): string {
+  return `${STORAGE_PREFIX}${progressCacheScope(userId)}:${videoUrl}`;
+}
+
 export function pruneLocalProgress(maxEntries = MAX_LOCAL_ENTRIES): void {
   if (typeof window === "undefined") return;
   try {
@@ -31,10 +40,10 @@ export function pruneLocalProgress(maxEntries = MAX_LOCAL_ENTRIES): void {
   }
 }
 
-export function getLocalProgress(videoUrl: string): ProgressItem | null {
+export function getLocalProgress(videoUrl: string, userId?: string | null): ProgressItem | null {
   if (typeof window === "undefined" || !videoUrl) return null;
   try {
-    const raw = localStorage.getItem(`${STORAGE_PREFIX}${videoUrl}`);
+    const raw = localStorage.getItem(storageKey(videoUrl, userId));
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (typeof parsed?.position === "number") {
@@ -54,9 +63,10 @@ export function saveLocalProgress(
   videoUrl: string,
   position: number,
   updatedAt = Date.now(),
+  userId?: string | null,
 ): void {
   if (typeof window === "undefined" || !videoUrl) return;
-  const key = `${STORAGE_PREFIX}${videoUrl}`;
+  const key = storageKey(videoUrl, userId);
   const serialized = JSON.stringify({
     position: Math.round(position),
     updatedAt,
@@ -75,10 +85,13 @@ export function saveLocalProgress(
   }
 }
 
-export function getBatchLocalProgress(videoUrls: string[]): Map<string, ProgressItem> {
+export function getBatchLocalProgress(
+  videoUrls: string[],
+  userId?: string | null,
+): Map<string, ProgressItem> {
   const map = new Map<string, ProgressItem>();
   for (const url of videoUrls) {
-    const item = getLocalProgress(url);
+    const item = getLocalProgress(url, userId);
     if (item) map.set(url, item);
   }
   return map;

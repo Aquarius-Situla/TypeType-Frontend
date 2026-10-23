@@ -31,9 +31,30 @@ describe("local-progress", () => {
 
   it("gracefully ignores corrupted JSON in localStorage", () => {
     const url = "https://example.com/watch?v=corrupted";
-    localStorage.setItem(`typetype:progress:${url}`, "{not-valid-json");
+    localStorage.setItem(`typetype:progress:anonymous:${url}`, "{not-valid-json");
 
     expect(getLocalProgress(url)).toBeNull();
+  });
+
+  it("keeps progress isolated between accounts and anonymous playback", () => {
+    const url = "https://example.com/watch?v=shared";
+    saveLocalProgress(url, 45, 1000, "account-a");
+    saveLocalProgress(url, 90, 2000, "account-b");
+
+    expect(getLocalProgress(url, "account-a")?.position).toBe(45);
+    expect(getLocalProgress(url, "account-b")?.position).toBe(90);
+    expect(getLocalProgress(url)).toBeNull();
+  });
+
+  it("does not reuse legacy cache entries without an account identity", () => {
+    const url = "https://example.com/watch?v=legacy";
+    localStorage.setItem(
+      `typetype:progress:${url}`,
+      JSON.stringify({ position: 45, updatedAt: 1000 }),
+    );
+
+    expect(getLocalProgress(url)).toBeNull();
+    expect(getLocalProgress(url, "account-a")).toBeNull();
   });
 
   it("handles batch progress queries", () => {
@@ -43,12 +64,17 @@ describe("local-progress", () => {
 
     saveLocalProgress(url1, 10, 1000);
     saveLocalProgress(url2, 20, 2000);
+    saveLocalProgress(url1, 99, 3000, "account-b");
 
     const batch = getBatchLocalProgress([url1, url2, url3]);
     expect(batch.size).toBe(2);
     expect(batch.get(url1)?.position).toBe(10);
     expect(batch.get(url2)?.position).toBe(20);
     expect(batch.has(url3)).toBe(false);
+
+    const accountBatch = getBatchLocalProgress([url1, url2, url3], "account-b");
+    expect(accountBatch.size).toBe(1);
+    expect(accountBatch.get(url1)?.position).toBe(99);
   });
 
   it("prunes oldest entries when exceeding maxEntries", () => {
