@@ -18,6 +18,17 @@ describe("rich text segments", () => {
     ]);
   });
 
+  test("recognizes multi-digit hour timestamps in comments", () => {
+    expect(parseTextSegments("Highlight at 100:22:50 here")).toEqual([
+      { id: "t0", type: "text", value: "Highlight at " },
+      { id: "c1", type: "timecode", value: "100:22:50", seconds: 361370 },
+      { id: "t2", type: "text", value: " here" },
+    ]);
+    expect(parseTextSegments("1:23:45")).toEqual([
+      { id: "c0", type: "timecode", value: "1:23:45", seconds: 5025 },
+    ]);
+  });
+
   test("recognizes timestamps linked to the current YouTube video", () => {
     expect(
       sameVideoTimestampSeconds(
