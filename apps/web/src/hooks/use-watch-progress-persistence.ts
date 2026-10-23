@@ -1,15 +1,9 @@
 import { useCallback, useEffect, useRef } from "react";
 import { recordClientEvent } from "../lib/client-debug-log";
+import { debugConsole } from "../lib/debug-console";
+import { evaluateProgressPersistence, type SaveReason } from "../lib/watch-resume";
 
 type MutateFn = (positionMs: number, keepalive: boolean) => void;
-type SaveReason =
-  | "interval"
-  | "pagehide"
-  | "pause"
-  | "seeked"
-  | "threshold"
-  | "unmount"
-  | "visibility";
 
 type Args = {
   durationSec: number;
@@ -29,21 +23,31 @@ export function useWatchProgressPersistence({ durationSec, isLive, mutate }: Arg
   saveRef.current = (reason: SaveReason) => {
     const positionMs = Math.max(0, Math.round(positionRef.current));
     const durationMs = durationSec * 1000;
-    if (!Number.isFinite(positionMs)) return;
-    if (reason === "seeked" && positionMs < 5000 && maxPositionSeenRef.current >= 5000) {
-      lastSavedPositionRef.current = 0;
-      recordClientEvent("progress.save", { positionMs: 0, reason });
-      mutateRef.current(0, false);
-      return;
+    const previousSaved = lastSavedPositionRef.current;
+    const decision = evaluateProgressPersistence({
+      positionMs,
+      lastSavedPositionMs: previousSaved,
+      maxPositionSeenMs: maxPositionSeenRef.current,
+      durationMs,
+      reason,
+    });
+    if (!decision.shouldSave) return;
+    lastSavedPositionRef.current = decision.positionMs;
+    recordClientEvent("progress.save", { positionMs: decision.positionMs, reason });
+    if (decision.isBackwardJump) {
+      debugConsole("progress.backward_seek", {
+        positionMs: decision.positionMs,
+        previousSavedMs: previousSaved,
+        reason,
+      });
+    } else {
+      debugConsole("progress.saved", {
+        positionMs: decision.positionMs,
+        reason,
+        keepalive: decision.keepalive,
+      });
     }
-    if (positionMs <= 0) return;
-    if (positionMs >= durationMs * 0.95) return;
-    if (positionMs < 5000) return;
-    if (reason !== "seeked" && positionMs < lastSavedPositionRef.current) return;
-    lastSavedPositionRef.current = positionMs;
-    recordClientEvent("progress.save", { positionMs, reason });
-    const keepalive = reason === "pagehide" || reason === "unmount" || reason === "visibility";
-    mutateRef.current(positionMs, keepalive);
+    mutateRef.current(decision.positionMs, decision.keepalive);
   };
 
   const handleTimeUpdate = useCallback(
@@ -76,14 +80,19 @@ export function useWatchProgressPersistence({ durationSec, isLive, mutate }: Arg
     const onPageHide = () => {
       saveRef.current("pagehide");
     };
+    const onBeforeUnload = () => {
+      saveRef.current("beforeunload");
+    };
     const interval = setInterval(() => saveRef.current("interval"), 5_000);
     document.addEventListener("visibilitychange", onVisibilityChange);
     window.addEventListener("pagehide", onPageHide);
+    window.addEventListener("beforeunload", onBeforeUnload);
     return () => {
       saveRef.current("unmount");
       clearInterval(interval);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("pagehide", onPageHide);
+      window.removeEventListener("beforeunload", onBeforeUnload);
     };
   }, [isLive]);
 
