@@ -4,6 +4,15 @@ import {
   getWatchSecondaryMetaContainerClass,
 } from "../src/components/watch-layout-classes";
 
+test("lets the watch player fill available width beside recommendations", () => {
+  const classes = getWatchLayoutClasses(false, true);
+
+  expect(classes.containerClass).toContain("lg:flex-row");
+  expect(classes.playerWrapClass).toContain("flex-1");
+  expect(classes.playerWrapClass).toContain("max-w-[1600px]");
+  expect(classes.playerWrapClass).not.toContain("vh]");
+});
+
 test("exposes stable watch hooks without changing the player identity", () => {
   const classes = getWatchLayoutClasses(false, false);
 

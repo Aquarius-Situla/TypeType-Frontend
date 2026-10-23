@@ -27,7 +27,7 @@ export function getWatchLayoutClasses(
     playerWrapClass: cinemaMode
       ? "watch-player-wrap overflow-hidden bg-black"
       : `watch-player-wrap min-w-0 flex flex-col gap-3 ${
-          hasSecondaryContent ? "flex-1 max-w-[133.333vh]" : "mx-auto w-full max-w-[1600px]"
+          hasSecondaryContent ? "flex-1 max-w-[1600px]" : "mx-auto w-full max-w-[1600px]"
         }`,
     playerBoxClass: cinemaMode
       ? "watch-player-box relative mx-auto aspect-video w-[min(100%,calc((100svh-4.5rem)*16/9))]"
