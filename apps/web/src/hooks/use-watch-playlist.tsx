@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { type ReactNode, useCallback, useEffect } from "react";
 import { WatchPlaylistPanel } from "../components/watch-playlist-panel";
+import { isBilibiliCollectionUrl } from "../lib/api-bilibili-channel-collections";
 import { playlistShuffleSeed } from "../lib/continuous-playlist";
 import { applyCustomOrder } from "../lib/playlist-shuffle";
 import { isManagedPlaylistId } from "../lib/playlist-url";
@@ -49,7 +50,7 @@ export function useWatchPlaylist(
   const managedList = list && isManagedPlaylistId(list) ? list : "";
   const publicListUrl =
     list && !isManagedPlaylistId(list)
-      ? list.startsWith("http") || list.startsWith("bilibili:")
+      ? list.startsWith("http") || isBilibiliCollectionUrl(list)
         ? list
         : `https://www.youtube.com/playlist?list=${list}`
       : "";
