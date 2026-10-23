@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  fetchBilibiliCollectionEpisodes,
   isBilibiliCollectionUrl,
   parseBilibiliCollectionParams,
+  toCanonicalBilibiliCollectionUrl,
 } from "../lib/api-bilibili-channel-collections";
 import {
   deleteSavedPlaylist,
@@ -11,9 +11,7 @@ import {
 } from "../lib/api-saved-playlists";
 import {
   getBilibiliSavedPlaylists,
-  isBilibiliSavedPlaylist,
   removeBilibiliPlaylistLocally,
-  saveBilibiliPlaylistLocally,
 } from "../lib/bilibili-saved-playlists";
 import { playlistListId } from "../lib/playlist-url";
 import type { PublicPlaylistInfo, SavedPlaylistItem } from "../types/playlist";
@@ -29,11 +27,21 @@ function samePlaylist(item: SavedPlaylistItem, url: string): boolean {
   if (listId && (item.publicPlaylistId === listId || playlistListId(item.url) === listId)) {
     return true;
   }
-  if (isBilibiliCollectionUrl(url) || isBilibiliCollectionUrl(item.url)) {
+  if (
+    isBilibiliCollectionUrl(url) ||
+    isBilibiliCollectionUrl(item.url) ||
+    isBilibiliCollectionUrl(item.id) ||
+    (item.publicPlaylistId && isBilibiliCollectionUrl(item.publicPlaylistId))
+  ) {
     const p1 = parseBilibiliCollectionParams(url);
-    const p2 = parseBilibiliCollectionParams(item.url);
-    if (p1 && p2 && p1.kind === p2.kind && p1.mid === p2.mid && p1.id === p2.id) {
-      return true;
+    const p2 =
+      parseBilibiliCollectionParams(item.url) ||
+      parseBilibiliCollectionParams(item.id) ||
+      (item.publicPlaylistId ? parseBilibiliCollectionParams(item.publicPlaylistId) : null);
+    if (p1 && p2 && p1.kind === p2.kind && p1.id === p2.id) {
+      if (!p1.mid || !p2.mid || p1.mid === p2.mid) {
+        return true;
+      }
     }
   }
   return false;
@@ -47,11 +55,32 @@ export function useSavedPlaylists() {
     queryFn: async () => {
       const remote = authReady && isAuthed ? await fetchSavedPlaylists().catch(() => []) : [];
       const local = getBilibiliSavedPlaylists();
-      const seen = new Set<string>();
+
+      // If user is authenticated and has local Bilibili playlists, attempt background sync to remote
+      if (authReady && isAuthed && local.length > 0) {
+        for (const item of local) {
+          const canonicalUrl = toCanonicalBilibiliCollectionUrl(item.url);
+          try {
+            const savedRemote = await savePublicPlaylist(canonicalUrl);
+            removeBilibiliPlaylistLocally(item.url);
+            removeBilibiliPlaylistLocally(item.id);
+            if (!remote.some((r) => samePlaylist(r, item.url))) {
+              remote.unshift(savedRemote);
+            }
+          } catch {
+            // Keep local copy as fallback if server save fails
+          }
+        }
+      }
+
+      const currentLocal = getBilibiliSavedPlaylists();
       const merged: SavedPlaylistItem[] = [];
-      for (const item of [...remote, ...local]) {
-        if (!seen.has(item.id)) {
-          seen.add(item.id);
+      for (const item of [...remote, ...currentLocal]) {
+        if (
+          !merged.some(
+            (m) => m.id === item.id || samePlaylist(m, item.url) || samePlaylist(m, item.id),
+          )
+        ) {
           merged.push(item);
         }
       }
@@ -60,62 +89,35 @@ export function useSavedPlaylists() {
     enabled: true,
   });
 
+  const items = query.data ?? [];
+
   const save = useMutation({
     mutationFn: async (input: SavePlaylistInput) => {
       const url = typeof input === "string" ? input : input.url;
-      const info = typeof input === "string" ? undefined : input.info;
-
-      if (isBilibiliCollectionUrl(url)) {
-        let title = info?.title;
-        let cover = info?.thumbnailUrl;
-        let uploader = info?.uploaderName ?? "";
-        let streamCount = info?.streamCount ?? 0;
-        let playlistType = info?.playlistType ?? "collection";
-        let collectionId = info?.id;
-
-        if (!title || !collectionId) {
-          const res = await fetchBilibiliCollectionEpisodes(url);
-          title = res.playlist.title;
-          cover = res.playlist.thumbnailUrl;
-          uploader = res.playlist.uploaderName;
-          streamCount = res.playlist.streamCount;
-          playlistType = res.playlist.playlistType;
-          collectionId = res.playlist.id;
-        }
-
-        const item: SavedPlaylistItem = {
-          id: collectionId || `bilibili:${url}`,
-          publicPlaylistId: collectionId || url,
-          url,
-          title: title || "合集",
-          thumbnailUrl: cover || "",
-          uploaderName: uploader,
-          streamCount,
-          playlistType,
-          savedAt: Date.now(),
-        };
-
-        saveBilibiliPlaylistLocally(item);
-        return item;
-      }
-
-      return savePublicPlaylist(url);
+      const targetUrl = isBilibiliCollectionUrl(url) ? toCanonicalBilibiliCollectionUrl(url) : url;
+      const remoteItem = await savePublicPlaylist(targetUrl);
+      removeBilibiliPlaylistLocally(url);
+      removeBilibiliPlaylistLocally(targetUrl);
+      return remoteItem;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
   });
 
   const remove = useMutation({
     mutationFn: async (idOrUrl: string) => {
-      if (isBilibiliSavedPlaylist(idOrUrl)) {
-        removeBilibiliPlaylistLocally(idOrUrl);
-        return;
+      const existing = items.find((item) => samePlaylist(item, idOrUrl));
+      removeBilibiliPlaylistLocally(idOrUrl);
+      if (existing) {
+        removeBilibiliPlaylistLocally(existing.id);
+        removeBilibiliPlaylistLocally(existing.url);
       }
-      return deleteSavedPlaylist(idOrUrl);
+      if (authReady && isAuthed) {
+        const idToDelete = existing?.id || idOrUrl;
+        await deleteSavedPlaylist(idToDelete).catch(() => {});
+      }
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
   });
-
-  const items = query.data ?? [];
 
   return {
     query,

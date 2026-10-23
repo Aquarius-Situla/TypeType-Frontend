@@ -1,19 +1,7 @@
 import type { VideoItem } from "../types/api";
-import type { PublicPlaylistResponse } from "../types/playlist";
 import { request } from "./api";
 import { API_BASE as BASE } from "./env";
 import { proxyImage } from "./proxy";
-
-type BilibiliSeasonOrSeriesMeta = {
-  season_id?: number;
-  series_id?: number;
-  mid: number;
-  name?: string;
-  title?: string;
-  cover?: string;
-  description?: string;
-  total?: number;
-};
 
 type BilibiliArchiveItem = {
   aid: number;
@@ -28,34 +16,6 @@ type BilibiliArchiveItem = {
   stat?: {
     view?: number;
     danmaku?: number;
-  };
-};
-
-type BilibiliSeasonArchivesResponse = {
-  code: number;
-  message: string;
-  data?: {
-    meta?: BilibiliSeasonOrSeriesMeta;
-    page?: {
-      page_num: number;
-      page_size: number;
-      total: number;
-    };
-    archives?: BilibiliArchiveItem[];
-  };
-};
-
-type BilibiliSeriesArchivesResponse = {
-  code: number;
-  message: string;
-  data?: {
-    meta?: BilibiliSeasonOrSeriesMeta;
-    page?: {
-      num: number;
-      size: number;
-      total: number;
-    };
-    archives?: BilibiliArchiveItem[];
   };
 };
 
@@ -277,91 +237,6 @@ export function toCanonicalBilibiliCollectionUrl(url: string): string {
   const business = parsed.kind === "series" ? "space_series" : "space_collection";
   const midSegment = parsed.mid ? `${parsed.mid}` : "";
   return `https://www.bilibili.com/medialist/play/${midSegment}?business=${business}&business_id=${parsed.id}`;
-}
-
-export async function fetchBilibiliCollectionEpisodes(
-  collectionUrlOrId: string,
-  nextpage?: string,
-): Promise<PublicPlaylistResponse> {
-  const parsed = parseBilibiliCollectionParams(collectionUrlOrId);
-  if (!parsed) {
-    throw new Error("Invalid Bilibili collection URL or ID");
-  }
-
-  const pageNum = nextpage ? Number(nextpage) || 1 : 1;
-  const pageSize = 30;
-
-  if (parsed.kind === "season") {
-    const url = `${BASE}/bilibili/x/polymer/web-space/seasons_archives_list?mid=${encodeURIComponent(parsed.mid)}&season_id=${encodeURIComponent(parsed.id)}&sort_reverse=false&page_num=${pageNum}&page_size=${pageSize}`;
-    const [res, uploaderName] = await Promise.all([
-      request<BilibiliSeasonArchivesResponse>(url),
-      fetchBilibiliUploaderName(parsed.mid),
-    ]);
-    if (res.code !== 0) {
-      throw new Error(res.message || `Bilibili season error: ${res.code}`);
-    }
-    const data = res.data;
-    const archives = data?.archives ?? [];
-    const meta = data?.meta;
-    const title = meta?.name || meta?.title || "合集";
-    const rawCover = meta?.cover || archives[0]?.pic || "";
-    const cover = rawCover ? proxyImage(rawCover) : "";
-    const total = meta?.total ?? archives.length;
-    const uploaderUrl = parsed.mid ? `https://space.bilibili.com/${parsed.mid}` : "";
-
-    const videos = archives.map((archive) => toVideoItem(archive, uploaderName, uploaderUrl));
-    const page = data?.page;
-    const hasMore = page ? page.page_num * page.page_size < page.total : false;
-
-    return {
-      playlist: {
-        id: `bilibili:season:${parsed.mid}:${parsed.id}`,
-        url: collectionUrlOrId,
-        title,
-        thumbnailUrl: cover,
-        uploaderName,
-        streamCount: total,
-        playlistType: "collection",
-      },
-      videos,
-      nextpage: hasMore ? String(pageNum + 1) : null,
-    };
-  }
-
-  const url = `${BASE}/bilibili/x/series/archives?mid=${encodeURIComponent(parsed.mid)}&series_id=${encodeURIComponent(parsed.id)}&only_normal=true&sort=asc&pn=${pageNum}&ps=${pageSize}`;
-  const [res, uploaderName] = await Promise.all([
-    request<BilibiliSeriesArchivesResponse>(url),
-    fetchBilibiliUploaderName(parsed.mid),
-  ]);
-  if (res.code !== 0) {
-    throw new Error(res.message || `Bilibili series error: ${res.code}`);
-  }
-  const data = res.data;
-  const archives = data?.archives ?? [];
-  const meta = data?.meta;
-  const title = meta?.name || meta?.title || "系列";
-  const rawCover = meta?.cover || archives[0]?.pic || "";
-  const cover = rawCover ? proxyImage(rawCover) : "";
-  const total = meta?.total ?? archives.length;
-  const uploaderUrl = parsed.mid ? `https://space.bilibili.com/${parsed.mid}` : "";
-
-  const videos = archives.map((archive) => toVideoItem(archive, uploaderName, uploaderUrl));
-  const page = data?.page;
-  const hasMore = page ? page.num * page.size < page.total : false;
-
-  return {
-    playlist: {
-      id: `bilibili:series:${parsed.mid}:${parsed.id}`,
-      url: collectionUrlOrId,
-      title,
-      thumbnailUrl: cover,
-      uploaderName,
-      streamCount: total,
-      playlistType: "series",
-    },
-    videos,
-    nextpage: hasMore ? String(pageNum + 1) : null,
-  };
 }
 
 export async function fetchBilibiliChannelSearch(

@@ -30,7 +30,14 @@ export function getBilibiliSavedPlaylists(): SavedPlaylistItem[] {
 
 export function isBilibiliSavedPlaylist(idOrUrl: string): boolean {
   if (!idOrUrl) return false;
-  if (idOrUrl.startsWith("bilibili:") || isBilibiliCollectionUrl(idOrUrl)) return true;
+  if (
+    idOrUrl.startsWith("bilibili:") ||
+    idOrUrl.startsWith("season:") ||
+    idOrUrl.startsWith("series:") ||
+    isBilibiliCollectionUrl(idOrUrl)
+  ) {
+    return true;
+  }
   const current = getBilibiliSavedPlaylists();
   return current.some(
     (item) => item.id === idOrUrl || item.url === idOrUrl || item.publicPlaylistId === idOrUrl,
@@ -43,7 +50,8 @@ export function saveBilibiliPlaylistLocally(playlist: SavedPlaylistItem): void {
   try {
     const current = getBilibiliSavedPlaylists();
     // Remove if already exists (same id or same bilibili params)
-    const targetParams = parseBilibiliCollectionParams(playlist.url);
+    const targetParams =
+      parseBilibiliCollectionParams(playlist.url) || parseBilibiliCollectionParams(playlist.id);
     const filtered = current.filter((item) => {
       if (
         item.id === playlist.id ||
@@ -53,14 +61,16 @@ export function saveBilibiliPlaylistLocally(playlist: SavedPlaylistItem): void {
         return false;
       }
       if (targetParams) {
-        const itemParams = parseBilibiliCollectionParams(item.url);
+        const itemParams =
+          parseBilibiliCollectionParams(item.url) || parseBilibiliCollectionParams(item.id);
         if (
           itemParams &&
           itemParams.kind === targetParams.kind &&
-          itemParams.mid === targetParams.mid &&
           itemParams.id === targetParams.id
         ) {
-          return false;
+          if (!itemParams.mid || !targetParams.mid || itemParams.mid === targetParams.mid) {
+            return false;
+          }
         }
       }
       return true;
@@ -86,14 +96,16 @@ export function removeBilibiliPlaylistLocally(idOrUrl: string): boolean {
         return false;
       }
       if (targetParams) {
-        const itemParams = parseBilibiliCollectionParams(item.url);
+        const itemParams =
+          parseBilibiliCollectionParams(item.url) || parseBilibiliCollectionParams(item.id);
         if (
           itemParams &&
           itemParams.kind === targetParams.kind &&
-          itemParams.mid === targetParams.mid &&
           itemParams.id === targetParams.id
         ) {
-          return false;
+          if (!itemParams.mid || !targetParams.mid || itemParams.mid === targetParams.mid) {
+            return false;
+          }
         }
       }
       return true;
