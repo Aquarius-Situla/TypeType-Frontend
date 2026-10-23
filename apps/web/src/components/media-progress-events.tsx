@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { recordClientEvent } from "../lib/client-debug-log";
 import { resolveMediaProgressPosition } from "../lib/media-progress-position";
+import { clearVidstackEndedState } from "../lib/player-ended-state";
 import { consumeSabrSeekTarget, isSabrPlaybackEventTransient } from "../lib/sabr-vidstack-bridge";
 import { useMediaPlayer } from "../lib/vidstack";
 
@@ -70,7 +71,16 @@ export function MediaProgressEvents({
         onTimeUpdateRef.current?.(positionMs);
         return true;
       };
-      const update = () => reportPosition();
+      const update = () => {
+        if (
+          Number.isFinite(media.duration) &&
+          media.duration > 0 &&
+          media.currentTime < media.duration - 2
+        ) {
+          clearVidstackEndedState(player, media);
+        }
+        return reportPosition();
+      };
       const readPosition = () => toPositionMs(media);
       const suppressPlaybackEvent = () =>
         suppressPlaybackEventsRef.current ||
@@ -86,6 +96,13 @@ export function MediaProgressEvents({
         onPauseRef.current?.();
       };
       const seeked = () => {
+        if (
+          Number.isFinite(media.duration) &&
+          media.duration > 0 &&
+          media.currentTime < media.duration - 2
+        ) {
+          clearVidstackEndedState(player, media);
+        }
         const requestedPositionMs = video ? consumeSabrSeekTarget(video) : null;
         if (!reportPosition(requestedPositionMs)) return;
         onSeekedRef.current?.();
@@ -95,6 +112,24 @@ export function MediaProgressEvents({
         onSeekingRef.current?.(toPositionMs(media));
       };
       const ended = () => {
+        const isNearEnd =
+          Number.isFinite(media.duration) &&
+          media.duration > 0 &&
+          media.currentTime >= media.duration - 2;
+
+        if (!isNearEnd) {
+          clearVidstackEndedState(player, media);
+          window.setTimeout(() => {
+            clearVidstackEndedState(player, media);
+          }, 0);
+          recordClientEvent("media.ended_rejected", {
+            currentMs: toPositionMs(media),
+            durationMs: Number.isFinite(media.duration) ? Math.round(media.duration * 1000) : null,
+            tag: media.tagName,
+          });
+          return;
+        }
+
         update();
         recordClientEvent("media.ended", {
           currentMs: toPositionMs(media),
