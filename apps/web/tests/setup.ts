@@ -24,5 +24,9 @@ if (!("localStorage" in globalThis) || !globalThis.localStorage) {
 }
 
 if (typeof (globalThis as { window?: unknown }).window === "undefined") {
-  Object.defineProperty(globalThis, "window", { configurable: true, value: globalThis });
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    writable: true,
+    value: globalThis,
+  });
 }
