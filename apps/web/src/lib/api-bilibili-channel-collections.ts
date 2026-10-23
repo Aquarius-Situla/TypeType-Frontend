@@ -1,9 +1,5 @@
 import type { VideoItem } from "../types/api";
-import type {
-  ChannelPlaylistsResponse,
-  PublicPlaylistInfo,
-  PublicPlaylistResponse,
-} from "../types/playlist";
+import type { PublicPlaylistResponse } from "../types/playlist";
 import { request } from "./api";
 import { API_BASE as BASE } from "./env";
 import { proxyImage } from "./proxy";
@@ -32,32 +28,6 @@ type BilibiliArchiveItem = {
   stat?: {
     view?: number;
     danmaku?: number;
-  };
-};
-
-type BilibiliSeasonItem = {
-  meta: BilibiliSeasonOrSeriesMeta;
-  archives: BilibiliArchiveItem[];
-};
-
-type BilibiliSeriesItem = {
-  meta: BilibiliSeasonOrSeriesMeta;
-  archives: BilibiliArchiveItem[];
-};
-
-type BilibiliSeasonsSeriesListResponse = {
-  code: number;
-  message: string;
-  data?: {
-    items_lists?: {
-      page?: {
-        page_num: number;
-        page_size: number;
-        total: number;
-      };
-      seasons_list?: BilibiliSeasonItem[];
-      series_list?: BilibiliSeriesItem[];
-    };
   };
 };
 
@@ -223,6 +193,8 @@ export function isBilibiliCollectionUrl(url: string): boolean {
   return (
     url.startsWith("bilibili:season:") ||
     url.startsWith("bilibili:series:") ||
+    url.startsWith("season:") ||
+    url.startsWith("series:") ||
     url.includes("business=space_collection") ||
     url.includes("business=space_series") ||
     url.includes("/channel/seriesdetail") ||
@@ -239,11 +211,35 @@ export function parseBilibiliCollectionParams(url: string): {
     const trimmed = url.trim();
     if (trimmed.startsWith("bilibili:season:")) {
       const parts = trimmed.split(":");
-      return { kind: "season", mid: parts[2] ?? "", id: parts[3] ?? parts[2] };
+      return {
+        kind: "season",
+        mid: parts.length >= 4 ? parts[2] : "",
+        id: parts[parts.length - 1] ?? "",
+      };
     }
     if (trimmed.startsWith("bilibili:series:")) {
       const parts = trimmed.split(":");
-      return { kind: "series", mid: parts[2] ?? "", id: parts[3] ?? parts[2] };
+      return {
+        kind: "series",
+        mid: parts.length >= 4 ? parts[2] : "",
+        id: parts[parts.length - 1] ?? "",
+      };
+    }
+    if (trimmed.startsWith("season:")) {
+      const parts = trimmed.split(":");
+      return {
+        kind: "season",
+        mid: parts.length >= 3 ? parts[1] : "",
+        id: parts[parts.length - 1] ?? "",
+      };
+    }
+    if (trimmed.startsWith("series:")) {
+      const parts = trimmed.split(":");
+      return {
+        kind: "series",
+        mid: parts.length >= 3 ? parts[1] : "",
+        id: parts[parts.length - 1] ?? "",
+      };
     }
 
     const parsed = new URL(trimmed);
@@ -275,69 +271,12 @@ export function parseBilibiliCollectionParams(url: string): {
   }
 }
 
-export async function fetchBilibiliChannelCollections(
-  mid: string,
-  nextpage?: string,
-): Promise<ChannelPlaylistsResponse> {
-  const pageNum = nextpage ? Number(nextpage) || 1 : 1;
-  const pageSize = 20;
-  const url = `${BASE}/bilibili/x/polymer/web-space/seasons_series_list?mid=${encodeURIComponent(mid)}&page_num=${pageNum}&page_size=${pageSize}`;
-
-  const [res, uploaderName] = await Promise.all([
-    request<BilibiliSeasonsSeriesListResponse>(url),
-    fetchBilibiliUploaderName(mid),
-  ]);
-  if (res.code !== 0) {
-    throw new Error(res.message || `Bilibili seasons/series error: ${res.code}`);
-  }
-  const lists = res.data?.items_lists;
-  if (!lists) {
-    return { playlists: [], nextpage: null };
-  }
-
-  const playlists: PublicPlaylistInfo[] = [];
-
-  for (const season of lists.seasons_list ?? []) {
-    const meta = season.meta;
-    const seasonId = meta.season_id ?? 0;
-    const title = meta.name || meta.title || "";
-    const rawCover = meta.cover || season.archives?.[0]?.pic || "";
-    const cover = rawCover ? proxyImage(rawCover) : "";
-    const total = meta.total ?? season.archives.length;
-    playlists.push({
-      id: `bilibili:season:${meta.mid}:${seasonId}`,
-      url: `https://www.bilibili.com/medialist/play/${meta.mid}?business=space_collection&business_id=${seasonId}`,
-      title,
-      thumbnailUrl: cover,
-      uploaderName,
-      streamCount: total,
-      playlistType: "collection",
-    });
-  }
-
-  for (const series of lists.series_list ?? []) {
-    const meta = series.meta;
-    const seriesId = meta.series_id ?? 0;
-    const title = meta.name || meta.title || "";
-    const rawCover = meta.cover || series.archives?.[0]?.pic || "";
-    const cover = rawCover ? proxyImage(rawCover) : "";
-    const total = meta.total ?? series.archives.length;
-    playlists.push({
-      id: `bilibili:series:${meta.mid}:${seriesId}`,
-      url: `https://www.bilibili.com/medialist/play/${meta.mid}?business=space_series&business_id=${seriesId}`,
-      title,
-      thumbnailUrl: cover,
-      uploaderName,
-      streamCount: total,
-      playlistType: "series",
-    });
-  }
-
-  const page = lists.page;
-  const hasMore = page ? page.page_num * page.page_size < page.total : false;
-  const nextPageParam = hasMore ? String(pageNum + 1) : null;
-
-  return { playlists, nextpage: nextPageParam };
+export function toCanonicalBilibiliCollectionUrl(url: string): string {
+  const parsed = parseBilibiliCollectionParams(url);
+  if (!parsed) return url;
+  const business = parsed.kind === "series" ? "space_series" : "space_collection";
+  const midSegment = parsed.mid ? `${parsed.mid}` : "";
+  return `https://www.bilibili.com/medialist/play/${midSegment}?business=${business}&business_id=${parsed.id}`;
 }
 
 export async function fetchBilibiliCollectionEpisodes(

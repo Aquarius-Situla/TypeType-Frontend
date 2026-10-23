@@ -22,7 +22,7 @@ function PublicPlaylistPage() {
   const playlistUrl =
     url ||
     (list
-      ? list.startsWith("http") || list.startsWith("bilibili:")
+      ? list.startsWith("http") || isBilibiliCollectionUrl(list)
         ? list
         : `https://www.youtube.com/playlist?list=${list}`
       : "");

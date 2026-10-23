@@ -96,7 +96,7 @@ export function WatchPlaylistPanel({
 
   const isPublicPlaylist = Boolean(listId && !isManaged);
   const publicListUrl = listId
-    ? listId.startsWith("http") || listId.startsWith("bilibili:")
+    ? listId.startsWith("http") || isBilibiliCollectionUrl(listId)
       ? listId
       : `https://www.youtube.com/playlist?list=${listId}`
     : "";
