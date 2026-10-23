@@ -1,6 +1,19 @@
 import { expect, test } from "bun:test";
 import type * as dashjs from "dashjs";
+import { buildDashStreamingSettings } from "../src/components/video-player-core";
 import { installDashQualityCompat } from "../src/lib/dash-quality-compat";
+
+test("buildDashStreamingSettings raises forward buffer targets and enables stall recovery", () => {
+  const settings = buildDashStreamingSettings();
+  expect(settings.buffer).toEqual({
+    bufferTimeDefault: 24,
+    bufferTimeAtTopQuality: 36,
+    bufferTimeAtTopQualityLongForm: 60,
+    bufferToKeep: 20,
+  });
+  expect(settings.gaps).toEqual({ enableStallFix: true });
+  expect(settings.cmcd).toEqual({ enabled: false });
+});
 
 test("maps the removed dashjs quality method to the current API", () => {
   const calls: unknown[][] = [];

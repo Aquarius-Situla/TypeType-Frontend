@@ -1,4 +1,6 @@
+import "./setup";
 import { expect, test } from "bun:test";
+import { createBilibiliMpegtsConfig } from "../src/lib/bilibili-flv-loader";
 import { selectBilibiliFlvUrl } from "../src/lib/bilibili-flv-source";
 import { resolveManifestSrc } from "../src/lib/stream-src";
 import type { VideoStream } from "../src/types/stream";
@@ -136,4 +138,27 @@ test("does not select FLV for non-live or non-BiliBili playback", () => {
   expect(
     selectBilibiliFlvUrl(liveStream({ id: "https://www.youtube.com/watch?v=abc" }), true),
   ).toBeNull();
+});
+
+test("creates optimized mpegts configuration for Bilibili live flv playback", () => {
+  const configWithoutToken = createBilibiliMpegtsConfig();
+  expect(configWithoutToken).toEqual({
+    enableWorker: true,
+    lazyLoad: false,
+    stashInitialSize: 384 * 1024,
+    autoCleanupSourceBuffer: true,
+    autoCleanupMaxBackwardDuration: 120,
+    autoCleanupMinBackwardDuration: 60,
+  });
+
+  const configWithToken = createBilibiliMpegtsConfig("test-auth-token");
+  expect(configWithToken.headers).toEqual({
+    Authorization: "Bearer test-auth-token",
+  });
+  expect(configWithToken.enableWorker).toBe(true);
+  expect(configWithToken.stashInitialSize).toBe(384 * 1024);
+  expect(configWithToken.autoCleanupSourceBuffer).toBe(true);
+
+  const fallbackConfig = createBilibiliMpegtsConfig(null, false);
+  expect(fallbackConfig.enableWorker).toBe(false);
 });

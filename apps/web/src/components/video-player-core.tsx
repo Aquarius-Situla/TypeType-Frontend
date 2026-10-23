@@ -36,6 +36,29 @@ const loadHlsLibrary = (): Promise<HlsLibraryModule> => {
   return hlsLibraryPromise;
 };
 
+const STREAMING_BUFFER_POLICY = {
+  steadyBufferMs: 36_000,
+  maxBufferMs: 60_000,
+  backBufferMs: 20_000,
+} as const;
+
+export function buildDashStreamingSettings() {
+  const dashSettings = createDashSettings(STREAMING_BUFFER_POLICY);
+  return {
+    ...dashSettings,
+    buffer: {
+      ...dashSettings.buffer,
+      bufferTimeDefault: 24,
+      bufferTimeAtTopQuality: 36,
+      bufferTimeAtTopQualityLongForm: 60,
+    },
+    gaps: {
+      enableStallFix: true,
+    },
+    cmcd: { enabled: false },
+  };
+}
+
 function configureDashPlayer(player: dashjs.MediaPlayerClass, library: typeof dashjs): void {
   installDashQualityCompat(player);
   const onDashUpdate = () => notifyDashPlayer();
@@ -43,10 +66,7 @@ function configureDashPlayer(player: dashjs.MediaPlayerClass, library: typeof da
   player.on(library.MediaPlayer.events.TRACK_CHANGE_RENDERED, onDashUpdate);
   player.on(library.MediaPlayer.events.QUALITY_CHANGE_RENDERED, onDashUpdate);
   player.updateSettings({
-    streaming: {
-      ...createDashSettings(),
-      cmcd: { enabled: false },
-    },
+    streaming: buildDashStreamingSettings(),
   });
   notifyDashPlayer();
 }
@@ -62,7 +82,10 @@ export function onProviderChange(provider: MediaProviderAdapter | null) {
     let providerLibrary = hlsProviderLibraries.get(provider);
     if (!providerLibrary) {
       providerLibrary = loadHlsLibrary().then((library) => {
-        provider.config = createHlsConfig({ FetchLoader: library.FetchLoader });
+        provider.config = createHlsConfig({
+          FetchLoader: library.FetchLoader,
+          policy: STREAMING_BUFFER_POLICY,
+        });
         return library;
       });
       hlsProviderLibraries.set(provider, providerLibrary);
