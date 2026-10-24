@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useChannelPlaylists } from "../hooks/use-channel-playlists";
+import { useScopedValue } from "../hooks/use-scoped-value";
 import { m } from "../paraglide/messages.js";
 import type { PublicPlaylistInfo } from "../types/playlist";
 import { PageSpinner } from "./page-spinner";
@@ -29,7 +30,7 @@ export function ChannelPlaylistsSection({ channelUrl }: Props) {
     (pl, i, arr) => arr.findIndex((x) => x.url === pl.url) === i,
   );
 
-  const [subFilter, setSubFilter] = useState<SubFilter>("all");
+  const [subFilter, setSubFilter] = useScopedValue<SubFilter>(channelUrl, "all");
 
   const { collectionsCount, seriesCount } = useMemo(() => {
     let c = 0;

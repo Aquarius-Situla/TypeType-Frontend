@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Pencil } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ConfirmModal } from "../components/confirm-modal";
 import { PlaylistActions } from "../components/playlist-actions";
 import { PlaylistGrid } from "../components/playlist-grid";
@@ -9,15 +9,12 @@ import { PlaylistSectionTabs } from "../components/playlist-section-tabs";
 import { PlaylistSortMenu } from "../components/playlist-sort-menu";
 import { useBlockedFilter } from "../hooks/use-blocked-filter";
 import { usePlaylist } from "../hooks/use-playlist";
+import { usePlaylistCollectionMeta } from "../hooks/use-playlist-collection-meta";
 import { usePlaylists } from "../hooks/use-playlists";
+import { useScopedValue } from "../hooks/use-scoped-value";
 import { randomShuffleSeed, shuffleByKey } from "../lib/playlist-shuffle";
 import { type PlaylistSortMode, sortPlaylistVideos } from "../lib/playlist-sort";
-import {
-  ensureCollectionMetadata,
-  getSubscribedCollectionMeta,
-  isCollectionPlaylist,
-  type SubscribedCollectionMeta,
-} from "../lib/stream-collections";
+import { isCollectionPlaylist } from "../lib/stream-collections";
 import { markWatchAutoplayIntent } from "../lib/watch-autoplay-intent";
 import { toPublicWatchParam } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
@@ -33,19 +30,15 @@ function PlaylistDetailPage() {
   const [pendingRemove, setPendingRemove] = useState<PlaylistVideoItem | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [sortMode, setSortMode] = useState<PlaylistSortMode>("manual");
-  const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
+  const [activeSectionId, setActiveSectionId] = useScopedValue<string | null>(id, null);
 
   const isCollection = Boolean(playlist && isCollectionPlaylist(playlist));
-  const [collectionMeta, setCollectionMeta] = useState<SubscribedCollectionMeta | undefined>(() =>
-    getSubscribedCollectionMeta(id),
+  const collectionMeta = usePlaylistCollectionMeta(
+    id,
+    isCollection,
+    playlist?.name ?? "",
+    playlist?.videos ?? [],
   );
-
-  useEffect(() => {
-    if (!isCollection || !playlist) return;
-    void ensureCollectionMetadata(id, playlist.name, playlist.videos ?? []).then((meta) => {
-      if (meta) setCollectionMeta(meta);
-    });
-  }, [isCollection, id, playlist]);
 
   const allVideos = playlist?.videos ?? [];
   const sections =

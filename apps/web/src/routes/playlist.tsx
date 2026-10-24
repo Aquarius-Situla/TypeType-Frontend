@@ -9,16 +9,13 @@ import { Toast } from "../components/toast";
 import { VideoGrid } from "../components/video-grid";
 import { VideoGridSkeleton } from "../components/video-grid-skeleton";
 import { useBlockedFilter } from "../hooks/use-blocked-filter";
+import { usePlaylistCollectionMeta } from "../hooks/use-playlist-collection-meta";
 import { usePublicPlaylist } from "../hooks/use-public-playlist";
 import { useSavedPlaylists } from "../hooks/use-saved-playlists";
+import { useScopedValue } from "../hooks/use-scoped-value";
 import { isBilibiliCollectionUrl } from "../lib/api-bilibili-channel-collections";
 import { randomShuffleSeed, shuffleByKey } from "../lib/playlist-shuffle";
 import { playlistListId } from "../lib/playlist-url";
-import {
-  ensureCollectionMetadata,
-  getSubscribedCollectionMeta,
-  type SubscribedCollectionSectionMeta,
-} from "../lib/stream-collections";
 import { markWatchAutoplayIntent } from "../lib/watch-autoplay-intent";
 import { toPublicWatchParam } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
@@ -51,19 +48,17 @@ function PublicPlaylistPage() {
   const info = data?.pages[0]?.playlist;
   const isCollection = isBilibiliCollectionUrl(playlistUrl) || info?.playlistType === "collection";
 
-  const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
-  const [collectionSections, setCollectionSections] = useState<SubscribedCollectionSectionMeta[]>(
-    () => getSubscribedCollectionMeta(playlistUrl)?.sections ?? [],
+  const [activeSectionId, setActiveSectionId] = useScopedValue<string | null>(playlistUrl, null);
+  const collectionMeta = usePlaylistCollectionMeta(
+    playlistUrl,
+    isCollection,
+    info?.title ?? "",
+    streams,
   );
-
-  useEffect(() => {
-    if (!streams.length || !isCollection) return;
-    void ensureCollectionMetadata(playlistUrl, info?.title ?? "", streams).then((meta) => {
-      if (meta?.sections?.length) setCollectionSections(meta.sections);
-    });
-  }, [streams, isCollection, playlistUrl, info?.title]);
-
-  const sections = collectionSections.length > 1 ? collectionSections : undefined;
+  const sections =
+    isCollection && collectionMeta?.sections && collectionMeta.sections.length > 1
+      ? collectionMeta.sections
+      : undefined;
   const activeSection = sections?.find((sec) => sec.id === activeSectionId);
   const visibleStreams = useMemo(() => {
     if (!activeSection) return streams;
