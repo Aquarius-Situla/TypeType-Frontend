@@ -8,6 +8,7 @@ import {
 } from "../lib/sponsorblock-settings";
 import {
   emitSponsorBlockSkip,
+  finishSponsorBlockEnd,
   isSponsorBlockEndSkip,
   sponsorBlockSkipTarget,
 } from "../lib/sponsorblock-skip";
@@ -107,11 +108,16 @@ export function SponsorBlockCurrentSegment({
 
   function skipCurrentSegment() {
     const endTime = getSponsorBlockEndTime(current, duration);
+    const isEndSkip = isSponsorBlockEndSkip(endTime, duration);
     emitSponsorBlockSkip({
       category: current.category,
       automatic: false,
-      toEnd: isSponsorBlockEndSkip(endTime, duration),
+      toEnd: isEndSkip,
     });
+    if (isEndSkip) {
+      finishSponsorBlockEnd(media, remote, duration);
+      return;
+    }
     seekSponsorBlockSegment(
       media instanceof HTMLVideoElement ? media : null,
       (seconds) => remote.seek(seconds),

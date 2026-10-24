@@ -43,3 +43,29 @@ export function crossedSponsorBlockStart(
 export function emitSponsorBlockSkip(detail: SponsorBlockSkipNoticeDetail) {
   window.dispatchEvent(new CustomEvent(SPONSORBLOCK_SKIP_EVENT, { detail }));
 }
+
+export function finishSponsorBlockEnd(
+  media: HTMLMediaElement | null | undefined,
+  remote: { pause: () => void; seek?: (seconds: number) => void },
+  duration?: number,
+) {
+  try {
+    remote.pause();
+  } catch {
+    // ignore
+  }
+  if (media) {
+    try {
+      media.pause();
+    } catch {
+      // ignore
+    }
+    media.dispatchEvent(new Event("ended", { bubbles: true }));
+  } else if (remote.seek && typeof duration === "number" && duration > 0) {
+    try {
+      remote.seek(duration);
+    } catch {
+      // ignore
+    }
+  }
+}
