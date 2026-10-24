@@ -74,7 +74,7 @@ export function activeStreamCollection(
   );
 }
 
-export type SubscribedCollectionEpisodeMeta = {
+type SubscribedCollectionEpisodeMeta = {
   videoId?: string;
   title: string;
   url: string;
@@ -100,7 +100,7 @@ export type SubscribedCollectionMeta = {
 const SUBSCRIBED_COLLECTIONS_KEY = "typetype:subscribed-collections";
 const SUBSCRIBED_COLLECTIONS_META_KEY = "typetype:subscribed-collections-meta";
 
-export function getSubscribedCollectionIds(): Set<string> {
+function getSubscribedCollectionIds(): Set<string> {
   if (typeof window === "undefined") return new Set();
   try {
     const raw = localStorage.getItem(SUBSCRIBED_COLLECTIONS_KEY);
@@ -112,7 +112,7 @@ export function getSubscribedCollectionIds(): Set<string> {
   }
 }
 
-export function getSubscribedCollectionsMeta(): Record<string, SubscribedCollectionMeta> {
+function getSubscribedCollectionsMeta(): Record<string, SubscribedCollectionMeta> {
   if (typeof window === "undefined") return {};
   try {
     const raw = localStorage.getItem(SUBSCRIBED_COLLECTIONS_META_KEY);
@@ -124,7 +124,7 @@ export function getSubscribedCollectionsMeta(): Record<string, SubscribedCollect
   }
 }
 
-export function saveSubscribedCollectionMeta(meta: SubscribedCollectionMeta): void {
+function saveSubscribedCollectionMeta(meta: SubscribedCollectionMeta): void {
   if (typeof window === "undefined" || !meta.id) return;
   try {
     const all = getSubscribedCollectionsMeta();
@@ -136,82 +136,6 @@ export function saveSubscribedCollectionMeta(meta: SubscribedCollectionMeta): vo
 export function getSubscribedCollectionMeta(id: string): SubscribedCollectionMeta | undefined {
   if (typeof window === "undefined" || !id) return undefined;
   return getSubscribedCollectionsMeta()[id];
-}
-
-export function addSubscribedCollectionId(id: string, meta?: SubscribedCollectionMeta): void {
-  if (typeof window === "undefined" || !id) return;
-  try {
-    const ids = getSubscribedCollectionIds();
-    ids.add(id);
-    localStorage.setItem(SUBSCRIBED_COLLECTIONS_KEY, JSON.stringify([...ids]));
-    if (meta) {
-      saveSubscribedCollectionMeta({ ...meta, id });
-    }
-  } catch {}
-}
-
-export function removeSubscribedCollectionId(id: string): void {
-  if (typeof window === "undefined" || !id) return;
-  try {
-    const ids = getSubscribedCollectionIds();
-    ids.delete(id);
-    localStorage.setItem(SUBSCRIBED_COLLECTIONS_KEY, JSON.stringify([...ids]));
-    const metas = getSubscribedCollectionsMeta();
-    if (metas[id]) {
-      delete metas[id];
-      localStorage.setItem(SUBSCRIBED_COLLECTIONS_META_KEY, JSON.stringify(metas));
-    }
-  } catch {}
-}
-
-export function extractCollectionOriginalTitle(playlist: {
-  name?: string;
-  description?: string;
-  id?: string;
-}): string {
-  if (playlist.id) {
-    const meta = getSubscribedCollectionMeta(playlist.id);
-    if (meta?.originalTitle) return meta.originalTitle;
-  }
-  const desc = playlist.description ?? "";
-  const match = desc.match(/\[collection(?::([^\]]+))?\]/i);
-  if (match && match[1]) return match[1].trim();
-  return playlist.name ?? "";
-}
-
-export function findSubscribedCollection(
-  collectionName: string,
-  playlists: { id: string; name?: string; description?: string }[],
-  sourceCollectionId?: string,
-): { id: string; name: string } | undefined {
-  const normName = collectionName.trim().toLowerCase();
-  const metas = getSubscribedCollectionsMeta();
-
-  if (sourceCollectionId) {
-    for (const [id, meta] of Object.entries(metas)) {
-      if (meta.sourceCollectionId === sourceCollectionId) {
-        const p = playlists.find((pl) => pl.id === id);
-        if (p) return { id: p.id, name: p.name ?? meta.title };
-      }
-    }
-  }
-
-  for (const p of playlists) {
-    if (!isCollectionPlaylist(p)) continue;
-    const meta = metas[p.id];
-    if (meta?.originalTitle && meta.originalTitle.trim().toLowerCase() === normName) {
-      return { id: p.id, name: p.name ?? meta.title };
-    }
-    const orig = extractCollectionOriginalTitle(p);
-    if (orig && orig.trim().toLowerCase() === normName) {
-      return { id: p.id, name: p.name ?? orig };
-    }
-    if (p.name && p.name.trim().toLowerCase() === normName) {
-      return { id: p.id, name: p.name };
-    }
-  }
-
-  return undefined;
 }
 
 export async function ensureCollectionMetadata(
