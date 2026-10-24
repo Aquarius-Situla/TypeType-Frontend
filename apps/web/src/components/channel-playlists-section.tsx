@@ -68,9 +68,7 @@ export function ChannelPlaylistsSection({ channelUrl }: Props) {
             }`}
           >
             <span>{m.ui_all()}</span>
-            <span
-              className={`text-[10px] ${subFilter === "all" ? "opacity-80" : "text-fg-soft"}`}
-            >
+            <span className={`text-[10px] ${subFilter === "all" ? "opacity-80" : "text-fg-soft"}`}>
               ({playlists.length})
             </span>
           </button>

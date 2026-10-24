@@ -26,8 +26,16 @@ import { m } from "../paraglide/messages.js";
 function PublicPlaylistPage() {
   const { list, url } = Route.useSearch();
   const playlistUrl =
-    url || (list ? (list.startsWith("http") || isBilibiliCollectionUrl(list) ? list : `https://www.youtube.com/playlist?list=${list}`) : "");
-  const listId = list || playlistListId(playlistUrl) || (isBilibiliCollectionUrl(playlistUrl) ? playlistUrl : undefined);
+    url ||
+    (list
+      ? list.startsWith("http") || isBilibiliCollectionUrl(list)
+        ? list
+        : `https://www.youtube.com/playlist?list=${list}`
+      : "");
+  const listId =
+    list ||
+    playlistListId(playlistUrl) ||
+    (isBilibiliCollectionUrl(playlistUrl) ? playlistUrl : undefined);
   const { data, isLoading, isError, isFetchingNextPage, hasNextPage, fetchNextPage } =
     usePublicPlaylist(playlistUrl);
   const savedPlaylists = useSavedPlaylists();
@@ -60,7 +68,9 @@ function PublicPlaylistPage() {
   const visibleStreams = useMemo(() => {
     if (!activeSection) return streams;
     const urlSet = new Set(activeSection.videoUrls.map((u) => toPublicWatchParam(u)));
-    return streams.filter((s) => urlSet.has(toPublicWatchParam(s.id)) || activeSection.videoUrls.includes(s.id));
+    return streams.filter(
+      (s) => urlSet.has(toPublicWatchParam(s.id)) || activeSection.videoUrls.includes(s.id),
+    );
   }, [streams, activeSection]);
 
   const loadMore = useCallback(() => {
@@ -91,12 +101,17 @@ function PublicPlaylistPage() {
     markWatchAutoplayIntent();
     navigate({
       to: "/watch",
-      search: { v: toPublicWatchParam(url), ...(listId ? { list: listId } : {}), ...(shuffle ? { shuffle } : {}) },
+      search: {
+        v: toPublicWatchParam(url),
+        ...(listId ? { list: listId } : {}),
+        ...(shuffle ? { shuffle } : {}),
+      },
     });
   }
 
   function toggleSaved() {
-    const handleErr = (err: unknown) => setToast(err instanceof Error ? err.message : m.ui_failed());
+    const handleErr = (err: unknown) =>
+      setToast(err instanceof Error ? err.message : m.ui_failed());
     if (saved) {
       savedPlaylists.remove.mutate(saved.id, {
         onSuccess: () => setToast(m.ui_playlist_removed()),

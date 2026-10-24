@@ -31,9 +31,7 @@ export function PlaylistSectionTabs({
         }`}
       >
         <span>{m.ui_all()}</span>
-        <span
-          className={`text-[10px] ${activeSectionId === null ? "opacity-80" : "text-fg-soft"}`}
-        >
+        <span className={`text-[10px] ${activeSectionId === null ? "opacity-80" : "text-fg-soft"}`}>
           ({totalCount})
         </span>
       </button>

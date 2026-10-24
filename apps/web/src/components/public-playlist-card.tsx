@@ -14,11 +14,9 @@ export function PublicPlaylistCard({ playlist }: Props) {
       : m.ui_videos_count({ count: playlist.streamCount });
 
   const isCollection =
-    playlist.playlistType === "collection" ||
-    playlist.url.includes("business=space_collection");
+    playlist.playlistType === "collection" || playlist.url.includes("business=space_collection");
   const isSeries =
-    playlist.playlistType === "series" ||
-    playlist.url.includes("business=space_series");
+    playlist.playlistType === "series" || playlist.url.includes("business=space_series");
 
   return (
     <Link

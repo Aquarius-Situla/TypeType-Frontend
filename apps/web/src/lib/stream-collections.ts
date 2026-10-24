@@ -236,11 +236,7 @@ export async function ensureCollectionMetadata(
         const matchedCol =
           stream.collections.find((col) => {
             const ctitle = col.title.trim().toLowerCase();
-            return (
-              ctitle === normName ||
-              normName.includes(ctitle) ||
-              ctitle.includes(normName)
-            );
+            return ctitle === normName || normName.includes(ctitle) || ctitle.includes(normName);
           }) ?? stream.collections[0];
 
         if (matchedCol.sections && matchedCol.sections.length > 0) {
