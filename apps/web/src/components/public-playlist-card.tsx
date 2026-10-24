@@ -13,6 +13,13 @@ export function PublicPlaylistCard({ playlist }: Props) {
       ? m.ui_video_count({ count: playlist.streamCount })
       : m.ui_videos_count({ count: playlist.streamCount });
 
+  const isCollection =
+    playlist.playlistType === "collection" ||
+    playlist.url.includes("business=space_collection");
+  const isSeries =
+    playlist.playlistType === "series" ||
+    playlist.url.includes("business=space_series");
+
   return (
     <Link
       to="/playlist"
@@ -27,6 +34,16 @@ export function PublicPlaylistCard({ playlist }: Props) {
           loading="lazy"
           decoding="async"
         />
+        {isCollection && (
+          <div className="absolute top-1.5 left-1.5 rounded-md bg-accent/90 px-1.5 py-0.5 text-[10px] font-medium text-white shadow-sm backdrop-blur-xs">
+            {m.ui_collection()}
+          </div>
+        )}
+        {isSeries && (
+          <div className="absolute top-1.5 left-1.5 rounded-md bg-sky-600/90 dark:bg-sky-500/90 px-1.5 py-0.5 text-[10px] font-medium text-white shadow-sm backdrop-blur-xs">
+            {m.ui_series()}
+          </div>
+        )}
         <div className="absolute bottom-1.5 right-1.5 rounded-md bg-black/80 px-1.5 py-0.5 text-[11px] font-medium text-white">
           {count}
         </div>
