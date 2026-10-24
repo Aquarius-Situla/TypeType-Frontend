@@ -1,16 +1,23 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Pencil } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ConfirmModal } from "../components/confirm-modal";
 import { PlaylistActions } from "../components/playlist-actions";
 import { PlaylistGrid } from "../components/playlist-grid";
 import { PlaylistRenameModal } from "../components/playlist-rename-modal";
+import { PlaylistSectionTabs } from "../components/playlist-section-tabs";
 import { PlaylistSortMenu } from "../components/playlist-sort-menu";
 import { useBlockedFilter } from "../hooks/use-blocked-filter";
 import { usePlaylist } from "../hooks/use-playlist";
 import { usePlaylists } from "../hooks/use-playlists";
 import { randomShuffleSeed, shuffleByKey } from "../lib/playlist-shuffle";
 import { type PlaylistSortMode, sortPlaylistVideos } from "../lib/playlist-sort";
+import {
+  ensureCollectionMetadata,
+  getSubscribedCollectionMeta,
+  isCollectionPlaylist,
+  type SubscribedCollectionMeta,
+} from "../lib/stream-collections";
 import { markWatchAutoplayIntent } from "../lib/watch-autoplay-intent";
 import { toPublicWatchParam } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
@@ -26,6 +33,33 @@ function PlaylistDetailPage() {
   const [pendingRemove, setPendingRemove] = useState<PlaylistVideoItem | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [sortMode, setSortMode] = useState<PlaylistSortMode>("manual");
+  const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
+
+  const isCollection = Boolean(playlist && isCollectionPlaylist(playlist));
+  const [collectionMeta, setCollectionMeta] = useState<SubscribedCollectionMeta | undefined>(
+    () => getSubscribedCollectionMeta(id),
+  );
+
+  useEffect(() => {
+    if (!isCollection || !playlist) return;
+    void ensureCollectionMetadata(id, playlist.name, playlist.videos ?? []).then((meta) => {
+      if (meta) setCollectionMeta(meta);
+    });
+  }, [isCollection, id, playlist]);
+
+  const allVideos = playlist?.videos ?? [];
+  const sections = collectionMeta?.sections && collectionMeta.sections.length > 1 ? collectionMeta.sections : undefined;
+  const activeSection = sections?.find((sec) => sec.id === activeSectionId);
+  const sectionFilteredVideos = useMemo(() => {
+    if (!activeSection) return allVideos;
+    const urlSet = new Set(activeSection.videoUrls.map((u) => toPublicWatchParam(u)));
+    return allVideos.filter((v: PlaylistVideoItem) => activeSection.videoUrls.includes(v.url.trim()) || urlSet.has(toPublicWatchParam(v.url)));
+  }, [allVideos, activeSection]);
+
+  const videos = filter(sectionFilteredVideos) as PlaylistVideoItem[];
+  const count = videos.length;
+  const sortedVideos = sortPlaylistVideos(videos, sortMode);
+  const reorderable = !activeSection && sortMode === "manual";
 
   if (isPending) {
     return (
@@ -38,21 +72,12 @@ function PlaylistDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-32 text-center">
         <p className="text-fg-muted text-sm">{m.ui_playlist_not_found()}</p>
-        <Link
-          to="/playlists"
-          className="text-fg-soft text-xs transition-colors hover:text-fg-muted"
-        >
+        <Link to="/playlists" className="text-fg-soft text-xs transition-colors hover:text-fg-muted">
           {m.ui_back_to_playlists()}
         </Link>
       </div>
     );
   }
-
-  const allVideos = playlist.videos ?? [];
-  const videos = filter(allVideos);
-  const count = videos.length;
-  const sortedVideos = sortPlaylistVideos(videos, sortMode);
-  const reorderable = sortMode === "manual";
 
   function handleDelete() {
     remove.mutate(id);
@@ -61,25 +86,14 @@ function PlaylistDetailPage() {
   function playFrom(video: PlaylistVideoItem | undefined, shuffle?: string) {
     if (!video) return;
     markWatchAutoplayIntent();
-    navigate({
-      to: "/watch",
-      search: { v: toPublicWatchParam(video.url), list: id, ...(shuffle ? { shuffle } : {}) },
-    });
-  }
-  function handleShuffle() {
-    const seed = randomShuffleSeed();
-    playFrom(shuffleByKey(sortedVideos, seed)[0], seed);
+    navigate({ to: "/watch", search: { v: toPublicWatchParam(video.url), list: id, ...(shuffle ? { shuffle } : {}) } });
   }
 
   return (
     <div className="flex flex-col gap-6 pt-2 sm:pt-4 [animation:page-fade-in_0.2s_ease-out]">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <Link
-            to="/playlists"
-            className="text-fg-soft transition-colors hover:text-fg"
-            aria-label={m.ui_back_to_playlists()}
-          >
+          <Link to="/playlists" className="text-fg-soft transition-colors hover:text-fg" aria-label={m.ui_back_to_playlists()}>
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           </Link>
           <div>
@@ -102,51 +116,40 @@ function PlaylistDetailPage() {
         <div className="flex items-center gap-2">
           {count > 0 && (
             <>
-              <PlaylistActions
-                onPlayAll={() => playFrom(sortedVideos[0])}
-                onShuffle={handleShuffle}
-              />
+              <PlaylistActions onPlayAll={() => playFrom(sortedVideos[0])} onShuffle={() => { const s = randomShuffleSeed(); playFrom(shuffleByKey(sortedVideos, s)[0], s); }} />
               <PlaylistSortMenu value={sortMode} onChange={setSortMode} />
             </>
           )}
-          <button
-            type="button"
-            onClick={() => setConfirmingDelete(true)}
-            className="rounded-lg px-3 py-1.5 text-danger text-xs transition-colors hover:bg-danger/10"
-          >
+          <button type="button" onClick={() => setConfirmingDelete(true)} className="rounded-lg px-3 py-1.5 text-danger text-xs transition-colors hover:bg-danger/10">
             {m.ui_delete_playlist()}
           </button>
         </div>
       </div>
+
+      {sections && (
+        <PlaylistSectionTabs
+          sections={sections}
+          activeSectionId={activeSectionId}
+          onSelectSection={setActiveSectionId}
+          totalCount={allVideos.length}
+          videoUrls={allVideos.map((v) => v.url)}
+        />
+      )}
+
       {count === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-32 text-center">
-          <p className="text-fg-muted text-sm">
-            {allVideos.length > 0
-              ? m.ui_all_videos_in_playlist_blocked()
-              : m.ui_no_videos_in_playlist_yet()}
-          </p>
-          <p className="text-fg-soft text-xs">
-            {m.ui_save_videos_from_the_watch_page_using_the_save_button()}
-          </p>
+          <p className="text-fg-muted text-sm">{allVideos.length > 0 ? m.ui_all_videos_in_playlist_blocked() : m.ui_no_videos_in_playlist_yet()}</p>
+          <p className="text-fg-soft text-xs">{m.ui_save_videos_from_the_watch_page_using_the_save_button()}</p>
         </div>
       ) : (
-        <PlaylistGrid
-          videos={sortedVideos}
-          reorderable={reorderable}
-          listId={id}
-          onRemove={setPendingRemove}
-          onReorder={(order) => reorder.mutate({ id, order })}
-        />
+        <PlaylistGrid videos={sortedVideos} reorderable={reorderable} listId={id} onRemove={setPendingRemove} onReorder={(order) => reorder.mutate({ id, order })} />
       )}
       {pendingRemove && (
         <ConfirmModal
           title={m.ui_remove_video()}
           description={m.ui_remove_video_from_playlist_question({ name: pendingRemove.title })}
           confirmLabel={m.ui_remove()}
-          onConfirm={() => {
-            removeVideo.mutate({ playlistId: playlist.id, videoUrl: pendingRemove.url });
-            setPendingRemove(null);
-          }}
+          onConfirm={() => { removeVideo.mutate({ playlistId: playlist.id, videoUrl: pendingRemove.url }); setPendingRemove(null); }}
           onCancel={() => setPendingRemove(null)}
         />
       )}
@@ -155,20 +158,14 @@ function PlaylistDetailPage() {
           title={m.ui_delete_playlist()}
           description={m.ui_delete_playlist_confirmation({ name: playlist.name })}
           confirmLabel={m.ui_delete()}
-          onConfirm={() => {
-            setConfirmingDelete(false);
-            handleDelete();
-          }}
+          onConfirm={() => { setConfirmingDelete(false); handleDelete(); }}
           onCancel={() => setConfirmingDelete(false)}
         />
       )}
       {renaming && (
         <PlaylistRenameModal
           currentName={playlist.name}
-          onConfirm={(name) => {
-            rename.mutate({ id, name });
-            setRenaming(false);
-          }}
+          onConfirm={(name) => { rename.mutate({ id, name }); setRenaming(false); }}
           onCancel={() => setRenaming(false)}
         />
       )}

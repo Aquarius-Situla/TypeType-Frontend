@@ -2,6 +2,7 @@ import { expect, test } from "bun:test";
 import { proxyImage } from "../src/lib/proxy";
 import {
   activeStreamCollection,
+  isCollectionPlaylist,
   streamCollectionPlaylistItems,
   streamCollectionSectionGroups,
 } from "../src/lib/stream-collections";
@@ -120,4 +121,15 @@ test("groups collection sections with proxy thumbnails", () => {
       },
     ],
   });
+});
+
+test("identifies collection playlist URLs and types", () => {
+  expect(
+    isCollectionPlaylist({
+      url: "https://www.bilibili.com/medialist/play/23630128?business=space_collection&business_id=2045",
+    }),
+  ).toBe(true);
+  expect(isCollectionPlaylist({ playlistType: "collection" })).toBe(true);
+  expect(isCollectionPlaylist({ name: "合集·高一高二（上篇）" })).toBe(true);
+  expect(isCollectionPlaylist({ playlistType: "normal", name: "Favorites" })).toBe(false);
 });
