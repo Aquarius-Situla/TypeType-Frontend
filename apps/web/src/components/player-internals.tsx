@@ -3,6 +3,7 @@ import { isIosDevice } from "../lib/ios-device";
 import { seekSponsorBlockSegment } from "../lib/sponsorblock-seek";
 import { getSponsorBlockEndTime, getSponsorBlockStartTime } from "../lib/sponsorblock-settings";
 import {
+  clearSponsorBlockEndedPosition,
   crossedSponsorBlockStart,
   emitSponsorBlockSkip,
   finishSponsorBlockEnd,
@@ -74,6 +75,7 @@ export function SponsorBlockSkipper({
       previousTimeRef.current = currentTime;
 
       if (currentTime < 1 && previousTime !== null && previousTime > 5) {
+        clearSponsorBlockEndedPosition(media);
         skippedSegmentsRef.current.clear();
         pendingSkipRef.current = null;
       }
@@ -83,6 +85,7 @@ export function SponsorBlockSkipper({
         const startTime = getSponsorBlockStartTime(seg, duration);
         const key = `${seg.category}:${seg.startTime}:${seg.endTime}`;
         if (currentTime < startTime - 1) {
+          clearSponsorBlockEndedPosition(media);
           skippedSegmentsRef.current.delete(key);
           if (pendingSkipRef.current?.key === key) {
             pendingSkipRef.current = null;

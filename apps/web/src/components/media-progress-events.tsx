@@ -1,8 +1,9 @@
 import { useEffect, useRef } from "react";
 import { recordClientEvent } from "../lib/client-debug-log";
-import { resolveMediaProgressPosition } from "../lib/media-progress-position";
+import { readMediaPositionMs, resolveMediaProgressPosition } from "../lib/media-progress-position";
 import { clearVidstackEndedState } from "../lib/player-ended-state";
 import { consumeSabrSeekTarget, isSabrPlaybackEventTransient } from "../lib/sabr-vidstack-bridge";
+import { clearSponsorBlockEndedPosition } from "../lib/sponsorblock-skip";
 import { useMediaPlayer } from "../lib/vidstack";
 
 type Props = {
@@ -15,10 +16,6 @@ type Props = {
   onEnded?: () => void;
   onPositionReaderChange?: (reader: (() => number | null) | null) => void;
 };
-
-function toPositionMs(media: HTMLMediaElement): number {
-  return Math.max(0, Math.round(media.currentTime * 1000));
-}
 
 export function MediaProgressEvents({
   suppressPlaybackEvents = false,
@@ -64,7 +61,7 @@ export function MediaProgressEvents({
       const reportPosition = (requestedPositionMs: number | null = null) => {
         const positionMs = resolveMediaProgressPosition(
           video,
-          toPositionMs(media),
+          readMediaPositionMs(media),
           requestedPositionMs,
         );
         if (positionMs === null) return false;
@@ -75,17 +72,18 @@ export function MediaProgressEvents({
         if (
           Number.isFinite(media.duration) &&
           media.duration > 0 &&
-          media.currentTime < media.duration - 2
+          readMediaPositionMs(media) < (media.duration - 2) * 1000
         ) {
           clearVidstackEndedState(player, media);
         }
         return reportPosition();
       };
-      const readPosition = () => toPositionMs(media);
+      const readPosition = () => readMediaPositionMs(media);
       const suppressPlaybackEvent = () =>
         suppressPlaybackEventsRef.current ||
         (media instanceof HTMLVideoElement && isSabrPlaybackEventTransient(media));
       const play = () => {
+        clearSponsorBlockEndedPosition(media);
         update();
         if (suppressPlaybackEvent()) return;
         onPlayRef.current?.();
@@ -96,6 +94,7 @@ export function MediaProgressEvents({
         onPauseRef.current?.();
       };
       const seeked = () => {
+        clearSponsorBlockEndedPosition(media);
         if (
           Number.isFinite(media.duration) &&
           media.duration > 0 &&
@@ -108,14 +107,15 @@ export function MediaProgressEvents({
         onSeekedRef.current?.();
       };
       const seeking = () => {
+        clearSponsorBlockEndedPosition(media);
         if (!update()) return;
-        onSeekingRef.current?.(toPositionMs(media));
+        onSeekingRef.current?.(readMediaPositionMs(media));
       };
       const ended = () => {
         const isNearEnd =
           Number.isFinite(media.duration) &&
           media.duration > 0 &&
-          media.currentTime >= media.duration - 2;
+          readMediaPositionMs(media) >= (media.duration - 2) * 1000;
 
         if (!isNearEnd) {
           clearVidstackEndedState(player, media);
@@ -123,7 +123,7 @@ export function MediaProgressEvents({
             clearVidstackEndedState(player, media);
           }, 0);
           recordClientEvent("media.ended_rejected", {
-            currentMs: toPositionMs(media),
+            currentMs: readMediaPositionMs(media),
             durationMs: Number.isFinite(media.duration) ? Math.round(media.duration * 1000) : null,
             tag: media.tagName,
           });
@@ -132,7 +132,7 @@ export function MediaProgressEvents({
 
         update();
         recordClientEvent("media.ended", {
-          currentMs: toPositionMs(media),
+          currentMs: readMediaPositionMs(media),
           durationMs: Number.isFinite(media.duration) ? Math.round(media.duration * 1000) : null,
           tag: media.tagName,
         });
@@ -141,7 +141,7 @@ export function MediaProgressEvents({
       };
       const stalled = () => {
         recordClientEvent("media.stalled", {
-          currentMs: toPositionMs(media),
+          currentMs: readMediaPositionMs(media),
           readyState: media.readyState,
           networkState: media.networkState,
           tag: media.tagName,
@@ -149,7 +149,7 @@ export function MediaProgressEvents({
       };
       const error = () => {
         recordClientEvent("media.error", {
-          currentMs: toPositionMs(media),
+          currentMs: readMediaPositionMs(media),
           code: media.error?.code ?? null,
           readyState: media.readyState,
           networkState: media.networkState,

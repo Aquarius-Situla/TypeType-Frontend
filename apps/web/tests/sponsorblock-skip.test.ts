@@ -1,7 +1,9 @@
 import { expect, test } from "bun:test";
 import {
+  clearSponsorBlockEndedPosition,
   crossedSponsorBlockStart,
   finishSponsorBlockEnd,
+  getSponsorBlockEndedPositionMs,
   isSponsorBlockEndSkip,
   sponsorBlockSkipTarget,
 } from "../src/lib/sponsorblock-skip";
@@ -38,17 +40,26 @@ test("correctly calculates skip target and end skip", () => {
   expect(isSponsorBlockEndSkip(98, 100)).toBeFalse();
 });
 
-test("finishSponsorBlockEnd pauses media and dispatches ended event", () => {
+test("finishSponsorBlockEnd records final position before pausing and dispatching ended", () => {
   let paused = false;
   let remotePaused = false;
   let endedDispatched = false;
+  let positionDuringRemotePause: number | null = null;
+  let positionDuringMediaPause: number | null = null;
+  let positionDuringEnded: number | null = null;
 
   const media = {
+    currentTime: 400,
+    duration: 452,
     pause() {
       paused = true;
+      positionDuringMediaPause = getSponsorBlockEndedPositionMs(media);
     },
     dispatchEvent(event: Event) {
-      if (event.type === "ended") endedDispatched = true;
+      if (event.type === "ended") {
+        endedDispatched = true;
+        positionDuringEnded = getSponsorBlockEndedPositionMs(media);
+      }
       return true;
     },
   } as unknown as HTMLMediaElement;
@@ -56,6 +67,7 @@ test("finishSponsorBlockEnd pauses media and dispatches ended event", () => {
   const remote = {
     pause() {
       remotePaused = true;
+      positionDuringRemotePause = getSponsorBlockEndedPositionMs(media);
     },
   };
 
@@ -64,6 +76,12 @@ test("finishSponsorBlockEnd pauses media and dispatches ended event", () => {
   expect(paused).toBeTrue();
   expect(remotePaused).toBeTrue();
   expect(endedDispatched).toBeTrue();
+  expect(positionDuringRemotePause).toBe(452_000);
+  expect(positionDuringMediaPause).toBe(452_000);
+  expect(positionDuringEnded).toBe(452_000);
+
+  clearSponsorBlockEndedPosition(media);
+  expect(getSponsorBlockEndedPositionMs(media)).toBeNull();
 });
 
 test("finishSponsorBlockEnd handles null media by seeking to duration via remote", () => {
