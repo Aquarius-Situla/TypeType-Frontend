@@ -52,9 +52,7 @@ export function getSponsorBlockEndedPositionMs(
   return endedPositionByMedia.get(media) ?? null;
 }
 
-export function clearSponsorBlockEndedPosition(
-  media: HTMLMediaElement | null | undefined,
-): void {
+export function clearSponsorBlockEndedPosition(media: HTMLMediaElement | null | undefined): void {
   if (!media) return;
   endedPositionByMedia.delete(media);
 }
