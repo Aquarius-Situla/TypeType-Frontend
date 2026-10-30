@@ -1,0 +1,42 @@
+英文,译法,禁用译法,适用场景,备注
+YouTube,YouTube,油管 / Youtube,品牌名,保留原文，见 R1.1、R1.2
+BiliBili,BiliBili,哔哩哔哩 / B站 / bilibili / Bilibili,品牌名,保留原文，见 R1.1、R1.2
+NicoNico,NicoNico,Nico动画 / niconico,品牌名,保留原文，见 R1.1、R1.2
+Gemini,Gemini,双子座,品牌名,保留原文
+SponsorBlock,SponsorBlock,赞助屏蔽,品牌名,保留原文
+Weblate,Weblate,,品牌名,保留原文
+Lemmy,Lemmy,,品牌名,保留原文
+TypeType,TypeType,typetype,品牌名,保留原文，见 R1.2
+DASH / HLS / RSS / Token / API / JSON / Chromium,保留原文,,协议与技术名词,见 R1.1
+Watch later,稍后再看,稍后观看 / 以后看,播放列表名称和操作提示,如 `添加到稍后再看`、`从稍后再看中移除`；采用本土视频平台的常见说法
+Watch history,观看记录,观看历史 / 播放历史,具体清单,见 R5.1
+Search history,搜索记录,搜索历史,具体清单,与“观看记录”用词一致
+Watch history (观看记录页面的搜索框),搜索观看记录...,搜索记录... / 搜索观看历史...,观看记录页面的过滤搜索框,Key：ui_search_history_2；写成“搜索记录...”会与搜索词历史混淆
+History (导航),历史,记录,侧边栏和底栏入口,与“首页”“订阅”等双字入口对齐；空间不受限时用“历史记录”
+Your history / Import YouTube history,历史记录,历史,账户级总称,泛指整个账户的行为数据
+Video history,视频播放记录,视频历史,算法偏好中的分类,见 R5.1
+Shorts history,Shorts 播放记录,Shorts 历史,算法偏好中的分类,见 R5.1
+Watch history tracking,保存观看记录 / 跟踪观看记录,记录观看记录,观看记录开关,Key：ui_watch_history_tracking；避免“记录……记录”叠字，见 R5.2
+Try again later,请稍后再试,请稍后重试,句末提示,独立的操作按钮用“重试”
+Retry,重试,,按钮,见 R4.3
+Session,授权 / 连接状态,会话,面向用户的界面,不使用技术词“会话”；按下面三行区分平台
+BiliBili session,BiliBili 授权,会话,BiliBili 账号授权,
+YouTube session (连接),连接 YouTube,会话,YouTube 连接状态,
+YouTube session (凭证),YouTube 授权,会话,YouTube 凭证,
+Feed (个人内容流),动态,资讯 / 信息流,个人主页的视频流,
+Feed (外部协议),订阅源,资讯 / 信息流,RSS 等外部协议的数据通道,
+Favorites (容器),收藏夹,喜欢 / 最爱,名词容器,如 `从收藏夹中移除`
+Favorites (动作与分类),收藏,喜欢 / 最爱,动作、分类标签和状态,如算法偏好中的 `收藏`、状态 `已收藏`
+Verified (创作者),创作者认证,个人认证,创作者认证标识,Key：ui_verified_personal
+Remove (销毁数据),删除,移除,对象从系统或账户中抹除,见 R4.1
+Remove from group / favorites / watch later,从……中移除,删除,仅解除归属，对象仍存在,见 R4.1
+Remove saved playlist,取消保存播放列表,删除已保存的播放列表,取消保存他人的播放列表,见 R4.1
+Clear all / filters / selection / playlist,清空,清除,容器、列表、筛选条件、选区,见 R4.2
+Clear watch history / search history / cache / avatar,清除,清空,行为痕迹、缓存、历史记录条目、对象属性,见 R4.2
+Cancel,取消,,撤回尚未提交的操作,见 R4.3
+Dismiss,忽略,,关闭不阻断操作的通知,见 R4.3
+Revoke,撤销,,使凭证、授权、密钥失效,见 R4.3
+Undo,撤回,,逆转刚生效的操作,见 R4.3
+Player color,播放器主题色,播放器颜色,设置项标签,Key：settings_player_color_label
+Player controls,控制按钮,播放器控件,面向用户的界面,Key：settings_player_color_description；避免技术词“控件”
+Audio (播放器设置),音频,音量,播放器菜单与设置,Key：player_audio；区分于 Volume（音量）
