@@ -8,6 +8,14 @@ export const BILIBILI_BUFFER_BASELINE_SECONDS: Record<BilibiliBufferLevel, numbe
   large: 90,
 };
 
+export const BILIBILI_CDN_REGIONS = ["auto", "overseas", "domestic"] as const;
+
+export type BilibiliCdnRegion = (typeof BILIBILI_CDN_REGIONS)[number];
+
+export function isBilibiliCdnRegion(value: unknown): value is BilibiliCdnRegion {
+  return typeof value === "string" && (BILIBILI_CDN_REGIONS as readonly string[]).includes(value);
+}
+
 const MAX_BUFFER_SECONDS = 180;
 
 export function isBilibiliBufferLevel(value: unknown): value is BilibiliBufferLevel {

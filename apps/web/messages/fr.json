@@ -1866,5 +1866,15 @@
   "settings_bilibili_buffer_saver_hint": "Moins de données sur une connexion lente ou limitée",
   "settings_bilibili_buffer_normal_hint": "Recommandé",
   "settings_bilibili_buffer_large_hint": "Le plus fluide quand la connexion à BiliBili est instable",
-  "settings_bilibili_buffer_seconds": "{seconds} s à 1×"
+  "settings_bilibili_buffer_seconds": "{seconds} s à 1×",
+  "settings_bilibili_server_region_label": "Routage du serveur BiliBili",
+  "settings_bilibili_server_region_description": "Optimise les règles des miroirs CDN Bilibili en fonction de l’emplacement du serveur",
+  "settings_bilibili_server_region_auto": "Automatique (Recommandé)",
+  "settings_bilibili_server_region_auto_hint": "Sélectionne dynamiquement le miroir le plus rapide",
+  "settings_bilibili_server_region_overseas": "Serveur à l'étranger",
+  "settings_bilibili_server_region_overseas_hint": "Déployé sur un VPS à l'étranger ; privilégie les CDN internationaux",
+  "settings_bilibili_server_region_domestic": "Serveur local",
+  "settings_bilibili_server_region_domestic_hint": "Déployé en Chine continentale ; privilégie les CDN locaux",
+  "settings_bilibili_prefetch_label": "Préchargement simultané",
+  "settings_bilibili_prefetch_description": "Précharge simultanément le sous-segment suivant pour réduire l'attente"
 }

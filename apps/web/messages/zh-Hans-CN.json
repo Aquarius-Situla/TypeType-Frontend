@@ -1866,5 +1866,15 @@
   "settings_bilibili_buffer_saver_hint": "在有限速或按流量计费的网络下更省流量",
   "settings_bilibili_buffer_normal_hint": "推荐",
   "settings_bilibili_buffer_large_hint": "与 BiliBili 连接不稳定时体验更流畅",
-  "settings_bilibili_buffer_seconds": "1× 倍速下为 {seconds} 秒"
+  "settings_bilibili_buffer_seconds": "1× 倍速下为 {seconds} 秒",
+  "settings_bilibili_server_region_label": "BiliBili 服务器节点选路",
+  "settings_bilibili_server_region_description": "根据 TypeType 服务端部署位置优化 B站 CDN 镜像规则，避免跨国高延迟与网络丢包",
+  "settings_bilibili_server_region_auto": "智能测速 (推荐)",
+  "settings_bilibili_server_region_auto_hint": "根据实时网络测速与健康度自动调度最优节点",
+  "settings_bilibili_server_region_overseas": "境外服务器",
+  "settings_bilibili_server_region_overseas_hint": "部署在境外 VPS，优先使用海外直连 CDN 镜像",
+  "settings_bilibili_server_region_domestic": "境内服务器",
+  "settings_bilibili_server_region_domestic_hint": "部署在大陆云主机或家用 NAS，直连国内主流 CDN 节点",
+  "settings_bilibili_prefetch_label": "并发分片流水线预取",
+  "settings_bilibili_prefetch_description": "在拉取当前视频切片时后台并发流水线拉取下一分片，消除网络间歇，大幅缩短起播与拖拽进度条等待时间"
 }

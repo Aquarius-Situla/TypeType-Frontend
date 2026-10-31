@@ -1866,5 +1866,15 @@
   "settings_bilibili_buffer_saver_hint": "Less data on slow or limited connections",
   "settings_bilibili_buffer_normal_hint": "Recommended",
   "settings_bilibili_buffer_large_hint": "Smoothest when the connection to BiliBili is unstable",
-  "settings_bilibili_buffer_seconds": "{seconds} s at 1×"
+  "settings_bilibili_buffer_seconds": "{seconds} s at 1×",
+  "settings_bilibili_server_region_label": "BiliBili server routing",
+  "settings_bilibili_server_region_description": "Optimize Bilibili CDN mirror rules based on server location to prevent cross-border latency and packet loss",
+  "settings_bilibili_server_region_auto": "Auto speed test (Recommended)",
+  "settings_bilibili_server_region_auto_hint": "Dynamically selects the fastest mirror based on real-time latency and health",
+  "settings_bilibili_server_region_overseas": "Overseas server",
+  "settings_bilibili_server_region_overseas_hint": "Deployed on an overseas VPS; prioritizes direct international CDN mirrors",
+  "settings_bilibili_server_region_domestic": "Domestic server",
+  "settings_bilibili_server_region_domestic_hint": "Deployed in Mainland China; prioritizes domestic CDN mirrors",
+  "settings_bilibili_prefetch_label": "Concurrent subchunk prefetching",
+  "settings_bilibili_prefetch_description": "Concurrently prefetches the next subchunk while streaming to eliminate network idle time and speed up seeking"
 }

@@ -1,8 +1,9 @@
 import { expect, test } from "bun:test";
 import type * as dashjs from "dashjs";
 import { buildDashStreamingSettings } from "../src/components/video-player-core";
-import { bilibiliBufferSeconds } from "../src/lib/bilibili-buffer";
+import { bilibiliBufferSeconds, isBilibiliCdnRegion } from "../src/lib/bilibili-buffer";
 import { attachBilibiliSeekBuffer } from "../src/lib/dash-bilibili-seek-buffer";
+import { useBilibiliBufferStore } from "../src/stores/bilibili-buffer-store";
 
 const buffer = (seconds: number) => ({
   streaming: {
@@ -67,7 +68,7 @@ test("keeps the Bilibili seek target short until playback advances without flush
   listeners.get("playbackTimeUpdated")?.({ time: 31.4 });
   expect(updates).toHaveLength(1);
   listeners.get("playbackTimeUpdated")?.({ time: 31.5 });
-  expect(updates[1]).toEqual(buffer(15));
+  expect(updates[1]).toEqual(buffer(45));
 });
 
 test("a speed change resizes the buffer, but not during a pending seek", () => {
@@ -75,15 +76,26 @@ test("a speed change resizes the buffer, but not during a pending seek", () => {
   attachBilibiliSeekBuffer(player, (rate) => bilibiliBufferSeconds("normal", rate));
 
   listeners.get("playbackRateChanged")?.({});
-  expect(updates).toEqual([buffer(30)]);
+  expect(updates).toEqual([buffer(90)]);
 
   listeners.get("playbackSeeking")?.({ seekTime: 10 });
   state.rate = 4;
   listeners.get("playbackRateChanged")?.({});
-  expect(updates).toEqual([buffer(30), buffer(2)]);
+  expect(updates).toEqual([buffer(90), buffer(2)]);
 
   state.paused = false;
   state.seeking = false;
   listeners.get("playbackTimeUpdated")?.({ time: 11.5 });
-  expect(updates[2]).toEqual(buffer(60));
+  expect(updates[2]).toEqual(buffer(180));
+});
+
+test("validates bilibili cdn region and store defaults", () => {
+  expect(isBilibiliCdnRegion("auto")).toBe(true);
+  expect(isBilibiliCdnRegion("overseas")).toBe(true);
+  expect(isBilibiliCdnRegion("domestic")).toBe(true);
+  expect(isBilibiliCdnRegion("invalid")).toBe(false);
+
+  const state = useBilibiliBufferStore.getState();
+  expect(state.serverRegion).toBe("auto");
+  expect(state.concurrentPrefetch).toBe(true);
 });
