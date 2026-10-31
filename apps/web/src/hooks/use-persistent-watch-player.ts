@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import { create } from "zustand";
 import type { WatchStagePlayerProps } from "../components/watch-stage-player";
+import type { VideoStream } from "../types/stream";
 
 type PlayerOwner = symbol;
 
@@ -12,6 +13,7 @@ type PersistentWatchPlayerEntry = {
   enabled: boolean;
   anchor: HTMLElement | null;
   attached: boolean;
+  stream?: VideoStream;
 };
 
 export type PlayerPosition = { left: number; top: number };
@@ -25,6 +27,7 @@ type PersistentWatchPlayerStore = {
     props: WatchStagePlayerProps,
     enabled: boolean,
     href: string,
+    stream?: VideoStream,
   ) => void;
   setAnchor: (owner: PlayerOwner, anchor: HTMLElement | null) => void;
   detach: (owner: PlayerOwner) => void;
@@ -35,7 +38,7 @@ type PersistentWatchPlayerStore = {
 export const usePersistentWatchPlayerStore = create<PersistentWatchPlayerStore>((set) => ({
   entry: null,
   position: null,
-  register: (owner, streamId, props, enabled, href) =>
+  register: (owner, streamId, props, enabled, href, stream) =>
     set((state) => ({
       entry: {
         owner,
@@ -45,6 +48,7 @@ export const usePersistentWatchPlayerStore = create<PersistentWatchPlayerStore>(
         enabled,
         anchor: state.entry?.owner === owner ? state.entry.anchor : null,
         attached: state.entry?.owner === owner ? state.entry.attached : false,
+        stream: stream ?? (state.entry?.owner === owner ? state.entry.stream : undefined),
       },
     })),
   setAnchor: (owner, anchor) =>
@@ -68,6 +72,7 @@ export function usePersistentWatchPlayer(
   streamId: string,
   props: WatchStagePlayerProps,
   enabled: boolean,
+  stream?: VideoStream,
 ) {
   const ownerRef = useRef<PlayerOwner | null>(null);
   const anchorElementRef = useRef<HTMLElement | null>(null);
@@ -86,16 +91,30 @@ export function usePersistentWatchPlayer(
   );
 
   useLayoutEffect(() => {
-    register(owner, streamId, props, enabled, window.location.pathname + window.location.search);
+    register(
+      owner,
+      streamId,
+      props,
+      enabled,
+      window.location.pathname + window.location.search,
+      stream,
+    );
     setAnchor(owner, anchorElementRef.current);
-  }, [enabled, owner, props, register, setAnchor, streamId]);
+  }, [enabled, owner, props, register, setAnchor, streamId, stream]);
 
   useEffect(() => {
     if (!hasEntry && enabled && anchorElementRef.current) {
-      register(owner, streamId, props, enabled, window.location.pathname + window.location.search);
+      register(
+        owner,
+        streamId,
+        props,
+        enabled,
+        window.location.pathname + window.location.search,
+        stream,
+      );
       setAnchor(owner, anchorElementRef.current);
     }
-  }, [hasEntry, enabled, owner, props, register, setAnchor, streamId]);
+  }, [hasEntry, enabled, owner, props, register, setAnchor, streamId, stream]);
 
   useEffect(() => () => detach(owner), [detach, owner]);
 

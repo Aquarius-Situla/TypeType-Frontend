@@ -166,7 +166,12 @@ export function WatchStage({
     onPreviousVideo,
     onNextVideo,
   };
-  const persistent = usePersistentWatchPlayer(stream.id, playerProps, !navigating && !playerFailed);
+  const persistent = usePersistentWatchPlayer(
+    stream.id,
+    playerProps,
+    !navigating && !playerFailed,
+    stream,
+  );
   const localPlayer = navigating ? (
     <div className="flex aspect-video w-full items-center justify-center bg-black">
       <PageSpinner fullScreen={false} />

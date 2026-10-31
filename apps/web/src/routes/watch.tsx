@@ -97,7 +97,7 @@ function WatchPage() {
       bootstrap.data,
       publicParam,
       previewRelated,
-    ) ?? (isPersistentMatch ? persistentEntry?.props.stream : undefined);
+    ) ?? (isPersistentMatch ? persistentEntry?.stream : undefined);
   const shortContentHidden =
     activeStream !== undefined && isShortFormContentHidden(activeStream, settings.hideShorts);
   useDocumentTitle(activeStream?.title ?? previewStream?.title);
