@@ -52,10 +52,21 @@ function WatchPage() {
   const { isPending: instancePending } = useInstance();
   const { settings, settingsReady } = useSettings();
   const navigationSnapshot = useWatchNavigationStore((state) => state.snapshot);
-  const persistentEntry = usePersistentWatchPlayerStore((state) => state.entry);
-  const isPersistentMatch = Boolean(
-    persistentEntry &&
-      toPublicWatchParam(persistentEntry.streamId) === publicParam,
+  const isPersistentMatch = usePersistentWatchPlayerStore((state) =>
+    Boolean(
+      state.entry &&
+        toPublicWatchParam(state.entry.streamId) === publicParam,
+    ),
+  );
+  const persistentStream = usePersistentWatchPlayerStore((state) =>
+    state.entry && toPublicWatchParam(state.entry.streamId) === publicParam
+      ? state.entry.stream
+      : undefined,
+  );
+  const persistentStartTime = usePersistentWatchPlayerStore((state) =>
+    state.entry && toPublicWatchParam(state.entry.streamId) === publicParam
+      ? state.entry.props.startTime
+      : undefined,
   );
   const previewMatches =
     navigationSnapshot && toPublicWatchParam(navigationSnapshot.stream.id) === publicParam;
@@ -97,7 +108,7 @@ function WatchPage() {
       bootstrap.data,
       publicParam,
       previewRelated,
-    ) ?? (isPersistentMatch ? persistentEntry?.stream : undefined);
+    ) ?? (isPersistentMatch ? persistentStream : undefined);
   const shortContentHidden =
     activeStream !== undefined && isShortFormContentHidden(activeStream, settings.hideShorts);
   useDocumentTitle(activeStream?.title ?? previewStream?.title);
@@ -211,7 +222,7 @@ function WatchPage() {
 
   const startTime =
     (isPersistentMatch
-      ? persistentEntry?.props.startTime
+      ? persistentStartTime
       : resolveWatchStartTime({
           authenticated: isAuthed,
           progressPending: resumePending,

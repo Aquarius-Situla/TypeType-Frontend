@@ -39,30 +39,48 @@ export const usePersistentWatchPlayerStore = create<PersistentWatchPlayerStore>(
   entry: null,
   position: null,
   register: (owner, streamId, props, enabled, href, stream) =>
-    set((state) => ({
-      entry: {
-        owner,
-        streamId,
-        href,
-        props,
-        enabled,
-        anchor: state.entry?.owner === owner ? state.entry.anchor : null,
-        attached: state.entry?.owner === owner ? state.entry.attached : false,
-        stream: stream ?? (state.entry?.owner === owner ? state.entry.stream : undefined),
-      },
-    })),
+    set((state) => {
+      const prev = state.entry;
+      const nextStream = stream ?? (prev?.owner === owner ? prev.stream : undefined);
+      if (
+        prev &&
+        prev.owner === owner &&
+        prev.streamId === streamId &&
+        prev.enabled === enabled &&
+        prev.href === href &&
+        prev.stream === nextStream
+      ) {
+        prev.props = props;
+        return state;
+      }
+      return {
+        entry: {
+          owner,
+          streamId,
+          href,
+          props,
+          enabled,
+          anchor: prev?.owner === owner ? prev.anchor : null,
+          attached: prev?.owner === owner ? prev.attached : false,
+          stream: nextStream,
+        },
+      };
+    }),
   setAnchor: (owner, anchor) =>
-    set((state) =>
-      state.entry?.owner === owner
-        ? { entry: { ...state.entry, anchor, attached: Boolean(anchor) } }
-        : state,
-    ),
+    set((state) => {
+      if (!state.entry || state.entry.owner !== owner) return state;
+      const attached = Boolean(anchor);
+      if (state.entry.anchor === anchor && state.entry.attached === attached) {
+        return state;
+      }
+      return { entry: { ...state.entry, anchor, attached } };
+    }),
   detach: (owner) =>
-    set((state) =>
-      state.entry?.owner === owner
-        ? { entry: { ...state.entry, anchor: null, attached: false } }
-        : state,
-    ),
+    set((state) => {
+      if (!state.entry || state.entry.owner !== owner) return state;
+      if (state.entry.anchor === null && !state.entry.attached) return state;
+      return { entry: { ...state.entry, anchor: null, attached: false } };
+    }),
   setPosition: (position) => set({ position }),
   close: (owner) =>
     set((state) => (state.entry?.owner === owner ? { entry: null, position: null } : state)),
@@ -82,6 +100,14 @@ export function usePersistentWatchPlayer(
   const setAnchor = usePersistentWatchPlayerStore((state) => state.setAnchor);
   const detach = usePersistentWatchPlayerStore((state) => state.detach);
   const hasEntry = usePersistentWatchPlayerStore((state) => state.entry !== null);
+  const propsRef = useRef(props);
+  propsRef.current = props;
+
+  const currentEntry = usePersistentWatchPlayerStore.getState().entry;
+  if (currentEntry?.owner === owner) {
+    currentEntry.props = props;
+  }
+
   const anchorRef = useCallback(
     (anchor: HTMLDivElement | null) => {
       anchorElementRef.current = anchor;
@@ -94,27 +120,27 @@ export function usePersistentWatchPlayer(
     register(
       owner,
       streamId,
-      props,
+      propsRef.current,
       enabled,
       window.location.pathname + window.location.search,
       stream,
     );
     setAnchor(owner, anchorElementRef.current);
-  }, [enabled, owner, props, register, setAnchor, streamId, stream]);
+  }, [enabled, owner, register, setAnchor, streamId, stream]);
 
   useEffect(() => {
     if (!hasEntry && enabled && anchorElementRef.current) {
       register(
         owner,
         streamId,
-        props,
+        propsRef.current,
         enabled,
         window.location.pathname + window.location.search,
         stream,
       );
       setAnchor(owner, anchorElementRef.current);
     }
-  }, [hasEntry, enabled, owner, props, register, setAnchor, streamId, stream]);
+  }, [hasEntry, enabled, owner, register, setAnchor, streamId, stream]);
 
   useEffect(() => () => detach(owner), [detach, owner]);
 
