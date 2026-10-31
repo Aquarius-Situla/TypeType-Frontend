@@ -8,7 +8,7 @@ export const BILIBILI_BUFFER_BASELINE_SECONDS: Record<BilibiliBufferLevel, numbe
   large: 90,
 };
 
-export const BILIBILI_CDN_REGIONS = ["auto", "overseas", "domestic"] as const;
+export const BILIBILI_CDN_REGIONS = ["overseas", "domestic"] as const;
 
 export type BilibiliCdnRegion = (typeof BILIBILI_CDN_REGIONS)[number];
 

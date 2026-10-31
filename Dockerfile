@@ -7,7 +7,7 @@ RUN apk upgrade --no-cache libcrypto3 libssl3
 COPY bun.lock package.json ./
 COPY apps/web/package.json ./apps/web/
 
-RUN bun install --frozen-lockfile
+RUN --mount=type=cache,target=/root/.bun/install/cache bun install --frozen-lockfile
 
 COPY apps/web ./apps/web
 

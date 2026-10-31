@@ -1869,8 +1869,6 @@
   "settings_bilibili_buffer_seconds": "{seconds} s à 1×",
   "settings_bilibili_server_region_label": "Routage du serveur BiliBili",
   "settings_bilibili_server_region_description": "Optimise les règles des miroirs CDN Bilibili en fonction de l’emplacement du serveur",
-  "settings_bilibili_server_region_auto": "Automatique (Recommandé)",
-  "settings_bilibili_server_region_auto_hint": "Sélectionne dynamiquement le miroir le plus rapide",
   "settings_bilibili_server_region_overseas": "Serveur à l'étranger",
   "settings_bilibili_server_region_overseas_hint": "Déployé sur un VPS à l'étranger ; privilégie les CDN internationaux",
   "settings_bilibili_server_region_domestic": "Serveur local",

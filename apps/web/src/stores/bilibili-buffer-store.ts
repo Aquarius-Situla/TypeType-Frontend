@@ -21,7 +21,7 @@ export const useBilibiliBufferStore = create<BilibiliBufferStore>()(
     (set) => ({
       level: "normal",
       setLevel: (level) => set({ level }),
-      serverRegion: "auto",
+      serverRegion: "overseas",
       setServerRegion: (serverRegion) => set({ serverRegion }),
       concurrentPrefetch: true,
       setConcurrentPrefetch: (concurrentPrefetch) => set({ concurrentPrefetch }),

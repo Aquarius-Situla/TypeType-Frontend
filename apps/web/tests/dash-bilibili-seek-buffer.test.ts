@@ -90,12 +90,12 @@ test("a speed change resizes the buffer, but not during a pending seek", () => {
 });
 
 test("validates bilibili cdn region and store defaults", () => {
-  expect(isBilibiliCdnRegion("auto")).toBe(true);
   expect(isBilibiliCdnRegion("overseas")).toBe(true);
   expect(isBilibiliCdnRegion("domestic")).toBe(true);
+  expect(isBilibiliCdnRegion("auto")).toBe(false);
   expect(isBilibiliCdnRegion("invalid")).toBe(false);
 
   const state = useBilibiliBufferStore.getState();
-  expect(state.serverRegion).toBe("auto");
+  expect(state.serverRegion).toBe("overseas");
   expect(state.concurrentPrefetch).toBe(true);
 });

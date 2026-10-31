@@ -1869,8 +1869,6 @@
   "settings_bilibili_buffer_seconds": "1× 倍速下为 {seconds} 秒",
   "settings_bilibili_server_region_label": "BiliBili 服务器节点选路",
   "settings_bilibili_server_region_description": "根据 TypeType 服务端部署位置优化 B站 CDN 镜像规则，避免跨国高延迟与网络丢包",
-  "settings_bilibili_server_region_auto": "智能测速 (推荐)",
-  "settings_bilibili_server_region_auto_hint": "根据实时网络测速与健康度自动调度最优节点",
   "settings_bilibili_server_region_overseas": "境外服务器",
   "settings_bilibili_server_region_overseas_hint": "部署在境外 VPS，优先使用海外直连 CDN 镜像",
   "settings_bilibili_server_region_domestic": "境内服务器",

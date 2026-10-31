@@ -22,13 +22,11 @@ const BUFFER_HINTS: Record<BilibiliBufferLevel, () => string> = {
 };
 
 const REGION_LABELS: Record<BilibiliCdnRegion, () => string> = {
-  auto: m.settings_bilibili_server_region_auto,
   overseas: m.settings_bilibili_server_region_overseas,
   domestic: m.settings_bilibili_server_region_domestic,
 };
 
 const REGION_HINTS: Record<BilibiliCdnRegion, () => string> = {
-  auto: m.settings_bilibili_server_region_auto_hint,
   overseas: m.settings_bilibili_server_region_overseas_hint,
   domestic: m.settings_bilibili_server_region_domestic_hint,
 };
@@ -48,7 +46,7 @@ export function SettingsBilibiliBuffer() {
           <span className="text-sm text-fg">{m.settings_bilibili_server_region_label()}</span>
           <span className="text-xs text-fg-soft">{m.settings_bilibili_server_region_description()}</span>
         </legend>
-        <div className="clear-both grid gap-2 sm:grid-cols-3">
+        <div className="clear-both grid gap-2 sm:grid-cols-2">
           {BILIBILI_CDN_REGIONS.map((region) => {
             const selected = region === serverRegion;
             return (
