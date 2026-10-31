@@ -16,9 +16,9 @@ const buffer = (seconds: number) => ({
 
 test("uses the chosen Bilibili baseline and keeps the backward cache", () => {
   expect(buildDashStreamingSettings("bilibili").buffer).toEqual({
-    bufferTimeDefault: 15,
-    bufferTimeAtTopQuality: 15,
-    bufferTimeAtTopQualityLongForm: 15,
+    bufferTimeDefault: 45,
+    bufferTimeAtTopQuality: 45,
+    bufferTimeAtTopQualityLongForm: 45,
     bufferToKeep: 20,
   });
   expect(buildDashStreamingSettings("youtube").buffer).toEqual({
@@ -30,11 +30,11 @@ test("uses the chosen Bilibili baseline and keeps the backward cache", () => {
 });
 
 test("the buffer grows with the playback speed and stays capped", () => {
-  expect(bilibiliBufferSeconds("normal", 1)).toBe(15);
-  expect(bilibiliBufferSeconds("normal", 2)).toBe(30);
-  expect(bilibiliBufferSeconds("normal", 4)).toBe(60);
-  expect(bilibiliBufferSeconds("saver", 0.5)).toBe(8);
-  expect(bilibiliBufferSeconds("large", 16)).toBe(120);
+  expect(bilibiliBufferSeconds("normal", 1)).toBe(45);
+  expect(bilibiliBufferSeconds("normal", 2)).toBe(90);
+  expect(bilibiliBufferSeconds("normal", 4)).toBe(180);
+  expect(bilibiliBufferSeconds("saver", 0.5)).toBe(15);
+  expect(bilibiliBufferSeconds("large", 16)).toBe(180);
 });
 
 function fakePlayer(rate = 1) {
