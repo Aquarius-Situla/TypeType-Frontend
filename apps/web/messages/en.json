@@ -1867,12 +1867,12 @@
   "settings_bilibili_buffer_normal_hint": "Recommended",
   "settings_bilibili_buffer_large_hint": "Smoothest when the connection to BiliBili is unstable",
   "settings_bilibili_buffer_seconds": "{seconds} s at 1×",
-  "settings_bilibili_server_region_label": "BiliBili server routing",
-  "settings_bilibili_server_region_description": "Optimize Bilibili CDN mirror rules based on server location to prevent cross-border latency and packet loss",
-  "settings_bilibili_server_region_overseas": "Overseas server",
-  "settings_bilibili_server_region_overseas_hint": "Deployed on an overseas VPS; prioritizes direct international CDN mirrors",
-  "settings_bilibili_server_region_domestic": "Domestic server",
-  "settings_bilibili_server_region_domestic_hint": "Deployed in Mainland China; prioritizes domestic CDN mirrors",
+  "settings_bilibili_server_region_label": "Bilibili server CDN location",
+  "settings_bilibili_server_region_description": "Specify whether the TypeType server is hosted inside or outside Mainland China to select optimal Bilibili CDN mirrors and prevent cross-border latency",
+  "settings_bilibili_server_region_overseas": "Outside Mainland China",
+  "settings_bilibili_server_region_overseas_hint": "Hosted on a server outside Mainland China; prioritizes international Bilibili CDN mirrors",
+  "settings_bilibili_server_region_domestic": "Inside Mainland China",
+  "settings_bilibili_server_region_domestic_hint": "Hosted in Mainland China (cloud VPS / home NAS); prioritizes domestic Chinese CDN mirrors",
   "settings_bilibili_prefetch_label": "Concurrent subchunk prefetching",
   "settings_bilibili_prefetch_description": "Concurrently prefetches the next subchunk while streaming to eliminate network idle time and speed up seeking"
 }
