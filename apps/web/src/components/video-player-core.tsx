@@ -71,7 +71,13 @@ export function buildDashStreamingSettings(sourceProvider?: Provider) {
           }),
     },
     gaps: {
+      jumpGaps: true,
+      jumpLargeGaps: true,
+      smallGapLimit: 1.5,
+      threshold: 0.3,
+      enableSeekFix: true,
       enableStallFix: true,
+      stallSeek: 0.1,
     },
     cmcd: { enabled: false },
   };
