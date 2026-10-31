@@ -161,10 +161,19 @@ export function onProviderChange(
         try {
           const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost";
           const urlObj = new URL(request.url, origin);
-          if (urlObj.pathname.startsWith("/media/") || urlObj.pathname.startsWith("/proxy")) {
+          const pathname = urlObj.pathname;
+          if (
+            pathname.startsWith("/media/") ||
+            pathname.startsWith("/api/media/") ||
+            pathname.startsWith("/proxy") ||
+            pathname.startsWith("/api/proxy")
+          ) {
             urlObj.searchParams.set("cdn_region", serverRegion);
             urlObj.searchParams.set("concurrent_prefetch", concurrentPrefetch ? "1" : "0");
-            request.url = urlObj.pathname + urlObj.search;
+            request.url =
+              request.url.startsWith("http://") || request.url.startsWith("https://")
+                ? urlObj.toString()
+                : `${urlObj.pathname}${urlObj.search}`;
           }
         } catch {
           // ignore parsing error
