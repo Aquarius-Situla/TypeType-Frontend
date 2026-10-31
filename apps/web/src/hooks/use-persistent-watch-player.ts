@@ -76,6 +76,7 @@ export function usePersistentWatchPlayer(
   const register = usePersistentWatchPlayerStore((state) => state.register);
   const setAnchor = usePersistentWatchPlayerStore((state) => state.setAnchor);
   const detach = usePersistentWatchPlayerStore((state) => state.detach);
+  const hasEntry = usePersistentWatchPlayerStore((state) => state.entry !== null);
   const anchorRef = useCallback(
     (anchor: HTMLDivElement | null) => {
       anchorElementRef.current = anchor;
@@ -88,6 +89,13 @@ export function usePersistentWatchPlayer(
     register(owner, streamId, props, enabled, window.location.pathname + window.location.search);
     setAnchor(owner, anchorElementRef.current);
   }, [enabled, owner, props, register, setAnchor, streamId]);
+
+  useEffect(() => {
+    if (!hasEntry && enabled && anchorElementRef.current) {
+      register(owner, streamId, props, enabled, window.location.pathname + window.location.search);
+      setAnchor(owner, anchorElementRef.current);
+    }
+  }, [hasEntry, enabled, owner, props, register, setAnchor, streamId]);
 
   useEffect(() => () => detach(owner), [detach, owner]);
 

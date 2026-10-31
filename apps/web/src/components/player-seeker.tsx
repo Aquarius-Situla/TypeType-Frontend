@@ -22,17 +22,26 @@ export function PlayerSeeker({ startTime }: { startTime: number }) {
   const player = useMediaPlayer();
   const remote = useMediaRemote();
   const canPlay = useMediaState("canPlay");
+  const currentTime = useMediaState("currentTime");
+  const currentSrc = useMediaState("currentSrc");
   const { player: dashPlayer } = useDashPlayerSnapshot();
   const seeked = useRef(false);
+  const srcRef = useRef(currentSrc);
   const startTimeRef = useRef(startTime);
-  if (startTimeRef.current !== startTime) {
-    startTimeRef.current = startTime;
+
+  if (srcRef.current !== currentSrc) {
+    srcRef.current = currentSrc;
     seeked.current = false;
+    startTimeRef.current = startTime;
+  } else if (!seeked.current && currentTime <= 0.5 && startTimeRef.current !== startTime) {
+    startTimeRef.current = startTime;
   }
 
+  const effectiveStartTime = seeked.current ? 0 : startTimeRef.current;
+
   useEffect(() => {
-    if (startTime <= 0 || seeked.current) return;
-    const target = startTime / 1000;
+    if (effectiveStartTime <= 0 || seeked.current) return;
+    const target = effectiveStartTime / 1000;
     const root = player?.el;
     let timeout = 0;
     let applying = false;
@@ -40,6 +49,10 @@ export function PlayerSeeker({ startTime }: { startTime: number }) {
 
     function seekMedia(media: HTMLMediaElement) {
       if (!canPlay || seeked.current || applying || attempts >= MAX_SEEK_APPLIES) return;
+      if (media.currentTime > 2 && Math.abs(media.currentTime - target) > 5) {
+        seeked.current = true;
+        return;
+      }
       if (!seekable(media, target)) {
         recordClientEvent("player.seek_wait", {
           targetMs: Math.round(target * 1000),
@@ -129,6 +142,6 @@ export function PlayerSeeker({ startTime }: { startTime: number }) {
       observer.disconnect();
       cleanup?.();
     };
-  }, [canPlay, dashPlayer, player, remote, startTime]);
+  }, [canPlay, dashPlayer, player, remote, effectiveStartTime]);
   return null;
 }

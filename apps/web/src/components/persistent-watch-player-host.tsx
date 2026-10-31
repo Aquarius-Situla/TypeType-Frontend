@@ -78,6 +78,7 @@ export function PersistentWatchPlayerHost() {
   const [anchorRect, setAnchorRect] = useState<AnchorRect | null>(null);
   const [dragging, setDragging] = useState(false);
   const [outsideViewport, setOutsideViewport] = useState(false);
+  const [floatingDismissed, setFloatingDismissed] = useState(false);
   const [landscapeWatch, setLandscapeWatch] = useState(false);
   const watchPage = pathname === "/watch";
   const hiddenPage =
@@ -120,7 +121,13 @@ export function PersistentWatchPlayerHost() {
         }
       }
 
-      setOutsideViewport((previous) => isPlayerOutsideViewport(rect.bottom, previous));
+      setOutsideViewport((previous) => {
+        const next = isPlayerOutsideViewport(rect.bottom, previous);
+        if (!next) {
+          setFloatingDismissed(false);
+        }
+        return next;
+      });
 
       if (commitState) {
         setAnchorRect((previous) =>
@@ -154,6 +161,7 @@ export function PersistentWatchPlayerHost() {
       if (next !== outsideViewport) {
         setOutsideViewport(next);
         if (!next) {
+          setFloatingDismissed(false);
           syncFrame(true);
         }
       }
@@ -294,17 +302,41 @@ export function PersistentWatchPlayerHost() {
     return () => window.removeEventListener("resize", update);
   }, [floating, position, setPosition]);
 
+  useEffect(() => {
+    if (!watchPage && floatingDismissed && entry?.owner) {
+      close(entry.owner);
+    }
+  }, [watchPage, floatingDismissed, close, entry?.owner]);
+
   if (!entry?.enabled || hiddenPage) return null;
 
-  const style: React.CSSProperties =
-    webFullscreen && watchPage
+  const isDismissed = floating && floatingDismissed;
+  const activeAnchorRect =
+    anchorRect ??
+    (entry?.anchor
+      ? {
+          left: entry.anchor.getBoundingClientRect().left + window.scrollX,
+          top: entry.anchor.getBoundingClientRect().top + window.scrollY,
+          width: entry.anchor.getBoundingClientRect().width,
+          height: entry.anchor.getBoundingClientRect().height,
+        }
+      : null);
+
+  const style: React.CSSProperties = isDismissed
+    ? {
+        visibility: "hidden",
+        pointerEvents: "none",
+        opacity: 0,
+        zIndex: -1,
+      }
+    : webFullscreen && watchPage
       ? {}
-      : !floating && anchorRect
+      : !floating && activeAnchorRect
         ? {
-            left: anchorRect.left,
-            top: anchorRect.top,
-            width: anchorRect.width,
-            height: anchorRect.height,
+            left: activeAnchorRect.left,
+            top: activeAnchorRect.top,
+            width: activeAnchorRect.width,
+            height: activeAnchorRect.height,
           }
         : !floating
           ? {
@@ -348,7 +380,7 @@ export function PersistentWatchPlayerHost() {
       data-dragging={dragging ? "" : undefined}
       style={style}
     >
-      {floating && (
+      {floating && !floatingDismissed && (
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex h-9 items-start justify-between bg-gradient-to-b from-black/70 to-transparent px-1 pt-1">
           <button
             type="button"
@@ -365,7 +397,14 @@ export function PersistentWatchPlayerHost() {
             aria-label={m.ui_close_player()}
             title={m.ui_close_player()}
             className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded text-white hover:opacity-80"
-            onClick={() => close(entry.owner)}
+            onClick={() => {
+              if (watchPage) {
+                frameRef.current?.querySelector<HTMLVideoElement>("video")?.pause();
+                setFloatingDismissed(true);
+              } else {
+                close(entry.owner);
+              }
+            }}
           >
             <X size={16} aria-hidden="true" />
           </button>

@@ -9,6 +9,7 @@ import { useAuth } from "../hooks/use-auth";
 import { useDocumentTitle } from "../hooks/use-document-title";
 import { useHistory } from "../hooks/use-history";
 import { useInstance } from "../hooks/use-instance";
+import { usePersistentWatchPlayerStore } from "../hooks/use-persistent-watch-player";
 import { useProgress } from "../hooks/use-progress";
 import { useSettings } from "../hooks/use-settings";
 import { useSabrBootstrap, useStream } from "../hooks/use-stream";
@@ -51,6 +52,11 @@ function WatchPage() {
   const { isPending: instancePending } = useInstance();
   const { settings, settingsReady } = useSettings();
   const navigationSnapshot = useWatchNavigationStore((state) => state.snapshot);
+  const persistentEntry = usePersistentWatchPlayerStore((state) => state.entry);
+  const isPersistentMatch = Boolean(
+    persistentEntry &&
+      toPublicWatchParam(persistentEntry.streamId) === publicParam,
+  );
   const previewMatches =
     navigationSnapshot && toPublicWatchParam(navigationSnapshot.stream.id) === publicParam;
   const previewStream = previewMatches ? navigationSnapshot.stream : undefined;
@@ -85,12 +91,13 @@ function WatchPage() {
   const availabilityPoster = proxyImage(
     previewStream?.rawThumbnail ?? youtubeThumbnailUrl(publicParam) ?? "",
   );
-  const activeStream = selectProgressiveWatchStream(
-    streamQuery.isPlaceholderData ? undefined : streamQuery.data,
-    bootstrap.data,
-    publicParam,
-    previewRelated,
-  );
+  const activeStream =
+    selectProgressiveWatchStream(
+      streamQuery.isPlaceholderData ? undefined : streamQuery.data,
+      bootstrap.data,
+      publicParam,
+      previewRelated,
+    ) ?? (isPersistentMatch ? persistentEntry?.props.stream : undefined);
   const shortContentHidden =
     activeStream !== undefined && isShortFormContentHidden(activeStream, settings.hideShorts);
   useDocumentTitle(activeStream?.title ?? previewStream?.title);
@@ -113,12 +120,14 @@ function WatchPage() {
   const addToHistoryRef = useRef(add.mutate);
   addToHistoryRef.current = add.mutate;
   const historyAddedForRef = useRef<string | null>(null);
-  const resumePending = shouldWaitForWatchProgress(
-    isAuthed,
-    progressFetch.isPending,
-    progressFetch.isFetching,
-    progressFetch.data !== undefined,
-  );
+  const resumePending = isPersistentMatch
+    ? false
+    : shouldWaitForWatchProgress(
+        isAuthed,
+        progressFetch.isPending,
+        progressFetch.isFetching,
+        progressFetch.data !== undefined,
+      );
 
   useEffect(() => {
     beginPlaybackTrace(sourceUrl, "watch_route");
@@ -201,13 +210,15 @@ function WatchPage() {
   }
 
   const startTime =
-    resolveWatchStartTime({
-      authenticated: isAuthed,
-      progressPending: resumePending,
-      savedPositionMs: progressFetch.data?.position,
-      serverPositionSeconds: activeStream.startPosition,
-      durationSeconds: activeStream.duration,
-    }) ?? 0;
+    (isPersistentMatch
+      ? persistentEntry?.props.startTime
+      : resolveWatchStartTime({
+          authenticated: isAuthed,
+          progressPending: resumePending,
+          savedPositionMs: progressFetch.data?.position,
+          serverPositionSeconds: activeStream.startPosition,
+          durationSeconds: activeStream.duration,
+        })) ?? 0;
   const navigating = toPublicWatchParam(activeStream.id) !== publicParam;
   const bilibiliReturnTo = bilibiliSessionReturnToForWatch(publicParam, list, shuffle);
 
