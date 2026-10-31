@@ -18,10 +18,8 @@ export function ReturnToVideoButton() {
       title={label}
       onClick={(event) => {
         event.stopPropagation();
-        if (window.location.pathname === "/watch") {
+        if (entry.attached && entry.anchor) {
           window.scrollTo({ top: 0, behavior: "instant" });
-          document.documentElement.scrollTop = 0;
-          document.body.scrollTop = 0;
         } else {
           void navigate({ href: entry.href, resetScroll: true });
         }
