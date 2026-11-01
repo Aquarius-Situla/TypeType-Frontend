@@ -37,5 +37,3 @@ Cancel,取消,,撤回尚未提交的操作,见 R4.3
 Dismiss,忽略,,关闭不阻断操作的通知,见 R4.3
 Revoke,撤销,,使凭证、授权、密钥失效,见 R4.3
 Undo,撤回,,逆转刚生效的操作,见 R4.3
-Player color,播放器主题色,播放器颜色,设置项标签,Key：settings_player_color_label
-Player controls,控制按钮,播放器控件,面向用户的界面,Key：settings_player_color_description；避免技术词“控件”
