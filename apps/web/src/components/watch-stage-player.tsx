@@ -95,6 +95,7 @@ export function WatchStagePlayer(props: WatchStagePlayerProps) {
             <PlayerPlaybackSpeedDefault
               defaultPlaybackSpeed={settings.defaultPlaybackSpeed}
               preference={playbackRatePreference.current}
+              rememberChanges={!props.sabrConfig}
             />
             {props.overlay}
           </>

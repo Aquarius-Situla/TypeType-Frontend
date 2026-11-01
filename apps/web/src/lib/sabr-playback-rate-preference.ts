@@ -1,5 +1,6 @@
 const MIN_PLAYBACK_RATE = 0.25;
 const MAX_PLAYBACK_RATE = 16;
+export const HOLD_FAST_FORWARD_ATTRIBUTE = "data-hold-fast-forward";
 
 function isValidPlaybackRate(rate: number): boolean {
   return Number.isFinite(rate) && rate >= MIN_PLAYBACK_RATE && rate <= MAX_PLAYBACK_RATE;
@@ -23,6 +24,7 @@ export class SabrPlaybackRatePreference {
   }
 
   capture(video: HTMLMediaElement, transient: boolean): void {
+    if (video.closest(`[${HOLD_FAST_FORWARD_ATTRIBUTE}]`)) return;
     if (!transient && isValidPlaybackRate(video.playbackRate)) {
       this.preferredRate = video.playbackRate;
     }

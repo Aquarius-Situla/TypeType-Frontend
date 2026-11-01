@@ -33,6 +33,7 @@ type PlayerDefaultsProps = {
 type PlaybackSpeedDefaultProps = {
   defaultPlaybackSpeed: number;
   preference?: SabrPlaybackRatePreference;
+  rememberChanges?: boolean;
 };
 
 export function PlayerDefaults({
@@ -167,10 +168,20 @@ export function PlayerDefaults({
 export function PlayerPlaybackSpeedDefault({
   defaultPlaybackSpeed,
   preference,
+  rememberChanges = false,
 }: PlaybackSpeedDefaultProps) {
   const canPlay = useMediaState("canPlay");
   const player = useMediaPlayer();
   const applied = useRef(false);
+
+  useEffect(() => {
+    if (!canPlay || !rememberChanges || !preference) return;
+    const media = player?.el?.querySelector<HTMLMediaElement>("video,audio");
+    if (!media) return;
+    const capture = () => preference.capture(media, false);
+    media.addEventListener("ratechange", capture);
+    return () => media.removeEventListener("ratechange", capture);
+  }, [canPlay, player, preference, rememberChanges]);
 
   useEffect(() => {
     if (!canPlay || applied.current) return;
