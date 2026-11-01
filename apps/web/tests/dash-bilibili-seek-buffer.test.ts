@@ -16,9 +16,9 @@ const buffer = (seconds: number) => ({
 
 test("uses the chosen Bilibili baseline and keeps the backward cache", () => {
   expect(buildDashStreamingSettings("bilibili").buffer).toEqual({
-    bufferTimeDefault: 15,
-    bufferTimeAtTopQuality: 15,
-    bufferTimeAtTopQualityLongForm: 15,
+    bufferTimeDefault: 45,
+    bufferTimeAtTopQuality: 45,
+    bufferTimeAtTopQualityLongForm: 45,
     bufferToKeep: 20,
   });
   expect(buildDashStreamingSettings("youtube").buffer).toEqual({
@@ -30,11 +30,11 @@ test("uses the chosen Bilibili baseline and keeps the backward cache", () => {
 });
 
 test("the buffer grows with the playback speed and stays capped", () => {
-  expect(bilibiliBufferSeconds("normal", 1)).toBe(15);
-  expect(bilibiliBufferSeconds("normal", 2)).toBe(30);
-  expect(bilibiliBufferSeconds("normal", 4)).toBe(60);
-  expect(bilibiliBufferSeconds("saver", 0.5)).toBe(8);
-  expect(bilibiliBufferSeconds("large", 16)).toBe(120);
+  expect(bilibiliBufferSeconds("normal", 1)).toBe(45);
+  expect(bilibiliBufferSeconds("normal", 2)).toBe(90);
+  expect(bilibiliBufferSeconds("normal", 4)).toBe(180);
+  expect(bilibiliBufferSeconds("saver", 0.5)).toBe(15);
+  expect(bilibiliBufferSeconds("large", 16)).toBe(180);
 });
 
 function fakePlayer(rate = 1) {
@@ -67,7 +67,7 @@ test("keeps the Bilibili seek target short until playback advances without flush
   listeners.get("playbackTimeUpdated")?.({ time: 31.4 });
   expect(updates).toHaveLength(1);
   listeners.get("playbackTimeUpdated")?.({ time: 31.5 });
-  expect(updates[1]).toEqual(buffer(15));
+  expect(updates[1]).toEqual(buffer(45));
 });
 
 test("a speed change resizes the buffer, but not during a pending seek", () => {
@@ -75,15 +75,28 @@ test("a speed change resizes the buffer, but not during a pending seek", () => {
   attachBilibiliSeekBuffer(player, (rate) => bilibiliBufferSeconds("normal", rate));
 
   listeners.get("playbackRateChanged")?.({});
-  expect(updates).toEqual([buffer(30)]);
+  expect(updates).toEqual([buffer(90)]);
 
   listeners.get("playbackSeeking")?.({ seekTime: 10 });
   state.rate = 4;
   listeners.get("playbackRateChanged")?.({});
-  expect(updates).toEqual([buffer(30), buffer(2)]);
+  expect(updates).toEqual([buffer(90), buffer(2)]);
 
   state.paused = false;
   state.seeking = false;
   listeners.get("playbackTimeUpdated")?.({ time: 11.5 });
-  expect(updates[2]).toEqual(buffer(60));
+  expect(updates[2]).toEqual(buffer(180));
+});
+
+test("restores the steady buffer on playbackPlaying or playbackSeeked after seeking", () => {
+  const { player, listeners, updates, state } = fakePlayer(1);
+  attachBilibiliSeekBuffer(player, (rate) => bilibiliBufferSeconds("normal", rate));
+
+  listeners.get("playbackSeeking")?.({ seekTime: 25 });
+  expect(updates).toEqual([buffer(2)]);
+
+  state.paused = false;
+  state.seeking = false;
+  listeners.get("playbackSeeked")?.({});
+  expect(updates).toEqual([buffer(2), buffer(45)]);
 });

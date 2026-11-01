@@ -70,9 +70,19 @@ export function buildDashStreamingSettings(sourceProvider?: Provider) {
             bufferTimeAtTopQualityLongForm: 60,
           }),
     },
-    gaps: {
-      enableStallFix: true,
-    },
+    gaps: isBilibili
+      ? {
+          jumpGaps: true,
+          jumpLargeGaps: true,
+          smallGapLimit: 1.5,
+          threshold: 0.3,
+          enableSeekFix: true,
+          enableStallFix: true,
+          stallSeek: 0.1,
+        }
+      : {
+          enableStallFix: true,
+        },
     cmcd: { enabled: false },
   };
 }

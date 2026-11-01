@@ -13,7 +13,10 @@ export function attachBilibiliSeekBuffer(
   steadySeconds: (playbackRate: number) => number,
 ): void {
   let pendingSeekTime: number | null = null;
-  const restore = () => updateForwardBuffer(player, steadySeconds(player.getPlaybackRate()));
+  const restore = () => {
+    pendingSeekTime = null;
+    updateForwardBuffer(player, steadySeconds(player.getPlaybackRate()));
+  };
   player.on("playbackSeeking", (event: dashjs.PlaybackSeekingEvent) => {
     if (event.seekTime === null || !Number.isFinite(event.seekTime)) return;
     pendingSeekTime = event.seekTime;
@@ -21,6 +24,12 @@ export function attachBilibiliSeekBuffer(
   });
   player.on("playbackRateChanged", () => {
     if (pendingSeekTime === null) restore();
+  });
+  player.on("playbackPlaying", () => {
+    if (pendingSeekTime !== null) restore();
+  });
+  player.on("playbackSeeked", () => {
+    if (pendingSeekTime !== null && !player.isPaused()) restore();
   });
   player.on("playbackTimeUpdated", (event: dashjs.PlaybackTimeUpdatedEvent) => {
     if (
@@ -32,7 +41,6 @@ export function attachBilibiliSeekBuffer(
       event.time < pendingSeekTime + RESTORE_AFTER_SECONDS
     )
       return;
-    pendingSeekTime = null;
     restore();
   });
 }
