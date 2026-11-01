@@ -96,6 +96,8 @@ export function PersistentWatchPlayerHost() {
     return () => media.removeEventListener("change", update);
   }, []);
 
+  const canFloat = !cinemaMode && !landscapeWatch;
+
   const syncFrame = useCallback(
     (commitState = true) => {
       const anchor = entry?.anchor;
@@ -113,7 +115,7 @@ export function PersistentWatchPlayerHost() {
       const docLeft = rect.left + window.scrollX;
 
       if (frame) {
-        if (!outsideViewport && watchPage && !webFullscreen) {
+        if ((!outsideViewport || !canFloat) && !webFullscreen) {
           frame.style.top = `${docTop}px`;
           frame.style.left = `${docLeft}px`;
           frame.style.width = `${rect.width}px`;
@@ -137,7 +139,7 @@ export function PersistentWatchPlayerHost() {
         );
       }
     },
-    [entry?.anchor, outsideViewport, watchPage, webFullscreen],
+    [entry?.anchor, outsideViewport, watchPage, webFullscreen, canFloat],
   );
 
   useLayoutEffect(() => {
@@ -244,8 +246,7 @@ export function PersistentWatchPlayerHost() {
     };
   }, [watchPage, outsideViewport, webFullscreen, entry?.anchor, startTransitionLoop, syncFrame]);
 
-  const floating =
-    !watchPage || (!cinemaMode && !webFullscreen && !landscapeWatch && outsideViewport);
+  const floating = !watchPage || (canFloat && !webFullscreen && outsideViewport);
 
   useEffect(() => {
     if (!floating) setFloatingDismissed(false);
