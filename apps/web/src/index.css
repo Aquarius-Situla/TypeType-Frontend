@@ -202,8 +202,12 @@ body {
   background: var(--color-zinc-950);
 }
 
-.vds-playback-menu .vds-menu-section:has(.vds-quality-slider) {
+.vds-settings-menu-items > .vds-quality-menu:not(.typetype-quality-menu) {
   display: none;
+}
+
+.vds-loop-menu {
+  display: contents;
 }
 
 @media (max-width: 639px) {

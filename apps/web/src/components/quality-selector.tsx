@@ -87,7 +87,7 @@ export function QualitySelector() {
       menuRef.current?.close();
     }
     return (
-      <Menu.Root ref={menuRef} className="vds-quality-menu vds-menu">
+      <Menu.Root ref={menuRef} className="typetype-quality-menu vds-quality-menu vds-menu">
         <DefaultMenuButton
           label={m.player_quality({}, { locale })}
           hint={selected.label}
@@ -125,7 +125,7 @@ export function QualitySelector() {
       }
 
       return (
-        <Menu.Root ref={menuRef} className="vds-quality-menu vds-menu">
+        <Menu.Root ref={menuRef} className="typetype-quality-menu vds-quality-menu vds-menu">
           <DefaultMenuButton
             label={m.player_quality({}, { locale })}
             hint={selected.label}
@@ -164,7 +164,7 @@ export function QualitySelector() {
   }
 
   return (
-    <Menu.Root ref={menuRef} className="vds-quality-menu vds-menu">
+    <Menu.Root ref={menuRef} className="typetype-quality-menu vds-quality-menu vds-menu">
       <DefaultMenuButton
         label={m.player_quality({}, { locale })}
         hint={current}
