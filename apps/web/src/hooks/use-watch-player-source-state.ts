@@ -65,9 +65,11 @@ export function decideWatchSourceAutoplay(args: AutoplayDecision): boolean {
 }
 
 export function useWatchPlayerSourceState(args: Args) {
+  const manifestIdentity = sourceIdentity(args.manifestSrc);
   const sourceStart = useWatchSourceStartTime({
     streamId: args.streamId,
     sourceKey: args.audioOnlyEnabled ? "audio" : "video",
+    sourceIdentity: manifestIdentity,
     retryKey: args.retryKey,
     startTime: args.startTime,
     positionRef: args.positionRef,
@@ -75,7 +77,7 @@ export function useWatchPlayerSourceState(args: Args) {
   const playerKey = buildWatchPlayerKey({
     streamId: args.streamId,
     retryKey: args.retryKey,
-    sourceKey: `${args.sabrEnabled ? "sabr" : sourceStart.keyPart}:${sourceIdentity(args.manifestSrc)}`,
+    sourceKey: `${args.sabrEnabled ? "sabr" : sourceStart.keyPart}:${manifestIdentity}`,
     highQuality: args.highQuality,
     hasThumbnails: args.hasThumbnails,
     hasChapters: args.hasChapters,
