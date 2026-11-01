@@ -8,8 +8,10 @@ function isValidPlaybackRate(rate: number): boolean {
 
 export class SabrPlaybackRatePreference {
   private preferredRate: number | null = null;
+  private readonly onCapture: ((rate: number) => void) | undefined;
 
-  constructor(initialRate?: number) {
+  constructor(initialRate?: number, onCapture?: (rate: number) => void) {
+    this.onCapture = onCapture;
     if (initialRate !== undefined) this.setPreferredRate(initialRate);
   }
 
@@ -27,6 +29,7 @@ export class SabrPlaybackRatePreference {
     if (video.closest(`[${HOLD_FAST_FORWARD_ATTRIBUTE}]`)) return;
     if (!transient && isValidPlaybackRate(video.playbackRate)) {
       this.preferredRate = video.playbackRate;
+      this.onCapture?.(video.playbackRate);
     }
   }
 

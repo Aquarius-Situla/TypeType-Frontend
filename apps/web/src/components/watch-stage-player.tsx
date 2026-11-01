@@ -3,6 +3,7 @@ import type { Provider } from "../lib/provider";
 import { SabrPlaybackRatePreference } from "../lib/sabr-playback-rate-preference";
 import type { SabrPlaybackConfig } from "../lib/sabr-source";
 import type { MediaSrc } from "../lib/vidstack";
+import { usePlaybackRateStore } from "../stores/playback-rate-store";
 import type { SponsorBlockSegmentItem, SubtitleItem } from "../types/api";
 import type { CaptionStyles, SettingsItem } from "../types/user";
 import { PlayerPlaybackSpeedDefault } from "./player-defaults";
@@ -51,11 +52,15 @@ export type WatchStagePlayerProps = {
 
 export function WatchStagePlayer(props: WatchStagePlayerProps) {
   const settings = props.settings;
-  const playbackRatePreference = useRef(
-    new SabrPlaybackRatePreference(settings.defaultPlaybackSpeed),
+  const playbackRatePreference = useRef<SabrPlaybackRatePreference | null>(null);
+  playbackRatePreference.current ??= new SabrPlaybackRatePreference(
+    usePlaybackRateStore.getState().chosenRate ?? settings.defaultPlaybackSpeed,
+    usePlaybackRateStore.getState().choose,
   );
   useEffect(() => {
-    playbackRatePreference.current.setPreferredRate(settings.defaultPlaybackSpeed);
+    if (usePlaybackRateStore.getState().syncDefault(settings.defaultPlaybackSpeed)) {
+      playbackRatePreference.current?.setPreferredRate(settings.defaultPlaybackSpeed);
+    }
   }, [settings.defaultPlaybackSpeed]);
   return (
     <WatchPlayerCrossfade
