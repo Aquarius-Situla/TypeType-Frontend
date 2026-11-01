@@ -98,6 +98,47 @@ describe("session refresh failures", () => {
     });
   });
 
+  test("gives up a refresh that never answers so the next request can refresh again", async () => {
+    const originalTimeout = AbortSignal.timeout;
+    const timeouts: AbortController[] = [];
+    AbortSignal.timeout = mock(() => {
+      const controller = new AbortController();
+      timeouts.push(controller);
+      return controller.signal;
+    });
+    let refreshRequests = 0;
+    globalThis.fetch = mock(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.endsWith("/auth/refresh")) {
+        refreshRequests += 1;
+        if (refreshRequests === 1) {
+          return new Promise<Response>((_, reject) => {
+            init?.signal?.addEventListener("abort", () => reject(init.signal?.reason));
+          });
+        }
+        return jsonResponse(200, { accessToken: "fresh-token" });
+      }
+      if (url.endsWith("/auth/me")) return jsonResponse(200, me);
+      throw new Error(`Unexpected request: ${url}`);
+    });
+
+    try {
+      const hanging = refreshSession();
+      for (let tick = 0; tick < 50 && timeouts.length === 0; tick += 1) await Promise.resolve();
+      timeouts[0]?.abort(new DOMException("The operation timed out.", "TimeoutError"));
+
+      await expect(hanging).rejects.toThrow("timed out");
+      await expect(refreshSession()).resolves.toBe("fresh-token");
+      expect(refreshRequests).toBe(2);
+      expect(useAuthStore.getState()).toMatchObject({
+        token: "fresh-token",
+        status: "authenticated",
+      });
+    } finally {
+      AbortSignal.timeout = originalTimeout;
+    }
+  });
+
   test("keeps the refreshed session when the retried request loses connectivity", async () => {
     let settingsRequests = 0;
     globalThis.fetch = mock(async (input: RequestInfo | URL) => {
