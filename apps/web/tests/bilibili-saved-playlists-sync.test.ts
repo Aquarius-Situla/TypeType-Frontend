@@ -1,31 +1,5 @@
+import "./setup";
 import { beforeEach, describe, expect, test } from "bun:test";
-
-let store: Record<string, string> = {};
-
-const mockStorage = {
-  getItem: (key: string) => store[key] ?? null,
-  setItem: (key: string, value: string) => {
-    store[key] = value;
-  },
-  removeItem: (key: string) => {
-    delete store[key];
-  },
-  clear: () => {
-    store = {};
-  },
-};
-
-if (!("localStorage" in globalThis)) {
-  Object.defineProperty(globalThis, "localStorage", {
-    configurable: true,
-    value: mockStorage,
-  });
-} else {
-  globalThis.localStorage.getItem = mockStorage.getItem;
-  globalThis.localStorage.setItem = mockStorage.setItem;
-  globalThis.localStorage.removeItem = mockStorage.removeItem;
-  globalThis.localStorage.clear = mockStorage.clear;
-}
 
 const {
   getBilibiliSavedPlaylists,
@@ -38,13 +12,7 @@ import type { SavedPlaylistItem } from "../src/types/playlist";
 
 describe("bilibili saved playlists local storage and sync helper", () => {
   beforeEach(() => {
-    store = {};
-    if (globalThis.localStorage) {
-      globalThis.localStorage.getItem = mockStorage.getItem;
-      globalThis.localStorage.setItem = mockStorage.setItem;
-      globalThis.localStorage.removeItem = mockStorage.removeItem;
-      globalThis.localStorage.clear = mockStorage.clear;
-    }
+    localStorage.clear();
   });
 
   test("identifies Bilibili saved playlists by various schemes", () => {
