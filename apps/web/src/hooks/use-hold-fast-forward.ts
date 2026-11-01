@@ -1,8 +1,9 @@
 import { useCallback, useRef, useState } from "react";
+import { normalizeHoldPlaybackSpeed } from "../lib/playback-speed";
 import { HOLD_FAST_FORWARD_ATTRIBUTE } from "../lib/sabr-playback-rate-preference";
 import { useMediaPlayer, useMediaRemote, useMediaState } from "../lib/vidstack";
+import { useSettings } from "./use-settings";
 
-const HOLD_SPEED = 2;
 const HOLD_DELAY_MS = 180;
 
 type HoldFastForward = {
@@ -15,6 +16,7 @@ type HoldFastForward = {
 export function useHoldFastForward(): HoldFastForward {
   const remote = useMediaRemote();
   const player = useMediaPlayer();
+  const { settings } = useSettings();
   const paused = useMediaState("paused");
   const playbackRate = useMediaState("playbackRate");
   const [holding, setHolding] = useState(false);
@@ -26,9 +28,11 @@ export function useHoldFastForward(): HoldFastForward {
   const startedPausedRef = useRef(false);
   const restoreRateRef = useRef(1);
   const playerRef = useRef<HTMLElement | null>(null);
+  const holdSpeedRef = useRef(2);
 
   remoteRef.current = remote;
   playerRef.current = player?.el ?? null;
+  holdSpeedRef.current = normalizeHoldPlaybackSpeed(settings.holdPlaybackSpeed);
   pausedRef.current = paused;
   rateRef.current = Number.isFinite(playbackRate) && playbackRate > 0 ? playbackRate : 1;
 
@@ -47,7 +51,7 @@ export function useHoldFastForward(): HoldFastForward {
       playerRef.current?.toggleAttribute(HOLD_FAST_FORWARD_ATTRIBUTE, true);
       startedPausedRef.current = pausedRef.current;
       restoreRateRef.current = rateRef.current;
-      remoteRef.current.changePlaybackRate(HOLD_SPEED);
+      remoteRef.current.changePlaybackRate(holdSpeedRef.current);
       if (pausedRef.current) void Promise.resolve(remoteRef.current.play()).catch(() => {});
     }, HOLD_DELAY_MS);
   }, []);
