@@ -7,6 +7,12 @@ export function normalizeDefaultPlaybackSpeed(value: number): number {
   return Math.min(4, Math.max(0.25, value));
 }
 
+export const HOLD_PLAYBACK_SPEED_OPTIONS = [1.5, 2, 2.5, 3, 4] as const;
+
+export function normalizeHoldPlaybackSpeed(value: number): number {
+  return HOLD_PLAYBACK_SPEED_OPTIONS.find((speed) => speed === value) ?? 2;
+}
+
 export function playbackSpeedLabel(value: number): string {
   return `${value}x`;
 }

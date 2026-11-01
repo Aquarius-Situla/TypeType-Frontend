@@ -618,6 +618,8 @@
   "ui_dearrow_titles": "DeArrow Titel",
   "ui_default_landing_page": "Standardansicht",
   "ui_default_playback_speed": "Standard-Wiedergabegeschwindigkeit",
+  "ui_hold_playback_speed": "Geschwindigkeit beim Gedrückthalten",
+  "ui_hold_playback_speed_description": "Geschwindigkeit, solange die Leertaste oder ein langer Druck gehalten wird",
   "ui_default_quality": "Standardqualität",
   "ui_default_service": "Standardservice",
   "ui_delete": "Löschen",

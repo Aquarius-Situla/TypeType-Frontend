@@ -830,6 +830,8 @@
   "ui_default": "默认",
   "ui_default_landing_page": "默认页面",
   "ui_default_playback_speed": "默认播放速度",
+  "ui_hold_playback_speed": "按住快进倍速",
+  "ui_hold_playback_speed_description": "按住空格键或长按时的播放速度",
   "ui_default_quality": "默认画质",
   "ui_default_service": "Default service",
   "ui_delete": "Delete",

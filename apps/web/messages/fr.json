@@ -625,6 +625,8 @@
   "ui_dearrow_titles": "DeArrow titles",
   "ui_default_landing_page": "Default landing page",
   "ui_default_playback_speed": "Default playback speed",
+  "ui_hold_playback_speed": "Vitesse en maintenant appuyé",
+  "ui_hold_playback_speed_description": "Vitesse tant que la barre d'espace ou un appui long est maintenu",
   "ui_default_quality": "Default quality",
   "ui_default_service": "Service par défaut",
   "ui_delete": "Supprimer",
