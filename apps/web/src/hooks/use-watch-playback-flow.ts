@@ -1,3 +1,4 @@
+import type { PlaybackQueueEntry } from "../lib/playback-queue";
 import type { WatchPlaylistItem } from "../types/playlist";
 import type { VideoStream } from "../types/stream";
 import type { SettingsItem } from "../types/user";
@@ -12,6 +13,7 @@ type Args = {
   settings: SettingsItem;
   settingsReady: boolean;
   isLive: boolean;
+  queueNext: PlaybackQueueEntry | null;
   nextParam: string | null;
   nextVideo: WatchPlaylistItem | null;
   list?: string;
@@ -28,6 +30,7 @@ export function useWatchPlaybackFlow(args: Args) {
     countdownSeconds: args.settings.autoplayCountdownSeconds,
     skipPlaylistAutoplayScreen: args.settings.skipPlaylistAutoplayScreen,
     hideRelatedVideos: args.settings.hideRelatedVideos,
+    queueNext: args.queueNext,
     nextParam: args.nextParam,
     nextVideo: args.nextVideo,
     list: args.list,
