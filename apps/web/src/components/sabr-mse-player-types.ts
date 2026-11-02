@@ -14,6 +14,7 @@ export type SabrMsePlayerProps = {
   onVolumeChange?: (volume: number, muted: boolean) => void;
   onError: (positionMs?: number) => void;
   onSeekStateChange: (seeking: boolean) => void;
+  onModeSwitchChange?: (switching: boolean) => void;
   onSeekReady: (seek: (seconds: number) => void) => void;
   onPositionReaderChange: (reader: (() => number | null) | null) => void;
 };

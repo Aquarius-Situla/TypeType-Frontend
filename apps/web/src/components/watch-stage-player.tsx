@@ -1,4 +1,4 @@
-import { type MutableRefObject, type ReactNode, useEffect, useRef } from "react";
+import { type MutableRefObject, type ReactNode, useEffect, useRef, useState } from "react";
 import type { Provider } from "../lib/provider";
 import { SabrPlaybackRatePreference } from "../lib/sabr-playback-rate-preference";
 import type { SabrPlaybackConfig } from "../lib/sabr-source";
@@ -53,6 +53,7 @@ export type WatchStagePlayerProps = {
 export function WatchStagePlayer(props: WatchStagePlayerProps) {
   const settings = props.settings;
   const playbackRatePreference = useRef<SabrPlaybackRatePreference | null>(null);
+  const [audioPosterVisible, setAudioPosterVisible] = useState(props.audioOnly);
   playbackRatePreference.current ??= new SabrPlaybackRatePreference(
     usePlaybackRateStore.getState().chosenRate ?? settings.defaultPlaybackSpeed,
     usePlaybackRateStore.getState().choose,
@@ -64,7 +65,7 @@ export function WatchStagePlayer(props: WatchStagePlayerProps) {
   }, [settings.defaultPlaybackSpeed]);
   return (
     <WatchPlayerCrossfade
-      audioOnly={props.audioOnly}
+      audioOnly={audioPosterVisible}
       poster={props.poster}
       title={props.streamTitle}
     >
@@ -118,6 +119,7 @@ export function WatchStagePlayer(props: WatchStagePlayerProps) {
         onEnded={props.onEnded}
         onPreviousVideo={props.onPreviousVideo}
         onNextVideo={props.onNextVideo}
+        onAudioPosterChange={setAudioPosterVisible}
         onSeekReady={(seek) => (props.seekRef.current = seek)}
         className={props.playerClassName}
         mediaClassName={props.mediaClassName}

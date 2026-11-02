@@ -6,6 +6,7 @@ import { isAbortError } from "../lib/sabr-playback-retry";
 type ModeSwitchHandlers = {
   onError: (error: unknown) => void;
   onSeekStateChange: (seeking: boolean) => void;
+  onModeSwitchChange: (switching: boolean) => void;
 };
 
 export function useSabrModeSwitch(
@@ -25,7 +26,12 @@ export function useSabrModeSwitch(
     if (appliedRef.current === audioOnly) return;
     const revision = ++revisionRef.current;
     seekingRef.current = true;
-    handlers().onSeekStateChange(true);
+    handlers().onModeSwitchChange(true);
+    const stopFollowingSwap = engine.on("state", (event) => {
+      if (event.type === "state" && revision === revisionRef.current) {
+        handlers().onSeekStateChange(event.state === "seeking");
+      }
+    });
     void engine
       .setAudioOnly(audioOnly)
       .then(() => {
@@ -39,9 +45,11 @@ export function useSabrModeSwitch(
         handlers().onError(error);
       })
       .finally(() => {
+        stopFollowingSwap();
         if (revision !== revisionRef.current) return;
         seekingRef.current = false;
         handlers().onSeekStateChange(false);
+        handlers().onModeSwitchChange(false);
       });
   }, [audioOnly, engineRef, handlers, seekingRef]);
 }

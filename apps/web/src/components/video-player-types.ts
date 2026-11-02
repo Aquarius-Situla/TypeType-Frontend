@@ -49,6 +49,7 @@ export type VideoPlayerProps = {
   onEnded?: () => void;
   onPreviousVideo?: () => void;
   onNextVideo?: () => void;
+  onAudioPosterChange?: (visible: boolean) => void;
   className?: string;
   mediaClassName?: string;
 };

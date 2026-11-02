@@ -41,6 +41,7 @@ export function SabrMsePlayer({
   onVolumeChange,
   onError,
   onSeekStateChange,
+  onModeSwitchChange,
   onSeekReady,
   onPositionReaderChange,
 }: SabrMsePlayerProps) {
@@ -65,6 +66,7 @@ export function SabrMsePlayer({
   const latestHandlers = useLatestValue({
     autoplay,
     onSeekStateChange,
+    onModeSwitchChange,
     onSeekReady,
     onPositionReaderChange,
     onVolumeChange,
