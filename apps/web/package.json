@@ -14,7 +14,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.104.5",
     "@tanstack/react-router": "^1.170.46",
-    "@typetype/mse": "0.1.75",
+    "@typetype/mse": "0.1.76",
     "@vidstack/react": "1.15.7",
     "@zip.js/zip.js": "^2.24.0",
     "dashjs": "^5.2.1",
