@@ -1868,5 +1868,18 @@
   "settings_bilibili_buffer_saver_hint": "在有限速或按流量计费的网络下更省流量",
   "settings_bilibili_buffer_normal_hint": "推荐",
   "settings_bilibili_buffer_large_hint": "与 BiliBili 连接不稳定时体验更流畅",
-  "settings_bilibili_buffer_seconds": "1× 倍速下为 {seconds} 秒"
+  "settings_bilibili_buffer_seconds": "1× 倍速下为 {seconds} 秒",
+  "queue_play_next": "下一个播放",
+  "queue_add": "添加到播放队列",
+  "queue_title": "播放队列",
+  "queue_position": "第 {current} 个，共 {total} 个",
+  "queue_now_playing": "正在播放",
+  "queue_remove": "从播放队列中移除",
+  "queue_clear": "清空播放队列",
+  "queue_toast_play_next": "此视频将在下一个播放",
+  "queue_toast_added": "已添加到播放队列",
+  "queue_toast_moved": "已移至下一个播放",
+  "queue_toast_already_queued": "此视频已在播放队列中",
+  "queue_toast_already_playing": "此视频正在播放",
+  "queue_toast_started": "已开始播放"
 }
