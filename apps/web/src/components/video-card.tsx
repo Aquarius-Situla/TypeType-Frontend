@@ -147,7 +147,7 @@ function VideoCardComponent({
         ) : (
           <ChannelAvatar src={stream.channelAvatar} name={stream.channelName} className="w-8 h-8" />
         )}
-        <div className="flex flex-col gap-0.5 min-w-0">
+        <div className="flex flex-col gap-0.5 min-w-0 flex-1">
           <Link
             to="/watch"
             search={watchSearch}
