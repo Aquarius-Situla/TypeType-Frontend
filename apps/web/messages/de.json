@@ -618,6 +618,8 @@
   "ui_dearrow_titles": "DeArrow Titel",
   "ui_default_landing_page": "Standardansicht",
   "ui_default_playback_speed": "Standard-Wiedergabegeschwindigkeit",
+  "ui_hold_playback_speed": "Geschwindigkeit beim Gedrückthalten",
+  "ui_hold_playback_speed_description": "Geschwindigkeit, solange die Leertaste oder ein langer Druck gehalten wird",
   "ui_default_quality": "Standardqualität",
   "ui_default_service": "Standardservice",
   "ui_delete": "Löschen",
@@ -1866,5 +1868,18 @@
   "settings_bilibili_buffer_saver_hint": "Weniger Daten bei langsamer oder begrenzter Verbindung",
   "settings_bilibili_buffer_normal_hint": "Empfohlen",
   "settings_bilibili_buffer_large_hint": "Am flüssigsten, wenn die Verbindung zu BiliBili instabil ist",
-  "settings_bilibili_buffer_seconds": "{seconds} s bei 1×"
+  "settings_bilibili_buffer_seconds": "{seconds} s bei 1×",
+  "queue_play_next": "Als Nächstes abspielen",
+  "queue_add": "Zur Warteschlange hinzufügen",
+  "queue_title": "Warteschlange",
+  "queue_position": "{current} von {total}",
+  "queue_now_playing": "Wird abgespielt",
+  "queue_remove": "Aus der Warteschlange entfernen",
+  "queue_clear": "Warteschlange leeren",
+  "queue_toast_play_next": "Dieses Video wird als Nächstes abgespielt",
+  "queue_toast_added": "Zur Warteschlange hinzugefügt",
+  "queue_toast_moved": "Wird jetzt als Nächstes abgespielt",
+  "queue_toast_already_queued": "Dieses Video ist bereits in der Warteschlange",
+  "queue_toast_already_playing": "Dieses Video wird bereits abgespielt",
+  "queue_toast_started": "Wiedergabe gestartet"
 }

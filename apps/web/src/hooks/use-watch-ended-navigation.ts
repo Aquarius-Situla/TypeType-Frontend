@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { PlaybackQueueEntry } from "../lib/playback-queue";
 import { upcomingPlaylistDisplay } from "../lib/upcoming-playlist-display";
 import { markWatchAutoplayIntent } from "../lib/watch-autoplay-intent";
 import type { WatchPlaylistItem } from "../types/playlist";
@@ -18,7 +19,7 @@ export type AutoplayTarget = {
   title: string;
   thumbnail: string;
   channelName: string;
-  source: "playlist" | "related";
+  source: "queue" | "playlist" | "related";
   duration?: number;
   search: WatchSearch;
   hidden?: boolean;
@@ -36,6 +37,7 @@ type Params = {
   countdownSeconds: number;
   skipPlaylistAutoplayScreen: boolean;
   hideRelatedVideos: boolean;
+  queueNext?: PlaybackQueueEntry | null;
   nextParam: string | null;
   nextVideo?: WatchPlaylistItem | null;
   list?: string;
@@ -50,6 +52,7 @@ export function useWatchEndedNavigation({
   countdownSeconds,
   skipPlaylistAutoplayScreen,
   hideRelatedVideos,
+  queueNext,
   nextParam,
   nextVideo,
   list,
@@ -67,6 +70,17 @@ export function useWatchEndedNavigation({
   const dismissedTargetIdRef = useRef("");
 
   const nextTarget = useMemo<AutoplayTarget | null>(() => {
+    if (queueNext) {
+      return {
+        id: queueNext.param,
+        title: queueNext.title,
+        thumbnail: queueNext.thumbnail,
+        channelName: queueNext.channelName,
+        duration: queueNext.duration,
+        source: "queue",
+        search: { v: queueNext.param },
+      };
+    }
     if (nextParam) {
       return {
         id: nextParam,
@@ -87,7 +101,7 @@ export function useWatchEndedNavigation({
       duration: relatedVideo.duration,
       search: { v: relatedVideo.id },
     };
-  }, [nextParam, nextVideo, list, shuffle, hideRelatedVideos, hideUpcoming, related]);
+  }, [queueNext, nextParam, nextVideo, list, shuffle, hideRelatedVideos, hideUpcoming, related]);
   const nextTargetRef = useRef(nextTarget);
   nextTargetRef.current = nextTarget;
 
@@ -146,7 +160,7 @@ export function useWatchEndedNavigation({
     if (!settingsReady || !autoplay) return;
     const next = nextTargetRef.current;
     if (!next || dismissedTargetIdRef.current === next.id) return;
-    if (skipPlaylistAutoplayScreen && next.source === "playlist") {
+    if (skipPlaylistAutoplayScreen && next.source !== "related") {
       navigateToTarget(next);
       return;
     }

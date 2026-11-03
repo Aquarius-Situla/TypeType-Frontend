@@ -37,7 +37,7 @@ export function WatchComment({ comment, videoUrl, onSeekTimestamp }: Props) {
       ? `${formatLikes(comment.replyCount)} ${m.watch_replies({}, { locale })}`
       : m.watch_show_replies({}, { locale });
 
-  const likeDisplay = comment.textualLikeCount || formatLikes(comment.likeCount);
+  const likeDisplay = comment.textualLikeCount?.trim() || formatLikes(comment.likeCount);
 
   return (
     <div className="flex gap-3">

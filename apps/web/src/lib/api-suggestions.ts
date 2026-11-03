@@ -1,5 +1,5 @@
-import { request } from "./api";
 import { API_BASE as BASE } from "./env";
+import { requestWithSession } from "./session-request";
 
 export function fetchSuggestions(
   query: string,
@@ -7,5 +7,5 @@ export function fetchSuggestions(
   signal?: AbortSignal,
 ): Promise<string[]> {
   const params = new URLSearchParams({ query, service: String(service) });
-  return request(`${BASE}/suggestions?${params}`, { signal });
+  return requestWithSession(`${BASE}/suggestions?${params}`, { signal });
 }

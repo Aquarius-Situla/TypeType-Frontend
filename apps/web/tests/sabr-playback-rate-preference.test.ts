@@ -1,14 +1,29 @@
 import { describe, expect, test } from "bun:test";
-import { SabrPlaybackRatePreference } from "../src/lib/sabr-playback-rate-preference";
+import {
+  HOLD_FAST_FORWARD_ATTRIBUTE,
+  SabrPlaybackRatePreference,
+} from "../src/lib/sabr-playback-rate-preference";
 
-function video(rate = 1): HTMLVideoElement {
+function video(rate = 1, holding = false): HTMLVideoElement {
   return {
     defaultPlaybackRate: rate,
     playbackRate: rate,
-  } as HTMLVideoElement;
+    closest: (selector: string) =>
+      holding && selector === `[${HOLD_FAST_FORWARD_ATTRIBUTE}]` ? ({} as Element) : null,
+  } as unknown as HTMLVideoElement;
 }
 
 describe("SabrPlaybackRatePreference", () => {
+  test("ignores the hold fast-forward speed", () => {
+    const preference = new SabrPlaybackRatePreference(1.25);
+    preference.capture(video(2, true), false);
+
+    const next = video();
+    preference.apply(next, false);
+
+    expect(next.playbackRate).toBe(1.25);
+  });
+
   test("uses the configured default for the first media element", () => {
     const preference = new SabrPlaybackRatePreference();
     preference.setPreferredRate(1.5);

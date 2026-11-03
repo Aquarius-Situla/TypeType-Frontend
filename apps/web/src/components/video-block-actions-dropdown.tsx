@@ -8,6 +8,8 @@ const MARGIN = 8;
 type Props = {
   anchorEl: HTMLElement | null;
   onClose: () => void;
+  onPlayNext?: () => void;
+  onAddToQueue?: () => void;
   onSaveToPlaylist?: () => void;
   onToggleWatchLater?: () => void;
   onToggleVideoBlock?: () => void;
@@ -21,6 +23,8 @@ type Props = {
 export function VideoBlockActionsDropdown({
   anchorEl,
   onClose,
+  onPlayNext,
+  onAddToQueue,
   onSaveToPlaylist,
   onToggleWatchLater,
   onToggleVideoBlock,
@@ -77,6 +81,30 @@ export function VideoBlockActionsDropdown({
       style={panelStyle}
       className="fixed z-50 w-56 overflow-hidden rounded-lg border border-border-strong bg-surface shadow-2xl"
     >
+      {onPlayNext && (
+        <button
+          type="button"
+          onClick={() => {
+            onPlayNext();
+            onClose();
+          }}
+          className="w-full px-3 py-2 text-left text-sm text-fg transition-colors hover:bg-surface-strong"
+        >
+          {m.queue_play_next({}, { locale })}
+        </button>
+      )}
+      {onAddToQueue && (
+        <button
+          type="button"
+          onClick={() => {
+            onAddToQueue();
+            onClose();
+          }}
+          className="w-full px-3 py-2 text-left text-sm text-fg transition-colors hover:bg-surface-strong"
+        >
+          {m.queue_add({}, { locale })}
+        </button>
+      )}
       {onToggleWatchLater && (
         <button
           type="button"

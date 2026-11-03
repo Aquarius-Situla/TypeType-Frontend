@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useSabrPlayerState } from "../hooks/use-sabr-player-state";
 import { BILIBILI_FLV_VIDEO_PROVIDER_LOADERS } from "../lib/bilibili-flv-loader";
 import { isIosDevice } from "../lib/ios-device";
@@ -68,6 +68,7 @@ export function VideoPlayer({
   onEnded,
   onPreviousVideo,
   onNextVideo,
+  onAudioPosterChange,
   className,
   mediaClassName,
 }: VideoPlayerProps) {
@@ -92,6 +93,11 @@ export function VideoPlayer({
   });
 
   const sabrState = useSabrPlayerState(Boolean(sabrConfig), handleProviderChange);
+  const audioPosterVisible = audioOnly || sabrState.modeSwitching;
+  useEffect(
+    () => onAudioPosterChange?.(audioPosterVisible),
+    [audioPosterVisible, onAudioPosterChange],
+  );
 
   return (
     <MediaPlayer
@@ -134,11 +140,14 @@ export function VideoPlayer({
           onVolumeChange={onVolumeChange}
           onError={onError ?? (() => undefined)}
           onSeekStateChange={sabrState.setSeeking}
+          onModeSwitchChange={sabrState.setModeSwitching}
           onSeekReady={onSeekReady ?? (() => undefined)}
           onPositionReaderChange={onPositionReaderChange ?? (() => undefined)}
         />
       )}
-      {audioOnly && <AudioOnlyPoster poster={poster} title={title} media={sabrState.media} />}
+      {audioPosterVisible && (
+        <AudioOnlyPoster poster={poster} title={title} media={sabrState.media} />
+      )}
       {audioOnly && <AudioCenterToggle video={sabrState.video} />}
       <MediaProgressEvents
         suppressPlaybackEvents={sabrState.seeking}

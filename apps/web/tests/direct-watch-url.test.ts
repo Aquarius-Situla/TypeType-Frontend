@@ -6,10 +6,19 @@ test("a bare NicoNico video ID opens the video", () => {
   expect(toDirectWatchUrl(" SO12345 ")).toBe("https://www.nicovideo.jp/watch/so12345");
 });
 
+test("a bare Bilibili AV number opens the video", () => {
+  expect(toDirectWatchUrl("av170001")).toBe("https://www.bilibili.com/video/BV17x411w7KC");
+  expect(toDirectWatchUrl("https://www.bilibili.com/video/av170001")).toBe(
+    "https://www.bilibili.com/video/av170001",
+  );
+});
+
 test("ordinary searches that only look like IDs stay searches", () => {
   expect(toDirectWatchUrl("sm")).toBeNull();
   expect(toDirectWatchUrl("small talk")).toBeNull();
   expect(toDirectWatchUrl("sm22314266 review")).toBeNull();
+  expect(toDirectWatchUrl("av")).toBeNull();
+  expect(toDirectWatchUrl("available")).toBeNull();
 });
 
 test("supported links still open directly", () => {

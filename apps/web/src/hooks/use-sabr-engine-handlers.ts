@@ -2,6 +2,7 @@ import { useCallback } from "react";
 
 type LatestHandlers = () => {
   onSeekStateChange: (seeking: boolean) => void;
+  onModeSwitchChange?: ((switching: boolean) => void) | undefined;
 };
 
 type ErrorReporter = (error: unknown, positionMs?: number) => void;
@@ -13,11 +14,16 @@ export function useSabrEngineHandlers(
   latestEngineHandlers: () => {
     onError: ErrorReporter;
     onSeekStateChange: (seeking: boolean) => void;
+    onModeSwitchChange: (switching: boolean) => void;
   };
   setQualityTransitioning: (transitioning: boolean) => void;
 } {
   const latestEngineHandlers = useCallback(
-    () => ({ onError: reportError, onSeekStateChange: latestHandlers().onSeekStateChange }),
+    () => ({
+      onError: reportError,
+      onSeekStateChange: latestHandlers().onSeekStateChange,
+      onModeSwitchChange: latestHandlers().onModeSwitchChange ?? (() => undefined),
+    }),
     [latestHandlers, reportError],
   );
   const setQualityTransitioning = useCallback(

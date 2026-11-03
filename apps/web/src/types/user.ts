@@ -108,6 +108,7 @@ export type SettingsItem = {
   defaultLandingPage: string;
   defaultQuality: string;
   defaultPlaybackSpeed: number;
+  holdPlaybackSpeed: number;
   autoplay: boolean;
   autoplayOnOpen: boolean;
   autoplayCountdownSeconds: number;

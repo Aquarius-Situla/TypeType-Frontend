@@ -1,3 +1,5 @@
+import { withBilibiliBvid } from "./bilibili-av";
+
 const YOUTUBE_VIDEO_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/;
 const NICONICO_VIDEO_ID_PATTERN = /^sm\d+$/i;
 const BILIBILI_VIDEO_ID_PATTERN = /^BV[A-Za-z0-9]{10}$/i;
@@ -47,7 +49,7 @@ function isValidWatchQueryParam(host: string, v: string): boolean {
     return NICONICO_VIDEO_ID_PATTERN.test(v);
   }
   if (host === "b23.tv" || hostMatches(host, "bilibili.com")) {
-    return BILIBILI_WATCH_PARAM_PATTERN.test(v);
+    return BILIBILI_WATCH_PARAM_PATTERN.test(withBilibiliBvid(v));
   }
   return false;
 }
@@ -83,7 +85,7 @@ function bilibiliWatchParamFromUrl(value: string): string | null {
   const parsed = parseUrl(value);
   if (!parsed || !hostMatches(parsed.hostname.toLowerCase(), "bilibili.com")) return null;
   const segments = parsed.pathname.split("/").filter(Boolean);
-  const candidate = segments[0] === "video" ? segments[1] : null;
+  const candidate = segments[0] === "video" && segments[1] ? withBilibiliBvid(segments[1]) : null;
   if (!candidate || !BILIBILI_VIDEO_ID_PATTERN.test(candidate)) return null;
   const page = Number(parsed.searchParams.get("p") ?? "1");
   return Number.isSafeInteger(page) && page > 1 ? `${candidate}?p=${page}` : candidate;
@@ -107,7 +109,7 @@ export function youtubeThumbnailUrl(value: string): string | null {
 }
 
 export function toWatchSourceUrl(value: string): string {
-  const trimmed = value.trim();
+  const trimmed = withBilibiliBvid(value.trim());
   if (YOUTUBE_VIDEO_ID_PATTERN.test(trimmed)) {
     return `https://www.youtube.com/watch?v=${trimmed}`;
   }
@@ -127,6 +129,8 @@ export function toWatchSourceUrl(value: string): string {
     if (v && v !== trimmed && isValidWatchQueryParam(host, v)) {
       return toWatchSourceUrl(v);
     }
+    const bilibili = bilibiliWatchParamFromUrl(trimmed);
+    if (bilibili && /^\/video\/av/i.test(parsed.pathname)) return toWatchSourceUrl(bilibili);
     if (isSupportedVideoHost(host)) {
       return `${parsed.origin}${parsed.pathname}${parsed.search}${parsed.hash}`;
     }
@@ -135,7 +139,7 @@ export function toWatchSourceUrl(value: string): string {
 }
 
 export function toPublicWatchParam(sourceUrl: string): string {
-  const trimmed = sourceUrl.trim();
+  const trimmed = withBilibiliBvid(sourceUrl.trim());
   const bilibiliMatch = trimmed.match(BILIBILI_WATCH_PARAM_PATTERN);
   if (bilibiliMatch) {
     const page = Number(bilibiliMatch[2] ?? "1");
@@ -160,7 +164,7 @@ export function toPublicWatchParam(sourceUrl: string): string {
 }
 
 export function watchServiceId(sourceUrl: string, fallback: number): number {
-  const value = sourceUrl.trim();
+  const value = withBilibiliBvid(sourceUrl.trim());
   if (youtubeVideoId(value)) return 0;
   if (NICONICO_VIDEO_ID_PATTERN.test(value) || niconicoVideoIdFromUrl(value)) return 1;
   if (BILIBILI_WATCH_PARAM_PATTERN.test(value) || bilibiliWatchParamFromUrl(value)) return 2;

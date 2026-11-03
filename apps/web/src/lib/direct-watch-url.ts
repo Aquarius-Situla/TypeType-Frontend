@@ -1,3 +1,5 @@
+import { bilibiliBvidFromAvid } from "./bilibili-av";
+
 function parseUrl(value: string): URL | null {
   const trimmed = value.trim().replace(/^<|>$/g, "");
   if (trimmed.length === 0) return null;
@@ -27,10 +29,14 @@ function isSupportedHost(host: string): boolean {
 }
 
 const NICONICO_VIDEO_ID = /^(sm|nm|so)\d{1,12}$/i;
+const BILIBILI_AV_ID = /^av(\d{1,16})$/i;
 
 export function toDirectWatchUrl(value: string): string | null {
   const id = value.trim();
   if (NICONICO_VIDEO_ID.test(id)) return `https://www.nicovideo.jp/watch/${id.toLowerCase()}`;
+  const avid = id.match(BILIBILI_AV_ID)?.[1];
+  const bvid = avid ? bilibiliBvidFromAvid(avid) : null;
+  if (bvid) return `https://www.bilibili.com/video/${bvid}`;
   const parsed = parseUrl(value);
   if (!parsed) return null;
   const host = parsed.hostname.toLowerCase();

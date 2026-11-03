@@ -40,6 +40,8 @@ export type { DefaultLayoutIcon } from "@vidstack/react/player/layouts/default";
 export {
   DefaultAudioLayout,
   DefaultMenuButton,
+  DefaultMenuCheckbox,
+  DefaultMenuItem,
   DefaultMenuRadioGroup,
   DefaultVideoLayout,
   defaultLayoutIcons,

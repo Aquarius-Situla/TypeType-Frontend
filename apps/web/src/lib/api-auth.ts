@@ -6,6 +6,8 @@ import { sanitizeDebugText, sanitizeRequestPath } from "./debug-sanitize";
 import { API_BASE as BASE } from "./env";
 import { normalizeApiPayload } from "./text-normalize";
 
+const SESSION_REQUEST_TIMEOUT_MS = 10_000;
+
 type LoginPayload = {
   identifier: string;
   password: string;
@@ -42,7 +44,10 @@ async function parseAuthResponse(res: Response): Promise<AuthResponse> {
 async function authedJson<T>(url: string, token: string): Promise<T> {
   let res: Response;
   try {
-    res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    res = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(SESSION_REQUEST_TIMEOUT_MS),
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "network_error";
     recordApiError({
@@ -119,6 +124,7 @@ export async function refreshAuth(): Promise<AuthResponse> {
     headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify({}),
+    signal: AbortSignal.timeout(SESSION_REQUEST_TIMEOUT_MS),
   });
   return parseAuthResponse(res);
 }

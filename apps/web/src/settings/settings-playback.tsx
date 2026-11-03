@@ -1,7 +1,12 @@
 import { ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useSettings } from "../hooks/use-settings";
-import { DEFAULT_PLAYBACK_SPEED_OPTIONS, playbackSpeedLabel } from "../lib/playback-speed";
+import {
+  DEFAULT_PLAYBACK_SPEED_OPTIONS,
+  HOLD_PLAYBACK_SPEED_OPTIONS,
+  normalizeHoldPlaybackSpeed,
+  playbackSpeedLabel,
+} from "../lib/playback-speed";
 import { m } from "../paraglide/messages.js";
 import { SettingsBilibiliBuffer } from "./settings-bilibili-buffer";
 import { PLAYBACK_ROW, PlaybackNumberRow, PlaybackToggleRow } from "./settings-playback-row";
@@ -25,7 +30,9 @@ type DropdownProps = {
 };
 
 type SpeedDropdownProps = {
+  label: string;
   value: number;
+  options: readonly number[];
   onChange: (speed: number) => void;
 };
 
@@ -80,15 +87,15 @@ function QualityDropdown({ value, onChange }: DropdownProps) {
   );
 }
 
-function SpeedDropdown({ value, onChange }: SpeedDropdownProps) {
+function SpeedDropdown({ label, value, options, onChange }: SpeedDropdownProps) {
   return (
     <select
-      aria-label={m.ui_default_playback_speed()}
+      aria-label={label}
       value={value}
       onChange={(event) => onChange(Number(event.target.value))}
       className="typetype-adaptive-control ml-0 max-w-full shrink-0 rounded-sm border border-border-strong bg-app px-3 py-1.5 text-xs text-fg transition-colors hover:border-fg-soft sm:ml-6"
     >
-      {DEFAULT_PLAYBACK_SPEED_OPTIONS.map((speed) => (
+      {options.map((speed) => (
         <option key={speed} value={speed}>
           {playbackSpeedLabel(speed)}
         </option>
@@ -162,8 +169,22 @@ export function SettingsPlayback() {
             <span className="text-xs text-fg-soft">{m.ui_applied_when_a_video_starts()}</span>
           </div>
           <SpeedDropdown
+            label={m.ui_default_playback_speed()}
             value={settings.defaultPlaybackSpeed}
+            options={DEFAULT_PLAYBACK_SPEED_OPTIONS}
             onChange={(speed) => update.mutate({ defaultPlaybackSpeed: speed })}
+          />
+        </div>
+        <div className={PLAYBACK_ROW}>
+          <div className="typetype-adaptive-label flex min-w-0 flex-1 flex-col gap-1">
+            <span className="text-sm text-fg">{m.ui_hold_playback_speed()}</span>
+            <span className="text-xs text-fg-soft">{m.ui_hold_playback_speed_description()}</span>
+          </div>
+          <SpeedDropdown
+            label={m.ui_hold_playback_speed()}
+            value={normalizeHoldPlaybackSpeed(settings.holdPlaybackSpeed)}
+            options={HOLD_PLAYBACK_SPEED_OPTIONS}
+            onChange={(speed) => update.mutate({ holdPlaybackSpeed: speed })}
           />
         </div>
         <SettingsBilibiliBuffer />

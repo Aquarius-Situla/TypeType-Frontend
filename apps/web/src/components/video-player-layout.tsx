@@ -17,6 +17,7 @@ import { CinemaModeControl } from "./cinema-mode-control";
 import { CompactPlayerControls } from "./compact-player-controls";
 import { DanmakuSelector } from "./danmaku-selector";
 import { FormatSelector } from "./format-selector";
+import { LoopToggle } from "./loop-toggle";
 import { PlayerTrackButton } from "./player-track-button";
 import { PlayerVolumeControl, PlayerVolumeSlider } from "./player-volume-control";
 import { QualitySelector } from "./quality-selector";
@@ -162,6 +163,7 @@ export function VideoPlayerLayout({
             <DanmakuSelector />
           </>
         ),
+        settingsMenuItemsEnd: <LoopToggle />,
         beforePlayButton: <PlayerTrackButton direction="previous" onClick={onPreviousVideo} />,
         afterPlayButton: <PlayerTrackButton direction="next" onClick={onNextVideo} />,
         beforeFullscreenButton: (

@@ -12,11 +12,11 @@
     },
     "apps/web": {
       "name": "@typetype/web",
-      "version": "1.12.0",
+      "version": "1.13.1",
       "dependencies": {
         "@tanstack/react-query": "^5.104.5",
         "@tanstack/react-router": "^1.170.46",
-        "@typetype/mse": "0.1.75",
+        "@typetype/mse": "0.1.76",
         "@vidstack/react": "1.15.7",
         "@zip.js/zip.js": "^2.24.0",
         "dashjs": "^5.2.1",
@@ -444,7 +444,7 @@
 
     "@typescript/typescript-win32-x64": ["@typescript/typescript-win32-x64@7.0.2", "", { "os": "win32", "cpu": "x64" }, "sha512-0BQ3HkAHHlKLSp1qRvf3SUhGpGsDuhB/jgFw75guyqbxJqEaS0Cw/VFO8i2nHglJUzQCRtMMR/IBAKE3ETMC4g=="],
 
-    "@typetype/mse": ["@typetype/mse@0.1.75", "", {}, "sha512-t1okYEKl6PXn09eGMR63dhRhU5KbsxACvsn18p6fA4t5UOIK9Ef59mvqNjLvg0yFZxClQ0UidyGEBu2RLG28Vw=="],
+    "@typetype/mse": ["@typetype/mse@0.1.76", "", {}, "sha512-oaLtgJHJplV1bU1axUqWuCBrs5AmnKexOLSnWcZUQ3IDKyw8kL4vhJbzVOx9sxZ0GgzQHFcfI+q5Q5jAc2a9pg=="],
 
     "@typetype/web": ["@typetype/web@workspace:apps/web"],
 

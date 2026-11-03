@@ -625,6 +625,8 @@
   "ui_dearrow_titles": "DeArrow titles",
   "ui_default_landing_page": "Default landing page",
   "ui_default_playback_speed": "Default playback speed",
+  "ui_hold_playback_speed": "Hold-to-speed-up speed",
+  "ui_hold_playback_speed_description": "Speed while Space or a long press is held",
   "ui_default_quality": "Default quality",
   "ui_default_service": "Default service",
   "ui_delete": "Delete",
@@ -1866,5 +1868,18 @@
   "settings_bilibili_buffer_saver_hint": "Less data on slow or limited connections",
   "settings_bilibili_buffer_normal_hint": "Recommended",
   "settings_bilibili_buffer_large_hint": "Smoothest when the connection to BiliBili is unstable",
-  "settings_bilibili_buffer_seconds": "{seconds} s at 1×"
+  "settings_bilibili_buffer_seconds": "{seconds} s at 1×",
+  "queue_play_next": "Play next",
+  "queue_add": "Add to queue",
+  "queue_title": "Queue",
+  "queue_position": "{current} of {total}",
+  "queue_now_playing": "Now playing",
+  "queue_remove": "Remove from queue",
+  "queue_clear": "Clear queue",
+  "queue_toast_play_next": "This video will play next",
+  "queue_toast_added": "Added to the queue",
+  "queue_toast_moved": "Moved to play next",
+  "queue_toast_already_queued": "This video is already in the queue",
+  "queue_toast_already_playing": "This video is already playing",
+  "queue_toast_started": "Playback started"
 }

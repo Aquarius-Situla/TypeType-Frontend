@@ -89,3 +89,16 @@ test("restricts v parameter extraction to valid IDs matching the host", () => {
   // Relative /watch?v= URLs are correctly handled
   expect(toPublicWatchParam("/watch?v=Z05XGDSTe7U")).toBe("Z05XGDSTe7U");
 });
+
+test("opens legacy Bilibili AV links under their BV ID", () => {
+  expect(toWatchSourceUrl("https://www.bilibili.com/video/av170001")).toBe(
+    "https://www.bilibili.com/video/BV17x411w7KC",
+  );
+  expect(toWatchSourceUrl("https://www.bilibili.com/video/av170001/?p=2")).toBe(
+    "https://www.bilibili.com/video/BV17x411w7KC?p=2",
+  );
+  expect(toWatchSourceUrl("av170001")).toBe("https://www.bilibili.com/video/BV17x411w7KC");
+  expect(toPublicWatchParam("https://www.bilibili.com/video/av170001")).toBe("BV17x411w7KC");
+  expect(toPublicWatchParam("av170001?p=2")).toBe("BV17x411w7KC?p=2");
+  expect(watchServiceId("av170001", 0)).toBe(2);
+});

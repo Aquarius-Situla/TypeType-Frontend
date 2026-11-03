@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../hooks/use-auth";
 import { useBlocked } from "../hooks/use-blocked";
 import { useBlockedFilter } from "../hooks/use-blocked-filter";
+import { usePlaybackQueueActions } from "../hooks/use-playback-queue-actions";
 import { useWatchLaterPlaylist } from "../hooks/use-watch-later-playlist";
 import { goto } from "../lib/route-redirect";
 import { watchLaterResultLabel } from "../lib/watch-later-labels";
@@ -22,6 +23,7 @@ export function VideoCardFeedbackPanel({ stream, anchorEl, onClose, onSaved }: P
   const { isAuthed } = useAuth();
   const [playlistOpen, setPlaylistOpen] = useState(false);
   const watchLater = useWatchLaterPlaylist();
+  const queueVideo = usePlaybackQueueActions();
   const { addChannel, removeChannel, addVideo, removeVideo } = useBlocked();
   const { findBlockedChannel, findBlockedVideo } = useBlockedFilter();
   const blockedChannel = findBlockedChannel({
@@ -89,6 +91,8 @@ export function VideoCardFeedbackPanel({ stream, anchorEl, onClose, onSaved }: P
         <VideoBlockActionsDropdown
           anchorEl={anchorEl}
           onClose={onClose}
+          onPlayNext={() => onSaved(queueVideo(stream, true))}
+          onAddToQueue={() => onSaved(queueVideo(stream, false))}
           onToggleWatchLater={() => void toggleWatchLater()}
           onSaveToPlaylist={openPlaylist}
           onToggleVideoBlock={toggleVideoBlock}

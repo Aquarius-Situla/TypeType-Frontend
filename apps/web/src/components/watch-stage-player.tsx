@@ -1,8 +1,9 @@
-import { type MutableRefObject, type ReactNode, useEffect, useRef } from "react";
+import { type MutableRefObject, type ReactNode, useEffect, useRef, useState } from "react";
 import type { Provider } from "../lib/provider";
 import { SabrPlaybackRatePreference } from "../lib/sabr-playback-rate-preference";
 import type { SabrPlaybackConfig } from "../lib/sabr-source";
 import type { MediaSrc } from "../lib/vidstack";
+import { usePlaybackRateStore } from "../stores/playback-rate-store";
 import type { SponsorBlockSegmentItem, SubtitleItem } from "../types/api";
 import type { CaptionStyles, SettingsItem } from "../types/user";
 import { PlayerPlaybackSpeedDefault } from "./player-defaults";
@@ -51,15 +52,20 @@ export type WatchStagePlayerProps = {
 
 export function WatchStagePlayer(props: WatchStagePlayerProps) {
   const settings = props.settings;
-  const playbackRatePreference = useRef(
-    new SabrPlaybackRatePreference(settings.defaultPlaybackSpeed),
+  const playbackRatePreference = useRef<SabrPlaybackRatePreference | null>(null);
+  const [audioPosterVisible, setAudioPosterVisible] = useState(props.audioOnly);
+  playbackRatePreference.current ??= new SabrPlaybackRatePreference(
+    usePlaybackRateStore.getState().chosenRate ?? settings.defaultPlaybackSpeed,
+    usePlaybackRateStore.getState().choose,
   );
   useEffect(() => {
-    playbackRatePreference.current.setPreferredRate(settings.defaultPlaybackSpeed);
+    if (usePlaybackRateStore.getState().syncDefault(settings.defaultPlaybackSpeed)) {
+      playbackRatePreference.current?.setPreferredRate(settings.defaultPlaybackSpeed);
+    }
   }, [settings.defaultPlaybackSpeed]);
   return (
     <WatchPlayerCrossfade
-      audioOnly={props.audioOnly}
+      audioOnly={audioPosterVisible}
       poster={props.poster}
       title={props.streamTitle}
     >
@@ -95,6 +101,7 @@ export function WatchStagePlayer(props: WatchStagePlayerProps) {
             <PlayerPlaybackSpeedDefault
               defaultPlaybackSpeed={settings.defaultPlaybackSpeed}
               preference={playbackRatePreference.current}
+              rememberChanges={!props.sabrConfig}
             />
             {props.overlay}
           </>
@@ -112,6 +119,7 @@ export function WatchStagePlayer(props: WatchStagePlayerProps) {
         onEnded={props.onEnded}
         onPreviousVideo={props.onPreviousVideo}
         onNextVideo={props.onNextVideo}
+        onAudioPosterChange={setAudioPosterVisible}
         onSeekReady={(seek) => (props.seekRef.current = seek)}
         className={props.playerClassName}
         mediaClassName={props.mediaClassName}

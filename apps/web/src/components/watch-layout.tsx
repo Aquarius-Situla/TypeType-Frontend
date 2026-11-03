@@ -17,6 +17,7 @@ import { useWatchLiveChat } from "../hooks/use-watch-live-chat";
 import { useWatchPlaybackFlow } from "../hooks/use-watch-playback-flow";
 import { useWatchPlayerSourceState } from "../hooks/use-watch-player-source-state";
 import { useWatchPlaylist } from "../hooks/use-watch-playlist";
+import { useWatchQueue } from "../hooks/use-watch-queue";
 import { useWatchSponsorBlock } from "../hooks/use-watch-sponsorblock";
 import { useWatchToast } from "../hooks/use-watch-toast";
 import { getOriginalAudioLocale } from "../lib/audio-track";
@@ -70,6 +71,8 @@ export function WatchLayout({
     stream.parts,
     settings.audioOnlyPlayback,
   );
+  const queue = useWatchQueue(stream, currentParam);
+  const sidePanel = queue.panel ?? playlist.panel;
   const cinemaMode = useWatchLayoutStore((state) => state.cinemaMode);
   const webFullscreen = useWatchLayoutStore((state) => state.webFullscreen);
 
@@ -88,6 +91,7 @@ export function WatchLayout({
     settings,
     settingsReady,
     isLive,
+    queueNext: queue.next,
     nextParam: playlist.nextParam,
     nextVideo: playlist.nextVideo,
     list,
@@ -143,7 +147,7 @@ export function WatchLayout({
   });
   const classes = getWatchLayoutClasses(
     cinemaMode,
-    Boolean(!isMobile && (playlist.panel || relatedStreams.length > 0 || liveChat.open)),
+    Boolean(!isMobile && (sidePanel || relatedStreams.length > 0 || liveChat.open)),
     webFullscreen,
   );
   const secondaryContent = (
@@ -152,7 +156,7 @@ export function WatchLayout({
       stream={displayStream}
       relatedStreams={relatedStreams}
       showComments={!settings.hideComments}
-      playlistPanel={isMobile ? null : playlist.panel}
+      playlistPanel={isMobile ? null : sidePanel}
       onSeekTimestamp={(seconds) => seekRef.current?.(seconds)}
       audioOnly={audioOnly.controls}
     />
@@ -198,7 +202,7 @@ export function WatchLayout({
         cinemaMode={cinemaMode}
         webFullscreen={webFullscreen}
         hideComments={settings.hideComments}
-        mobilePanel={isMobile ? playlist.panel : null}
+        mobilePanel={isMobile ? sidePanel : null}
         mobileSecondaryContent={
           isMobile && !cinemaMode && !webFullscreen && (relatedStreams.length > 0 || liveChat.open)
             ? secondaryContent
@@ -218,8 +222,8 @@ export function WatchLayout({
         onAutoplayCancel={autoplay.cancel}
         onAutoplayPauseToggle={autoplay.togglePause}
         onPositionReaderChange={(reader) => (positionReaderRef.current = reader)}
-        onPreviousVideo={playlist.playPrevious}
-        onNextVideo={playlist.playNext}
+        onPreviousVideo={queue.playPrevious ?? playlist.playPrevious}
+        onNextVideo={queue.playNext ?? playlist.playNext}
         onError={(positionMs) =>
           audioOnly.fail() ? setToast(m.ui_audio_only_unavailable()) : handlePlayerError(positionMs)
         }

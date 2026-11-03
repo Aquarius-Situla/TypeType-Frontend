@@ -21,6 +21,7 @@ export function useSabrPlayerState(
 ) {
   const [provider, setProvider] = useState<MediaProviderAdapter | null>(null);
   const [seeking, setSeeking] = useState(false);
+  const [modeSwitching, setModeSwitching] = useState(false);
   const [reattaching, setReattaching] = useState(false);
 
   const handleProviderChange = (nextProvider: MediaProviderAdapter | null) => {
@@ -50,5 +51,13 @@ export function useSabrPlayerState(
     };
   }, [video]);
 
-  return { video, media, seeking: seeking || reattaching, setSeeking, handleProviderChange };
+  return {
+    video,
+    media,
+    seeking: seeking || reattaching,
+    setSeeking,
+    modeSwitching,
+    setModeSwitching,
+    handleProviderChange,
+  };
 }

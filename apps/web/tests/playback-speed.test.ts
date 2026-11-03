@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { normalizeDefaultPlaybackSpeed, playbackSpeedLabel } from "../src/lib/playback-speed";
+import {
+  normalizeDefaultPlaybackSpeed,
+  normalizeHoldPlaybackSpeed,
+  playbackSpeedLabel,
+} from "../src/lib/playback-speed";
 
 describe("default playback speed", () => {
   test("clamps persisted values to the supported range", () => {
@@ -10,5 +14,13 @@ describe("default playback speed", () => {
 
   test("formats the settings label", () => {
     expect(playbackSpeedLabel(1.5)).toBe("1.5x");
+  });
+});
+
+describe("hold playback speed", () => {
+  test("keeps a supported speed and falls back to 2x", () => {
+    expect(normalizeHoldPlaybackSpeed(3)).toBe(3);
+    expect(normalizeHoldPlaybackSpeed(7)).toBe(2);
+    expect(normalizeHoldPlaybackSpeed(Number.NaN)).toBe(2);
   });
 });
