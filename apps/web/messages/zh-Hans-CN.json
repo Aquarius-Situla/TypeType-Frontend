@@ -677,7 +677,7 @@
   "ui_automatically_start_playback_when_a_video_is_opened": "打开视频时自动开始播放",
   "ui_autoplay_countdown": "自动播放前等待时间",
   "ui_autoplay_next_video": "自动播放下一个视频",
-  "ui_autoplay_on_open": "自动开播",
+  "ui_autoplay_on_open": "打开时自动播放",
   "ui_back": "返回",
   "ui_back_home": "返回主页",
   "ui_back_to_all_videos": "返回全部视频",
