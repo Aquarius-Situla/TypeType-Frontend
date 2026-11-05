@@ -5,6 +5,7 @@ import { formatCommentPublishedTime } from "../lib/comment-time";
 import { formatLikes } from "../lib/format";
 import { m } from "../paraglide/messages.js";
 import type { Comment } from "../types/comment";
+import { CommentMedia } from "./comment-media";
 import { RichText } from "./rich-text";
 import { WatchCommentReplies } from "./watch-comment-replies";
 
@@ -83,6 +84,7 @@ export function WatchComment({ comment, videoUrl, onSeekTimestamp }: Props) {
             {expanded ? m.watch_show_less({}, { locale }) : m.watch_show_more({}, { locale })}
           </button>
         )}
+        <CommentMedia image={comment.image} voiceReply={comment.voiceReply} locale={locale} />
         {comment.likeCount >= 0 && (
           <span className="text-sm text-fg-soft">
             {likeDisplay} {m.watch_likes({}, { locale })}

@@ -58,6 +58,10 @@ export function mapCommentItem(item: CommentItem): Comment {
     uploaderVerified: item.uploaderVerified,
     replyCount: item.replyCount,
     repliesPage: item.repliesPage ?? null,
+    image: item.image
+      ? { ...item.image, url: item.image.url ? proxyImage(item.image.url) : null }
+      : null,
+    voiceReply: item.voiceReply ?? null,
   };
 }
 

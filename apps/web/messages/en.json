@@ -1885,5 +1885,10 @@
   "queue_toast_moved": "Moved to play next",
   "queue_toast_already_queued": "This video is already in the queue",
   "queue_toast_already_playing": "This video is already playing",
-  "queue_toast_started": "Playback started"
+  "queue_toast_started": "Playback started",
+  "ui_comment_gif": "GIF in comment",
+  "ui_comment_image": "Image in comment",
+  "ui_voice_reply": "Voice reply",
+  "ui_play_voice_reply": "Play the voice reply in a new tab",
+  "ui_listen": "Listen"
 }

@@ -1,3 +1,5 @@
+import type { CommentImage, CommentVoiceReply } from "./api";
+
 export type Comment = {
   id: string;
   text: string;
@@ -13,4 +15,6 @@ export type Comment = {
   uploaderVerified: boolean;
   replyCount: number;
   repliesPage: string | null;
+  image: CommentImage | null;
+  voiceReply: CommentVoiceReply | null;
 };

@@ -160,6 +160,22 @@ export type CommentItem = {
   uploaderVerified: boolean;
   replyCount: number;
   repliesPage: string | null;
+  image?: CommentImage | null;
+  voiceReply?: CommentVoiceReply | null;
+};
+
+export type CommentImage = {
+  url: string | null;
+  animated: boolean;
+  unavailableText?: string | null;
+};
+
+export type CommentVoiceReply = {
+  url: string;
+  durationMs: number;
+  transcript: string;
+  playable: boolean;
+  unavailableText?: string | null;
 };
 
 export type CommentsPageResponse = {

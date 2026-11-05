@@ -1885,5 +1885,10 @@
   "queue_toast_moved": "Déplacée pour être lue ensuite",
   "queue_toast_already_queued": "Cette vidéo est déjà dans la file d'attente",
   "queue_toast_already_playing": "Cette vidéo est déjà en cours de lecture",
-  "queue_toast_started": "Lecture lancée"
+  "queue_toast_started": "Lecture lancée",
+  "ui_comment_gif": "GIF dans le commentaire",
+  "ui_comment_image": "Image dans le commentaire",
+  "ui_voice_reply": "Réponse vocale",
+  "ui_play_voice_reply": "Écouter la réponse vocale dans un nouvel onglet",
+  "ui_listen": "Écouter"
 }
