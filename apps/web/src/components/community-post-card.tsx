@@ -1,12 +1,12 @@
-import { Link } from "@tanstack/react-router";
 import { MessageSquare, ThumbsUp } from "lucide-react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { formatCommentPublishedTime } from "../lib/comment-time";
 import { formatLikes } from "../lib/format";
 import { proxyImage } from "../lib/proxy";
-import { watchRouteSearch } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
 import type { Locale } from "../paraglide/runtime.js";
-import type { CommunityPost, CommunityPostPoll, CommunityPostVideo } from "../types/community-post";
+import type { CommunityPost } from "../types/community-post";
+import { PostImages, PostPoll, PostVideo } from "./community-post-media";
 import { RichText } from "./rich-text";
 
 type Props = {
@@ -19,136 +19,89 @@ export function CommunityPostCard({ post, locale, nested = false }: Props) {
   const publishedTime = formatCommentPublishedTime(post.publishedAt, post.publishedTime, locale);
   const likes = post.textualLikeCount.trim() || (post.likeCount ? formatLikes(post.likeCount) : "");
   const comments = post.textualCommentCount.trim();
+  const avatarSize = nested ? "size-7" : "size-10";
   return (
     <article
-      className={`flex gap-3 rounded-xl ${nested ? "border border-border-strong p-3" : "bg-surface-soft/60 p-4"}`}
+      className={
+        nested
+          ? "flex flex-col gap-3 rounded-xl bg-surface-strong/50 p-3"
+          : "flex flex-col gap-3 rounded-2xl border border-border p-4 sm:p-5"
+      }
     >
-      {post.authorAvatarUrl ? (
-        <img
-          src={proxyImage(post.authorAvatarUrl)}
-          alt=""
-          className="size-9 shrink-0 rounded-full bg-surface-soft"
-          loading="lazy"
-          decoding="async"
-        />
-      ) : (
-        <div className="size-9 shrink-0 rounded-full bg-surface-soft" />
-      )}
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-medium text-fg-muted">{post.authorName}</span>
-          {publishedTime && <span className="text-sm text-fg-soft">{publishedTime}</span>}
+      <header className="flex items-center gap-3">
+        {post.authorAvatarUrl ? (
+          <img
+            src={proxyImage(post.authorAvatarUrl)}
+            alt=""
+            className={`${avatarSize} shrink-0 rounded-full bg-surface-strong`}
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <div className={`${avatarSize} shrink-0 rounded-full bg-surface-strong`} />
+        )}
+        <div className="flex min-w-0 flex-col">
+          <span className="truncate text-sm font-semibold text-fg">{post.authorName}</span>
+          {publishedTime && <span className="text-xs text-fg-soft">{publishedTime}</span>}
         </div>
-        {post.text && (
-          <p className="whitespace-pre-wrap text-base leading-relaxed text-fg">
-            <RichText text={post.text} />
-          </p>
-        )}
-        <PostImages images={post.images} />
-        {post.poll && <PostPoll poll={post.poll} locale={locale} />}
-        {post.video && <PostVideo video={post.video} />}
-        {post.sharedPost && <CommunityPostCard post={post.sharedPost} locale={locale} nested />}
-        {!nested && (likes || comments) && (
-          <div className="flex items-center gap-4 text-sm text-fg-soft">
-            {likes && (
-              <span className="inline-flex items-center gap-1.5">
-                <ThumbsUp className="size-4" aria-hidden="true" />
-                {likes}
-                <span className="sr-only">{m.watch_likes({}, { locale })}</span>
-              </span>
-            )}
-            {comments && (
-              <span className="inline-flex items-center gap-1.5">
-                <MessageSquare className="size-4" aria-hidden="true" />
-                {comments}
-                <span className="sr-only">{m.watch_comments({}, { locale })}</span>
-              </span>
-            )}
-          </div>
-        )}
-      </div>
+      </header>
+      {post.text && <PostText text={post.text} locale={locale} />}
+      <PostImages images={post.images} />
+      {post.poll && <PostPoll poll={post.poll} />}
+      {post.video && <PostVideo video={post.video} />}
+      {post.sharedPost && <CommunityPostCard post={post.sharedPost} locale={locale} nested />}
+      {!nested && (likes || comments) && (
+        <footer className="flex items-center gap-2">
+          {likes && (
+            <span className="inline-flex h-8 items-center gap-1.5 rounded-full bg-surface-strong/70 px-3 text-xs font-medium text-fg-muted">
+              <ThumbsUp className="size-3.5" aria-hidden="true" />
+              {likes}
+              <span className="sr-only">{m.watch_likes({}, { locale })}</span>
+            </span>
+          )}
+          {comments && (
+            <span className="inline-flex h-8 items-center gap-1.5 rounded-full bg-surface-strong/70 px-3 text-xs font-medium text-fg-muted">
+              <MessageSquare className="size-3.5" aria-hidden="true" />
+              {comments}
+              <span className="sr-only">{m.watch_comments({}, { locale })}</span>
+            </span>
+          )}
+        </footer>
+      )}
     </article>
   );
 }
 
-function PostImages({ images }: { images: string[] }) {
-  if (images.length === 0) return null;
-  if (images.length === 1) {
-    return (
-      <img
-        src={proxyImage(images[0])}
-        alt=""
-        className="max-h-[32rem] w-fit max-w-full rounded-lg bg-surface-soft object-contain"
-        loading="lazy"
-        decoding="async"
-      />
-    );
-  }
-  return (
-    <div className="grid max-w-xl grid-cols-2 gap-2">
-      {images.map((url) => (
-        <img
-          key={url}
-          src={proxyImage(url)}
-          alt=""
-          className="aspect-square w-full rounded-lg bg-surface-soft object-cover"
-          loading="lazy"
-          decoding="async"
-        />
-      ))}
-    </div>
-  );
-}
+const FOLD_AFTER_CHARACTERS = 500;
 
-function PostPoll({ poll, locale }: { poll: CommunityPostPoll; locale: Locale }) {
+function PostText({ text, locale }: { text: string; locale: Locale }) {
+  const foldable = text.replace(/<[^>]*>/g, "").length > FOLD_AFTER_CHARACTERS;
+  const [expanded, setExpanded] = useState(false);
+  const [overflows, setOverflows] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (el) setOverflows(el.scrollHeight > el.clientHeight + 1);
+  }, []);
+
   return (
-    <div className="flex max-w-xl flex-col gap-2">
-      {poll.choices.map((choice) => (
-        <div
-          key={choice.text}
-          className="flex items-center gap-3 rounded-lg border border-border-strong px-3 py-2 text-sm text-fg"
+    <div className="flex flex-col items-start gap-1">
+      <div
+        ref={ref}
+        className={`break-words text-[15px] leading-6 text-fg [&_a]:no-underline [&_a:hover]:underline ${foldable && !expanded ? "line-clamp-[10]" : ""}`}
+      >
+        <RichText text={text} />
+      </div>
+      {(overflows || expanded) && (
+        <button
+          type="button"
+          onClick={() => setExpanded((value) => !value)}
+          className="text-sm font-medium text-fg-muted hover:text-fg"
         >
-          {choice.imageUrl && (
-            <img
-              src={proxyImage(choice.imageUrl)}
-              alt=""
-              className="size-12 shrink-0 rounded-md bg-surface-soft object-cover"
-              loading="lazy"
-              decoding="async"
-            />
-          )}
-          <span>{choice.text}</span>
-        </div>
-      ))}
-      {poll.textualVoteCount && (
-        <span className="text-sm text-fg-soft">
-          {poll.textualVoteCount}
-          <span className="sr-only"> {m.ui_poll({}, { locale })}</span>
-        </span>
+          {expanded ? m.watch_show_less({}, { locale }) : m.watch_show_more({}, { locale })}
+        </button>
       )}
     </div>
-  );
-}
-
-function PostVideo({ video }: { video: CommunityPostVideo }) {
-  return (
-    <Link
-      to="/watch"
-      search={watchRouteSearch(video.url)}
-      className="group flex max-w-xl gap-3 rounded-lg border border-border-strong p-2 transition-colors hover:bg-surface-strong/60"
-    >
-      {video.thumbnailUrl && (
-        <img
-          src={proxyImage(video.thumbnailUrl)}
-          alt=""
-          className="aspect-video w-40 shrink-0 rounded-md bg-surface-soft object-cover"
-          loading="lazy"
-          decoding="async"
-        />
-      )}
-      <span className="line-clamp-3 text-sm font-medium text-fg group-hover:text-fg-strong">
-        {video.title}
-      </span>
-    </Link>
   );
 }
