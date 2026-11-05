@@ -11,7 +11,11 @@ import {
   hasDirectDashPair,
   hasSabrPlayback,
 } from "../lib/stream-delivery";
-import { claimStreamRefresh, type StreamRefreshClaim } from "../lib/stream-refresh";
+import {
+  claimStreamRefresh,
+  refreshesExpiredLinks,
+  type StreamRefreshClaim,
+} from "../lib/stream-refresh";
 import { resolveManifestSrc, shouldUseHls } from "../lib/stream-src";
 import type { MediaSrc } from "../lib/vidstack";
 import type { VideoStream } from "../types/stream";
@@ -132,11 +136,11 @@ export function usePlayerError(
       setHlsFailed(true);
       setRetryKey((k) => k + 1);
     } else if (
-      provider === "bilibili" &&
+      refreshesExpiredLinks(provider) &&
       freshnessRef.current &&
       claimStreamRefresh(streamRefreshRef.current, freshnessRef.current.loadedAt, Date.now())
     ) {
-      recordClientEvent("player.bilibili_stream_refreshed", { video: debugVideo });
+      recordClientEvent("player.stream_refreshed", { video: debugVideo, provider });
       freshnessRef.current.refresh();
     } else if (provider === "bilibili" && bilibiliVariant < bilibiliVariants - 1) {
       recordClientEvent("player.bilibili_variant_failed", { video: debugVideo });

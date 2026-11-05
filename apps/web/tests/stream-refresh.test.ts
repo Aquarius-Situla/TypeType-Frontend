@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { claimStreamRefresh } from "../src/lib/stream-refresh";
+import { claimStreamRefresh, refreshesExpiredLinks } from "../src/lib/stream-refresh";
 
 const MINUTE = 60_000;
 
@@ -23,4 +23,10 @@ test("a refreshed stream can be refreshed again once it ages", () => {
   const reloadedAt = 1_000 + 61 * MINUTE;
   expect(claimStreamRefresh(claim, reloadedAt, reloadedAt + MINUTE)).toBe(false);
   expect(claimStreamRefresh(claim, reloadedAt, reloadedAt + 61 * MINUTE)).toBe(true);
+});
+
+test("Bilibili and NicoNico refresh expired media links", () => {
+  expect(refreshesExpiredLinks("bilibili")).toBe(true);
+  expect(refreshesExpiredLinks("nicovideo")).toBe(true);
+  expect(refreshesExpiredLinks("youtube")).toBe(false);
 });

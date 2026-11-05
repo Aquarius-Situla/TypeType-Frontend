@@ -12,3 +12,7 @@ export function claimStreamRefresh(
   claim.refreshedFor = loadedAt;
   return true;
 }
+
+export function refreshesExpiredLinks(provider: string | null): boolean {
+  return provider === "bilibili" || provider === "nicovideo";
+}
