@@ -10,6 +10,7 @@ import type { SettingsItem } from "../types/user";
 import { streamQueryOptions } from "./use-stream";
 
 const PREFLIGHT_DELAY_MS = 600;
+const PROVIDER_PREFLIGHT_DELAY_MS = 250;
 
 export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
   const queryClient = useQueryClient();
@@ -28,6 +29,31 @@ export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
     stream.isLiveContent !== true &&
     stream.requiresMembership !== true &&
     detectProvider(stream.id) === "youtube";
+  const provider = detectProvider(stream.id);
+  const providerPrewarm =
+    stream.isLive !== true &&
+    stream.isLiveContent !== true &&
+    stream.requiresMembership !== true &&
+    (provider === "bilibili" || provider === "nicovideo");
+
+  const prewarmProvider = useCallback(
+    (preview: boolean) => {
+      if (!providerPrewarm || (preview && prewarmedRef.current)) return;
+      if (preview && !takeHoverPreflight()) return;
+      void preloadPlaybackRuntime(stream.id).catch(() => undefined);
+      const authenticated = Boolean(useAuthStore.getState().token);
+      void queryClient
+        .fetchQuery(streamQueryOptions(stream.id, authenticated, true, false, preview))
+        .then(() => {
+          prewarmedRef.current = true;
+        })
+        .catch(() => undefined)
+        .finally(() => {
+          if (preview) releaseHoverPreflight();
+        });
+    },
+    [providerPrewarm, queryClient, stream.id],
+  );
 
   const preflight = useCallback(() => {
     if (!sabrEnabled || prewarmedRef.current) return;
@@ -77,6 +103,14 @@ export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
 
   const schedule = useCallback(() => {
     if (timerRef.current !== null) return;
+    if (providerPrewarm) {
+      if (prewarmedRef.current) return;
+      timerRef.current = setTimeout(() => {
+        timerRef.current = null;
+        prewarmProvider(true);
+      }, PROVIDER_PREFLIGHT_DELAY_MS);
+      return;
+    }
     if (prefetchableLive) {
       timerRef.current = setTimeout(() => {
         timerRef.current = null;
@@ -89,7 +123,7 @@ export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
       timerRef.current = null;
       preflight();
     }, PREFLIGHT_DELAY_MS);
-  }, [prefetchLive, prefetchableLive, preflight, sabrEnabled]);
+  }, [prefetchLive, prefetchableLive, preflight, prewarmProvider, providerPrewarm, sabrEnabled]);
 
   const cancel = useCallback(() => {
     if (timerRef.current !== null) {
@@ -111,6 +145,14 @@ export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
   }, [prefetchLive, prefetchableLive, schedule]);
 
   const commit = useCallback(() => {
+    if (providerPrewarm) {
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+      prewarmProvider(false);
+      return;
+    }
     if (prefetchableLive) {
       if (timerRef.current !== null) {
         clearTimeout(timerRef.current);
@@ -126,7 +168,7 @@ export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
       timerRef.current = null;
     }
     preflight();
-  }, [prefetchLive, prefetchableLive, preflight, sabrEnabled]);
+  }, [prefetchLive, prefetchableLive, preflight, prewarmProvider, providerPrewarm, sabrEnabled]);
 
   useEffect(
     () => () => {
