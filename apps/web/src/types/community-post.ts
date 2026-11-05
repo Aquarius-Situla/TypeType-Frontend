@@ -1,4 +1,4 @@
-export type CommunityPostType = "text" | "image" | "poll" | "video" | "shared_post" | "unknown";
+type CommunityPostType = "text" | "image" | "poll" | "video" | "shared_post" | "unknown";
 
 export type CommunityPostPoll = {
   type: "text" | "image" | "quiz" | "unknown";
