@@ -41,6 +41,8 @@ const loadHlsLibrary = (): Promise<HlsLibraryModule> => {
   return hlsLibraryPromise;
 };
 
+const BILIBILI_START_KBPS = 1000;
+
 const STREAMING_BUFFER_POLICY = {
   steadyBufferMs: 36_000,
   maxBufferMs: 60_000,
@@ -63,13 +65,14 @@ export function buildDashStreamingSettings(sourceProvider?: Provider) {
     buffer: {
       ...dashSettings.buffer,
       ...(isBilibili
-        ? bilibiliBufferSettings(bilibiliSeconds)
+        ? { ...bilibiliBufferSettings(bilibiliSeconds), fastSwitchEnabled: false }
         : {
             bufferTimeDefault: 24,
             bufferTimeAtTopQuality: 36,
             bufferTimeAtTopQualityLongForm: 60,
           }),
     },
+    ...(isBilibili ? { abr: { initialBitrate: { video: BILIBILI_START_KBPS } } } : {}),
     gaps: {
       enableStallFix: true,
     },
