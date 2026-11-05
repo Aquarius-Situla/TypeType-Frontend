@@ -26,6 +26,7 @@ export type AdminSettings = {
   recommenderTimeoutMs?: number;
   recommenderStreamRequestsPerMinute?: number;
   deviceLoginEnabled?: boolean;
+  bilibiliMirrorProbingEnabled?: boolean;
 };
 
 type AdminSessionNowPlaying = {

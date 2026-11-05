@@ -129,6 +129,21 @@ export function AdminSettingsPanel({ settings, pending, onSave }: Props) {
         </div>
       </section>
 
+      <section>
+        <SectionTitle
+          title={m.admin_playback_label()}
+          description={m.admin_playback_description()}
+        />
+        <div className={SECTION}>
+          <AdminToggleRow
+            label={m.admin_bilibili_mirror_probing_label()}
+            description={m.admin_bilibili_mirror_probing_description()}
+            checked={draft.bilibiliMirrorProbingEnabled ?? false}
+            onChange={(value) => patch("bilibiliMirrorProbingEnabled", value)}
+          />
+        </div>
+      </section>
+
       <div className="sticky bottom-3 z-10 ml-auto flex w-fit items-center gap-3 rounded-md border border-border-strong bg-surface-strong/95 p-2 shadow-xl backdrop-blur">
         {dirty && <span className="text-xs text-fg-soft">{m.admin_unsaved_changes()}</span>}
         <button
