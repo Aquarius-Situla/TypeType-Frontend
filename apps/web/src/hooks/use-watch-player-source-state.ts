@@ -12,8 +12,6 @@ type Args = {
   manifestSrc: MediaSrc;
   positionRef: MutableRefObject<number>;
   highQuality: boolean;
-  hasThumbnails: boolean;
-  hasChapters: boolean;
   audioOnlyEnabled: boolean;
   audioOnlyLoading: boolean;
   hasAudioOnlySource: boolean;
@@ -79,8 +77,6 @@ export function useWatchPlayerSourceState(args: Args) {
     retryKey: args.retryKey,
     sourceKey: `${args.sabrEnabled ? "sabr" : sourceStart.keyPart}:${manifestIdentity}`,
     highQuality: args.highQuality,
-    hasThumbnails: args.hasThumbnails,
-    hasChapters: args.hasChapters,
   });
   const autoplayRef = useRef<AutoplayState | null>(null);
   const autoplayState = autoplayRef.current;

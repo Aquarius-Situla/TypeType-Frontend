@@ -133,8 +133,6 @@ export function WatchLayout({
     manifestSrc: audioOnly.src ?? player.manifestSrc,
     positionRef: playerEvents.positionRef,
     highQuality: true,
-    hasThumbnails: Boolean(thumbnailVtt),
-    hasChapters: Boolean(chaptersVtt),
     audioOnlyEnabled: audioOnly.enabled,
     audioOnlyLoading: audioOnly.loading,
     hasAudioOnlySource: Boolean(audioOnly.src),
