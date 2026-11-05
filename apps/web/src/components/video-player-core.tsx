@@ -51,10 +51,13 @@ const BILIBILI_ABR = {
   rules: { abandonRequestsRule: { active: false } },
 } as const;
 
+// dash.js retries at a fixed interval and then gives up on the segment for good: about 30 s of
+// retries, like hls.js, lets playback resume by itself after a network cut.
 const STREAMING_BUFFER_POLICY = {
   steadyBufferMs: 36_000,
   maxBufferMs: 60_000,
   backBufferMs: 20_000,
+  mediaAttempts: 20,
 } as const;
 
 function bilibiliSteadySeconds(playbackRate = 1): number {
