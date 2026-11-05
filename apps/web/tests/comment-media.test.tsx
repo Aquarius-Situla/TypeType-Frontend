@@ -76,6 +76,7 @@ describe("comment media", () => {
     expect(html).toContain("0:13");
     expect(html).toContain("Thanks for watching");
     expect(html).not.toContain("/watch");
+    expect(html).toContain('aria-label="Play the voice reply"');
   });
 
   test("an unplayable voice reply explains why", async () => {

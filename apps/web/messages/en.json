@@ -1891,5 +1891,8 @@
   "ui_unable_to_load_posts": "Unable to load posts right now.",
   "ui_comment_gif": "GIF in comment",
   "ui_comment_image": "Image in comment",
-  "ui_voice_reply": "Voice reply"
+  "ui_voice_reply": "Voice reply",
+  "ui_play_voice_reply": "Play the voice reply",
+  "ui_pause_voice_reply": "Pause the voice reply",
+  "ui_voice_reply_unavailable": "This voice reply could not be played."
 }

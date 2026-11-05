@@ -1891,5 +1891,8 @@
   "ui_unable_to_load_posts": "Impossible de charger les posts pour le moment.",
   "ui_comment_gif": "GIF dans le commentaire",
   "ui_comment_image": "Image dans le commentaire",
-  "ui_voice_reply": "Réponse vocale"
+  "ui_voice_reply": "Réponse vocale",
+  "ui_play_voice_reply": "Écouter la réponse vocale",
+  "ui_pause_voice_reply": "Mettre en pause la réponse vocale",
+  "ui_voice_reply_unavailable": "Impossible de lire cette réponse vocale."
 }
