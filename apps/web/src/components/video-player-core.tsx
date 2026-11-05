@@ -45,6 +45,12 @@ const loadHlsLibrary = (): Promise<HlsLibraryModule> => {
   return hlsLibraryPromise;
 };
 
+// The server already races mirrors for a slow Bilibili range; abandoning it restarts the segment from zero.
+const BILIBILI_ABR = {
+  initialBitrate: { video: BILIBILI_LIGHT_KBPS },
+  rules: { abandonRequestsRule: { active: false } },
+} as const;
+
 const STREAMING_BUFFER_POLICY = {
   steadyBufferMs: 36_000,
   maxBufferMs: 60_000,
@@ -74,7 +80,7 @@ export function buildDashStreamingSettings(sourceProvider?: Provider) {
             bufferTimeAtTopQualityLongForm: 60,
           }),
     },
-    ...(isBilibili ? { abr: { initialBitrate: { video: BILIBILI_LIGHT_KBPS } } } : {}),
+    ...(isBilibili ? { abr: BILIBILI_ABR } : {}),
     gaps: {
       enableStallFix: true,
     },

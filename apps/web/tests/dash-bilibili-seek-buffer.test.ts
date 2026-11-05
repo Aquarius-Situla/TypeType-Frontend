@@ -23,7 +23,10 @@ test("uses the chosen Bilibili baseline and keeps the backward cache", () => {
     bufferToKeep: 20,
     fastSwitchEnabled: false,
   });
-  expect(buildDashStreamingSettings("bilibili").abr).toEqual({ initialBitrate: { video: 1000 } });
+  expect(buildDashStreamingSettings("bilibili").abr).toEqual({
+    initialBitrate: { video: 1000 },
+    rules: { abandonRequestsRule: { active: false } },
+  });
   expect(buildDashStreamingSettings("youtube").abr).toBeUndefined();
   expect(buildDashStreamingSettings("youtube").buffer).toEqual({
     bufferTimeDefault: 24,
