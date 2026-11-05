@@ -4,6 +4,8 @@ import type { WatchStagePlayerProps } from "../components/watch-stage-player";
 
 type PlayerOwner = symbol;
 
+type ResumedStart = { requested: number; kept: number };
+
 type PersistentWatchPlayerEntry = {
   owner: PlayerOwner;
   streamId: string;
@@ -12,6 +14,7 @@ type PersistentWatchPlayerEntry = {
   enabled: boolean;
   anchor: HTMLElement | null;
   attached: boolean;
+  resumedStart: ResumedStart | null;
 };
 
 export type PlayerPosition = { left: number; top: number };
@@ -32,21 +35,38 @@ type PersistentWatchPlayerStore = {
   close: (owner: PlayerOwner) => void;
 };
 
+// A watch page that takes the playing player back recomputes its start time from saved progress,
+// which lags a few seconds behind; re-applying it would rewind non-SABR players.
+function nextResumedStart(
+  previous: PersistentWatchPlayerEntry | null,
+  owner: PlayerOwner,
+  streamId: string,
+  requested: number,
+): ResumedStart | null {
+  if (!previous || previous.streamId !== streamId) return null;
+  if (previous.owner !== owner) return { requested, kept: previous.props.startTime };
+  return previous.resumedStart?.requested === requested ? previous.resumedStart : null;
+}
+
 export const usePersistentWatchPlayerStore = create<PersistentWatchPlayerStore>((set) => ({
   entry: null,
   position: null,
   register: (owner, streamId, props, enabled, href) =>
-    set((state) => ({
-      entry: {
-        owner,
-        streamId,
-        href,
-        props,
-        enabled,
-        anchor: state.entry?.owner === owner ? state.entry.anchor : null,
-        attached: state.entry?.owner === owner ? state.entry.attached : false,
-      },
-    })),
+    set((state) => {
+      const resumedStart = nextResumedStart(state.entry, owner, streamId, props.startTime);
+      return {
+        entry: {
+          owner,
+          streamId,
+          href,
+          props: resumedStart ? { ...props, startTime: resumedStart.kept } : props,
+          enabled,
+          anchor: state.entry?.owner === owner ? state.entry.anchor : null,
+          attached: state.entry?.owner === owner ? state.entry.attached : false,
+          resumedStart,
+        },
+      };
+    }),
   setAnchor: (owner, anchor) =>
     set((state) =>
       state.entry?.owner === owner
