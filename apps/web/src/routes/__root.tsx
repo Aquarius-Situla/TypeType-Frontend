@@ -9,6 +9,7 @@ import { NotFoundPage } from "../components/not-found-page";
 import { PersistentWatchPlayer } from "../components/persistent-watch-player";
 import { Sidebar } from "../components/sidebar";
 import { useAuth } from "../hooks/use-auth";
+import { useEarlyWatchStream } from "../hooks/use-early-watch-stream";
 import { useInstance } from "../hooks/use-instance";
 import { useMobile } from "../hooks/use-mobile";
 import { useRegisterStatus } from "../hooks/use-register-status";
@@ -55,6 +56,7 @@ function RootLayoutContent() {
     select: (state) => state.matches.some((match) => match.status === "notFound"),
   });
   const pathname = location.pathname;
+  useEarlyWatchStream(pathname, location.search, authReady, isAuthed, instanceLoading);
   const pathWithSearch = `${pathname}${location.searchStr}`;
   const hideEverythingPage = pathname === "/hide-everything";
   const shortsPage = pathname === "/shorts";

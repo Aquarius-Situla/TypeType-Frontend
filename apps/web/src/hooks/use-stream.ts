@@ -79,10 +79,15 @@ export function useStream(
   });
 }
 
-export function useSabrBootstrap(url: string, useAuthenticatedStream = false, enabled = true) {
-  const authenticatedOwnerId = useAuthStore((state) => state.me?.id);
-  const ownerId = useAuthenticatedStream ? authenticatedOwnerId : null;
-  return useQuery({
+export function sabrBootstrapQueryOptions(
+  url: string,
+  useAuthenticatedStream = false,
+  enabled = true,
+  ownerId: string | null | undefined = useAuthenticatedStream
+    ? useAuthStore.getState().me?.id
+    : null,
+) {
+  return queryOptions({
     queryKey: sabrBootstrapQueryKey(url, useAuthenticatedStream, ownerId),
     queryFn: ({ signal }) =>
       fetchSabrBootstrap(
@@ -101,4 +106,10 @@ export function useSabrBootstrap(url: string, useAuthenticatedStream = false, en
     retryDelay: apiRetryDelay,
     refetchOnWindowFocus: false,
   });
+}
+
+export function useSabrBootstrap(url: string, useAuthenticatedStream = false, enabled = true) {
+  const authenticatedOwnerId = useAuthStore((state) => state.me?.id);
+  const ownerId = useAuthenticatedStream ? authenticatedOwnerId : null;
+  return useQuery(sabrBootstrapQueryOptions(url, useAuthenticatedStream, enabled, ownerId));
 }
