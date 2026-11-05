@@ -78,7 +78,7 @@ export function mapStreamResponse(response: StreamResponse, url: string): VideoS
   return {
     id: url,
     title: response.title,
-    thumbnail: proxyImage(response.thumbnailUrl),
+    thumbnail: proxyImage(response.thumbnailUrl, "poster"),
     rawThumbnail: response.thumbnailUrl,
     rawChannelAvatar: response.uploaderAvatarUrl,
     channelName: response.uploaderName,

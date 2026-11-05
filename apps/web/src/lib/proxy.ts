@@ -55,7 +55,21 @@ export function proxyDashManifest(url: string): string {
   return isRemoteUrl(url) ? proxyUrl(url) : url;
 }
 
-function normalizeBilibiliImageUrl(url: string): string {
+const BILIBILI_IMAGE_SIZES = {
+  card: "@672w_378h_1c.webp",
+  poster: "@1280w_720h_1c.webp",
+  avatar: "@240w_240h_1c.webp",
+};
+
+type ImageSize = "card" | "poster";
+
+function sizeBilibiliImage(parsed: URL, size: ImageSize): void {
+  if (parsed.pathname.includes("@")) return;
+  if (parsed.pathname.startsWith("/bfs/archive/")) parsed.pathname += BILIBILI_IMAGE_SIZES[size];
+  else if (parsed.pathname.startsWith("/bfs/face/")) parsed.pathname += BILIBILI_IMAGE_SIZES.avatar;
+}
+
+function normalizeBilibiliImageUrl(url: string, size: ImageSize): string {
   let normalized = url.trim();
   if (normalized.startsWith("//")) {
     normalized = `https:${normalized}`;
@@ -63,8 +77,9 @@ function normalizeBilibiliImageUrl(url: string): string {
   normalized = normalized.replace(/^http:\/\//, "https://");
   try {
     const parsed = new URL(normalized);
-    if (parsed.hostname.endsWith("biliimg.com")) {
-      parsed.hostname = "i0.hdslb.com";
+    if (parsed.hostname.endsWith("biliimg.com")) parsed.hostname = "i0.hdslb.com";
+    if (parsed.hostname.endsWith("hdslb.com")) {
+      sizeBilibiliImage(parsed, size);
       return parsed.toString();
     }
   } catch {
@@ -90,11 +105,12 @@ function needsProxy(url: string): boolean {
   }
 }
 
-export function proxyImage(url: string): string {
+export function proxyImage(url: string, size: ImageSize = "card"): string {
   if (!url) return url;
   const raw = extractProxyTarget(url) ?? url;
   const normalized = normalizeBilibiliImageUrl(
     raw.startsWith("httpss://") ? `https://${raw.slice(9)}` : raw,
+    size,
   );
   if (!needsProxy(normalized)) return normalized;
   return proxyUrl(normalized);
