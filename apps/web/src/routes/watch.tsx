@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { lazy, Suspense, useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { BiliBiliSessionGateProvider } from "../components/bilibili-session-gate";
+import { LazyWatchLayout } from "../components/lazy-watch-layout";
 import { ShortsHiddenScreen } from "../components/shorts-hidden-screen";
 import { StreamError } from "../components/stream-error";
 import { WatchPageSkeleton } from "../components/watch-page-skeleton";
@@ -36,10 +37,6 @@ import {
   youtubeThumbnailUrl,
 } from "../lib/watch-url";
 import { useWatchNavigationStore } from "../stores/watch-navigation-store";
-
-const WatchLayout = lazy(() =>
-  import("../components/watch-layout").then((module) => ({ default: module.WatchLayout })),
-);
 
 function WatchPage() {
   const { v, list, shuffle } = Route.useSearch();
@@ -210,6 +207,7 @@ function WatchPage() {
     }) ?? 0;
   const navigating = toPublicWatchParam(activeStream.id) !== publicParam;
   const bilibiliReturnTo = bilibiliSessionReturnToForWatch(publicParam, list, shuffle);
+  const WatchLayout = LazyWatchLayout.current();
 
   return (
     <BiliBiliSessionGateProvider sourceUrl={sourceUrl} returnTo={bilibiliReturnTo}>

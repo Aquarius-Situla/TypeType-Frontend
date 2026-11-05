@@ -1,13 +1,8 @@
 import { useRouterState } from "@tanstack/react-router";
-import { lazy, Suspense, useLayoutEffect } from "react";
+import { Suspense, useLayoutEffect } from "react";
 import { usePersistentWatchPlayerStore } from "../hooks/use-persistent-watch-player";
 import { shouldKeepPersistentPlayerForRoute } from "../lib/persistent-player-navigation";
-
-const PersistentWatchPlayerHost = lazy(() =>
-  import("./persistent-watch-player-host").then((module) => ({
-    default: module.PersistentWatchPlayerHost,
-  })),
-);
+import { LazyPersistentWatchPlayerHost } from "./lazy-persistent-watch-player-host";
 
 export function PersistentWatchPlayer() {
   const hasEntry = usePersistentWatchPlayerStore((state) => state.entry !== null);
@@ -26,6 +21,7 @@ function PersistentWatchPlayerRouteEntry() {
   }, [close, entry, keepPlayer]);
 
   if (!entry || !keepPlayer) return null;
+  const PersistentWatchPlayerHost = LazyPersistentWatchPlayerHost.current();
 
   return (
     <Suspense fallback={null}>
