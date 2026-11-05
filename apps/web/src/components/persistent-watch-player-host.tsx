@@ -33,10 +33,15 @@ function clampPosition(left: number, top: number, width: number, height: number)
   };
 }
 
-const resetDirectFrameStyles = (frame: HTMLDivElement | null) => {
+// The docked frame is placed with direct styles; clearing them must not drop the floating position,
+// which React would not write again while it is unchanged.
+const resetDirectFrameStyles = (
+  frame: HTMLDivElement | null,
+  floatingPosition: PlayerPosition | null,
+) => {
   if (!frame) return;
-  frame.style.top = "";
-  frame.style.left = "";
+  frame.style.top = floatingPosition ? `${floatingPosition.top}px` : "";
+  frame.style.left = floatingPosition ? `${floatingPosition.left}px` : "";
   frame.style.width = "";
   frame.style.height = "";
 };
@@ -67,6 +72,8 @@ const isAnchorLayoutTransition = (event: TransitionEvent, anchor: HTMLElement | 
 export function PersistentWatchPlayerHost() {
   const entry = usePersistentWatchPlayerStore((state) => state.entry);
   const position = usePersistentWatchPlayerStore((state) => state.position);
+  const positionRef = useRef(position);
+  positionRef.current = position;
   const setPosition = usePersistentWatchPlayerStore((state) => state.setPosition);
   const close = usePersistentWatchPlayerStore((state) => state.close);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
@@ -103,7 +110,7 @@ export function PersistentWatchPlayerHost() {
       const anchor = entry?.anchor;
       const frame = frameRef.current;
       if (!anchor || !watchPage) {
-        if (frame) resetDirectFrameStyles(frame);
+        if (frame) resetDirectFrameStyles(frame, positionRef.current);
         if (commitState) {
           setAnchorRect(null);
           setOutsideViewport(false);
@@ -121,7 +128,7 @@ export function PersistentWatchPlayerHost() {
           frame.style.width = `${rect.width}px`;
           frame.style.height = `${rect.height}px`;
         } else {
-          resetDirectFrameStyles(frame);
+          resetDirectFrameStyles(frame, webFullscreen ? null : positionRef.current);
         }
       }
 
