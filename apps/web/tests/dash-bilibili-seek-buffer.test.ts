@@ -4,13 +4,14 @@ import { buildDashStreamingSettings } from "../src/components/video-player-core"
 import { bilibiliBufferSeconds } from "../src/lib/bilibili-buffer";
 import { attachBilibiliSeekBuffer } from "../src/lib/dash-bilibili-seek-buffer";
 
-const buffer = (seconds: number) => ({
+const buffer = (seconds: number, maxVideoKbps = -1) => ({
   streaming: {
     buffer: {
       bufferTimeDefault: seconds,
       bufferTimeAtTopQuality: seconds,
       bufferTimeAtTopQualityLongForm: seconds,
     },
+    abr: { maxBitrate: { video: maxVideoKbps } },
   },
 });
 
@@ -43,15 +44,26 @@ test("the buffer grows with the playback speed and stays capped", () => {
 function fakePlayer(rate = 1) {
   const listeners = new Map<string, (event: unknown) => void>();
   const updates: unknown[] = [];
-  const state = { paused: true, seeking: true, rate };
+  const state = { paused: true, seeking: true, rate, current: "v0" };
+  const switches: string[] = [];
+  const allowed = [
+    { id: "v2", bandwidth: 787_000 },
+    { id: "v3", bandwidth: 350_000 },
+  ];
   const player = {
     on: (type: string, listener: (event: unknown) => void) => listeners.set(type, listener),
     updateSettings: (settings: unknown) => updates.push(settings),
     isPaused: () => state.paused,
     isSeeking: () => state.seeking,
     getPlaybackRate: () => state.rate,
+    getRepresentationsByType: () => allowed,
+    getCurrentRepresentationForType: () => ({ id: state.current }),
+    setRepresentationForTypeById: (_type: string, id: string) => {
+      switches.push(id);
+      state.current = id;
+    },
   } as unknown as dashjs.MediaPlayerClass;
-  return { player, listeners, updates, state };
+  return { player, listeners, updates, state, switches };
 }
 
 test("keeps the Bilibili seek target short until playback advances without flushing cache", () => {
@@ -59,7 +71,7 @@ test("keeps the Bilibili seek target short until playback advances without flush
   attachBilibiliSeekBuffer(player, (rate) => bilibiliBufferSeconds("normal", rate));
 
   listeners.get("playbackSeeking")?.({ seekTime: 30 });
-  expect(updates).toEqual([buffer(2)]);
+  expect(updates).toEqual([buffer(2, 1000)]);
   expect(JSON.stringify(updates)).not.toContain("bufferToKeep");
 
   listeners.get("playbackTimeUpdated")?.({ time: 31.6 });
@@ -83,10 +95,20 @@ test("a speed change resizes the buffer, but not during a pending seek", () => {
   listeners.get("playbackSeeking")?.({ seekTime: 10 });
   state.rate = 4;
   listeners.get("playbackRateChanged")?.({});
-  expect(updates).toEqual([buffer(30), buffer(2)]);
+  expect(updates).toEqual([buffer(30), buffer(2, 1000)]);
 
   state.paused = false;
   state.seeking = false;
   listeners.get("playbackTimeUpdated")?.({ time: 11.5 });
   expect(updates[2]).toEqual(buffer(60));
+});
+
+test("a seek switches to the best quality under the light cap at once", () => {
+  const { player, listeners, switches } = fakePlayer();
+  attachBilibiliSeekBuffer(player, (rate) => bilibiliBufferSeconds("normal", rate));
+
+  listeners.get("playbackSeeking")?.({ seekTime: 30 });
+  listeners.get("playbackSeeking")?.({ seekTime: 60 });
+
+  expect(switches).toEqual(["v2"]);
 });

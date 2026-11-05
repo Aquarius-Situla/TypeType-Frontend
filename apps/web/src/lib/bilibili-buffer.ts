@@ -10,6 +10,8 @@ export const BILIBILI_BUFFER_BASELINE_SECONDS: Record<BilibiliBufferLevel, numbe
 
 const MAX_BUFFER_SECONDS = 120;
 
+export const BILIBILI_LIGHT_KBPS = 1000;
+
 export function isBilibiliBufferLevel(value: unknown): value is BilibiliBufferLevel {
   return typeof value === "string" && (BILIBILI_BUFFER_LEVELS as readonly string[]).includes(value);
 }

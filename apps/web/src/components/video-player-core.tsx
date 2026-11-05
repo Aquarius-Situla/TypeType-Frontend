@@ -1,7 +1,11 @@
 import { createDashSettings, createHlsConfig } from "@typetype/mse";
 import type * as dashjs from "dashjs";
 import type Hls from "hls.js";
-import { bilibiliBufferSeconds, bilibiliBufferSettings } from "../lib/bilibili-buffer";
+import {
+  BILIBILI_LIGHT_KBPS,
+  bilibiliBufferSeconds,
+  bilibiliBufferSettings,
+} from "../lib/bilibili-buffer";
 import { recordClientEvent } from "../lib/client-debug-log";
 import { attachBilibiliSeekBuffer } from "../lib/dash-bilibili-seek-buffer";
 import { attachDashPlaybackDiagnostics } from "../lib/dash-playback-diagnostics";
@@ -41,8 +45,6 @@ const loadHlsLibrary = (): Promise<HlsLibraryModule> => {
   return hlsLibraryPromise;
 };
 
-const BILIBILI_START_KBPS = 1000;
-
 const STREAMING_BUFFER_POLICY = {
   steadyBufferMs: 36_000,
   maxBufferMs: 60_000,
@@ -72,7 +74,7 @@ export function buildDashStreamingSettings(sourceProvider?: Provider) {
             bufferTimeAtTopQualityLongForm: 60,
           }),
     },
-    ...(isBilibili ? { abr: { initialBitrate: { video: BILIBILI_START_KBPS } } } : {}),
+    ...(isBilibili ? { abr: { initialBitrate: { video: BILIBILI_LIGHT_KBPS } } } : {}),
     gaps: {
       enableStallFix: true,
     },
