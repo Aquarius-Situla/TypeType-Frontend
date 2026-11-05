@@ -3,6 +3,7 @@ import { formatCommentPublishedTime } from "../lib/comment-time";
 import { formatLikes } from "../lib/format";
 import { m } from "../paraglide/messages.js";
 import type { Comment } from "../types/comment";
+import { CommentMedia } from "./comment-media";
 import { RichText } from "./rich-text";
 
 type Props = {
@@ -33,6 +34,7 @@ export function WatchReply({ reply, videoUrl, locale, onSeekTimestamp }: Props) 
         <p className="text-sm text-fg leading-relaxed whitespace-pre-wrap">
           <RichText text={reply.text} videoUrl={videoUrl} onSeekTimestamp={onSeekTimestamp} />
         </p>
+        <CommentMedia image={reply.image} voiceReply={reply.voiceReply} locale={interfaceLocale} />
         {reply.likeCount >= 0 && (
           <span className="text-xs text-fg-soft">
             {formatLikes(reply.likeCount)} {m.watch_likes({}, { locale: interfaceLocale })}
