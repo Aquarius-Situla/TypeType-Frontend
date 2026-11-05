@@ -8,6 +8,8 @@ import {
 import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { CommentMedia } from "../src/components/comment-media";
+import { WatchReply } from "../src/components/watch-reply";
+import { InterfaceLocaleProvider } from "../src/hooks/use-interface-locale";
 import { mapCommentItem } from "../src/lib/mappers";
 import type { CommentItem } from "../src/types/api";
 
@@ -56,7 +58,7 @@ describe("comment media", () => {
     expect(html).toContain('alt="GIF in comment"');
   });
 
-  test("a voice reply shows its transcript and opens in TypeType", async () => {
+  test("a voice reply shows its duration and transcript", async () => {
     const html = await render(
       <CommentMedia
         image={null}
@@ -73,11 +75,10 @@ describe("comment media", () => {
     expect(html).toContain("Voice reply");
     expect(html).toContain("0:13");
     expect(html).toContain("Thanks for watching");
-    expect(html).toContain("/watch?v=abcdefghijk");
-    expect(html).toContain('target="_blank"');
+    expect(html).not.toContain("/watch");
   });
 
-  test("an unplayable voice reply explains why and offers no link", async () => {
+  test("an unplayable voice reply explains why", async () => {
     const html = await render(
       <CommentMedia
         image={null}
@@ -93,6 +94,26 @@ describe("comment media", () => {
     );
 
     expect(html).toContain("Voice replies are not available");
-    expect(html).not.toContain("/watch");
+  });
+
+  test("creator voice replies show up in reply threads", async () => {
+    const reply = mapCommentItem({
+      ...comment,
+      text: "",
+      voiceReply: {
+        url: "https://www.youtube.com/watch?v=AGIzexZDwVE",
+        durationMs: 5_456,
+        transcript: "Hello, Nathan.",
+        playable: true,
+      },
+    });
+    const html = await render(
+      <InterfaceLocaleProvider>
+        <WatchReply reply={reply} videoUrl="https://www.youtube.com/shorts/x" />
+      </InterfaceLocaleProvider>,
+    );
+
+    expect(html).toContain("Voice reply");
+    expect(html).toContain("Hello, Nathan.");
   });
 });

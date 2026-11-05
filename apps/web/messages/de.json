@@ -1891,7 +1891,5 @@
   "ui_unable_to_load_posts": "Beiträge können gerade nicht geladen werden.",
   "ui_comment_gif": "GIF im Kommentar",
   "ui_comment_image": "Bild im Kommentar",
-  "ui_voice_reply": "Sprachantwort",
-  "ui_play_voice_reply": "Sprachantwort in einem neuen Tab abspielen",
-  "ui_listen": "Anhören"
+  "ui_voice_reply": "Sprachantwort"
 }
