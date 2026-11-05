@@ -32,8 +32,16 @@ export class DashTransientErrorGuard {
     this.stallMs = stallMs;
   }
 
-  absorb(detail: unknown): boolean {
+  absorb(
+    detail: unknown,
+    online = typeof navigator === "undefined" || navigator.onLine !== false,
+  ): boolean {
     if (!isTransientDashError(detail)) return false;
+    // Offline, dash.js has given up on the segment: the player error waits for the network and reloads then.
+    if (!online) {
+      this.reset();
+      return false;
+    }
     this.failures += 1;
     if (this.failures >= MAX_CONSECUTIVE_TRANSIENT_ERRORS) {
       this.reset();

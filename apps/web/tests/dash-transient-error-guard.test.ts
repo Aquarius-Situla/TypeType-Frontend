@@ -76,3 +76,13 @@ test("a loaded fragment cancels the stall escalation", async () => {
   await wait(40);
   expect(escalations).toBe(0);
 });
+
+test("hands an offline failure to the player so it reloads once the network is back", () => {
+  let escalations = 0;
+  const guard = new DashTransientErrorGuard(() => escalations++, 20);
+  expect(guard.absorb(contentError, true)).toBe(true);
+  expect(guard.absorb(contentError, false)).toBe(false);
+  expect(guard.absorb(contentError, true)).toBe(true);
+  guard.reset();
+  expect(escalations).toBe(0);
+});
