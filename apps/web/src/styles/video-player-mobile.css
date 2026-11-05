@@ -27,8 +27,9 @@
     font-size: 0.8rem;
   }
 
+  /* iOS native fullscreen hands the video to the system player and drops danmaku; web fullscreen keeps them. */
   .vds-video-layout .vds-pip-button,
-  .vds-video-layout .vds-web-fullscreen-button {
+  .vds-video-layout .vds-cinema-button {
     display: none;
   }
 }
