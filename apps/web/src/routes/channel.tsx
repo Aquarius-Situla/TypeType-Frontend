@@ -17,7 +17,7 @@ type ChannelRouteSearch = {
   url: string;
   sort?: ChannelSort;
   q?: string;
-  tab?: "live" | "playlists";
+  tab?: "live" | "playlists" | "posts";
 };
 
 function validateChannelSearch(search: Record<string, unknown>): ChannelRouteSearch {

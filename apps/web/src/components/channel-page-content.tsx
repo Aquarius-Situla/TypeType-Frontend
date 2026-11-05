@@ -14,6 +14,7 @@ import { ChannelFilterBar } from "./channel-filter-bar";
 import { ChannelPageHeader } from "./channel-page-header";
 import { ChannelPlaylistsSection } from "./channel-playlists-section";
 import { ChannelPodcastsSection } from "./channel-podcasts-section";
+import { ChannelPostsSection } from "./channel-posts-section";
 import { FamilyListEmptyState } from "./family-list-empty-state";
 import { PageSpinner } from "./page-spinner";
 import { ScrollSentinel } from "./scroll-sentinel";
@@ -153,12 +154,15 @@ export function ChannelPageContent({ sourceUrl, sort, searchQuery, tab, onNaviga
         tabsAvailable={tabsAvailable}
         searchAvailable={searchAvailable}
         isBilibili={isBilibili}
+        postsAvailable={provider === "youtube"}
         onSearch={searchChannel}
         onTabChange={selectTab}
         onSortChange={selectSort}
       />
       {tab === "playlists" ? (
         <ChannelPlaylistsSection channelUrl={sourceUrl} />
+      ) : tab === "posts" && provider === "youtube" ? (
+        <ChannelPostsSection channelUrl={sourceUrl} />
       ) : (
         <>
           {isReplacingVideos ? (

@@ -8,7 +8,11 @@ import {
 } from "../lib/channel-route-url";
 import { channelSortOrDefault } from "../lib/channel-sort";
 
-type ChannelPathRouteSearch = { sort?: ChannelSort; q?: string; tab?: "live" | "playlists" };
+type ChannelPathRouteSearch = {
+  sort?: ChannelSort;
+  q?: string;
+  tab?: "live" | "playlists" | "posts";
+};
 
 function validateChannelPathSearch(search: Record<string, unknown>): ChannelPathRouteSearch {
   const sort = channelSortOrDefault(search.sort);
