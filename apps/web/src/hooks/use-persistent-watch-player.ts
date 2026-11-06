@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import { create } from "zustand";
 import type { WatchStagePlayerProps } from "../components/watch-stage-player";
-import { createRegisterLoopProbe } from "../lib/register-loop-probe";
 
 type PlayerOwner = symbol;
 
@@ -93,8 +92,6 @@ export function usePersistentWatchPlayer(
   const ownerRef = useRef<PlayerOwner | null>(null);
   const anchorElementRef = useRef<HTMLElement | null>(null);
   if (!ownerRef.current) ownerRef.current = Symbol("watch-player");
-  const probeRef = useRef<ReturnType<typeof createRegisterLoopProbe> | null>(null);
-  probeRef.current ??= createRegisterLoopProbe();
   const owner = ownerRef.current;
   const register = usePersistentWatchPlayerStore((state) => state.register);
   const setAnchor = usePersistentWatchPlayerStore((state) => state.setAnchor);
@@ -108,7 +105,6 @@ export function usePersistentWatchPlayer(
   );
 
   useLayoutEffect(() => {
-    probeRef.current?.(streamId, enabled, props as unknown as Record<string, unknown>);
     register(owner, streamId, props, enabled, window.location.pathname + window.location.search);
     setAnchor(owner, anchorElementRef.current);
   }, [enabled, owner, props, register, setAnchor, streamId]);
