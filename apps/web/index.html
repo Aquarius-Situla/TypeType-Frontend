@@ -54,6 +54,29 @@
         }
       })();
     </script>
+    <script>
+      (() => {
+        try {
+          if (location.pathname !== "/watch" || localStorage.getItem("typed-auth")) return;
+          const v = (new URLSearchParams(location.search).get("v") || "").trim();
+          const bilibili = v.match(/^(BV[A-Za-z0-9]{10})(?:\?p=(\d+))?$/i);
+          let provider = "niconico";
+          let source = `https://www.nicovideo.jp/watch/${v}`;
+          if (bilibili) {
+            const page = Number(bilibili[2] || "1");
+            const suffix = Number.isSafeInteger(page) && page > 1 ? `?p=${page}` : "";
+            provider = "bilibili";
+            source = `https://www.bilibili.com/video/${bilibili[1]}${suffix}`;
+          } else if (!/^(sm|nm|so)\d+$/i.test(v)) {
+            return;
+          }
+          const configured = "%VITE_API_URL%";
+          const api = configured.startsWith("%") ? "/api" : configured;
+          const endpoint = `${api}/streams/${provider}?url=${encodeURIComponent(source)}`;
+          window.__typetypeEarlyStream = { endpoint, response: fetch(endpoint, { cache: "no-store" }) };
+        } catch (_error) {}
+      })();
+    </script>
     <title>TypeType</title>
     <style>
       .vds-quality-menu > .vds-menu-item,

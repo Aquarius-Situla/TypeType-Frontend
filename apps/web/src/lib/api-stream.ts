@@ -3,6 +3,7 @@ import type { StreamResponse } from "../types/api";
 import { ApiError, request } from "./api";
 import { recordClientEvent } from "./client-debug-log";
 import { sanitizeVideoContext } from "./debug-sanitize";
+import { takeEarlyStreamResponse } from "./early-stream-response";
 import { beginPlaybackTrace } from "./playback-trace";
 import { requestWithSession } from "./session-request";
 import { sabrBootstrapEndpoint, streamEndpoint } from "./stream-request";
@@ -61,7 +62,11 @@ async function fetchStreamEndpoint(
   }
   recordClientEvent("stream.fetch_start", { authed: false, video });
   try {
-    const result = await request<StreamResponse>(endpoint, streamInit(signal));
+    const result = await request<StreamResponse>(
+      endpoint,
+      streamInit(signal),
+      takeEarlyStreamResponse(endpoint),
+    );
     recordClientEvent("stream.fetch_success", { authed: false, video, hasHls: !!result.hlsUrl });
     return result;
   } catch (error) {

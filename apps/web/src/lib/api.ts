@@ -82,12 +82,16 @@ export function apiErrorFromResponse(response: Response, body: unknown): ApiErro
   );
 }
 
-export async function request<T>(url: string, init?: RequestInit): Promise<T> {
+export async function request<T>(
+  url: string,
+  init?: RequestInit,
+  pending?: Promise<Response> | null,
+): Promise<T> {
   const method = init?.method ?? "GET";
   let res: Response;
   const trace = preparePlaybackApiRequest(url, init);
   try {
-    res = await fetch(url, trace.init);
+    res = await (pending ?? fetch(url, trace.init));
   } catch (error) {
     finishPlaybackApiRequest(trace, 0, "network_error");
     const message = error instanceof Error ? error.message : "network_error";
