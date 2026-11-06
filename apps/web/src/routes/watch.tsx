@@ -10,6 +10,7 @@ import { useAuth } from "../hooks/use-auth";
 import { useDocumentTitle } from "../hooks/use-document-title";
 import { useHistory } from "../hooks/use-history";
 import { useInstance } from "../hooks/use-instance";
+import { useLoadedComponent } from "../hooks/use-loaded-component";
 import { useProgress } from "../hooks/use-progress";
 import { useSettings } from "../hooks/use-settings";
 import { useSabrBootstrap, useStream } from "../hooks/use-stream";
@@ -47,6 +48,7 @@ function WatchPage() {
   const { authReady, isAuthed } = useAuth();
   const { isPending: instancePending } = useInstance();
   const { settings, settingsReady } = useSettings();
+  const WatchLayout = useLoadedComponent(LazyWatchLayout);
   const navigationSnapshot = useWatchNavigationStore((state) => state.snapshot);
   const previewMatches =
     navigationSnapshot && toPublicWatchParam(navigationSnapshot.stream.id) === publicParam;
@@ -207,35 +209,37 @@ function WatchPage() {
     }) ?? 0;
   const navigating = toPublicWatchParam(activeStream.id) !== publicParam;
   const bilibiliReturnTo = bilibiliSessionReturnToForWatch(publicParam, list, shuffle);
-  const WatchLayout = LazyWatchLayout.current();
+  const skeleton = (
+    <WatchPageSkeleton
+      stream={activeStream}
+      relatedStreams={showRelated ? activeStream.related : []}
+      videoUrl={sourceUrl}
+      showComments={!settings.hideComments}
+      showRelated={showRelated}
+      list={list}
+      currentParam={publicParam}
+    />
+  );
 
   return (
     <BiliBiliSessionGateProvider sourceUrl={sourceUrl} returnTo={bilibiliReturnTo}>
-      <Suspense
-        fallback={
-          <WatchPageSkeleton
+      {WatchLayout === null ? (
+        skeleton
+      ) : (
+        <Suspense fallback={skeleton}>
+          <WatchLayout
+            key={activeStream.id}
             stream={activeStream}
-            relatedStreams={showRelated ? activeStream.related : []}
-            videoUrl={sourceUrl}
-            showComments={!settings.hideComments}
-            showRelated={showRelated}
-            list={list}
+            startTime={startTime}
             currentParam={publicParam}
+            navigating={navigating}
+            list={list}
+            shuffle={shuffle}
+            streamLoadedAt={streamQuery.isPlaceholderData ? 0 : streamQuery.dataUpdatedAt}
+            onStreamExpired={() => void streamQuery.refetch()}
           />
-        }
-      >
-        <WatchLayout
-          key={activeStream.id}
-          stream={activeStream}
-          startTime={startTime}
-          currentParam={publicParam}
-          navigating={navigating}
-          list={list}
-          shuffle={shuffle}
-          streamLoadedAt={streamQuery.isPlaceholderData ? 0 : streamQuery.dataUpdatedAt}
-          onStreamExpired={() => void streamQuery.refetch()}
-        />
-      </Suspense>
+        </Suspense>
+      )}
     </BiliBiliSessionGateProvider>
   );
 }

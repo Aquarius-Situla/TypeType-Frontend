@@ -36,3 +36,16 @@ test("hands out the loaded component directly when it was preloaded first", asyn
   expect(component.current()).toBe(Loaded);
   expect(component.current()).toBe(Loaded);
 });
+
+test("tells whether the module has loaded without loading it", async () => {
+  let loads = 0;
+  const component = preloadableLazy(async () => {
+    loads++;
+    return Loaded;
+  });
+
+  expect(component.loaded()).toBeNull();
+  expect(loads).toBe(0);
+  await component.preload();
+  expect(component.loaded()).toBe(Loaded);
+});

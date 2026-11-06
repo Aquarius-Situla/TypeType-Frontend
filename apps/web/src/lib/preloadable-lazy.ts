@@ -2,6 +2,7 @@ import { type ComponentType, type LazyExoticComponent, lazy } from "react";
 
 export type PreloadableComponent<P extends object> = {
   current: () => ComponentType<P> | LazyExoticComponent<ComponentType<P>>;
+  loaded: () => ComponentType<P> | null;
   preload: () => Promise<ComponentType<P>>;
 };
 
@@ -20,5 +21,5 @@ export function preloadableLazy<P extends object>(
   const Lazy = lazy(() => preload().then((component) => ({ default: component })));
   // React remounts a subtree whose component type changes: the first answer has to stay.
   let chosen: ComponentType<P> | LazyExoticComponent<ComponentType<P>> | null = null;
-  return { current: () => (chosen ??= loaded ?? Lazy), preload };
+  return { current: () => (chosen ??= loaded ?? Lazy), loaded: () => loaded, preload };
 }
