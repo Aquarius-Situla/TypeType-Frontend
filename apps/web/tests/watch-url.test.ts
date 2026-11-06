@@ -41,6 +41,12 @@ test("shortens and expands NicoNico watch URLs", () => {
   expect(toWatchSourceUrl("sm46525483")).toBe("https://www.nicovideo.jp/watch/sm46525483");
 });
 
+test("handles NicoNico channel and official video ids like user uploads", () => {
+  expect(toPublicWatchParam("https://www.nicovideo.jp/watch/so47007615")).toBe("so47007615");
+  expect(toWatchSourceUrl("so47007615")).toBe("https://www.nicovideo.jp/watch/so47007615");
+  expect(toWatchSourceUrl("nm2829323")).toBe("https://www.nicovideo.jp/watch/nm2829323");
+});
+
 test("shortens and expands BiliBili watch URLs", () => {
   expect(toPublicWatchParam("https://www.bilibili.com/video/BV1UbX3B2EZQ?p=1")).toBe(
     "BV1UbX3B2EZQ",

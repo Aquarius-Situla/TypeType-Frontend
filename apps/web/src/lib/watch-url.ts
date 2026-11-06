@@ -1,7 +1,7 @@
 import { withBilibiliBvid } from "./bilibili-av";
 
 const YOUTUBE_VIDEO_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/;
-const NICONICO_VIDEO_ID_PATTERN = /^sm\d+$/i;
+const NICONICO_VIDEO_ID_PATTERN = /^(sm|nm|so)\d+$/i;
 const BILIBILI_VIDEO_ID_PATTERN = /^BV[A-Za-z0-9]{10}$/i;
 const BILIBILI_WATCH_PARAM_PATTERN = /^(BV[A-Za-z0-9]{10})(?:\?p=(\d+))?$/i;
 
