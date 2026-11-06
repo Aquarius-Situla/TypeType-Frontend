@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef } from "react";
 import { prewarmSabrPlayback } from "../lib/api-sabr-prewarm";
-import { shouldPreloadAutoplayTarget } from "../lib/autoplay-preload";
+import { canRetryAutoplayPreload, shouldPreloadAutoplayTarget } from "../lib/autoplay-preload";
 import { defaultSabrItag, resolveSabrPlaybackConfig, sabrQualityOptions } from "../lib/sabr-source";
 import { toWatchSourceUrl } from "../lib/watch-url";
 import { useAuthStore } from "../stores/auth-store";
@@ -24,6 +24,7 @@ export function useWatchAutoplayPreload({ durationMs, enabled, target }: Args) {
   const { isPending: instancePending } = useInstance();
   const { settingsReady } = useSettings();
   const preloadedRef = useRef(new Set<string>());
+  const failedAtRef = useRef(new Map<string, number>());
   const activeRef = useRef<AbortController | null>(null);
   const activeTargetIdRef = useRef("");
   const useAuthenticatedStream = isAuthed;
@@ -51,6 +52,7 @@ export function useWatchAutoplayPreload({ durationMs, enabled, target }: Args) {
       const sourceUrl = toWatchSourceUrl(target.search.v);
       const key = `${sourceUrl}:${useAuthenticatedStream ? "auth" : "anon"}`;
       if (preloadedRef.current.has(key)) return;
+      if (!canRetryAutoplayPreload(failedAtRef.current.get(key), Date.now())) return;
       preloadedRef.current.add(key);
       const controller = new AbortController();
       activeRef.current?.abort();
@@ -64,7 +66,9 @@ export function useWatchAutoplayPreload({ durationMs, enabled, target }: Args) {
           if (config) return prewarmSabrPlayback(config, token, controller.signal);
         })
         .catch(() => {
-          if (!controller.signal.aborted) preloadedRef.current.delete(key);
+          if (controller.signal.aborted) return;
+          preloadedRef.current.delete(key);
+          failedAtRef.current.set(key, Date.now());
         })
         .finally(() => {
           if (activeRef.current === controller) activeRef.current = null;

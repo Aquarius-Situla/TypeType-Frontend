@@ -1,9 +1,15 @@
 import { expect, test } from "bun:test";
-import { shouldPreloadAutoplayTarget } from "../src/lib/autoplay-preload";
+import { canRetryAutoplayPreload, shouldPreloadAutoplayTarget } from "../src/lib/autoplay-preload";
 
 test("preloads the autoplay target during the final playback window", () => {
   expect(shouldPreloadAutoplayTarget(54_999, 100_000, true, true)).toBe(false);
   expect(shouldPreloadAutoplayTarget(55_000, 100_000, true, true)).toBe(true);
   expect(shouldPreloadAutoplayTarget(99_000, 100_000, false, true)).toBe(false);
   expect(shouldPreloadAutoplayTarget(99_000, 100_000, true, false)).toBe(false);
+});
+
+test("waits before asking a refused autoplay preload again", () => {
+  expect(canRetryAutoplayPreload(undefined, 1_000)).toBe(true);
+  expect(canRetryAutoplayPreload(1_000, 1_250)).toBe(false);
+  expect(canRetryAutoplayPreload(1_000, 31_000)).toBe(true);
 });
