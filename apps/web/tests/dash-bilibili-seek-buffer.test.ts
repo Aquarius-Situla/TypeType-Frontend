@@ -25,6 +25,7 @@ test("uses the chosen Bilibili baseline and keeps the backward cache", () => {
   });
   expect(buildDashStreamingSettings("bilibili").abr).toEqual({
     initialBitrate: { video: 1000 },
+    maxBitrate: { video: 1000 },
     rules: { abandonRequestsRule: { active: false } },
   });
   expect(buildDashStreamingSettings("youtube").abr).toBeUndefined();
@@ -79,18 +80,18 @@ test("keeps the Bilibili seek target short until playback advances without flush
   playing(listeners);
 
   listeners.get("playbackSeeking")?.({ seekTime: 30 });
-  expect(updates).toEqual([buffer(2, 1000)]);
+  expect(updates).toEqual([buffer(15), buffer(2, 1000)]);
   expect(JSON.stringify(updates)).not.toContain("bufferToKeep");
 
   listeners.get("playbackTimeUpdated")?.({ time: 31.6 });
-  expect(updates).toHaveLength(1);
+  expect(updates).toHaveLength(2);
 
   state.paused = false;
   state.seeking = false;
   listeners.get("playbackTimeUpdated")?.({ time: 31.4 });
-  expect(updates).toHaveLength(1);
+  expect(updates).toHaveLength(2);
   listeners.get("playbackTimeUpdated")?.({ time: 31.5 });
-  expect(updates[1]).toEqual(buffer(15));
+  expect(updates[2]).toEqual(buffer(15));
 });
 
 test("a speed change resizes the buffer, but not during a pending seek", () => {
@@ -98,18 +99,18 @@ test("a speed change resizes the buffer, but not during a pending seek", () => {
   attachBilibiliSeekBuffer(player, (rate) => bilibiliBufferSeconds("normal", rate));
 
   listeners.get("playbackRateChanged")?.({});
-  expect(updates).toEqual([buffer(30)]);
+  expect(updates).toEqual([buffer(30, 1000)]);
   playing(listeners);
 
   listeners.get("playbackSeeking")?.({ seekTime: 10 });
   state.rate = 4;
   listeners.get("playbackRateChanged")?.({});
-  expect(updates).toEqual([buffer(30), buffer(2, 1000)]);
+  expect(updates).toEqual([buffer(30, 1000), buffer(30), buffer(2, 1000)]);
 
   state.paused = false;
   state.seeking = false;
   listeners.get("playbackTimeUpdated")?.({ time: 11.5 });
-  expect(updates[2]).toEqual(buffer(60));
+  expect(updates[3]).toEqual(buffer(60));
 });
 
 test("a seek switches to the best quality under the light cap at once", () => {
@@ -131,4 +132,14 @@ test("the start position seek keeps the quality the first segment is loading in"
 
   expect(switches).toEqual([]);
   expect(updates).toEqual([]);
+});
+
+test("the first playback lifts the start quality cap once", () => {
+  const { player, listeners, updates } = fakePlayer();
+  attachBilibiliSeekBuffer(player, (rate) => bilibiliBufferSeconds("normal", rate));
+
+  playing(listeners);
+  playing(listeners);
+
+  expect(updates).toEqual([buffer(15)]);
 });

@@ -40,9 +40,15 @@ export function attachBilibiliSeekBuffer(
   let pendingSeekTime: number | null = null;
   let started = false;
   const restore = () =>
-    updateForwardBuffer(player, steadySeconds(player.getPlaybackRate()), NO_BITRATE_CAP);
+    updateForwardBuffer(
+      player,
+      steadySeconds(player.getPlaybackRate()),
+      started ? NO_BITRATE_CAP : BILIBILI_LIGHT_KBPS,
+    );
   player.on("playbackPlaying", () => {
+    if (started) return;
     started = true;
+    restore();
   });
   player.on(
     "playbackSeeking",

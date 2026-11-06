@@ -46,8 +46,12 @@ const loadHlsLibrary = (): Promise<HlsLibraryModule> => {
 };
 
 // The server already races mirrors for a slow Bilibili range; abandoning it restarts the segment from zero.
+// The start quality holds until playback starts: dash.js picks again on the start position seek, from
+// the speed of a first segment the server often answers from memory, and that switch can leave
+// Chrome seeking forever. attachBilibiliSeekBuffer lifts the cap.
 const BILIBILI_ABR = {
   initialBitrate: { video: BILIBILI_LIGHT_KBPS },
+  maxBitrate: { video: BILIBILI_LIGHT_KBPS },
   rules: { abandonRequestsRule: { active: false } },
 } as const;
 
