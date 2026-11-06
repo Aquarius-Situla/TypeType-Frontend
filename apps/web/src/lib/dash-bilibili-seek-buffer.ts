@@ -38,11 +38,18 @@ export function attachBilibiliSeekBuffer(
   steadySeconds: (playbackRate: number) => number,
 ): void {
   let pendingSeekTime: number | null = null;
+  let started = false;
   const restore = () =>
     updateForwardBuffer(player, steadySeconds(player.getPlaybackRate()), NO_BITRATE_CAP);
+  player.on("playbackPlaying", () => {
+    started = true;
+  });
   player.on(
     "playbackSeeking",
     (event: dashjs.PlaybackSeekingEvent) => {
+      // The start position seek happens while the first segment loads: switching quality then
+      // abandons it, and Chrome can stay seeking forever. The start quality is light already.
+      if (!started) return;
       if (event.seekTime === null || !Number.isFinite(event.seekTime)) return;
       pendingSeekTime = event.seekTime;
       updateForwardBuffer(player, SEEK_BUFFER_SECONDS, BILIBILI_LIGHT_KBPS);

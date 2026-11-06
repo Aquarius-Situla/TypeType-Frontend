@@ -69,9 +69,14 @@ function fakePlayer(rate = 1) {
   return { player, listeners, updates, state, switches };
 }
 
+function playing(listeners: Map<string, (event: unknown) => void>) {
+  listeners.get("playbackPlaying")?.({});
+}
+
 test("keeps the Bilibili seek target short until playback advances without flushing cache", () => {
   const { player, listeners, updates, state } = fakePlayer();
   attachBilibiliSeekBuffer(player, (rate) => bilibiliBufferSeconds("normal", rate));
+  playing(listeners);
 
   listeners.get("playbackSeeking")?.({ seekTime: 30 });
   expect(updates).toEqual([buffer(2, 1000)]);
@@ -94,6 +99,7 @@ test("a speed change resizes the buffer, but not during a pending seek", () => {
 
   listeners.get("playbackRateChanged")?.({});
   expect(updates).toEqual([buffer(30)]);
+  playing(listeners);
 
   listeners.get("playbackSeeking")?.({ seekTime: 10 });
   state.rate = 4;
@@ -109,9 +115,20 @@ test("a speed change resizes the buffer, but not during a pending seek", () => {
 test("a seek switches to the best quality under the light cap at once", () => {
   const { player, listeners, switches } = fakePlayer();
   attachBilibiliSeekBuffer(player, (rate) => bilibiliBufferSeconds("normal", rate));
+  playing(listeners);
 
   listeners.get("playbackSeeking")?.({ seekTime: 30 });
   listeners.get("playbackSeeking")?.({ seekTime: 60 });
 
   expect(switches).toEqual(["v2"]);
+});
+
+test("the start position seek keeps the quality the first segment is loading in", () => {
+  const { player, listeners, updates, switches } = fakePlayer();
+  attachBilibiliSeekBuffer(player, (rate) => bilibiliBufferSeconds("normal", rate));
+
+  listeners.get("playbackSeeking")?.({ seekTime: 0 });
+
+  expect(switches).toEqual([]);
+  expect(updates).toEqual([]);
 });
