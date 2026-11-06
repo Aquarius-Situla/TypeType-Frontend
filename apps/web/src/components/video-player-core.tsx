@@ -9,6 +9,7 @@ import {
 import { recordClientEvent } from "../lib/client-debug-log";
 import { attachBilibiliSeekBuffer } from "../lib/dash-bilibili-seek-buffer";
 import { attachDashPlaybackDiagnostics } from "../lib/dash-playback-diagnostics";
+import { attachDashPlaybackStallRecovery } from "../lib/dash-playback-stall-recovery";
 import { notifyDashPlayer, setDashPlayer } from "../lib/dash-player-store";
 import { installDashQualityCompat } from "../lib/dash-quality-compat";
 import type { Provider } from "../lib/provider";
@@ -110,6 +111,7 @@ function configureDashPlayer(
     streaming: buildDashStreamingSettings(sourceProvider),
   });
   if (sourceProvider === "bilibili") attachBilibiliSeekBuffer(player, bilibiliSteadySeconds);
+  if (sourceProvider === "bilibili") attachDashPlaybackStallRecovery(player, library);
   notifyDashPlayer();
 }
 
