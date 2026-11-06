@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import {
   clampPlayerVolume,
   matchesPlayerVolume,
+  nextVolumeRestoreStep,
   type PlayerVolumeState,
 } from "../lib/player-volume-state";
 import { useMediaPlayer, useMediaRemote, useMediaState } from "../lib/vidstack";
@@ -38,13 +39,14 @@ export function VolumeRestorer({
   const mutedRef = useRef(muted);
   volumeRef.current = volume;
   mutedRef.current = muted;
+  const onVolumeChangeRef = useRef(onVolumeChange);
+  onVolumeChangeRef.current = onVolumeChange;
   const pendingTargetRef = useRef<PlayerVolumeState | null>(null);
   const restoredTargetRef = useRef<RestoreState | null>(null);
 
   useEffect(() => {
     if (!settingsReady) {
       pendingTargetRef.current = null;
-      restoredTargetRef.current = null;
       return;
     }
     const target = { volume: clampPlayerVolume(initialVolume), muted: initialMuted };
@@ -56,14 +58,18 @@ export function VolumeRestorer({
     const root = player?.el;
     if (!root?.isConnected) return;
     const restored = restoredTargetRef.current;
-    if (
-      restored?.root === root &&
-      restored.sourceKey === sourceKey &&
-      matchesPlayerVolume(restored.target, target)
-    ) {
+    const current = { volume: volumeRef.current, muted: mutedRef.current };
+    const step = nextVolumeRestoreStep(
+      restored?.root === root && restored.sourceKey === sourceKey,
+      current,
+      target,
+    );
+    if (step === "keep") return;
+    if (step === "adopt") {
+      onVolumeChangeRef.current?.(current.volume, current.muted);
       return;
     }
-    if (matchesPlayerVolume({ volume: volumeRef.current, muted: mutedRef.current }, target)) {
+    if (step === "matched") {
       pendingTargetRef.current = null;
       restoredTargetRef.current = { root, sourceKey, target };
       return;
