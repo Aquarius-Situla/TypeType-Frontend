@@ -12,7 +12,7 @@ export function shouldPreloadAutoplayTarget(
 
 // A refused preload (the server paces background requests) is asked again only after a pause:
 // playback reports its position several times a second.
-export const AUTOPLAY_PRELOAD_RETRY_MS = 30_000;
+const AUTOPLAY_PRELOAD_RETRY_MS = 30_000;
 
 export function canRetryAutoplayPreload(failedAt: number | undefined, now: number): boolean {
   return failedAt === undefined || now - failedAt >= AUTOPLAY_PRELOAD_RETRY_MS;

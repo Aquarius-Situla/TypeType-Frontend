@@ -21,6 +21,10 @@ import type { MediaSrc } from "../lib/vidstack";
 import type { VideoStream } from "../types/stream";
 import { useInstance } from "./use-instance";
 
+// SABR feeds the player itself: one shared empty source, so the player is not handed a new one on
+// every render.
+const SABR_PLACEHOLDER_SRC: MediaSrc = { src: "", type: "video/mp4" };
+
 type UsePlayerErrorReturn = {
   manifestSrc: MediaSrc;
   manifestLoading: boolean;
@@ -106,7 +110,7 @@ export function usePlayerError(
       bilibiliVariant,
     ],
   );
-  const manifestSrc: MediaSrc = sabrSelected ? { src: "", type: "video/mp4" } : fallbackSrc;
+  const manifestSrc: MediaSrc = sabrSelected ? SABR_PLACEHOLDER_SRC : fallbackSrc;
   const missingYoutubeLiveHls = isYoutubeLive && !stream.hlsUrl;
   const handleError = useCallback(() => {
     if (

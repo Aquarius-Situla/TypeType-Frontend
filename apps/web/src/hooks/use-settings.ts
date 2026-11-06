@@ -6,10 +6,11 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { fetchSettings, updateSettings } from "../lib/api-user";
 import { EMPTY_CAPTION_STYLES } from "../lib/caption-styles";
 import { readStoredLandingSettings, syncStoredLandingSettings } from "../lib/default-landing";
+import { type ContentSnapshot, keepSameContent } from "../lib/same-content";
 import { readSettingsCache, writeSettingsCache } from "../lib/settings-cache";
 import { SettingsWriteQueue } from "../lib/settings-write-queue";
 import { DEFAULT_SPONSORBLOCK_CATEGORY_ACTIONS } from "../lib/sponsorblock-settings";
@@ -150,6 +151,7 @@ export function useSettings({ forceAnonymous = false }: UseSettingsOptions = {})
   const userId = me?.id ?? null;
   const useAccountSettings = isAuthed && !forceAnonymous;
   const queryKey = ["settings", userId] as const;
+  const settingsRef = useRef<ContentSnapshot<SettingsItem> | null>(null);
 
   const query = useQuery({
     queryKey,
@@ -242,10 +244,13 @@ export function useSettings({ forceAnonymous = false }: UseSettingsOptions = {})
   };
 
   const baseSettings = query.data ?? readCachedSettings(userId);
-  const settings = withLocalSettings(
-    baseSettings ? { ...DEFAULTS, ...baseSettings } : DEFAULTS,
-    userId,
+  // The player reacts to a new settings object: a fresh copy on every render made the watch page
+  // and the persistent player re-render each other until React gave up.
+  settingsRef.current = keepSameContent(
+    settingsRef.current,
+    withLocalSettings(baseSettings ? { ...DEFAULTS, ...baseSettings } : DEFAULTS, userId),
   );
+  const settings = settingsRef.current.value;
 
   return { query, update, settings, settingsReady };
 }
