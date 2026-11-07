@@ -83,6 +83,11 @@ export function consumeSabrSeekTarget(video: HTMLVideoElement): number | null {
   return target === undefined ? null : Math.round(target * 1000);
 }
 
+export function isPendingSabrSeekTarget(video: HTMLVideoElement, seconds: number): boolean {
+  const target = pendingSeekTargetByVideo.get(video);
+  return target !== undefined && Math.abs(target - seconds) <= 0.25;
+}
+
 export function requestSabrVidstackPlayback(
   video: HTMLVideoElement,
   playing: boolean,
