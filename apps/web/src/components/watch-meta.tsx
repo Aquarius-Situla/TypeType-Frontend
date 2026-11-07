@@ -17,7 +17,7 @@ export function WatchMeta({ stream, showComments = true, onSeekTimestamp, audioO
   return (
     <>
       <WatchInfo stream={stream} />
-      <BiliBiliSessionBanner key={stream.id} />
+      <BiliBiliSessionBanner key={`session-${stream.id}`} />
       <WatchActions stream={stream} audioOnly={audioOnly} />
       {stream.description && (
         <WatchDescription
@@ -28,7 +28,11 @@ export function WatchMeta({ stream, showComments = true, onSeekTimestamp, audioO
         />
       )}
       {showComments && (
-        <WatchComments key={stream.id} videoUrl={stream.id} onSeekTimestamp={onSeekTimestamp} />
+        <WatchComments
+          key={`comments-${stream.id}`}
+          videoUrl={stream.id}
+          onSeekTimestamp={onSeekTimestamp}
+        />
       )}
     </>
   );
