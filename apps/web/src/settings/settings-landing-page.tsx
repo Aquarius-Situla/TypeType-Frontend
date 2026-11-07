@@ -3,6 +3,7 @@ import { m } from "../paraglide/messages.js";
 import { SettingsDiscoveryToggles } from "./settings-content-toggles";
 import { SettingsLayoutPreferences } from "./settings-layout";
 import { SettingsPlayerColor } from "./settings-player-color";
+import { SettingsSeekbarIcon } from "./settings-seekbar-icon";
 
 function landingOptions() {
   return [
@@ -45,6 +46,7 @@ export function SettingsLandingPage() {
       </div>
       <SettingsLayoutPreferences />
       <SettingsPlayerColor />
+      <SettingsSeekbarIcon />
       <div className="divide-y divide-border border-y border-border">
         <SettingsDiscoveryToggles />
       </div>
