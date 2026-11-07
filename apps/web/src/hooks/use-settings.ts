@@ -112,6 +112,8 @@ const DEFAULTS: SettingsItem = {
   hideMembersOnlyContent: false,
   accessMode: "unrestricted",
   captionStyles: EMPTY_CAPTION_STYLES,
+  seekbarIcon: "typetype",
+  seekbarIconUrl: "",
 };
 
 function readAudioOnlyPlayback(): boolean | null {

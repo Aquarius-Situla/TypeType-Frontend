@@ -148,7 +148,11 @@ export type SettingsItem = {
   hideMembersOnlyContent: boolean;
   accessMode: AccessMode;
   captionStyles: CaptionStyles;
+  seekbarIcon: SeekbarIcon;
+  seekbarIconUrl: string;
 };
+
+export type SeekbarIcon = "typetype" | "custom" | "none";
 
 export type SearchHistoryItem = {
   id: string;

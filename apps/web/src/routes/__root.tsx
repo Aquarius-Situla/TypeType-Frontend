@@ -13,6 +13,7 @@ import { useEarlyWatchStream } from "../hooks/use-early-watch-stream";
 import { useInstance } from "../hooks/use-instance";
 import { useMobile } from "../hooks/use-mobile";
 import { useRegisterStatus } from "../hooks/use-register-status";
+import { useSeekbarIcon } from "../hooks/use-seekbar-icon";
 import { useSessionActivityReporting } from "../hooks/use-session-activity-reporting";
 import {
   isAdminRoute,
@@ -76,6 +77,7 @@ function RootLayoutContent() {
   useEffect(() => subscribeAuthStorage(), []);
 
   useEffect(() => applyPlayerColor(playerColor), [playerColor]);
+  useSeekbarIcon();
 
   useEffect(() => {
     applyTheme(theme);
