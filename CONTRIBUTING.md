@@ -12,7 +12,7 @@ Changes to the MSE and SABR engine belong in [TypeType-Player](https://github.co
 
 ## Set up the project
 
-Use Bun 1.3.14 and a running TypeType-Server.
+Use Bun 1.4.4 and a running TypeType-Server.
 
 ```sh
 git switch dev

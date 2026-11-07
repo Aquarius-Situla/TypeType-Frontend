@@ -39,7 +39,7 @@ Playback engine internals belong in [TypeType-Player](https://github.com/TypeTyp
 
 Requirements:
 
-- Bun 1.3.14
+- Bun 1.4.4
 - A running [TypeType-Server](https://github.com/TypeType-Video/TypeType-Server)
 
 ```sh
