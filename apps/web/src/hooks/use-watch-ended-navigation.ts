@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { refreshedAutoplayTarget } from "../lib/autoplay-target-refresh";
 import type { PlaybackQueueEntry } from "../lib/playback-queue";
 import { upcomingPlaylistDisplay } from "../lib/upcoming-playlist-display";
 import { markWatchAutoplayIntent } from "../lib/watch-autoplay-intent";
@@ -138,11 +139,7 @@ export function useWatchEndedNavigation({
 
   useEffect(() => {
     if (nextTarget?.id !== dismissedTargetIdRef.current) dismissedTargetIdRef.current = "";
-    setTarget((current) => {
-      if (!current) return null;
-      if (!nextTarget || current.id !== nextTarget.id) return null;
-      return nextTarget;
-    });
+    setTarget((current) => refreshedAutoplayTarget(current, nextTarget));
   }, [nextTarget]);
 
   useEffect(() => {
