@@ -184,6 +184,13 @@ export type CommentsPageResponse = {
   commentsDisabled: boolean;
 };
 
+export type CommentSearchResponse = {
+  comments: CommentItem[];
+  nextpage: string | null;
+  scannedPages: number;
+  commentsDisabled: boolean;
+};
+
 export type BulletCommentItem = {
   text: string;
   argbColor: number;
