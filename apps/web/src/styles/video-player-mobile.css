@@ -1,3 +1,32 @@
+[data-media-player],
+[data-media-player] *,
+.typetype-player-surface,
+.typetype-player-surface * {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+[data-media-player] video,
+.typetype-player-surface video,
+.typetype-player-surface media-provider video,
+.typetype-player-surface .vds-media-provider video,
+.typetype-player-surface [data-media-provider] video:not([controls]) {
+  -webkit-touch-callout: none;
+  pointer-events: none;
+}
+
+[data-media-player] img,
+[data-media-player] .vds-poster,
+.typetype-player-surface img,
+.typetype-player-surface .vds-poster,
+.typetype-player-surface media-poster {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}
+
 @media (max-width: 639px) {
   .vds-video-layout .vds-controls-group {
     padding-inline: 0.5rem;

@@ -5,6 +5,7 @@ import {
   exceededDragThreshold,
   isFastForwardPointer,
   isInteractiveTarget,
+  shouldSuppressContextMenu,
 } from "../components/player-hotkeys-utils";
 import { useMediaPlayer, useMediaRemote, useMediaState } from "../lib/vidstack";
 import { useHoldFastForward } from "./use-hold-fast-forward";
@@ -87,6 +88,9 @@ export function usePlayerGestures(canSeek: boolean, enabled = true) {
       if (wasScrubbing || wasHolding) {
         suppressTapRef.current = true;
         if (event.pointerType === "mouse") consumePointerEvent(event);
+        window.setTimeout(() => {
+          suppressTapRef.current = false;
+        }, 400);
       }
     }
 
@@ -98,7 +102,19 @@ export function usePlayerGestures(canSeek: boolean, enabled = true) {
     }
 
     function onContextMenu(event: MouseEvent) {
-      if (!isActive() || isInteractiveTarget(event.target)) return;
+      const target = event.target;
+      const inPlayer = Boolean(
+        (el && target instanceof Node && el.contains(target)) ||
+          (target instanceof Element &&
+            target.closest(".typetype-player-surface, [data-media-player]")),
+      );
+      const isHolding =
+        pointerIdRef.current !== null ||
+        isActive() ||
+        scrubbingRef.current ||
+        suppressTapRef.current;
+
+      if (!shouldSuppressContextMenu(target, inPlayer, isHolding)) return;
       event.preventDefault();
       event.stopImmediatePropagation();
     }
@@ -122,7 +138,7 @@ export function usePlayerGestures(canSeek: boolean, enabled = true) {
       endScrub(false);
       restore(false);
     };
-  }, [canSeek, enabled, player, remote, start, restore, isActive]);
+  }, [canSeek, enabled, player, player?.el, remote, start, restore, isActive]);
 
   return holding;
 }

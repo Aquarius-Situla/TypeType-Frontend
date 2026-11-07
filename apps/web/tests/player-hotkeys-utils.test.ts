@@ -4,6 +4,7 @@ import {
   isPlaybackToggleShortcut,
   keyboardSeekOffset,
   nextKeyboardSeekTarget,
+  shouldSuppressContextMenu,
 } from "../src/components/player-hotkeys-utils";
 
 test("recognizes non-HTML descendants of interactive controls", () => {
@@ -50,4 +51,40 @@ test("accumulates rapid arrow seeks from the last requested target", () => {
 
   expect([first.position, second.position, third.position]).toEqual([20, 30, 40]);
   expect(nextKeyboardSeekTarget(25, 120, 10, third, 4_000).position).toBe(35);
+});
+
+test("shouldSuppressContextMenu guards player surface and active holds while sparing interactive targets", () => {
+  const elementDescriptor = Object.getOwnPropertyDescriptor(globalThis, "Element");
+  class TestElement extends EventTarget {
+    constructor(private readonly interactive: boolean) {
+      super();
+    }
+    closest(selector: string) {
+      return this.interactive && selector.includes("button") ? this : null;
+    }
+  }
+  Object.defineProperty(globalThis, "Element", { configurable: true, value: TestElement });
+  try {
+    const interactiveTarget = new TestElement(true);
+    const normalTarget = new TestElement(false);
+
+    // Never suppresses context menu on interactive controls (buttons, links, inputs)
+    expect(shouldSuppressContextMenu(interactiveTarget, true, true)).toBe(false);
+    expect(shouldSuppressContextMenu(interactiveTarget, true, false)).toBe(false);
+    expect(shouldSuppressContextMenu(interactiveTarget, false, true)).toBe(false);
+
+    // Suppresses anywhere inside player surface
+    expect(shouldSuppressContextMenu(normalTarget, true, false)).toBe(true);
+
+    // Suppresses when user is holding / scrubbing / tap-suppressing
+    expect(shouldSuppressContextMenu(normalTarget, false, true)).toBe(true);
+    expect(shouldSuppressContextMenu(null, false, true)).toBe(true);
+
+    // Does not suppress outside player when not holding
+    expect(shouldSuppressContextMenu(normalTarget, false, false)).toBe(false);
+    expect(shouldSuppressContextMenu(null, false, false)).toBe(false);
+  } finally {
+    if (elementDescriptor) Object.defineProperty(globalThis, "Element", elementDescriptor);
+    else Reflect.deleteProperty(globalThis, "Element");
+  }
 });
