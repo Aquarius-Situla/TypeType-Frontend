@@ -12,7 +12,7 @@
     },
     "apps/web": {
       "name": "@typetype/web",
-      "version": "1.13.1",
+      "version": "1.15.0",
       "dependencies": {
         "@tanstack/react-query": "^5.104.5",
         "@tanstack/react-router": "^1.170.46",
@@ -45,6 +45,9 @@
         "vite": "^8.3.5",
       },
     },
+  },
+  "patchedDependencies": {
+    "@vidstack/react@1.15.7": "patches/@vidstack%2Freact@1.15.7.patch",
   },
   "overrides": {
     "@babel/core": "^7.29.7",
