@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { requestSabrVidstackPlayback } from "../lib/sabr-vidstack-bridge";
+import { requestSabrSeek, requestSabrVidstackPlayback } from "../lib/sabr-vidstack-bridge";
 import { useMediaRemote, useMediaState } from "../lib/vidstack";
 import { MediaSessionPositionSync } from "./media-session-position-sync";
 
@@ -9,6 +9,7 @@ type Props = {
   artwork?: string;
   canSeek?: boolean;
   isLive?: boolean;
+  seeking?: boolean;
   sabrVideo?: HTMLVideoElement | null;
   onPreviousTrack?: () => void;
   onNextTrack?: () => void;
@@ -30,6 +31,7 @@ export function MediaSessionSync({
   artwork,
   canSeek = true,
   isLive = false,
+  seeking = false,
   sabrVideo = null,
   onPreviousTrack,
   onNextTrack,
@@ -71,21 +73,26 @@ export function MediaSessionSync({
       setPlayback(false);
     });
     if (canSeek) {
+      const seekTo = (targetSeconds: number) => {
+        currentTimeRef.current = targetSeconds;
+        if (sabrVideo && requestSabrSeek(sabrVideo, targetSeconds)) return;
+        remote.seek(targetSeconds);
+      };
       safeSetActionHandler(session, "seekbackward", (details) => {
         const step = details.seekOffset ?? 10;
         const target = Math.max(0, currentTimeRef.current - step);
-        remote.seek(target);
+        seekTo(target);
       });
       safeSetActionHandler(session, "seekforward", (details) => {
         const step = details.seekOffset ?? 10;
         const max = durationRef.current > 0 ? durationRef.current : Number.POSITIVE_INFINITY;
         const target = Math.min(max, currentTimeRef.current + step);
-        remote.seek(target);
+        seekTo(target);
       });
       safeSetActionHandler(session, "seekto", (details) => {
         const next = details.seekTime;
         if (typeof next !== "number" || Number.isNaN(next)) return;
-        remote.seek(next);
+        seekTo(next);
       });
     }
     safeSetActionHandler(session, "stop", () => {
@@ -107,8 +114,8 @@ export function MediaSessionSync({
 
   useEffect(() => {
     if (typeof navigator === "undefined" || !("mediaSession" in navigator)) return;
-    navigator.mediaSession.playbackState = paused ? "paused" : "playing";
-  }, [paused]);
+    navigator.mediaSession.playbackState = paused && !seeking ? "paused" : "playing";
+  }, [paused, seeking]);
 
   return <MediaSessionPositionSync currentTimeRef={currentTimeRef} durationRef={durationRef} />;
 }

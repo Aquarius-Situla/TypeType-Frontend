@@ -23,7 +23,7 @@ export function subscribeSabrSeekTarget(
   return () => listeners.delete(listener);
 }
 
-function announceSabrSeekTarget(video: HTMLVideoElement, seconds: number): void {
+export function announceSabrSeekTarget(video: HTMLVideoElement, seconds: number): void {
   for (const listener of seekTargetListeners.get(video) ?? []) listener(seconds);
 }
 

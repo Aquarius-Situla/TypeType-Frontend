@@ -38,12 +38,14 @@ export function MediaSessionPositionSync({ currentTimeRef, durationRef }: Props)
       if (!media) return false;
       const sync = () => syncPosition(media);
       media.addEventListener("timeupdate", sync);
+      media.addEventListener("seeked", sync);
       media.addEventListener("durationchange", sync);
       media.addEventListener("ratechange", sync);
       media.addEventListener("loadedmetadata", sync);
       sync();
       cleanup = () => {
         media.removeEventListener("timeupdate", sync);
+        media.removeEventListener("seeked", sync);
         media.removeEventListener("durationchange", sync);
         media.removeEventListener("ratechange", sync);
         media.removeEventListener("loadedmetadata", sync);
