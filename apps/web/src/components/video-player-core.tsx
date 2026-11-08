@@ -12,11 +12,13 @@ import { attachDashPlaybackDiagnostics } from "../lib/dash-playback-diagnostics"
 import { attachDashPlaybackStallRecovery } from "../lib/dash-playback-stall-recovery";
 import { notifyDashPlayer, setDashPlayer } from "../lib/dash-player-store";
 import { installDashQualityCompat } from "../lib/dash-quality-compat";
+import { niconicoBufferSeconds } from "../lib/niconico-buffer";
 import type { Provider } from "../lib/provider";
 import type { MediaProviderAdapter } from "../lib/vidstack";
 import { isDASHProvider, isHLSProvider, Track, useMediaState } from "../lib/vidstack";
 import { useAuthStore } from "../stores/auth-store";
 import { useBilibiliBufferStore } from "../stores/bilibili-buffer-store";
+import { useNiconicoBufferStore } from "../stores/niconico-buffer-store";
 
 type DashRequestInterceptor = Parameters<dashjs.MediaPlayerClass["addRequestInterceptor"]>[0];
 
@@ -67,6 +69,10 @@ const STREAMING_BUFFER_POLICY = {
 
 function bilibiliSteadySeconds(playbackRate = 1): number {
   return bilibiliBufferSeconds(useBilibiliBufferStore.getState().level, playbackRate);
+}
+
+function niconicoSteadySeconds(playbackRate = 1): number {
+  return niconicoBufferSeconds(useNiconicoBufferStore.getState().level, playbackRate);
 }
 
 export function buildDashStreamingSettings(sourceProvider?: Provider) {
@@ -130,9 +136,16 @@ export function onProviderChange(
     let providerLibrary = hlsProviderLibraries.get(provider);
     if (!providerLibrary) {
       providerLibrary = loadHlsLibrary().then((library) => {
+        const niconicoSeconds = niconicoSteadySeconds();
+        const policy = {
+          ...STREAMING_BUFFER_POLICY,
+          steadyBufferMs: niconicoSeconds * 1000,
+          maxBufferMs: Math.min(120_000, Math.max(60_000, niconicoSeconds * 1500)),
+          backBufferMs: niconicoSeconds * 1000,
+        };
         provider.config = createHlsConfig({
           FetchLoader: library.FetchLoader,
-          policy: STREAMING_BUFFER_POLICY,
+          policy,
         });
         return library;
       });
@@ -140,7 +153,28 @@ export function onProviderChange(
     }
     provider.library = () => providerLibrary;
     provider.onInstance((hls) => {
+      const syncHlsBuffer = () => {
+        const video = hls.media;
+        const rate = video?.playbackRate ?? 1;
+        const forwardSec = niconicoSteadySeconds(rate);
+        hls.config.maxBufferLength = forwardSec;
+        hls.config.maxMaxBufferLength = Math.min(120, Math.max(60, forwardSec * 1.5));
+        hls.config.backBufferLength = forwardSec;
+      };
       const events = (hls.constructor as typeof Hls).Events;
+      hls.on(events.MEDIA_ATTACHED, (_, data) => {
+        data.media.addEventListener("ratechange", syncHlsBuffer);
+        syncHlsBuffer();
+      });
+      if (hls.media) {
+        hls.media.addEventListener("ratechange", syncHlsBuffer);
+        syncHlsBuffer();
+      }
+      const unsub = useNiconicoBufferStore.subscribe(syncHlsBuffer);
+      hls.on(events.DESTROYING, () => {
+        unsub();
+        hls.media?.removeEventListener("ratechange", syncHlsBuffer);
+      });
       hls.on(events.ERROR, (_, data) => {
         recordClientEvent("player.hls_transport_error", {
           fatal: data.fatal,

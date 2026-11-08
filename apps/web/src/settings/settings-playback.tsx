@@ -9,7 +9,9 @@ import {
 } from "../lib/playback-speed";
 import { m } from "../paraglide/messages.js";
 import { SettingsBilibiliBuffer } from "./settings-bilibili-buffer";
+import { SettingsNiconicoBuffer } from "./settings-niconico-buffer";
 import { PLAYBACK_ROW, PlaybackNumberRow, PlaybackToggleRow } from "./settings-playback-row";
+import { SettingsYoutubeBuffer } from "./settings-youtube-buffer";
 
 const SECTION_LABEL = "text-xs font-medium text-fg-soft uppercase tracking-wider px-1";
 const GROUP = "divide-y divide-border border-y border-border";
@@ -188,6 +190,8 @@ export function SettingsPlayback() {
           />
         </div>
         <SettingsBilibiliBuffer />
+        <SettingsYoutubeBuffer />
+        <SettingsNiconicoBuffer />
       </div>
     </section>
   );
