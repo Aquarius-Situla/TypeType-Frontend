@@ -19,7 +19,12 @@ import { observeSabrMsePlayback } from "../lib/sabr-mse-playback-trace";
 import * as sabrNativePause from "../lib/sabr-native-pause";
 import { SabrPlaybackRatePreference } from "../lib/sabr-playback-rate-preference";
 import { isAbortError } from "../lib/sabr-playback-retry";
-import { cancelPendingSabrSeek, positionMs, runSabrSeek } from "../lib/sabr-player-seek";
+import {
+  cancelPendingSabrSeek,
+  isMediaTimeBuffered,
+  positionMs,
+  runSabrSeek,
+} from "../lib/sabr-player-seek";
 import { SabrVideoHandoff } from "../lib/sabr-video-handoff";
 import {
   captureSabrVideoHandoffCleanupPosition as captureCleanupPosition,
@@ -208,9 +213,12 @@ export function SabrMsePlayer({
         video.autoplay = false;
         return engine.pause();
       },
-      seek: (seconds) => {
+      seek: (seconds, options) => {
         const targetMs = Math.max(0, Math.round(seconds * 1000));
-        runSabrSeek(engine, targetMs, seekingRef, reportError, latestHandlers().onSeekStateChange);
+        const quiet = options?.quiet ?? isMediaTimeBuffered(video, seconds);
+        runSabrSeek(engine, targetMs, seekingRef, reportError, latestHandlers().onSeekStateChange, {
+          quiet,
+        });
       },
       isTransitioning: () => seekingRef.current,
       isApplyingTransientMediaState: () => engine.isApplyingTransientMediaState(),
@@ -228,7 +236,10 @@ export function SabrMsePlayer({
       });
     latestHandlers().onSeekReady((seconds) => {
       const targetMs = Math.max(0, Math.round(seconds * 1000));
-      runSabrSeek(engine, targetMs, seekingRef, reportError, latestHandlers().onSeekStateChange);
+      const quiet = isMediaTimeBuffered(video, seconds);
+      runSabrSeek(engine, targetMs, seekingRef, reportError, latestHandlers().onSeekStateChange, {
+        quiet,
+      });
     });
     latestHandlers().onPositionReaderChange(() => positionMs(video));
     return () => {

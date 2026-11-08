@@ -3,7 +3,7 @@ import type { TypeTypeMsePlayer } from "@typetype/mse";
 export type SabrVidstackControls = {
   play: () => Promise<void>;
   pause: (userInitiated?: boolean) => void;
-  seek: (seconds: number) => void;
+  seek: (seconds: number, options?: { quiet?: boolean }) => void;
   isTransitioning?: () => boolean;
   isApplyingTransientMediaState?: () => boolean;
 };
@@ -62,14 +62,22 @@ export function isSabrPlaybackEventTransient(video: HTMLVideoElement): boolean {
   return video.readyState === 0;
 }
 
-export function requestSabrSeek(video: HTMLVideoElement, seconds: number): boolean {
+export function requestSabrSeek(
+  video: HTMLVideoElement,
+  seconds: number,
+  options?: { quiet?: boolean },
+): boolean {
   const controls = getSabrVidstackControls(video);
   if (!controls || !Number.isFinite(seconds)) return false;
   const target = Math.max(0, seconds);
   pendingSeekTargetByVideo.set(video, target);
   announceSabrSeekTarget(video, target);
   try {
-    controls.seek(target);
+    if (options !== undefined) {
+      controls.seek(target, options);
+    } else {
+      controls.seek(target);
+    }
   } catch (error) {
     pendingSeekTargetByVideo.delete(video);
     throw error;

@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import type { TypeTypeMsePlayer } from "@typetype/mse";
 import {
+  isMediaTimeBuffered,
   runSabrSeek,
   secondsFromMediaSliderPercent,
   secondsFromSliderPercent,
@@ -88,4 +89,55 @@ test("forwards repeated SABR seeks immediately and tracks only the latest", asyn
 
   expect(flag.current).toBe(false);
   expect(states).toEqual([true, false]);
+});
+
+test("isMediaTimeBuffered detects whether timestamp is within buffered ranges", () => {
+  expect(isMediaTimeBuffered(null, 10)).toBe(false);
+  const emptyMedia = { buffered: { length: 0, start: () => 0, end: () => 0 } };
+  expect(isMediaTimeBuffered(emptyMedia, 10)).toBe(false);
+
+  const media = {
+    buffered: {
+      length: 1,
+      start: () => 5,
+      end: () => 20,
+    },
+  };
+
+  expect(isMediaTimeBuffered(media, 4.9)).toBe(false);
+  expect(isMediaTimeBuffered(media, 5.0)).toBe(true);
+  expect(isMediaTimeBuffered(media, 10.0)).toBe(true);
+  expect(isMediaTimeBuffered(media, 19.7)).toBe(true);
+  // Default margin is 0.25s, so 19.8s > (20 - 0.25 = 19.75) is not safe
+  expect(isMediaTimeBuffered(media, 19.8)).toBe(false);
+  expect(isMediaTimeBuffered(media, 25.0)).toBe(false);
+});
+
+test("runSabrSeek with quiet option executes seek without toggling seeking state", async () => {
+  const positions: number[] = [];
+  const states: boolean[] = [];
+  const player = {
+    seek: (position: number) => {
+      positions.push(position);
+      return Promise.resolve();
+    },
+  } as TypeTypeMsePlayer;
+  const flag = { current: false };
+
+  runSabrSeek(
+    player,
+    30_000,
+    flag,
+    () => undefined,
+    (state) => states.push(state),
+    { quiet: true },
+  );
+
+  expect(positions).toEqual([30_000]);
+  expect(flag.current).toBe(false);
+  expect(states).toEqual([]);
+
+  await Promise.resolve();
+  expect(flag.current).toBe(false);
+  expect(states).toEqual([]);
 });

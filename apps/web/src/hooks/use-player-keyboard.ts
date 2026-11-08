@@ -9,6 +9,7 @@ import {
   keyboardSeekOffset,
   nextKeyboardSeekTarget,
 } from "../components/player-hotkeys-utils";
+import { isMediaTimeBuffered } from "../lib/sabr-player-seek";
 import {
   announceSabrSeekTarget,
   requestSabrSeek,
@@ -54,7 +55,10 @@ export function usePlayerKeyboard(
         window.clearTimeout(seekDebounceTimer);
         seekDebounceTimer = null;
         const target = seekTargetRef.current.position;
-        if (sabrVideo && requestSabrSeek(sabrVideo, target)) return;
+        if (sabrVideo) {
+          const quiet = isMediaTimeBuffered(sabrVideo, target);
+          if (requestSabrSeek(sabrVideo, target, { quiet })) return;
+        }
         remote.seek(target);
       }
     }
@@ -97,7 +101,10 @@ export function usePlayerKeyboard(
       seekDebounceTimer = window.setTimeout(() => {
         seekDebounceTimer = null;
         const target = seekTargetRef.current.position;
-        if (sabrVideo && requestSabrSeek(sabrVideo, target)) return;
+        if (sabrVideo) {
+          const quiet = isMediaTimeBuffered(sabrVideo, target);
+          if (requestSabrSeek(sabrVideo, target, { quiet })) return;
+        }
         remote.seek(target);
       }, KEYBOARD_SEEK_DEBOUNCE_MS);
     }

@@ -42,17 +42,36 @@ export function percentFromMediaSeconds(
   return Math.max(0, Math.min(100, ((seconds - start) / (end - start)) * 100));
 }
 
+export function isMediaTimeBuffered(
+  media: Pick<HTMLMediaElement, "buffered"> | null | undefined,
+  targetSeconds: number,
+  marginSeconds = 0.25,
+): boolean {
+  if (!media || !Number.isFinite(targetSeconds)) return false;
+  const ranges = media.buffered;
+  if (!ranges || ranges.length === 0) return false;
+  for (let i = 0; i < ranges.length; i++) {
+    const start = ranges.start(i);
+    const end = ranges.end(i);
+    if (targetSeconds >= start && targetSeconds <= end - marginSeconds) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function runSabrSeek(
   player: TypeTypeMsePlayer | null,
   position: number,
   flag: SeekFlag,
   onError: (error: unknown) => void,
   onSeekingChange?: (seeking: boolean) => void,
+  options?: { quiet?: boolean },
 ) {
   if (!player) return;
   const revision = (seekRevisions.get(flag) ?? 0) + 1;
   seekRevisions.set(flag, revision);
-  if (!flag.current) {
+  if (!flag.current && !options?.quiet) {
     flag.current = true;
     onSeekingChange?.(true);
   }
@@ -63,8 +82,10 @@ export function runSabrSeek(
     })
     .finally(() => {
       if (seekRevisions.get(flag) !== revision) return;
-      flag.current = false;
-      onSeekingChange?.(false);
+      if (flag.current) {
+        flag.current = false;
+        onSeekingChange?.(false);
+      }
     });
 }
 
