@@ -37,20 +37,25 @@ export function findBufferedNudge(
   ranges: readonly TimeRange[],
   currentTime: number,
   attempts = 1,
+  stallAnchorTime: number | null = null,
 ): number | null {
-  for (const range of ranges) {
-    if (currentTime >= range.start && currentTime < range.end) {
-      const remaining = range.end - currentTime;
-      if (remaining > 0.05) {
-        const nudge = Math.min(
-          currentTime + BUFFER_KEYFRAME_NUDGE_SECONDS * attempts,
-          range.end - BUFFER_GAP_JUMP_LEEWAY_SECONDS,
-        );
-        if (nudge > currentTime + BUFFER_GAP_JUMP_LEEWAY_SECONDS) {
-          return nudge;
-        }
-      }
-    }
+  const currentRange = ranges.find((r) => currentTime >= r.start && currentTime < r.end);
+  if (!currentRange || currentRange.end - currentTime <= 0.05) {
+    return null;
+  }
+
+  const baseAnchor = stallAnchorTime ?? currentTime;
+  const maxNudge = currentRange.end - BUFFER_GAP_JUMP_LEEWAY_SECONDS;
+  const nudgeTarget = Math.min(
+    Math.max(
+      baseAnchor + BUFFER_KEYFRAME_NUDGE_SECONDS * attempts,
+      currentTime + BUFFER_KEYFRAME_NUDGE_SECONDS,
+    ),
+    maxNudge,
+  );
+
+  if (nudgeTarget > currentTime + BUFFER_GAP_JUMP_LEEWAY_SECONDS) {
+    return nudgeTarget;
   }
   return null;
 }
@@ -134,7 +139,13 @@ export function attachDashPlaybackStallRecovery(
       return;
     }
 
-    const nudgeTarget = findBufferedNudge(ranges, stallAnchorTime ?? currentTime, attempts);
+    const candidateTarget =
+      (stallAnchorTime ?? currentTime) + BUFFER_KEYFRAME_NUDGE_SECONDS * attempts;
+    if (candidateTarget <= currentTime + BUFFER_GAP_JUMP_LEEWAY_SECONDS) {
+      stallAnchorTime = currentTime;
+    }
+
+    const nudgeTarget = findBufferedNudge(ranges, currentTime, attempts, stallAnchorTime);
     if (nudgeTarget !== null) {
       recordClientEvent("playback.dash_stall_nudge", {
         currentTimeMs: Math.round(currentTime * 1000),
@@ -170,6 +181,12 @@ export function attachDashPlaybackStallRecovery(
     clearTimer();
   };
 
+  const onSeeked = () => {
+    clearTimer();
+    attempts = 0;
+    stallAnchorTime = null;
+  };
+
   const onStallEvent = () => {
     scheduleRecovery();
   };
@@ -178,7 +195,7 @@ export function attachDashPlaybackStallRecovery(
   player.on(events.PLAYBACK_PLAYING, onPlaying);
   player.on(events.PLAYBACK_PAUSED, onPaused);
   player.on(events.PLAYBACK_ENDED, onPaused);
-  player.on(events.PLAYBACK_SEEKED, onStallEvent);
+  player.on(events.PLAYBACK_SEEKED, onSeeked);
   player.on(events.PLAYBACK_WAITING, onStallEvent);
   player.on(events.PLAYBACK_STALLED, onStallEvent);
   player.on(events.BUFFER_EMPTY, onStallEvent);
@@ -190,7 +207,7 @@ export function attachDashPlaybackStallRecovery(
     player.off(events.PLAYBACK_PLAYING, onPlaying);
     player.off(events.PLAYBACK_PAUSED, onPaused);
     player.off(events.PLAYBACK_ENDED, onPaused);
-    player.off(events.PLAYBACK_SEEKED, onStallEvent);
+    player.off(events.PLAYBACK_SEEKED, onSeeked);
     player.off(events.PLAYBACK_WAITING, onStallEvent);
     player.off(events.PLAYBACK_STALLED, onStallEvent);
     player.off(events.BUFFER_EMPTY, onStallEvent);

@@ -51,6 +51,12 @@ test("findBufferedNudge nudges currentTime forward within the current buffered r
   // Not inside any range
   expect(findBufferedNudge(ranges, 5, 1)).toBeNull();
   expect(findBufferedNudge(ranges, 25, 1)).toBeNull();
+
+  // With stallAnchorTime provided:
+  // Stall anchor at 15s, attempt 2: nudges by anchor + 0.24 = 15.24
+  expect(findBufferedNudge(ranges, 15, 2, 15)).toBeCloseTo(15.24, 2);
+  // If currentTime moved past anchor (e.g. at 15.5s), nudge never goes backward:
+  expect(findBufferedNudge(ranges, 15.5, 1, 15)).toBeCloseTo(15.62, 2);
 });
 
 test("readMediaTimeRanges converts DOM TimeRanges accurately", () => {
@@ -255,4 +261,97 @@ test("attachDashPlaybackStallRecovery cancels timer on pause and cleans up on te
   expect(scheduledCallback).not.toBeNull();
   setup.listeners.get("streamTeardownComplete")?.({});
   expect(scheduledCallback).toBeNull();
+});
+
+test("attachDashPlaybackStallRecovery never seeks backward when stalled at edge of buffer", () => {
+  let scheduledCallback: (() => void) | null = null;
+  const mockSchedule = (cb: () => void) => {
+    scheduledCallback = cb;
+    return () => {
+      scheduledCallback = null;
+    };
+  };
+
+  // Buffer ends at 10.02s, video stalled at 10.0s waiting for network
+  const lagSetup = fakeDashPlayer({
+    currentTime: 10.0,
+    buffered: {
+      length: 1,
+      start: () => 5,
+      end: () => 10.02,
+    },
+  });
+
+  const cleanup = attachDashPlaybackStallRecovery(lagSetup.player, lagSetup.library, mockSchedule);
+
+  lagSetup.listeners.get("playbackStalled")?.({});
+  expect(scheduledCallback).not.toBeNull();
+  scheduledCallback?.();
+
+  // Must NOT seek backward (should have 0 seeks!)
+  expect(lagSetup.seeks).toHaveLength(0);
+  cleanup();
+});
+
+test("attachDashPlaybackStallRecovery never seeks backward if currentTime moves past stall anchor", () => {
+  let scheduledCallback: (() => void) | null = null;
+  const mockSchedule = (cb: () => void) => {
+    scheduledCallback = cb;
+    return () => {
+      scheduledCallback = null;
+    };
+  };
+
+  // Video initially stalled at 10s within buffer [5, 20]
+  const advanceSetup = fakeDashPlayer({
+    currentTime: 10.0,
+    buffered: {
+      length: 1,
+      start: () => 5,
+      end: () => 20,
+    },
+  });
+
+  const cleanup = attachDashPlaybackStallRecovery(
+    advanceSetup.player,
+    advanceSetup.library,
+    mockSchedule,
+  );
+
+  advanceSetup.listeners.get("playbackStalled")?.({});
+  scheduledCallback?.();
+  expect(advanceSetup.seeks).toHaveLength(1);
+  expect(advanceSetup.seeks[0]).toBeCloseTo(10.12, 2);
+
+  // Playback advanced to 11.5s
+  advanceSetup.state.currentTime = 11.5;
+  advanceSetup.listeners.get("playbackWaiting")?.({});
+  scheduledCallback?.();
+
+  expect(advanceSetup.seeks).toHaveLength(2);
+  // Must NOT seek back to 10.24, must seek forward beyond 11.5!
+  expect(advanceSetup.seeks[1]).toBeGreaterThanOrEqual(11.5 + 0.12);
+  cleanup();
+});
+
+test("playbackSeeked clears pending stall recovery timer", () => {
+  let scheduledCallback: (() => void) | null = null;
+  const mockSchedule = (cb: () => void) => {
+    scheduledCallback = cb;
+    return () => {
+      scheduledCallback = null;
+    };
+  };
+
+  const setup = fakeDashPlayer({ currentTime: 10 });
+  const cleanup = attachDashPlaybackStallRecovery(setup.player, setup.library, mockSchedule);
+
+  setup.listeners.get("playbackStalled")?.({});
+  expect(scheduledCallback).not.toBeNull();
+
+  // Seeked event fires (e.g. from user seek or player seek)
+  setup.listeners.get("playbackSeeked")?.({});
+  // Pending stall timer should be cleared, not re-scheduled
+  expect(scheduledCallback).toBeNull();
+  cleanup();
 });
