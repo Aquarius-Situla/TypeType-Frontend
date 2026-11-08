@@ -15,6 +15,7 @@ import { useProgress } from "../hooks/use-progress";
 import { useSettings } from "../hooks/use-settings";
 import { useSabrBootstrap, useStream } from "../hooks/use-stream";
 import { bilibiliSessionReturnToForWatch } from "../lib/bilibili-session-route";
+import { parseStartTime } from "../lib/parse-start-time";
 import { preloadPlaybackRuntime } from "../lib/playback-runtime-preload";
 import { beginPlaybackTrace, playbackTraceEvent } from "../lib/playback-trace";
 import { selectProgressiveWatchStream } from "../lib/progressive-watch-stream";
@@ -40,7 +41,7 @@ import {
 import { useWatchNavigationStore } from "../stores/watch-navigation-store";
 
 function WatchPage() {
-  const { v, list, shuffle } = Route.useSearch();
+  const { v, list, shuffle, t } = Route.useSearch();
   const navigate = useNavigate({ from: "/watch" });
   const sourceUrl = toWatchSourceUrl(v);
   const publicParam = toPublicWatchParam(sourceUrl);
@@ -112,12 +113,18 @@ function WatchPage() {
   const addToHistoryRef = useRef(add.mutate);
   addToHistoryRef.current = add.mutate;
   const historyAddedForRef = useRef<string | null>(null);
-  const resumePending = shouldWaitForWatchProgress(
-    isAuthed,
-    progressFetch.isPending,
-    progressFetch.isFetching,
-    progressFetch.data !== undefined,
-  );
+  const initialStartTimeRef = useRef<{ streamId: string; startTime: number } | null>(null);
+  const urlStartTime =
+    typeof t === "string" || typeof t === "number" ? parseStartTime(t) * 1000 : 0;
+  const lastUrlStartTimeRef = useRef(urlStartTime);
+  const resumePending =
+    urlStartTime <= 0 &&
+    shouldWaitForWatchProgress(
+      isAuthed,
+      progressFetch.isPending,
+      progressFetch.isFetching,
+      progressFetch.data !== undefined,
+    );
 
   useEffect(() => {
     beginPlaybackTrace(sourceUrl, "watch_route");
@@ -199,14 +206,27 @@ function WatchPage() {
     );
   }
 
-  const startTime =
-    resolveWatchStartTime({
-      authenticated: isAuthed,
-      progressPending: resumePending,
-      savedPositionMs: progressFetch.data?.position,
-      serverPositionSeconds: activeStream.startPosition,
-      durationSeconds: activeStream.duration,
-    }) ?? 0;
+  if (urlStartTime > 0 && urlStartTime !== lastUrlStartTimeRef.current) {
+    lastUrlStartTimeRef.current = urlStartTime;
+    initialStartTimeRef.current = { streamId: activeStream.id, startTime: urlStartTime };
+  } else if (
+    !initialStartTimeRef.current ||
+    initialStartTimeRef.current.streamId !== activeStream.id
+  ) {
+    const resolved =
+      urlStartTime > 0
+        ? urlStartTime
+        : (resolveWatchStartTime({
+            authenticated: isAuthed,
+            progressPending: resumePending,
+            savedPositionMs: progressFetch.data?.position,
+            serverPositionSeconds: activeStream.startPosition,
+            durationSeconds: activeStream.duration,
+          }) ?? 0);
+    initialStartTimeRef.current = { streamId: activeStream.id, startTime: resolved };
+  }
+
+  const startTime = initialStartTimeRef.current.startTime;
   const navigating = toPublicWatchParam(activeStream.id) !== publicParam;
   const bilibiliReturnTo = bilibiliSessionReturnToForWatch(publicParam, list, shuffle);
   const skeleton = (
@@ -249,6 +269,7 @@ export const Route = createFileRoute("/watch")({
     v: typeof search.v === "string" ? search.v.trim() : "",
     ...(typeof search.list === "string" && search.list ? { list: search.list } : {}),
     ...(typeof search.shuffle === "string" && search.shuffle ? { shuffle: search.shuffle } : {}),
+    ...(search.t != null ? { t: String(search.t) } : {}),
   }),
   component: WatchPage,
 });

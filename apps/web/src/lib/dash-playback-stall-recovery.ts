@@ -88,11 +88,13 @@ export function attachDashPlaybackStallRecovery(
 ): () => void {
   let cancelTimer: (() => void) | null = null;
   let stallAnchorTime: number | null = null;
+  let stallScheduledTime: number | null = null;
   let attempts = 0;
 
   const clearTimer = () => {
     cancelTimer?.();
     cancelTimer = null;
+    stallScheduledTime = null;
   };
 
   const attemptRecovery = () => {
@@ -105,10 +107,19 @@ export function attachDashPlaybackStallRecovery(
       return;
     }
     if (!video || video.paused || video.ended || video.seeking) {
+      stallScheduledTime = null;
       return;
     }
 
     const currentTime = video.currentTime;
+    if (stallScheduledTime !== null && currentTime > stallScheduledTime + 0.15) {
+      attempts = 0;
+      stallAnchorTime = null;
+      stallScheduledTime = null;
+      return;
+    }
+    stallScheduledTime = null;
+
     const ranges = readMediaTimeRanges(video.buffered);
     if (ranges.length === 0) return;
 
@@ -168,6 +179,7 @@ export function attachDashPlaybackStallRecovery(
       return;
     }
     if (!video || video.paused || video.ended || video.seeking) return;
+    stallScheduledTime = video.currentTime;
     cancelTimer = schedule(attemptRecovery, STALL_RECOVERY_DELAY_MS);
   };
 
@@ -187,6 +199,20 @@ export function attachDashPlaybackStallRecovery(
     stallAnchorTime = null;
   };
 
+  const onTimeUpdated = () => {
+    let video: HTMLVideoElement | null = null;
+    try {
+      video = player.getVideoElement();
+    } catch {
+      return;
+    }
+    if (video && stallScheduledTime !== null && video.currentTime > stallScheduledTime + 0.15) {
+      clearTimer();
+      attempts = 0;
+      stallAnchorTime = null;
+    }
+  };
+
   const onStallEvent = () => {
     scheduleRecovery();
   };
@@ -196,6 +222,7 @@ export function attachDashPlaybackStallRecovery(
   player.on(events.PLAYBACK_PAUSED, onPaused);
   player.on(events.PLAYBACK_ENDED, onPaused);
   player.on(events.PLAYBACK_SEEKED, onSeeked);
+  player.on(events.PLAYBACK_TIME_UPDATED, onTimeUpdated);
   player.on(events.PLAYBACK_WAITING, onStallEvent);
   player.on(events.PLAYBACK_STALLED, onStallEvent);
   player.on(events.BUFFER_EMPTY, onStallEvent);
@@ -208,6 +235,7 @@ export function attachDashPlaybackStallRecovery(
     player.off(events.PLAYBACK_PAUSED, onPaused);
     player.off(events.PLAYBACK_ENDED, onPaused);
     player.off(events.PLAYBACK_SEEKED, onSeeked);
+    player.off(events.PLAYBACK_TIME_UPDATED, onTimeUpdated);
     player.off(events.PLAYBACK_WAITING, onStallEvent);
     player.off(events.PLAYBACK_STALLED, onStallEvent);
     player.off(events.BUFFER_EMPTY, onStallEvent);

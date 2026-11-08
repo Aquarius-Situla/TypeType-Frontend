@@ -11,14 +11,24 @@ test("isSeekSettled correctly handles zero currentTime and small targets", () =>
   expect(isSeekSettled(0, 60)).toBe(false);
 });
 
-test("isSeekSettled checks within 2.5s tolerance once playback has started or seek reached target", () => {
-  // Once currentTime > 0:
+test("isSeekSettled checks within keyframe tolerance once playback has started or seek reached target", () => {
+  // Keyframe / GOP tolerance test
   expect(isSeekSettled(1.4, 1.5)).toBe(true);
   expect(isSeekSettled(1.5, 1.5)).toBe(true);
-  expect(isSeekSettled(4.0, 1.5)).toBe(true);
-  expect(isSeekSettled(4.1, 1.5)).toBe(false);
+  expect(isSeekSettled(3.0, 1.5)).toBe(true);
+  expect(isSeekSettled(4.0, 1.5)).toBe(false);
 
+  // Target 60s: accepts a few seconds before on keyframe (<= 5s) and up to 2s after
+  expect(isSeekSettled(55.0, 60)).toBe(true);
+  expect(isSeekSettled(54.9, 60)).toBe(false);
   expect(isSeekSettled(59.5, 60)).toBe(true);
+  expect(isSeekSettled(60.0, 60)).toBe(true);
+  expect(isSeekSettled(61.5, 60)).toBe(true);
   expect(isSeekSettled(62.0, 60)).toBe(true);
-  expect(isSeekSettled(63.0, 60)).toBe(false);
+  expect(isSeekSettled(62.5, 60)).toBe(false);
+  expect(isSeekSettled(75.0, 60)).toBe(false);
+
+  // Target 772.5s (Bilibili BV1NS4t6oEXQ keyframe at 767.88s, 4.62s before target)
+  expect(isSeekSettled(767.88, 772.5)).toBe(true);
+  expect(isSeekSettled(766.0, 772.5)).toBe(false);
 });

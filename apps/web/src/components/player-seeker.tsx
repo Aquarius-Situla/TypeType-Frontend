@@ -26,7 +26,7 @@ export function PlayerSeeker({ startTime }: { startTime: number }) {
   const { player: dashPlayer } = useDashPlayerSnapshot();
   const seeked = useRef(false);
   const startTimeRef = useRef(startTime);
-  if (startTimeRef.current !== startTime) {
+  if (Math.abs(startTime - startTimeRef.current) > 2000) {
     startTimeRef.current = startTime;
     seeked.current = false;
   }
@@ -42,6 +42,11 @@ export function PlayerSeeker({ startTime }: { startTime: number }) {
     function seekMedia(media: HTMLMediaElement) {
       if (!canPlay || seeked.current || applying || attempts >= MAX_SEEK_APPLIES) return;
       if (isSeekSettled(media.currentTime, target)) {
+        recordClientEvent("player.seek_settled", {
+          targetMs: Math.round(target * 1000),
+          currentMs: Math.round(media.currentTime * 1000),
+          tag: media.tagName,
+        });
         seeked.current = true;
         return;
       }
@@ -142,6 +147,7 @@ export function PlayerSeeker({ startTime }: { startTime: number }) {
       media.addEventListener("durationchange", seek);
       media.addEventListener("canplay", seek);
       media.addEventListener("progress", seek);
+      media.addEventListener("timeupdate", seek);
       media.addEventListener("seeked", onSeeked);
       seek();
       cleanup = () => {
@@ -150,6 +156,7 @@ export function PlayerSeeker({ startTime }: { startTime: number }) {
         media.removeEventListener("durationchange", seek);
         media.removeEventListener("canplay", seek);
         media.removeEventListener("progress", seek);
+        media.removeEventListener("timeupdate", seek);
         media.removeEventListener("seeked", onSeeked);
       };
       return true;
