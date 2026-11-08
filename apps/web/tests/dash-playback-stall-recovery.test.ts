@@ -333,3 +333,25 @@ test("attachDashPlaybackStallRecovery never seeks backward if currentTime moves 
   expect(advanceSetup.seeks[1]).toBeGreaterThanOrEqual(11.5 + 0.12);
   cleanup();
 });
+
+test("playbackSeeked clears pending stall recovery timer", () => {
+  let scheduledCallback: (() => void) | null = null;
+  const mockSchedule = (cb: () => void) => {
+    scheduledCallback = cb;
+    return () => {
+      scheduledCallback = null;
+    };
+  };
+
+  const setup = fakeDashPlayer({ currentTime: 10 });
+  const cleanup = attachDashPlaybackStallRecovery(setup.player, setup.library, mockSchedule);
+
+  setup.listeners.get("playbackStalled")?.({});
+  expect(scheduledCallback).not.toBeNull();
+
+  // Seeked event fires (e.g. from user seek or player seek)
+  setup.listeners.get("playbackSeeked")?.({});
+  // Pending stall timer should be cleared, not re-scheduled
+  expect(scheduledCallback).toBeNull();
+  cleanup();
+});

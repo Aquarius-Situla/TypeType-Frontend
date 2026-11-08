@@ -181,6 +181,12 @@ export function attachDashPlaybackStallRecovery(
     clearTimer();
   };
 
+  const onSeeked = () => {
+    clearTimer();
+    attempts = 0;
+    stallAnchorTime = null;
+  };
+
   const onStallEvent = () => {
     scheduleRecovery();
   };
@@ -189,7 +195,7 @@ export function attachDashPlaybackStallRecovery(
   player.on(events.PLAYBACK_PLAYING, onPlaying);
   player.on(events.PLAYBACK_PAUSED, onPaused);
   player.on(events.PLAYBACK_ENDED, onPaused);
-  player.on(events.PLAYBACK_SEEKED, onStallEvent);
+  player.on(events.PLAYBACK_SEEKED, onSeeked);
   player.on(events.PLAYBACK_WAITING, onStallEvent);
   player.on(events.PLAYBACK_STALLED, onStallEvent);
   player.on(events.BUFFER_EMPTY, onStallEvent);
@@ -201,7 +207,7 @@ export function attachDashPlaybackStallRecovery(
     player.off(events.PLAYBACK_PLAYING, onPlaying);
     player.off(events.PLAYBACK_PAUSED, onPaused);
     player.off(events.PLAYBACK_ENDED, onPaused);
-    player.off(events.PLAYBACK_SEEKED, onStallEvent);
+    player.off(events.PLAYBACK_SEEKED, onSeeked);
     player.off(events.PLAYBACK_WAITING, onStallEvent);
     player.off(events.PLAYBACK_STALLED, onStallEvent);
     player.off(events.BUFFER_EMPTY, onStallEvent);
