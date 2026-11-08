@@ -12,14 +12,17 @@ type Args = {
   sourceProvider?: Provider;
   onError?: (positionMs?: number) => void;
   onEnded?: () => void;
+  startTime?: number;
 };
 
-export function useVideoPlayerEvents({ src, sourceProvider, onError, onEnded }: Args) {
+export function useVideoPlayerEvents({ src, sourceProvider, onError, onEnded, startTime }: Args) {
   const providerLifecycle = useRef(new MediaProviderLifecycle());
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
   const srcRef = useRef(src);
   srcRef.current = src;
+  const startTimeRef = useRef(startTime);
+  startTimeRef.current = startTime;
   const dashErrorGuard = useRef<DashTransientErrorGuard | null>(null);
   dashErrorGuard.current ??= new DashTransientErrorGuard(() => {
     recordClientEvent("player.dash_transient_error_stalled", mediaSrcDetails(srcRef.current));
@@ -43,7 +46,16 @@ export function useVideoPlayerEvents({ src, sourceProvider, onError, onEnded }: 
     recordClientEvent("player.provider_change", { present: provider !== null });
     providerLifecycle.current.replace(provider);
     dashErrorGuard.current?.reset();
-    onProviderChange(provider, sourceProvider, () => dashErrorGuard.current?.recordProgress());
+    const initialSeconds =
+      typeof startTimeRef.current === "number" && startTimeRef.current > 0
+        ? startTimeRef.current / 1000
+        : 0;
+    onProviderChange(
+      provider,
+      sourceProvider,
+      () => dashErrorGuard.current?.recordProgress(),
+      initialSeconds,
+    );
   }
 
   function handleError(detail?: MediaErrorDetail) {

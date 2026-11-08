@@ -90,6 +90,7 @@ export function VideoPlayer({
     sourceProvider: provider,
     onError,
     onEnded,
+    startTime,
   });
 
   const sabrState = useSabrPlayerState(Boolean(sabrConfig), handleProviderChange);
@@ -105,6 +106,7 @@ export function VideoPlayer({
       src={activeSrc}
       viewType={viewType}
       streamType={streamType}
+      currentTime={startTime > 0 ? startTime / 1000 : undefined}
       logLevel="warn"
       crossOrigin
       playsInline

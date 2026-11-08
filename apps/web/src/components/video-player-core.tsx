@@ -125,15 +125,21 @@ export function onProviderChange(
   provider: MediaProviderAdapter | null,
   sourceProvider?: Provider,
   onDashFragmentLoaded?: () => void,
+  initialTimeSeconds?: number,
 ): void {
   if (isHLSProvider(provider)) {
+    const startPosition =
+      typeof initialTimeSeconds === "number" && initialTimeSeconds > 0 ? initialTimeSeconds : -1;
     let providerLibrary = hlsProviderLibraries.get(provider);
     if (!providerLibrary) {
       providerLibrary = loadHlsLibrary().then((library) => {
-        provider.config = createHlsConfig({
-          FetchLoader: library.FetchLoader,
-          policy: STREAMING_BUFFER_POLICY,
-        });
+        provider.config = {
+          ...createHlsConfig({
+            FetchLoader: library.FetchLoader,
+            policy: STREAMING_BUFFER_POLICY,
+          }),
+          ...(startPosition > 0 ? { startPosition } : {}),
+        };
         return library;
       });
       hlsProviderLibraries.set(provider, providerLibrary);
@@ -162,6 +168,17 @@ export function onProviderChange(
   }
   provider.library = loadDashLibrary;
   provider.onInstance((player) => {
+    const targetStartTime =
+      typeof initialTimeSeconds === "number" && initialTimeSeconds > 0 ? initialTimeSeconds : 0;
+    if (targetStartTime > 0) {
+      const originalAttachSource = player.attachSource.bind(player);
+      player.attachSource = (urlOrMpd: string | object, startTime?: number) => {
+        player.attachSource = originalAttachSource;
+        const effectiveStartTime =
+          typeof startTime === "number" && startTime > 0 ? startTime : targetStartTime;
+        return originalAttachSource(urlOrMpd, effectiveStartTime);
+      };
+    }
     const addAuthHeader: DashRequestInterceptor = async (request) => {
       const token = useAuthStore.getState().token;
       if (!token) return request;

@@ -129,6 +129,7 @@ function fakeDashPlayer(initialState: {
         PLAYBACK_PAUSED: "playbackPaused",
         PLAYBACK_ENDED: "playbackEnded",
         PLAYBACK_SEEKED: "playbackSeeked",
+        PLAYBACK_TIME_UPDATED: "playbackTimeUpdated",
         PLAYBACK_WAITING: "playbackWaiting",
         PLAYBACK_STALLED: "playbackStalled",
         BUFFER_EMPTY: "bufferStalled",
@@ -353,5 +354,45 @@ test("playbackSeeked clears pending stall recovery timer", () => {
   setup.listeners.get("playbackSeeked")?.({});
   // Pending stall timer should be cleared, not re-scheduled
   expect(scheduledCallback).toBeNull();
+  cleanup();
+});
+
+test("playback advancing cancels stall recovery timer and prevents false seeks", () => {
+  let scheduledCallback: (() => void) | null = null;
+  const mockSchedule = (cb: () => void) => {
+    scheduledCallback = cb;
+    return () => {
+      scheduledCallback = null;
+    };
+  };
+
+  const setup = fakeDashPlayer({
+    currentTime: 20.0,
+    buffered: {
+      length: 1,
+      start: () => 15,
+      end: () => 30,
+    },
+  });
+  const cleanup = attachDashPlaybackStallRecovery(setup.player, setup.library, mockSchedule);
+
+  // Transient buffer empty event while playing
+  setup.listeners.get("bufferStalled")?.({});
+  expect(scheduledCallback).not.toBeNull();
+
+  // Playback naturally advanced forward to 20.3s
+  setup.state.currentTime = 20.3;
+  setup.listeners.get("playbackTimeUpdated")?.({});
+
+  // Timer should be cancelled immediately
+  expect(scheduledCallback).toBeNull();
+  expect(setup.seeks).toHaveLength(0);
+
+  // If callback was somehow run, it must abort without seeking
+  setup.listeners.get("playbackWaiting")?.({});
+  setup.state.currentTime = 20.6;
+  scheduledCallback?.();
+  expect(setup.seeks).toHaveLength(0);
+
   cleanup();
 });
