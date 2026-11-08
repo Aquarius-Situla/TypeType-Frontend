@@ -14,9 +14,11 @@ export function shouldHandleSabrNativePause(input: {
   state: SabrNativePauseState;
   seeking: boolean;
   applyingTransientMediaState: boolean;
+  ended?: boolean;
 }): boolean {
-  if (!input.paused || input.seeking || input.applyingTransientMediaState) return false;
-  return input.state === "playing" || input.state === "buffering";
+  if (!input.paused || input.seeking || input.applyingTransientMediaState || input.ended)
+    return false;
+  return input.state === "playing";
 }
 
 type SabrNativePauseEngine = {
@@ -25,7 +27,11 @@ type SabrNativePauseEngine = {
   pause: () => void;
 };
 
-type SabrAutoplayAttempt = { resolve: () => unknown };
+export type SabrNativeControlCallbacks = {
+  onNativePlay?: () => void;
+};
+
+type SabrAutoplayAttempt = { resolve: () => unknown; isConfirmed?: boolean };
 
 export function createSabrNativePauseHandler(
   video: HTMLVideoElement,
@@ -44,22 +50,40 @@ export function registerSabrNativePause(
   engine: SabrNativePauseEngine,
   seeking: { current: boolean },
   onHandled: () => void,
+  callbacks?: SabrNativeControlCallbacks,
+  pendingPlay?: { current: boolean },
+  autoplayAttempt?: { isConfirmed: boolean },
 ): () => void {
   const nativePause = () => {
     if (
+      video.ended ||
+      (pendingPlay?.current && !autoplayAttempt?.isConfirmed) ||
       !shouldHandleSabrNativePause({
         paused: video.paused,
         state: engine.snapshot().state,
-        seeking: seeking.current,
+        seeking: seeking.current || Boolean(video.seeking),
         applyingTransientMediaState: engine.isApplyingTransientMediaState(),
+        ended: video.ended,
       })
-    )
+    ) {
       return;
+    }
     onHandled();
     engine.pause();
   };
+
+  const nativePlay = () => {
+    if (video.ended || !callbacks?.onNativePlay || engine.isApplyingTransientMediaState()) return;
+    if (engine.snapshot().state === "playing") return;
+    callbacks.onNativePlay();
+  };
+
   video.addEventListener("pause", nativePause, true);
-  return () => video.removeEventListener("pause", nativePause, true);
+  video.addEventListener("play", nativePlay, true);
+  return () => {
+    video.removeEventListener("pause", nativePause, true);
+    video.removeEventListener("play", nativePlay, true);
+  };
 }
 
 type SabrPlaybackEngine = { isApplyingTransientMediaState: () => boolean };
