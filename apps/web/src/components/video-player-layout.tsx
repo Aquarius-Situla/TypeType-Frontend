@@ -22,8 +22,8 @@ import { PlayerTrackButton } from "./player-track-button";
 import { PlayerVolumeControl, PlayerVolumeSlider } from "./player-volume-control";
 import { QualitySelector } from "./quality-selector";
 import { SabrCurrentTime } from "./sabr-current-time";
-import { SabrTimeSlider } from "./sabr-time-slider";
 import { ShortsPlayerLayout } from "./shorts-player-layout";
+import { UnifiedTimeSlider } from "./unified-time-slider";
 import { WebFullscreenControl } from "./web-fullscreen-control";
 
 type Props = {
@@ -152,9 +152,14 @@ export function VideoPlayerLayout({
         currentTime: sabr ? (
           <SabrCurrentTime transitioning={seeking} video={sabrVideo} />
         ) : undefined,
-        timeSlider: sabr ? (
-          <SabrTimeSlider seeking={seeking} thumbnails={thumbnailVtt} video={sabrVideo} />
-        ) : undefined,
+        timeSlider: (
+          <UnifiedTimeSlider
+            sabr={sabr}
+            seeking={sabr ? seeking : undefined}
+            thumbnails={thumbnailVtt}
+            video={sabr ? sabrVideo : null}
+          />
+        ),
         settingsMenuItemsStart: (
           <>
             <AudioTrackSelector originalLocale={originalAudioLocale} sabr={sabr} />

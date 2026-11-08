@@ -6,7 +6,7 @@ import { AudioTrackSelector } from "./audio-track-selector";
 import { FormatSelector } from "./format-selector";
 import { PlayerVolumeControl } from "./player-volume-control";
 import { QualitySelector } from "./quality-selector";
-import { SabrTimeSlider } from "./sabr-time-slider";
+import { UnifiedTimeSlider } from "./unified-time-slider";
 
 type Props = {
   sabr: boolean;
@@ -29,7 +29,13 @@ export function ShortsPlayerLayout({ sabr, video, seeking, originalAudioLocale }
       menuContainer="body"
       menuGroup="bottom"
       slots={{
-        timeSlider: sabr ? <SabrTimeSlider seeking={seeking} video={video} /> : undefined,
+        timeSlider: (
+          <UnifiedTimeSlider
+            sabr={sabr}
+            seeking={sabr ? seeking : undefined}
+            video={sabr ? video : null}
+          />
+        ),
         settingsMenuItemsStart: (
           <>
             <AudioTrackSelector originalLocale={originalAudioLocale} sabr={sabr} />
