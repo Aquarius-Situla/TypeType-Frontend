@@ -25,6 +25,7 @@ import { streamRetryNotice } from "../lib/stream-error-message";
 import { videoAvailabilityCopy } from "../lib/video-availability";
 import { isShortFormContentHidden } from "../lib/video-visibility";
 import { resolveWatchStartTime, shouldWaitForWatchProgress } from "../lib/watch-resume";
+import { validateWatchSearch } from "../lib/watch-search";
 import {
   canRenderWatchStream,
   canRequestWatchStream,
@@ -265,11 +266,6 @@ function WatchPage() {
 }
 
 export const Route = createFileRoute("/watch")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    v: typeof search.v === "string" ? search.v.trim() : "",
-    ...(typeof search.list === "string" && search.list ? { list: search.list } : {}),
-    ...(typeof search.shuffle === "string" && search.shuffle ? { shuffle: search.shuffle } : {}),
-    ...(search.t != null ? { t: String(search.t) } : {}),
-  }),
+  validateSearch: validateWatchSearch,
   component: WatchPage,
 });
