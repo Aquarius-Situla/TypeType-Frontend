@@ -4,7 +4,7 @@ import { HOLD_FAST_FORWARD_ATTRIBUTE } from "../lib/sabr-playback-rate-preferenc
 import { useMediaPlayer, useMediaRemote, useMediaState } from "../lib/vidstack";
 import { useSettings } from "./use-settings";
 
-const HOLD_DELAY_MS = 180;
+const HOLD_DELAY_MS = 400;
 
 type HoldFastForward = {
   holding: boolean;

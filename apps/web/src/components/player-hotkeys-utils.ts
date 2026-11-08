@@ -1,6 +1,11 @@
 export function isInteractiveTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof Element)) return false;
-  if (target instanceof HTMLElement && target.isContentEditable) return true;
+  if (typeof Element === "undefined" || !(target instanceof Element)) return false;
+  if (
+    typeof HTMLElement !== "undefined" &&
+    target instanceof HTMLElement &&
+    target.isContentEditable
+  )
+    return true;
   return Boolean(
     target.closest(
       "a, button, input, textarea, select, summary, [contenteditable='true'], [role='button'], [role='menuitem'], [role='slider']",
@@ -8,12 +13,22 @@ export function isInteractiveTarget(target: EventTarget | null): boolean {
   );
 }
 
+export function shouldSuppressContextMenu(
+  target: EventTarget | null,
+  inPlayer: boolean,
+  isHolding: boolean,
+): boolean {
+  if (isInteractiveTarget(target)) return false;
+  return Boolean(inPlayer && isHolding);
+}
+
 export function isPlayerSeekShortcutTarget(
   target: EventTarget | null,
   player: HTMLElement | null,
 ): boolean {
   if (!isInteractiveTarget(target)) return true;
-  if (!(target instanceof Element) || !player?.contains(target)) return false;
+  if (typeof Element === "undefined" || !(target instanceof Element) || !player?.contains(target))
+    return false;
   const slider = target.closest<HTMLElement>("[role='slider']");
   if (slider && !slider.classList.contains("vds-time-slider")) return false;
   return !target.closest(

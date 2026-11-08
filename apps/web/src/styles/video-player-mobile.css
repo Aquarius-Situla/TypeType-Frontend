@@ -1,3 +1,11 @@
+.typetype-player-surface,
+.typetype-player-surface video,
+.typetype-player-surface .vds-poster {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 @media (max-width: 639px) {
   .vds-video-layout .vds-controls-group {
     padding-inline: 0.5rem;
