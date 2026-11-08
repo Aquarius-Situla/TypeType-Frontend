@@ -20,14 +20,19 @@ function updateForwardBuffer(
   });
 }
 
+const MAX_LIGHT_BANDWIDTH = BILIBILI_LIGHT_KBPS * 1000;
+
 // dash.js keeps the current quality when the cap changes, so the light one is asked for explicitly.
 function switchToLightQuality(player: dashjs.MediaPlayerClass): void {
   const allowed = player.getRepresentationsByType("video");
-  const light = allowed.reduce<dashjs.Representation | null>(
-    (best, representation) =>
-      !best || representation.bandwidth > best.bandwidth ? representation : best,
-    null,
-  );
+  const underCap = allowed.filter((rep) => rep.bandwidth <= MAX_LIGHT_BANDWIDTH);
+  const candidates = underCap.length > 0 ? underCap : allowed;
+  const light = candidates.reduce<dashjs.Representation | null>((best, representation) => {
+    if (underCap.length > 0) {
+      return !best || representation.bandwidth > best.bandwidth ? representation : best;
+    }
+    return !best || representation.bandwidth < best.bandwidth ? representation : best;
+  }, null);
   if (light && light.id !== player.getCurrentRepresentationForType("video")?.id) {
     player.setRepresentationForTypeById("video", light.id);
   }
