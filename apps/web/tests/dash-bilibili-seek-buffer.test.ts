@@ -45,12 +45,12 @@ test("the buffer grows with the playback speed and stays capped", () => {
   expect(bilibiliBufferSeconds("large", 16)).toBe(120);
 });
 
-function fakePlayer(rate = 1) {
+function fakePlayer(rate = 1, customAllowed?: { id: string; bandwidth: number }[]) {
   const listeners = new Map<string, (event: unknown) => void>();
   const updates: unknown[] = [];
   const state = { paused: true, seeking: true, rate, current: "v0" };
   const switches: string[] = [];
-  const allowed = [
+  const allowed = customAllowed ?? [
     { id: "v2", bandwidth: 787_000 },
     { id: "v3", bandwidth: 350_000 },
   ];
@@ -142,4 +142,19 @@ test("the first playback lifts the start quality cap once", () => {
   playing(listeners);
 
   expect(updates).toEqual([buffer(15)]);
+});
+
+test("a seek avoids high bitrate 1080p and selects the best representation under 1000kbps", () => {
+  const allowed = [
+    { id: "v1080", bandwidth: 4_500_000 },
+    { id: "v720", bandwidth: 2_000_000 },
+    { id: "v480", bandwidth: 900_000 },
+    { id: "v360", bandwidth: 350_000 },
+  ];
+  const { player, listeners, switches } = fakePlayer(1, allowed);
+  attachBilibiliSeekBuffer(player, (rate) => bilibiliBufferSeconds("normal", rate));
+  playing(listeners);
+
+  listeners.get("playbackSeeking")?.({ seekTime: 30 });
+  expect(switches).toEqual(["v480"]);
 });
