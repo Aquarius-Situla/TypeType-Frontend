@@ -26,7 +26,9 @@ import {
   registerSabrVideoHandoffPositionCapture as registerPosition,
 } from "../lib/sabr-video-handoff-events";
 import { followSabrEngineSeeks, registerSabrVidstackControls } from "../lib/sabr-vidstack-bridge";
+import { youtubeBackBufferSeconds, youtubeBufferSeconds } from "../lib/youtube-buffer";
 import { useAuthStore } from "../stores/auth-store";
+import { useYoutubeBufferStore } from "../stores/youtube-buffer-store";
 import type { SabrMsePlayerProps } from "./sabr-mse-player-types";
 export function SabrMsePlayer({
   config,
@@ -99,6 +101,10 @@ export function SabrMsePlayer({
     );
     const autoplayAttempt = new SabrAutoplayAttempt();
     const initialConfig = latestConfig();
+    const initialYoutubeLevel = useYoutubeBufferStore.getState().level;
+    const initialBufferGoalMs =
+      youtubeBufferSeconds(initialYoutubeLevel, video.playbackRate ?? 1) * 1000;
+    const initialBackBufferMs = youtubeBackBufferSeconds(initialYoutubeLevel) * 1000;
     const engine = new TypeTypeMsePlayer(video, {
       endpoint: toAbsoluteApiUrl(""),
       videoId: config.videoId,
@@ -108,8 +114,25 @@ export function SabrMsePlayer({
       audioOnly: initialConfig.audioOnly,
       isLive: initialConfig.isLive,
       startTimeMs: initialStartTimeMs,
+      bufferGoalMs: initialBufferGoalMs,
+      backBufferMs: initialBackBufferMs,
       headers: addPlaybackTraceHeader(new Headers(headersRef.current)),
     });
+    const syncBufferPolicy = () => {
+      const currentLevel = useYoutubeBufferStore.getState().level;
+      const currentRate = video.playbackRate;
+      const updatableEngine = engine as unknown as {
+        updateBufferPolicy?: (options: { bufferGoalMs?: number; backBufferMs?: number }) => void;
+      };
+      if (typeof updatableEngine.updateBufferPolicy === "function") {
+        updatableEngine.updateBufferPolicy({
+          bufferGoalMs: youtubeBufferSeconds(currentLevel, currentRate) * 1000,
+          backBufferMs: youtubeBackBufferSeconds(currentLevel) * 1000,
+        });
+      }
+    };
+    video.addEventListener("ratechange", syncBufferPolicy);
+    const unsubYoutubeBuffer = useYoutubeBufferStore.subscribe(syncBufferPolicy);
     const stopPlaybackTrace = observeSabrMsePlayback(video, config.videoId, engine, reportError);
     engineRef.current = engine;
     qualityRef.current = initialConfig;
@@ -131,6 +154,16 @@ export function SabrMsePlayer({
       engine,
       seekingRef,
       sabrNativePause.createSabrNativePauseHandler(video, pendingPlayRef, autoplayAttempt),
+      {
+        onNativePlay: () => {
+          pendingPlayRef.current = true;
+          autoplayAttempt.allow();
+          video.autoplay = true;
+          if (engineLoaded) void playEngine().catch(() => {});
+        },
+      },
+      pendingPlayRef,
+      autoplayAttempt,
     );
     const autoplayDeadline = new SabrAutoplayDeadline(() => {
       if (!autoplayAttempt.expire()) return;
@@ -141,7 +174,7 @@ export function SabrMsePlayer({
     const unconfirmAutoplay = confirmAutoplayOnPlaying(video, autoplayAttempt, autoplayDeadline);
     const unguardAutoplay = guardAutoplay(video, autoplayAttempt, () => engine.pause());
     const startAutoplay = () => {
-      if (!engineLoaded || video.readyState < 3) return;
+      if (!engineLoaded || video.readyState < 3 || video.ended) return;
       if (!latestHandlers().autoplay && !pendingPlayRef.current) return;
       if (!autoplayAttempt.begin()) return;
       autoplayDeadline.arm();
@@ -209,6 +242,8 @@ export function SabrMsePlayer({
       unconfirmAutoplay();
       offPosition();
       video.removeEventListener("canplay", startAutoplay);
+      video.removeEventListener("ratechange", syncBufferPolicy);
+      unsubYoutubeBuffer();
       window.clearInterval(autoplayTimer);
       autoplayDeadline.clear();
       engine.destroy();

@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
     ],
     server: {
+      host: true,
       allowedHosts: true,
       proxy: {
         "/api/bilibili": {
@@ -37,20 +38,24 @@ export default defineConfig(({ mode }) => {
         },
         "/api": {
           target: apiTarget,
-          rewrite: (path) => path.replace(/^\/api/, ""),
+          changeOrigin: true,
+          rewrite:
+            apiTarget.includes("localhost") || apiTarget.includes("127.0.0.1")
+              ? (path) => path.replace(/^\/api/, "")
+              : undefined,
           ws: true,
         },
         "/proxy": {
           target: apiTarget,
+          changeOrigin: true,
         },
-        "/streams/hls-manifest": {
+        "/streams": {
           target: apiTarget,
-        },
-        "/streams/manifest": {
-          target: apiTarget,
+          changeOrigin: true,
         },
         "/sabr": {
           target: apiTarget,
+          changeOrigin: true,
           ws: true,
         },
       },

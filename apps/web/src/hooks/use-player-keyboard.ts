@@ -9,13 +9,18 @@ import {
   keyboardSeekOffset,
   nextKeyboardSeekTarget,
 } from "../components/player-hotkeys-utils";
-import { requestSabrSeek, requestSabrVidstackPlayback } from "../lib/sabr-vidstack-bridge";
+import {
+  announceSabrSeekTarget,
+  requestSabrSeek,
+  requestSabrVidstackPlayback,
+} from "../lib/sabr-vidstack-bridge";
 import { useMediaPlayer, useMediaRemote, useMediaState } from "../lib/vidstack";
 import { useDanmakuStore } from "../stores/danmaku-store";
 import { useWatchLayoutStore } from "../stores/watch-layout-store";
 import { useHoldFastForward } from "./use-hold-fast-forward";
 
 const FRAME_STEP_SECONDS = 1 / 30;
+const KEYBOARD_SEEK_DEBOUNCE_MS = 100;
 
 export function usePlayerKeyboard(
   canSeek: boolean,
@@ -42,7 +47,20 @@ export function usePlayerKeyboard(
   pausedRef.current = paused;
 
   useEffect(() => {
+    let seekDebounceTimer: number | null = null;
+
+    function flushPendingSeek() {
+      if (seekDebounceTimer !== null) {
+        window.clearTimeout(seekDebounceTimer);
+        seekDebounceTimer = null;
+        const target = seekTargetRef.current.position;
+        if (sabrVideo && requestSabrSeek(sabrVideo, target)) return;
+        remote.seek(target);
+      }
+    }
+
     function togglePaused() {
+      flushPendingSeek();
       if (sabrVideo) {
         void requestSabrVidstackPlayback(sabrVideo, pausedRef.current, true).catch(() => {});
         return;
@@ -53,6 +71,7 @@ export function usePlayerKeyboard(
 
     function stepFrame(direction: -1 | 1) {
       if (!canSeek || !pausedRef.current) return;
+      flushPendingSeek();
       remote.seek(
         clampTime(currentTimeRef.current + FRAME_STEP_SECONDS * direction, durationRef.current),
       );
@@ -68,8 +87,19 @@ export function usePlayerKeyboard(
         performance.now(),
       );
       currentTimeRef.current = seekTargetRef.current.position;
-      if (sabrVideo && requestSabrSeek(sabrVideo, seekTargetRef.current.position)) return;
-      remote.seek(seekTargetRef.current.position);
+      if (sabrVideo) {
+        announceSabrSeekTarget(sabrVideo, seekTargetRef.current.position);
+      }
+      if (seekDebounceTimer !== null) {
+        window.clearTimeout(seekDebounceTimer);
+        seekDebounceTimer = null;
+      }
+      seekDebounceTimer = window.setTimeout(() => {
+        seekDebounceTimer = null;
+        const target = seekTargetRef.current.position;
+        if (sabrVideo && requestSabrSeek(sabrVideo, target)) return;
+        remote.seek(target);
+      }, KEYBOARD_SEEK_DEBOUNCE_MS);
     }
 
     function onKeyDown(event: KeyboardEvent) {
@@ -144,6 +174,7 @@ export function usePlayerKeyboard(
     function onBlur() {
       spaceStartedRef.current = false;
       seekTargetRef.current.updatedAt = Number.NEGATIVE_INFINITY;
+      flushPendingSeek();
       restore();
     }
 
@@ -152,6 +183,10 @@ export function usePlayerKeyboard(
     window.addEventListener("keyup", onKeyUp, options);
     window.addEventListener("blur", onBlur);
     return () => {
+      if (seekDebounceTimer !== null) {
+        window.clearTimeout(seekDebounceTimer);
+        seekDebounceTimer = null;
+      }
       window.removeEventListener("keydown", onKeyDown, options);
       window.removeEventListener("keyup", onKeyUp, options);
       window.removeEventListener("blur", onBlur);
