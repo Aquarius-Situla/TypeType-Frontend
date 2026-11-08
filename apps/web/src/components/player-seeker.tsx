@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { recordClientEvent } from "../lib/client-debug-log";
 import { useDashPlayerSnapshot } from "../lib/dash-player-store";
 import { clearVidstackEndedState } from "../lib/player-ended-state";
+import { isSeekSettled } from "../lib/player-seeker-settle";
 import { useMediaPlayer, useMediaRemote, useMediaState } from "../lib/vidstack";
 
 const SEEK_SETTLE_DELAY_MS = 750;
@@ -40,6 +41,10 @@ export function PlayerSeeker({ startTime }: { startTime: number }) {
 
     function seekMedia(media: HTMLMediaElement) {
       if (!canPlay || seeked.current || applying || attempts >= MAX_SEEK_APPLIES) return;
+      if (isSeekSettled(media.currentTime, target)) {
+        seeked.current = true;
+        return;
+      }
       if (!seekable(media, target)) {
         recordClientEvent("player.seek_wait", {
           targetMs: Math.round(target * 1000),
@@ -70,17 +75,47 @@ export function PlayerSeeker({ startTime }: { startTime: number }) {
         tag: media.tagName,
       });
       timeout = window.setTimeout(() => {
-        applying = false;
         clearVidstackEndedState(player, media);
-        if (Math.abs(media.currentTime - target) <= 2.5) {
+        if (isSeekSettled(media.currentTime, target)) {
           recordClientEvent("player.seek_settled", {
             targetMs: Math.round(target * 1000),
             currentMs: Math.round(media.currentTime * 1000),
             tag: media.tagName,
           });
           seeked.current = true;
+          applying = false;
           return;
         }
+        if (media.seeking || media.readyState < 3) {
+          recordClientEvent("player.seek_in_flight", {
+            targetMs: Math.round(target * 1000),
+            currentMs: Math.round(media.currentTime * 1000),
+            readyState: media.readyState,
+            seeking: media.seeking,
+            attempts,
+          });
+          applying = true;
+          window.clearTimeout(timeout);
+          timeout = window.setTimeout(
+            () => {
+              applying = false;
+              clearVidstackEndedState(player, media);
+              if (isSeekSettled(media.currentTime, target)) {
+                recordClientEvent("player.seek_settled", {
+                  targetMs: Math.round(target * 1000),
+                  currentMs: Math.round(media.currentTime * 1000),
+                  tag: media.tagName,
+                });
+                seeked.current = true;
+                return;
+              }
+              seekMedia(media);
+            },
+            Math.min(1000 * attempts, 3000),
+          );
+          return;
+        }
+        applying = false;
         seekMedia(media);
       }, SEEK_SETTLE_DELAY_MS);
     }
