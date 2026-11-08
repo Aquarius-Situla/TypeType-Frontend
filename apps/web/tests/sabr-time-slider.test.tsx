@@ -36,6 +36,7 @@ mock.module("../src/lib/vidstack", () => ({
 
 const { AudioTimeSlider } = await import("../src/components/audio-time-slider");
 const { SabrTimeSlider } = await import("../src/components/sabr-time-slider");
+const { UnifiedTimeSlider } = await import("../src/components/unified-time-slider");
 
 const video = {
   duration: 600,
@@ -87,4 +88,17 @@ test("keeps the audio SABR slider interactive while a seek is pending", () => {
   expect(sabrSeek).toHaveBeenCalledWith(120);
   expect(remoteSeek).not.toHaveBeenCalled();
   unregister();
+});
+
+test("commits seek through media remote when seeking non-SABR media (Bilibili/NicoNico)", () => {
+  remoteSeek.mockClear();
+  renderToStaticMarkup(<UnifiedTimeSlider />);
+
+  expect(sliderProps.disabled).toBeUndefined();
+  expect(sliderProps.orientation).toBe("horizontal");
+
+  const onDragEnd = sliderProps.onDragEnd as (percent: number) => void;
+  onDragEnd(50);
+
+  expect(remoteSeek).toHaveBeenCalledWith(300);
 });

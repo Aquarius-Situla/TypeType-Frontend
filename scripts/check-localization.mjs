@@ -10,6 +10,7 @@ import {
 import { validateMessageCatalog } from "./message-catalog-validation.mjs";
 
 const root = process.cwd();
+const toPosix = (file) => path.relative(root, file).replaceAll("\\", "/");
 const messagesDir = path.join(root, "apps/web/messages");
 const sourceDir = path.join(root, "apps/web/src");
 const sourceLocale = JSON.parse(fs.readFileSync(path.join(messagesDir, "en.json"), "utf8"));
@@ -17,7 +18,7 @@ const sourceMessageKeys = Object.keys(sourceLocale).filter((key) => key !== "$sc
 const failures = [];
 
 function addFailure(file, line, message) {
-  failures.push(`${path.relative(root, file)}:${line}: ${message}`);
+  failures.push(`${toPosix(file)}:${line}: ${message}`);
 }
 
 for (const fileName of fs.readdirSync(messagesDir).filter((name) => name.endsWith(".json"))) {
@@ -46,7 +47,7 @@ const helperReturnLiteral = /\breturn\s+(["'`])([^"'`\n]*)\1/g;
 function isAllowed(value, file, kind) {
   const text = value.trim();
   const plainText = text.replace(/\$\{[^}]*\}/g, "").trim();
-  const relative = path.relative(root, file);
+  const relative = toPosix(file);
   if (!text || allowedText.has(text) || allowedFiles.has(relative)) return true;
   if (!plainText || /^[():,./\s-]+$/.test(plainText)) return true;
   if (allowedTechnicalText.get(relative)?.has(text)) return true;
@@ -69,7 +70,7 @@ function scan(dir) {
       continue;
     }
     if (!/\.(tsx?|jsx?)$/.test(entry.name)) continue;
-    const relative = path.relative(root, file);
+    const relative = toPosix(file);
     if (allowedFiles.has(relative)) continue;
     const content = fs.readFileSync(file, "utf8");
     for (const match of content.matchAll(visibleAttributes)) {
