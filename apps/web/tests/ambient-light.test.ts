@@ -1,33 +1,28 @@
 import { describe, expect, test } from "bun:test";
-import { AMBIENT_LAYERS, ambientLayerRect, isAmbientLightActive } from "../src/lib/ambient-light";
+import { AMBIENT_LAYER_COUNT, ambientLayers, isAmbientLightActive } from "../src/lib/ambient-light";
 
-const base = {
-  enabled: true,
-  theme: "dark" as const,
-  cinemaMode: false,
-  webFullscreen: false,
-  audioOnly: false,
-};
+const base = { enabled: true, cinemaMode: false, webFullscreen: false, audioOnly: false };
 
 describe("ambient light", () => {
-  test("lights the page only when enabled on the dark theme with a visible video", () => {
+  test("lights the watch page only when enabled with a visible video", () => {
     expect(isAmbientLightActive(base)).toBe(true);
     expect(isAmbientLightActive({ ...base, enabled: false })).toBe(false);
-    expect(isAmbientLightActive({ ...base, theme: "light" })).toBe(false);
     expect(isAmbientLightActive({ ...base, cinemaMode: true })).toBe(false);
     expect(isAmbientLightActive({ ...base, webFullscreen: true })).toBe(false);
     expect(isAmbientLightActive({ ...base, audioOnly: true })).toBe(false);
   });
 
-  test("stacks the frame from the widest faint layer to the full player size", () => {
-    const outer = ambientLayerRect(128, 72, AMBIENT_LAYERS[0].scale);
-    const inner = ambientLayerRect(128, 72, AMBIENT_LAYERS[AMBIENT_LAYERS.length - 1].scale);
+  test("stretches the frame from the screen edges down to the player", () => {
+    const player = { x: 10, y: 8, width: 100, height: 56 };
+    const screen = { x: 0, y: 0, width: 160, height: 90 };
+    const layers = ambientLayers(player, screen);
 
-    expect(outer).toEqual({ x: 0, y: 0, width: 128, height: 72 });
-    expect(inner.width).toBeCloseTo(128 / AMBIENT_LAYERS[0].scale);
-    expect(inner.x).toBeCloseTo((128 - inner.width) / 2);
-    expect(AMBIENT_LAYERS.map((layer) => layer.alpha)).toEqual(
-      [...AMBIENT_LAYERS.map((layer) => layer.alpha)].sort((a, b) => a - b),
-    );
+    expect(layers).toHaveLength(AMBIENT_LAYER_COUNT);
+    expect(layers[0]).toMatchObject({ ...screen, alpha: 0.35 });
+    expect(layers[layers.length - 1]).toMatchObject({ ...player, alpha: 1 });
+    for (let index = 1; index < layers.length; index += 1) {
+      expect(layers[index].width).toBeLessThan(layers[index - 1].width);
+      expect(layers[index].alpha).toBeGreaterThan(layers[index - 1].alpha);
+    }
   });
 });

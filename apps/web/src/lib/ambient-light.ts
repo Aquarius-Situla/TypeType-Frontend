@@ -1,40 +1,35 @@
-import type { ResolvedTheme } from "../stores/theme-store";
-
 export type AmbientLightContext = {
   enabled: boolean;
-  theme: ResolvedTheme;
   cinemaMode: boolean;
   webFullscreen: boolean;
   audioOnly: boolean;
 };
 
 export function isAmbientLightActive(context: AmbientLightContext): boolean {
-  return (
-    context.enabled &&
-    context.theme === "dark" &&
-    !context.cinemaMode &&
-    !context.webFullscreen &&
-    !context.audioOnly
-  );
+  return context.enabled && !context.cinemaMode && !context.webFullscreen && !context.audioOnly;
 }
 
-// Nested copies of the frame, each a step larger and fainter, carry the edge colors outward
-// before the blur, the way the Ambient light for YouTube extension stacks its projectors.
-export const AMBIENT_LAYERS: ReadonlyArray<{ scale: number; alpha: number }> = [
-  { scale: 1.36, alpha: 0.35 },
-  { scale: 1.24, alpha: 0.55 },
-  { scale: 1.12, alpha: 0.8 },
-  { scale: 1, alpha: 1 },
-];
+export type AmbientRect = { x: number; y: number; width: number; height: number };
 
-export const AMBIENT_MAX_SCALE = AMBIENT_LAYERS[0].scale;
+// Nested copies of the frame stretch from the player to the screen edges and fade outward, so
+// the colors of each side of the video spill over the whole page like the Ambient light for
+// YouTube extension does.
+export const AMBIENT_LAYER_COUNT = 6;
 
-export function ambientLayerRect(
-  canvasWidth: number,
-  canvasHeight: number,
-  scale: number,
-): { x: number; y: number; width: number; height: number } {
-  const width = (canvasWidth * scale) / AMBIENT_MAX_SCALE;
-  const height = (canvasHeight * scale) / AMBIENT_MAX_SCALE;
-  return { x: (canvasWidth - width) / 2, y: (canvasHeight - height) / 2, width, height };
+export function ambientLayers(
+  player: AmbientRect,
+  screen: AmbientRect,
+): Array<AmbientRect & { alpha: number }> {
+  const layers: Array<AmbientRect & { alpha: number }> = [];
+  for (let index = AMBIENT_LAYER_COUNT - 1; index >= 0; index -= 1) {
+    const spread = (index / (AMBIENT_LAYER_COUNT - 1)) ** 1.6;
+    layers.push({
+      x: player.x + (screen.x - player.x) * spread,
+      y: player.y + (screen.y - player.y) * spread,
+      width: player.width + (screen.width - player.width) * spread,
+      height: player.height + (screen.height - player.height) * spread,
+      alpha: 1 - spread * 0.65,
+    });
+  }
+  return layers;
 }

@@ -68,7 +68,7 @@ export function Sidebar({ overlay = false }: Props) {
 
   const desktopShell = overlay
     ? "z-50 border-border border-r bg-app/95 shadow-2xl backdrop-blur"
-    : "z-40 border-r border-border bg-app";
+    : "typetype-desktop-sidebar z-40 border-r border-border bg-app";
   const desktopMotion = overlay
     ? collapsed
       ? "pointer-events-none -translate-x-full"

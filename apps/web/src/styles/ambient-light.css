@@ -1,0 +1,27 @@
+/* The ambient light canvas sits behind the whole page: the watch shell and its chrome let it through. */
+html[data-ambient-light] {
+  background-color: #000;
+}
+
+html[data-ambient-light] body,
+html[data-ambient-light] #root,
+html[data-ambient-light] .watch-page-shell {
+  background-color: transparent;
+}
+
+html[data-ambient-light] .watch-page-shell .typetype-desktop-sidebar {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+html[data-ambient-light] .watch-page-chrome nav {
+  background-color: rgb(0 0 0 / 0.35);
+  border-color: transparent;
+}
+
+html[data-ambient-light] .watch-layout-container,
+html[data-ambient-light] .watch-page-chrome {
+  text-shadow:
+    0 0 0.35rem rgb(0 0 0 / 0.85),
+    0 0 0.12rem rgb(0 0 0 / 0.9);
+}

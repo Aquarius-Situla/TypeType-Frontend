@@ -183,7 +183,7 @@ export function WatchStage({
   );
 
   return (
-    <div className={ambientLight ? `${classes.playerWrapClass} relative` : classes.playerWrapClass}>
+    <div className={classes.playerWrapClass}>
       {ambientLight && <AmbientLight />}
       <div ref={persistent.anchorRef} className={classes.playerBoxClass}>
         {localPlayer}
