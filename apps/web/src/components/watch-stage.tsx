@@ -8,6 +8,7 @@ import type { MediaSrc } from "../lib/vidstack";
 import type { SponsorBlockSegmentItem } from "../types/api";
 import type { VideoStream } from "../types/stream";
 import type { CaptionStyles, SettingsItem } from "../types/user";
+import { AmbientLight } from "./ambient-light";
 import { AutoplayCountdownOverlay } from "./autoplay-countdown-overlay";
 import { PageSpinner } from "./page-spinner";
 import { PlayerError } from "./player-error";
@@ -41,6 +42,7 @@ type Props = {
   playerFailed: boolean;
   cinemaMode: boolean;
   webFullscreen?: boolean;
+  ambientLight?: boolean;
   hideComments: boolean;
   mobilePanel: ReactNode;
   mobileSecondaryContent: ReactNode | null;
@@ -90,6 +92,7 @@ export function WatchStage({
   playerFailed,
   cinemaMode,
   webFullscreen = false,
+  ambientLight = false,
   hideComments,
   mobilePanel,
   mobileSecondaryContent,
@@ -180,7 +183,8 @@ export function WatchStage({
   );
 
   return (
-    <div className={classes.playerWrapClass}>
+    <div className={ambientLight ? `${classes.playerWrapClass} relative` : classes.playerWrapClass}>
+      {ambientLight && <AmbientLight />}
       <div ref={persistent.anchorRef} className={classes.playerBoxClass}>
         {localPlayer}
       </div>

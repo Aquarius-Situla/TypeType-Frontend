@@ -583,6 +583,8 @@
   "ui_already_have_an_account_sign_in": "Already have an account? Sign in",
   "ui_applied_when_a_video_starts": "Applied when a video starts",
   "ui_audio_only_playback": "Audio-only playback",
+  "ui_ambient_light": "Ambient light",
+  "ui_ambient_light_description": "Light the page around the player with the colors of the video. Uses your graphics card: keep hardware acceleration on in your browser. Can use more battery.",
   "ui_autoplay_countdown": "Autoplay countdown",
   "ui_back": "Back",
   "ui_back_home": "Back home",

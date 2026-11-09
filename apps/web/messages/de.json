@@ -577,6 +577,8 @@
   "ui_already_have_an_account_sign_in": "Du hast bereits ein Konto? Melde dich an",
   "ui_applied_when_a_video_starts": "Wird angewendet, sobald ein Video abgespielt wird",
   "ui_audio_only_playback": "„Nur-Ton“ Wiedergabe",
+  "ui_ambient_light": "Umgebungslicht",
+  "ui_ambient_light_description": "Beleuchtet die Seite rund um den Player mit den Farben des Videos. Nutzt die Grafikkarte: Lass die Hardwarebeschleunigung im Browser aktiviert. Kann mehr Akku verbrauchen.",
   "ui_autoplay_countdown": "Countdown für automatische Wiedergabe",
   "ui_back": "Zurück",
   "ui_back_home": "Zurück zur Startseite",

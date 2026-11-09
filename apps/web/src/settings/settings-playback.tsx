@@ -153,6 +153,12 @@ export function SettingsPlayback() {
           checked={settings.audioOnlyPlayback}
           onClick={() => update.mutate({ audioOnlyPlayback: !settings.audioOnlyPlayback })}
         />
+        <PlaybackToggleRow
+          title={m.ui_ambient_light()}
+          description={m.ui_ambient_light_description()}
+          checked={settings.ambientLight}
+          onClick={() => update.mutate({ ambientLight: !settings.ambientLight })}
+        />
         <div className={PLAYBACK_ROW}>
           <div className="typetype-adaptive-label flex min-w-0 flex-1 flex-col gap-1">
             <span className="text-sm text-fg">{m.ui_default_quality()}</span>

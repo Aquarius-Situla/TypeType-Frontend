@@ -20,9 +20,11 @@ import { useWatchPlaylist } from "../hooks/use-watch-playlist";
 import { useWatchQueue } from "../hooks/use-watch-queue";
 import { useWatchSponsorBlock } from "../hooks/use-watch-sponsorblock";
 import { useWatchToast } from "../hooks/use-watch-toast";
+import { isAmbientLightActive } from "../lib/ambient-light";
 import { getOriginalAudioLocale } from "../lib/audio-track";
 import { m } from "../paraglide/messages.js";
 import { useDanmakuStore } from "../stores/danmaku-store";
+import { resolveEffectiveTheme, useThemeStore } from "../stores/theme-store";
 import { useWatchLayoutStore } from "../stores/watch-layout-store";
 import { Toast } from "./toast";
 import { getWatchLayoutClasses } from "./watch-layout-classes";
@@ -148,6 +150,14 @@ export function WatchLayout({
     Boolean(!isMobile && (sidePanel || relatedStreams.length > 0 || liveChat.open)),
     webFullscreen,
   );
+  const theme = useThemeStore((state) => state.theme);
+  const ambientLight = isAmbientLightActive({
+    enabled: settings.ambientLight,
+    theme: resolveEffectiveTheme(theme),
+    cinemaMode,
+    webFullscreen,
+    audioOnly: audioOnly.active,
+  });
   const secondaryContent = (
     <WatchSecondaryContent
       cinemaMode={cinemaMode}
@@ -160,9 +170,10 @@ export function WatchLayout({
     />
   );
   return (
-    <div className={classes.containerClass}>
+    <div className={ambientLight ? `${classes.containerClass} isolate` : classes.containerClass}>
       <WatchStage
         classes={classes}
+        ambientLight={ambientLight}
         stream={displayStream}
         settings={settings}
         manifestSrc={audioOnly.src ?? player.manifestSrc}
