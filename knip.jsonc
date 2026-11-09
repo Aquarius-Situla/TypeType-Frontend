@@ -3,8 +3,13 @@
   "workspaces": {
     ".": {
       "ignore": [".venv-browserbase/**", ".venv-playwright/**"],
-      // Required by @vidstack/react at build time. Do not remove.
-      "ignoreDependencies": ["media-icons"]
+      "ignoreDependencies": [
+        // Required by @vidstack/react at build time. Do not remove.
+        "media-icons",
+        // Kept for 3D work while the Halloween theme is archived.
+        "three",
+        "@types/three"
+      ]
     }
   }
 }
