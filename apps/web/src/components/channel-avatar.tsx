@@ -1,5 +1,6 @@
 import { UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
+import { proxyImage } from "../lib/proxy";
 import { Skeleton } from "./skeleton";
 
 type Props = {
@@ -72,7 +73,7 @@ export function ChannelAvatar({ src, name, className = "w-8 h-8", pending, prior
       {hasSource && (
         <img
           key={`${src}:${retryCount}`}
-          src={avatarRetrySrc(src, retryCount)}
+          src={avatarRetrySrc(proxyImage(src.trim()), retryCount)}
           alt=""
           aria-hidden="true"
           className="absolute inset-0 z-0 h-full w-full object-cover"

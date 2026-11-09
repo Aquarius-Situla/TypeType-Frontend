@@ -1,3 +1,5 @@
+import { proxyImage } from "./proxy";
+
 const AUTHOR_COLORS = ["#e6ac82", "#bda8ee", "#7bc7c3", "#e7a2ba", "#a9c38c", "#91b3e7", "#dbbf7a"];
 
 export function liveChatAuthorColor(name: string) {
@@ -11,7 +13,7 @@ export function liveChatAvatarUrl(value: string | null | undefined) {
   if (!value) return undefined;
   try {
     const url = new URL(value);
-    return url.protocol === "https:" ? url.href : undefined;
+    return url.protocol === "https:" ? proxyImage(url.href) : undefined;
   } catch {
     return undefined;
   }
