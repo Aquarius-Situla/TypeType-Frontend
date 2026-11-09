@@ -1,4 +1,4 @@
-import type { SubscriptionFeedPage } from "../types/api";
+import type { SubscriptionFeedOrder, SubscriptionFeedPage } from "../types/api";
 import type { HistoryItem, SearchHistoryItem, SettingsItem, SubscriptionItem } from "../types/user";
 import { ApiError, apiErrorFromResponse } from "./api";
 import { authed, authedJson } from "./authed";
@@ -142,9 +142,11 @@ export async function fetchSubscriptionFeed(
   cursor: string | null = null,
   signal?: AbortSignal,
   filter = "all",
+  order: SubscriptionFeedOrder = "newest",
 ): Promise<SubscriptionFeedPage> {
   const search = subscriptionFilterParams(filter);
   search.set("limit", "30");
+  if (order === "oldest") search.set("order", "oldest");
   if (cursor !== null) search.set("cursor", cursor);
   const url = `${BASE}/subscriptions/feed?${search.toString()}`;
   while (true) {

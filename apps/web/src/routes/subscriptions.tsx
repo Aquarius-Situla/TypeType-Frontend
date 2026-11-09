@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef } from "react";
 import { ScrollSentinel } from "../components/scroll-sentinel";
+import { SubscriptionFeedOrderSelect } from "../components/subscription-feed-order";
 import { SubscriptionGroupFilter } from "../components/subscription-group-filter";
 import { SubscriptionsHeader } from "../components/subscriptions-header";
 import { VideoGrid } from "../components/video-grid";
@@ -17,11 +18,12 @@ import {
 } from "../lib/subscription-queries";
 import { isUpcomingStream } from "../lib/upcoming-stream";
 import { m } from "../paraglide/messages.js";
+import type { SubscriptionFeedOrder } from "../types/api";
 
 function SubscriptionsPage() {
   const queryClient = useQueryClient();
   const prefetchedIdsRef = useRef(new Set<string>());
-  const { group = "all" } = Route.useSearch();
+  const { group = "all", order = "newest" } = Route.useSearch();
   const navigate = Route.useNavigate();
   const { query } = useSubscriptions(group);
   const subscriptions = query.data ?? [];
@@ -36,7 +38,7 @@ function SubscriptionsPage() {
     fetchNextPage,
     refetch,
     error: feedError,
-  } = useSubscriptionFeed(group);
+  } = useSubscriptionFeed(group, order);
   const { filter } = useBlockedFilter();
   const visible = useMemo(() => filter(streams), [filter, streams]);
 
@@ -46,7 +48,7 @@ function SubscriptionsPage() {
 
   function prefetchVideos() {
     if (!query.data?.length) return;
-    void queryClient.prefetchInfiniteQuery(subscriptionFeedQueryOptions(group));
+    void queryClient.prefetchInfiniteQuery(subscriptionFeedQueryOptions(group, order));
   }
 
   useEffect(() => {
@@ -76,11 +78,23 @@ function SubscriptionsPage() {
         onVideosIntent={prefetchVideos}
         onChannelsIntent={prefetchChannels}
       />
-      <SubscriptionGroupFilter
-        value={group}
-        error={query.error ?? feedError}
-        onChange={(value, replace) => void navigate({ search: { group: value }, replace })}
-      />
+      <div className="flex flex-wrap items-center gap-2">
+        <SubscriptionGroupFilter
+          value={group}
+          error={query.error ?? feedError}
+          onChange={(value, replace) =>
+            void navigate({ search: (prev) => ({ ...prev, group: value }), replace })
+          }
+        />
+        <SubscriptionFeedOrderSelect
+          value={order}
+          onChange={(value) =>
+            void navigate({
+              search: (prev) => ({ ...prev, order: value === "oldest" ? value : undefined }),
+            })
+          }
+        />
+      </div>
       {isPreparing ? (
         <>
           <p role="status" className="text-sm text-fg-muted">
@@ -143,8 +157,11 @@ function SubscriptionsPage() {
 }
 
 export const Route = createFileRoute("/subscriptions")({
-  validateSearch: (search: Record<string, unknown>): { group?: string } => ({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { group?: string; order?: SubscriptionFeedOrder } => ({
     group: typeof search.group === "string" && search.group ? search.group : "all",
+    ...(search.order === "oldest" ? { order: "oldest" as const } : {}),
   }),
   component: SubscriptionsPage,
 });

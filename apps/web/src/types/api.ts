@@ -242,3 +242,5 @@ export type PodcastEpisodesResponse = {
   episodes: VideoItem[];
   nextpage: string | null;
 };
+
+export type SubscriptionFeedOrder = "newest" | "oldest";
