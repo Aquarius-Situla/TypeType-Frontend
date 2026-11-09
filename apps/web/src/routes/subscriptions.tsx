@@ -1,13 +1,16 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ScrollSentinel } from "../components/scroll-sentinel";
 import { SubscriptionFeedOrderSelect } from "../components/subscription-feed-order";
+import { SubscriptionFeedSelection } from "../components/subscription-feed-selection";
 import { SubscriptionGroupFilter } from "../components/subscription-group-filter";
 import { SubscriptionsHeader } from "../components/subscriptions-header";
+import { Toast } from "../components/toast";
 import { VideoGrid } from "../components/video-grid";
 import { VideoGridSkeleton } from "../components/video-grid-skeleton";
 import { useBlockedFilter } from "../hooks/use-blocked-filter";
+import { canMarkWatched, useMarkVideosWatched } from "../hooks/use-mark-videos-watched";
 import { streamQueryOptions } from "../hooks/use-stream";
 import { useSubscriptionFeed } from "../hooks/use-subscription-feed";
 import { useSubscriptions } from "../hooks/use-subscriptions";
@@ -41,6 +44,41 @@ function SubscriptionsPage() {
   } = useSubscriptionFeed(group, order);
   const { filter } = useBlockedFilter();
   const visible = useMemo(() => filter(streams), [filter, streams]);
+  const [selecting, setSelecting] = useState(false);
+  const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
+  const [toast, setToast] = useState<string | null>(null);
+  const markWatched = useMarkVideosWatched();
+
+  function stopSelecting() {
+    setSelecting(false);
+    setSelected(new Set());
+  }
+
+  function toggleSelected(id: string) {
+    setSelected((current) => {
+      const next = new Set(current);
+      if (!next.delete(id)) next.add(id);
+      return next;
+    });
+  }
+
+  function markSelected(watched: boolean) {
+    const chosen = visible.filter((stream) => selected.has(stream.id));
+    markWatched.mutate(
+      { streams: chosen, watched },
+      {
+        onSuccess: (count) => {
+          setToast(
+            watched
+              ? m.subscriptions_marked_watched({ count })
+              : m.subscriptions_marked_unwatched({ count }),
+          );
+          window.setTimeout(() => setToast(null), 2500);
+          stopSelecting();
+        },
+      },
+    );
+  }
 
   function prefetchChannels() {
     void queryClient.prefetchQuery(subscriptionsQueryOptions(group));
@@ -94,6 +132,19 @@ function SubscriptionsPage() {
             })
           }
         />
+        {visible.length > 0 && (
+          <SubscriptionFeedSelection
+            selecting={selecting}
+            selectedCount={selected.size}
+            pending={markWatched.isPending}
+            onStart={() => setSelecting(true)}
+            onSelectAll={() =>
+              setSelected(new Set(visible.filter(canMarkWatched).map((stream) => stream.id)))
+            }
+            onMark={markSelected}
+            onCancel={stopSelecting}
+          />
+        )}
       </div>
       {isPreparing ? (
         <>
@@ -128,7 +179,18 @@ function SubscriptionsPage() {
                 : m.sg_empty_feed()}
             </p>
           )}
-          <VideoGrid streams={visible} />
+          <VideoGrid
+            streams={visible}
+            selection={
+              selecting
+                ? {
+                    selected,
+                    onToggle: (stream) => toggleSelected(stream.id),
+                    canSelect: canMarkWatched,
+                  }
+                : undefined
+            }
+          />
           {isFetchingNextPage && <VideoGridSkeleton idPrefix="subscriptions-next" />}
           {isFetchNextPageError && (
             <div
@@ -152,6 +214,7 @@ function SubscriptionsPage() {
           />
         </>
       )}
+      <Toast message={toast} />
     </div>
   );
 }
