@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   ambientBlurPx,
+  ambientFadeGradientStops,
   ambientFadeStops,
   ambientScales,
   isAmbientLightActive,
@@ -40,5 +41,20 @@ describe("ambient light", () => {
     for (let index = 1; index < stops.length; index += 1) {
       expect(stops[index].alpha).toBeLessThanOrEqual(stops[index - 1].alpha);
     }
+  });
+
+  test("keeps every gradient stop inside 0..1 even when float rounding overshoots", () => {
+    expect((3.12 + 100 + 3.12) / (100 + 3.12 * 2)).toBeGreaterThan(1);
+    for (const [size, edge] of [
+      [100, 3.12],
+      [360, 118.8],
+      [1, 0.01],
+    ]) {
+      for (const stop of ambientFadeGradientStops(size, edge)) {
+        expect(stop.offset).toBeGreaterThanOrEqual(0);
+        expect(stop.offset).toBeLessThanOrEqual(1);
+      }
+    }
+    expect(ambientFadeGradientStops(0, 0)).toEqual([]);
   });
 });

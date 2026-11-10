@@ -46,3 +46,18 @@ export function ambientFadeStops(): Array<{ at: number; alpha: number }> {
   }
   return stops;
 }
+
+// Positions along one axis, from the outer edge before the player to the outer edge after it.
+// Float rounding can land a hair past 1, which addColorStop rejects.
+export function ambientFadeGradientStops(
+  size: number,
+  edge: number,
+): Array<{ offset: number; alpha: number }> {
+  const total = size + edge * 2;
+  if (!(total > 0)) return [];
+  const clamp = (value: number) => Math.min(1, Math.max(0, value));
+  return ambientFadeStops().flatMap((stop) => [
+    { offset: clamp((edge - edge * stop.at) / total), alpha: stop.alpha },
+    { offset: clamp((edge + size + edge * stop.at) / total), alpha: stop.alpha },
+  ]);
+}

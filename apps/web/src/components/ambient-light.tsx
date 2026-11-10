@@ -3,13 +3,12 @@ import { createPortal } from "react-dom";
 import {
   type AmbientTuning,
   ambientBlurPx,
-  ambientFadeStops,
+  ambientFadeGradientStops,
   ambientScales,
 } from "../lib/ambient-light";
 
 const RESOLUTION = 1 / 3;
 const FRAME_INTERVAL_MS = 1000 / 30;
-const FADE_STOPS = ambientFadeStops();
 
 type Target = { x: number; y: number; width: number; height: number };
 
@@ -22,11 +21,17 @@ function dockedPlayer(): { video: HTMLVideoElement; rect: DOMRect } | null {
   return rect.bottom > 0 && rect.width > 0 ? { video, rect } : null;
 }
 
-function supportsFilter(context: CanvasRenderingContext2D): boolean {
-  context.filter = "blur(1px)";
-  const supported = context.filter === "blur(1px)";
-  context.filter = "none";
-  return supported;
+// Safari accepts a filter value without drawing it, so the blur has to be seen to be trusted.
+function canvasBlurWorks(): boolean {
+  const probe = document.createElement("canvas");
+  probe.width = 9;
+  probe.height = 9;
+  const context = probe.getContext("2d", { willReadFrequently: true });
+  if (!context) return false;
+  context.filter = "blur(2px)";
+  context.fillStyle = "#fff";
+  context.fillRect(4, 4, 1, 1);
+  return context.getImageData(2, 4, 1, 1).data[3] > 0;
 }
 
 function fadeGradient(
@@ -36,14 +41,11 @@ function fadeGradient(
   edge: number,
   horizontal: boolean,
 ): CanvasGradient {
-  const total = size + edge * 2;
   const gradient = horizontal
     ? context.createLinearGradient(start - edge, 0, start + size + edge, 0)
     : context.createLinearGradient(0, start - edge, 0, start + size + edge);
-  for (const stop of FADE_STOPS) {
-    const color = `rgba(0, 0, 0, ${stop.alpha})`;
-    gradient.addColorStop((edge - edge * stop.at) / total, color);
-    gradient.addColorStop((edge + size + edge * stop.at) / total, color);
+  for (const stop of ambientFadeGradientStops(size, edge)) {
+    gradient.addColorStop(stop.offset, `rgba(0, 0, 0, ${stop.alpha})`);
   }
   return gradient;
 }
@@ -90,7 +92,7 @@ export function AmbientLight({ tuning }: { tuning: AmbientTuning }) {
     if (!canvas || !context || !layers || !small) return;
     const root = document.documentElement;
     root.dataset.ambientLight = "";
-    const filterSupported = supportsFilter(context);
+    const filterSupported = canvasBlurWorks();
 
     const resize = () => {
       const width = Math.max(1, Math.round(window.innerWidth * RESOLUTION));
