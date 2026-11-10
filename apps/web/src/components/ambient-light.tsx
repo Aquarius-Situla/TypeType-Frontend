@@ -9,16 +9,28 @@ import {
 
 const RESOLUTION = 1 / 3;
 const FRAME_INTERVAL_MS = 1000 / 30;
+// A few pixels of the frame stretched over the screen: a soft wash of its colors on every part
+// of the page, under the halo.
+const WASH_WIDTH = 8;
+const WASH_HEIGHT = 5;
+const WASH_ALPHA = 0.4;
 
 type Target = { x: number; y: number; width: number; height: number };
 
-function dockedPlayer(): { video: HTMLVideoElement; rect: DOMRect } | null {
+// The halo follows the player frame wherever it sits, docked or floating; a frame scrolled out
+// of view or dismissed keeps only the page-wide wash.
+function currentPlayer(): { video: HTMLVideoElement; rect: DOMRect | null } | null {
   const frame = document.querySelector<HTMLElement>(".typetype-persistent-player-frame");
-  if (!frame || "floating" in frame.dataset || "webFullscreen" in frame.dataset) return null;
+  if (!frame || "webFullscreen" in frame.dataset) return null;
   const video = frame.querySelector("video");
   if (!video || video.readyState < 2 || video.videoWidth === 0) return null;
   const rect = frame.getBoundingClientRect();
-  return rect.bottom > 0 && rect.width > 0 ? { video, rect } : null;
+  const shown =
+    !frame.classList.contains("invisible") &&
+    rect.width > 0 &&
+    rect.bottom > 0 &&
+    rect.top < window.innerHeight;
+  return { video, rect: shown ? rect : null };
 }
 
 // Safari accepts a filter value without drawing it, so the blur has to be seen to be trusted.
@@ -89,7 +101,11 @@ export function AmbientLight({ tuning }: { tuning: AmbientTuning }) {
     const layers = layersCanvas.getContext("2d");
     const smallCanvas = document.createElement("canvas");
     const small = smallCanvas.getContext("2d");
-    if (!canvas || !context || !layers || !small) return;
+    const washCanvas = document.createElement("canvas");
+    washCanvas.width = WASH_WIDTH;
+    washCanvas.height = WASH_HEIGHT;
+    const wash = washCanvas.getContext("2d");
+    if (!canvas || !context || !layers || !small || !wash) return;
     const root = document.documentElement;
     root.dataset.ambientLight = "";
     const filterSupported = canvasBlurWorks();
@@ -111,24 +127,31 @@ export function AmbientLight({ tuning }: { tuning: AmbientTuning }) {
     const tick = (now: number) => {
       frame = requestAnimationFrame(tick);
       if (now - lastDraw < FRAME_INTERVAL_MS) return;
-      const player = dockedPlayer();
+      const player = currentPlayer();
       canvas.style.opacity = player ? "1" : "0";
       if (!player) return;
       const { spread, blur, brightness } = tuningRef.current;
-      const target: Target = {
+      const target: Target | null = player.rect && {
         x: player.rect.left * RESOLUTION,
         y: player.rect.top * RESOLUTION,
         width: player.rect.width * RESOLUTION,
         height: player.rect.height * RESOLUTION,
       };
-      const key = `${player.video.currentTime}:${target.x}:${target.y}:${target.width}:${spread}:${blur}:${brightness}`;
+      const key = `${player.video.currentTime}:${target?.x}:${target?.y}:${target?.width}:${spread}:${blur}:${brightness}`;
       if (key === lastKey) return;
       lastKey = key;
       lastDraw = now;
 
+      wash.drawImage(player.video, 0, 0, WASH_WIDTH, WASH_HEIGHT);
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.imageSmoothingQuality = "high";
+      context.globalAlpha = Math.min(1, (WASH_ALPHA * brightness) / 100);
+      context.drawImage(washCanvas, 0, 0, canvas.width, canvas.height);
+      context.globalAlpha = 1;
+      if (!target) return;
+
       drawLight(layers, player.video, target, spread);
       const blurPx = ambientBlurPx(blur, target.height);
-      context.clearRect(0, 0, canvas.width, canvas.height);
       if (filterSupported) {
         context.filter = `blur(${blurPx}px) brightness(${brightness}%)`;
         context.drawImage(layersCanvas, 0, 0);
