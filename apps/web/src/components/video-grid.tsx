@@ -7,7 +7,7 @@ import type { VideoStream } from "../types/stream";
 import { SelectableCardOverlay } from "./selectable-card-overlay";
 import { VideoCard } from "./video-card";
 
-export type VideoGridSelection = {
+type VideoGridSelection = {
   selected: ReadonlySet<string>;
   onToggle: (stream: VideoStream) => void;
   canSelect: (stream: VideoStream) => boolean;
