@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useSettings } from "../hooks/use-settings";
 import {
   type AmbientTuning,
   ambientBlurPx,
@@ -89,7 +90,7 @@ function drawLight(
   layers.fillRect(0, 0, width, height);
 }
 
-export function AmbientLight({ tuning }: { tuning: AmbientTuning }) {
+function AmbientLight({ tuning }: { tuning: AmbientTuning }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const tuningRef = useRef(tuning);
   tuningRef.current = tuning;
@@ -107,7 +108,6 @@ export function AmbientLight({ tuning }: { tuning: AmbientTuning }) {
     const wash = washCanvas.getContext("2d");
     if (!canvas || !context || !layers || !small || !wash) return;
     const root = document.documentElement;
-    root.dataset.ambientLight = "";
     const filterSupported = canvasBlurWorks();
 
     const resize = () => {
@@ -129,7 +129,11 @@ export function AmbientLight({ tuning }: { tuning: AmbientTuning }) {
       if (now - lastDraw < FRAME_INTERVAL_MS) return;
       const player = currentPlayer();
       canvas.style.opacity = player ? "1" : "0";
-      if (!player) return;
+      if (!player) {
+        delete root.dataset.ambientLight;
+        return;
+      }
+      root.dataset.ambientLight = "";
       const { spread, blur, brightness } = tuningRef.current;
       const target: Target | null = player.rect && {
         x: player.rect.left * RESOLUTION,
@@ -186,5 +190,20 @@ export function AmbientLight({ tuning }: { tuning: AmbientTuning }) {
       />
     </div>,
     document.body,
+  );
+}
+
+// Lives at the app root so the light follows the player on every page, mini player included.
+export function AmbientLightHost({ disabled }: { disabled: boolean }) {
+  const { settings } = useSettings();
+  if (!settings.ambientLight || disabled) return null;
+  return (
+    <AmbientLight
+      tuning={{
+        spread: settings.ambientLightSpread,
+        blur: settings.ambientLightBlur,
+        brightness: settings.ambientLightBrightness,
+      }}
+    />
   );
 }

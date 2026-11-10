@@ -1,14 +1,3 @@
-export type AmbientLightContext = {
-  enabled: boolean;
-  cinemaMode: boolean;
-  webFullscreen: boolean;
-  audioOnly: boolean;
-};
-
-export function isAmbientLightActive(context: AmbientLightContext): boolean {
-  return context.enabled && !context.cinemaMode && !context.webFullscreen && !context.audioOnly;
-}
-
 export type AmbientTuning = { spread: number; blur: number; brightness: number };
 
 // The projector scales, spread fade and blur size follow Ambient light for YouTube by Wessel

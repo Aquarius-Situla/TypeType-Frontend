@@ -20,7 +20,6 @@ import { useWatchPlaylist } from "../hooks/use-watch-playlist";
 import { useWatchQueue } from "../hooks/use-watch-queue";
 import { useWatchSponsorBlock } from "../hooks/use-watch-sponsorblock";
 import { useWatchToast } from "../hooks/use-watch-toast";
-import { isAmbientLightActive } from "../lib/ambient-light";
 import { getOriginalAudioLocale } from "../lib/audio-track";
 import { m } from "../paraglide/messages.js";
 import { useDanmakuStore } from "../stores/danmaku-store";
@@ -149,12 +148,6 @@ export function WatchLayout({
     Boolean(!isMobile && (sidePanel || relatedStreams.length > 0 || liveChat.open)),
     webFullscreen,
   );
-  const ambientLight = isAmbientLightActive({
-    enabled: settings.ambientLight,
-    cinemaMode,
-    webFullscreen,
-    audioOnly: audioOnly.active,
-  });
   const secondaryContent = (
     <WatchSecondaryContent
       cinemaMode={cinemaMode}
@@ -170,15 +163,6 @@ export function WatchLayout({
     <div className={classes.containerClass}>
       <WatchStage
         classes={classes}
-        ambientLight={
-          ambientLight
-            ? {
-                spread: settings.ambientLightSpread,
-                blur: settings.ambientLightBlur,
-                brightness: settings.ambientLightBrightness,
-              }
-            : null
-        }
         stream={displayStream}
         settings={settings}
         manifestSrc={audioOnly.src ?? player.manifestSrc}

@@ -1,5 +1,6 @@
 import { createRootRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { useEffect, useLayoutEffect } from "react";
+import { AmbientLightHost } from "../components/ambient-light";
 import { AppFooter } from "../components/app-footer";
 import { AuthBackdrop } from "../components/auth-backdrop";
 import { GuestDisabledScreen } from "../components/guest-disabled-screen";
@@ -278,11 +279,12 @@ function RootLayoutContent() {
 
   return (
     <div
-      className={`min-h-screen bg-app text-fg relative ${watchPage ? "watch-page-shell watch-page-shell-dark" : ""} ${
+      className={`typetype-shell min-h-screen bg-app text-fg relative ${watchPage ? "watch-page-shell watch-page-shell-dark" : ""} ${
         watchWebFullscreenPage ? "watch-web-fullscreen" : ""
       }`}
     >
       <PersistentWatchPlayer />
+      <AmbientLightHost disabled={watchCinemaPage || watchWebFullscreenPage} />
       {!watchWebFullscreenPage && (
         <div className="watch-page-chrome">
           <Navbar />

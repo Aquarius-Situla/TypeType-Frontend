@@ -4,20 +4,9 @@ import {
   ambientFadeGradientStops,
   ambientFadeStops,
   ambientScales,
-  isAmbientLightActive,
 } from "../src/lib/ambient-light";
 
-const base = { enabled: true, cinemaMode: false, webFullscreen: false, audioOnly: false };
-
 describe("ambient light", () => {
-  test("lights the watch page only when enabled with a visible video", () => {
-    expect(isAmbientLightActive(base)).toBe(true);
-    expect(isAmbientLightActive({ ...base, enabled: false })).toBe(false);
-    expect(isAmbientLightActive({ ...base, cinemaMode: true })).toBe(false);
-    expect(isAmbientLightActive({ ...base, webFullscreen: true })).toBe(false);
-    expect(isAmbientLightActive({ ...base, audioOnly: true })).toBe(false);
-  });
-
   test("stacks full frames one 12 % edge apart up to the spread, ending at the player size", () => {
     expect(ambientScales(17)).toEqual([1.12, 1]);
     const wide = ambientScales(100);
