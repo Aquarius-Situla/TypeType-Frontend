@@ -1,5 +1,6 @@
 import type {
   AudioStreamItem,
+  EndScreenItem,
   PreviewFrameItem,
   SponsorBlockSegmentItem,
   StreamSegmentItem,
