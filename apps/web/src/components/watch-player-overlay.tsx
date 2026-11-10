@@ -4,6 +4,7 @@ import type { BulletCommentItem } from "../types/api";
 import type { VideoStream } from "../types/stream";
 import type { SettingsItem } from "../types/user";
 import { DanmakuOverlay } from "./danmaku-overlay";
+import { EndScreenOverlay } from "./end-screen-overlay";
 import { WatchPlayerDefaults } from "./watch-player-defaults";
 
 type Props = {
@@ -36,6 +37,7 @@ export function WatchPlayerOverlay({
       {canLoadBulletComments && !hideComments && bulletCommentsOn && bulletComments && (
         <DanmakuOverlay comments={bulletComments} positionRef={positionRef} />
       )}
+      {stream.endScreenElements && <EndScreenOverlay elements={stream.endScreenElements} />}
       <WatchPlayerDefaults
         settings={settings}
         qualityFailed={qualityFailed}

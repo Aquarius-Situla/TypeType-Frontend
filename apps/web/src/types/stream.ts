@@ -50,4 +50,5 @@ export type VideoStream = {
   sponsorBlockSegments?: SponsorBlockSegmentItem[];
   collections?: StreamCollectionItem[];
   parts?: StreamPartItem[];
+  endScreenElements?: EndScreenItem[];
 };

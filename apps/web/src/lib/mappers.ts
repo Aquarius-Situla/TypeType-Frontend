@@ -117,5 +117,11 @@ export function mapStreamResponse(response: StreamResponse, url: string): VideoS
       response.sponsorBlockSegments.length > 0 ? response.sponsorBlockSegments : undefined,
     collections: response.collections?.length ? response.collections : undefined,
     parts: response.parts?.length ? response.parts : undefined,
+    endScreenElements: response.endScreenElements?.length
+      ? response.endScreenElements.map((element) => ({
+          ...element,
+          thumbnailUrl: proxyImage(element.thumbnailUrl),
+        }))
+      : undefined,
   };
 }
