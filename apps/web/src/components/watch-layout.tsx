@@ -170,7 +170,15 @@ export function WatchLayout({
     <div className={classes.containerClass}>
       <WatchStage
         classes={classes}
-        ambientLight={ambientLight}
+        ambientLight={
+          ambientLight
+            ? {
+                spread: settings.ambientLightSpread,
+                blur: settings.ambientLightBlur,
+                brightness: settings.ambientLightBrightness,
+              }
+            : null
+        }
         stream={displayStream}
         settings={settings}
         manifestSrc={audioOnly.src ?? player.manifestSrc}

@@ -115,6 +115,9 @@ export type SettingsItem = {
   skipPlaylistAutoplayScreen: boolean;
   hideUpcomingPlaylistVideos: boolean;
   ambientLight: boolean;
+  ambientLightSpread: number;
+  ambientLightBlur: number;
+  ambientLightBrightness: number;
   audioOnlyPlayback: boolean;
   videoGridColumns: VideoGridColumns;
   relatedVideoSize: RelatedVideoSize;

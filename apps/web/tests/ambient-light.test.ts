@@ -1,5 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { AMBIENT_LAYER_COUNT, ambientLayers, isAmbientLightActive } from "../src/lib/ambient-light";
+import {
+  ambientBlurPx,
+  ambientFadeStops,
+  ambientScales,
+  isAmbientLightActive,
+} from "../src/lib/ambient-light";
 
 const base = { enabled: true, cinemaMode: false, webFullscreen: false, audioOnly: false };
 
@@ -12,17 +17,28 @@ describe("ambient light", () => {
     expect(isAmbientLightActive({ ...base, audioOnly: true })).toBe(false);
   });
 
-  test("stretches the frame from the screen edges down to the player", () => {
-    const player = { x: 10, y: 8, width: 100, height: 56 };
-    const screen = { x: 0, y: 0, width: 160, height: 90 };
-    const layers = ambientLayers(player, screen);
+  test("stacks full frames one 12 % edge apart up to the spread, ending at the player size", () => {
+    expect(ambientScales(17)).toEqual([1.12, 1]);
+    const wide = ambientScales(100);
+    expect(wide).toHaveLength(9);
+    expect(wide[0]).toBeCloseTo(1.96);
+    expect(wide[wide.length - 1]).toBe(1);
+    expect(ambientScales(0)).toEqual([1.12, 1]);
+  });
 
-    expect(layers).toHaveLength(AMBIENT_LAYER_COUNT);
-    expect(layers[0]).toMatchObject({ ...screen, alpha: 0.35 });
-    expect(layers[layers.length - 1]).toMatchObject({ ...player, alpha: 1 });
-    for (let index = 1; index < layers.length; index += 1) {
-      expect(layers[index].width).toBeLessThan(layers[index - 1].width);
-      expect(layers[index].alpha).toBeGreaterThan(layers[index - 1].alpha);
+  test("blurs relative to the player height like the extension", () => {
+    expect(ambientBlurPx(30, 512)).toBeCloseTo(38.25);
+    expect(ambientBlurPx(0, 512)).toBe(0);
+  });
+
+  test("keeps full light near the player and fades it out to nothing at the outer edge", () => {
+    const stops = ambientFadeStops();
+    expect(stops[0]).toEqual({ at: 0, alpha: 1 });
+    expect(stops[1]).toEqual({ at: 0.15, alpha: 1 });
+    expect(stops[stops.length - 1].at).toBeCloseTo(1);
+    expect(stops[stops.length - 1].alpha).toBeCloseTo(0);
+    for (let index = 1; index < stops.length; index += 1) {
+      expect(stops[index].alpha).toBeLessThanOrEqual(stops[index - 1].alpha);
     }
   });
 });

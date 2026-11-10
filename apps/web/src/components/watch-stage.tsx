@@ -2,6 +2,7 @@ import type { MutableRefObject, ReactNode } from "react";
 import { usePersistentWatchPlayer } from "../hooks/use-persistent-watch-player";
 import type { WatchAudioOnlyControls } from "../hooks/use-watch-audio-only-playback";
 import type { AutoplayState } from "../hooks/use-watch-ended-navigation";
+import type { AmbientTuning } from "../lib/ambient-light";
 import { detectProvider } from "../lib/provider";
 import type { SabrPlaybackConfig } from "../lib/sabr-source";
 import type { MediaSrc } from "../lib/vidstack";
@@ -42,7 +43,7 @@ type Props = {
   playerFailed: boolean;
   cinemaMode: boolean;
   webFullscreen?: boolean;
-  ambientLight?: boolean;
+  ambientLight?: AmbientTuning | null;
   hideComments: boolean;
   mobilePanel: ReactNode;
   mobileSecondaryContent: ReactNode | null;
@@ -92,7 +93,7 @@ export function WatchStage({
   playerFailed,
   cinemaMode,
   webFullscreen = false,
-  ambientLight = false,
+  ambientLight = null,
   hideComments,
   mobilePanel,
   mobileSecondaryContent,
@@ -184,7 +185,7 @@ export function WatchStage({
 
   return (
     <div className={classes.playerWrapClass}>
-      {ambientLight && <AmbientLight />}
+      {ambientLight && <AmbientLight tuning={ambientLight} />}
       <div ref={persistent.anchorRef} className={classes.playerBoxClass}>
         {localPlayer}
       </div>
