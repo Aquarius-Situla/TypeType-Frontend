@@ -14,7 +14,7 @@ html[data-ambient-light] .watch-page-shell .typetype-desktop-sidebar {
   border-color: transparent;
 }
 
-html[data-ambient-light] .watch-page-chrome nav {
+html[data-ambient-light] .typetype-navbar {
   background-color: rgb(0 0 0 / 0.35);
   border-color: transparent;
 }
