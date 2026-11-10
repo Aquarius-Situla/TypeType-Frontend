@@ -1,6 +1,6 @@
 /* The ambient light canvas sits behind the whole page: the watch shell and its chrome let it through. */
 html[data-ambient-light] {
-  background-color: #000;
+  background-color: var(--color-zinc-950);
 }
 
 html[data-ambient-light] body,
@@ -15,22 +15,27 @@ html[data-ambient-light] .watch-page-shell .typetype-desktop-sidebar {
 }
 
 html[data-ambient-light] .typetype-navbar {
-  background-color: rgb(0 0 0 / 0.35);
+  background-color: color-mix(in srgb, var(--color-zinc-950) 35%, transparent);
   border-color: transparent;
 }
 
 html[data-ambient-light] .watch-layout-container,
 html[data-ambient-light] .watch-page-chrome {
   text-shadow:
-    0 0 0.35rem rgb(0 0 0 / 0.85),
-    0 0 0.12rem rgb(0 0 0 / 0.9);
+    0 0 0.35rem color-mix(in srgb, var(--color-zinc-950) 85%, transparent),
+    0 0 0.12rem color-mix(in srgb, var(--color-zinc-950) 90%, transparent);
 }
 
-/* Cards and fields turn to tinted glass so the light reaches the whole page. */
+/* Cards and fields turn to tinted glass so the light reaches the whole page. The shell keeps the
+   theme's surface shades, and the page content mixes them with transparency. */
+html[data-ambient-light] .watch-page-shell {
+  --ambient-surface: var(--color-zinc-900);
+  --ambient-surface-strong: var(--color-zinc-800);
+  --ambient-surface-soft: var(--color-zinc-700);
+}
+
 html[data-ambient-light] .watch-page-shell .watch-layout-container {
-  --color-surface: rgb(18 18 18 / 0.35);
-  --color-surface-strong: rgb(60 60 60 / 0.45);
-  --color-surface-soft: rgb(90 90 90 / 0.45);
-  --color-border: rgb(255 255 255 / 0.1);
-  --color-border-strong: rgb(255 255 255 / 0.18);
+  --color-zinc-900: color-mix(in srgb, var(--ambient-surface) 45%, transparent);
+  --color-zinc-800: color-mix(in srgb, var(--ambient-surface-strong) 55%, transparent);
+  --color-zinc-700: color-mix(in srgb, var(--ambient-surface-soft) 55%, transparent);
 }
