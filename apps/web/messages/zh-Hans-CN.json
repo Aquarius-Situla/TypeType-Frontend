@@ -1078,6 +1078,8 @@
   "ui_no_playlists_added": "暂未添加播放列表",
   "ui_no_playlists_found": "未找到播放列表",
   "ui_no_playlists_on_this_channel": "No playlists on this channel.",
+  "ui_courses": "课程",
+  "ui_no_courses_on_this_channel": "此频道没有课程。",
   "ui_no_playlists_yet": "No playlists yet.",
   "ui_no_podcast_selected": "No podcast selected.",
   "ui_no_preference": "无偏好",

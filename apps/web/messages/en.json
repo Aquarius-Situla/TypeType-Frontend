@@ -767,6 +767,8 @@
   "ui_no_playlists_added": "No playlists added.",
   "ui_no_playlists_found": "No playlists found.",
   "ui_no_playlists_on_this_channel": "No playlists on this channel.",
+  "ui_courses": "Courses",
+  "ui_no_courses_on_this_channel": "No courses on this channel.",
   "ui_no_playlists_yet": "No playlists yet.",
   "ui_no_podcast_selected": "No podcast selected.",
   "ui_no_preference": "No preference",

@@ -5,16 +5,18 @@ const YOUTUBE_HANDLE_PATTERN = /^@[A-Za-z0-9._-]{2,48}$/;
 const BILIBILI_CHANNEL_ID_PATTERN = /^\d{1,20}$/;
 const NICONICO_CHANNEL_ID_PATTERN = /^\d{1,20}$/;
 
-export type ChannelTab = "videos" | "live" | "playlists" | "posts";
+export type ChannelTab = "videos" | "live" | "playlists" | "courses" | "posts";
 
 export function channelTabOrDefault(value: unknown): ChannelTab {
-  return value === "live" || value === "playlists" || value === "posts" ? value : "videos";
+  return value === "live" || value === "playlists" || value === "courses" || value === "posts"
+    ? value
+    : "videos";
 }
 
 export type ChannelPathSearch = {
   sort?: ChannelSort;
   q?: string;
-  tab?: "live" | "playlists" | "posts";
+  tab?: Exclude<ChannelTab, "videos">;
 };
 
 export type ChannelLegacySearch = ChannelPathSearch & {

@@ -758,6 +758,8 @@
   "ui_no_playlists_added": "Keine Wiedergabeliste hinzugefügt.",
   "ui_no_playlists_found": "Keine Wiedergabelisten gefunden.",
   "ui_no_playlists_on_this_channel": "Keine Wiedergabelisten auf diesem Kanal.",
+  "ui_courses": "Kurse",
+  "ui_no_courses_on_this_channel": "Keine Kurse auf diesem Kanal.",
   "ui_no_playlists_yet": "Noch keine Wiedergabelisten.",
   "ui_no_podcast_selected": "Keine Podcasts ausgewählt.",
   "ui_no_preference": "Keine Präferenz",

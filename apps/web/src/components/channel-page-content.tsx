@@ -155,12 +155,13 @@ export function ChannelPageContent({ sourceUrl, sort, searchQuery, tab, onNaviga
         searchAvailable={searchAvailable}
         isBilibili={isBilibili}
         postsAvailable={provider === "youtube"}
+        coursesAvailable={meta?.hasCourses === true || tab === "courses"}
         onSearch={searchChannel}
         onTabChange={selectTab}
         onSortChange={selectSort}
       />
-      {tab === "playlists" ? (
-        <ChannelPlaylistsSection channelUrl={sourceUrl} />
+      {tab === "playlists" || tab === "courses" ? (
+        <ChannelPlaylistsSection key={tab} channelUrl={sourceUrl} tab={tab} />
       ) : tab === "posts" && provider === "youtube" ? (
         <ChannelPostsSection channelUrl={sourceUrl} />
       ) : (

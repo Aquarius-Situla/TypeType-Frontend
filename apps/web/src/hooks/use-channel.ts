@@ -21,6 +21,7 @@ type ChannelMeta = {
   subscriberCount: number;
   isVerified: boolean;
   verification: ChannelVerification | null;
+  hasCourses?: boolean;
 };
 
 type ChannelPage = {
@@ -76,6 +77,7 @@ export function useChannel(
               subscriberCount: res.subscriberCount,
               isVerified: res.isVerified,
               verification: res.verification ?? null,
+              hasCourses: res.hasCourses === true,
             }
           : null,
         videos: res.videos.map(mapVideoItem),
