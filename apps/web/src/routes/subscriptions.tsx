@@ -76,6 +76,10 @@ function SubscriptionsPage() {
           window.setTimeout(() => setToast(null), 2500);
           stopSelecting();
         },
+        onError: () => {
+          setToast(m.subscriptions_mark_failed());
+          window.setTimeout(() => setToast(null), 3500);
+        },
       },
     );
   }

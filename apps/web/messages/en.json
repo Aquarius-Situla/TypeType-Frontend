@@ -1814,6 +1814,7 @@
   "subscriptions_select_all": "Select all",
   "subscriptions_marked_watched": "Marked as watched: {count}",
   "subscriptions_marked_unwatched": "Marked as unwatched: {count}",
+  "subscriptions_mark_failed": "Could not update the selected videos. Try again.",
   "admin_recommender_default_on": "On for everyone by default",
   "admin_recommender_default_on_description": "Every user gets the home page by algorithm at once and can turn it off. Off, each user turns it on.",
   "home_welcome_title": "Welcome 👋 Your home page does not know you yet",

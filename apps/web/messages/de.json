@@ -1814,6 +1814,7 @@
   "subscriptions_select_all": "Alle auswählen",
   "subscriptions_marked_watched": "Als gesehen markiert: {count}",
   "subscriptions_marked_unwatched": "Als nicht gesehen markiert: {count}",
+  "subscriptions_mark_failed": "Die ausgewählten Videos konnten nicht aktualisiert werden. Versuch es erneut.",
   "admin_recommender_default_on": "Standardmäßig für alle aktiviert",
   "admin_recommender_default_on_description": "Alle Nutzer erhalten sofort die Startseite per Algorithmus und können sie abschalten. Deaktiviert schaltet jeder sie selbst ein.",
   "home_welcome_title": "Willkommen 👋 Ihre Startseite kennt Sie noch nicht",

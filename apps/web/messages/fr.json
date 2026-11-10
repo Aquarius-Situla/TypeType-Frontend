@@ -1814,6 +1814,7 @@
   "subscriptions_select_all": "Tout sélectionner",
   "subscriptions_marked_watched": "Marquées comme vues : {count}",
   "subscriptions_marked_unwatched": "Marquées comme non vues : {count}",
+  "subscriptions_mark_failed": "Impossible de mettre à jour les vidéos sélectionnées. Réessayez.",
   "admin_recommender_default_on": "Activé par défaut pour tous",
   "admin_recommender_default_on_description": "Chaque utilisateur a l'accueil par algorithme tout de suite et peut le désactiver. Désactivé, chacun l'active lui-même.",
   "home_welcome_title": "Bienvenue 👋 Votre accueil ne vous connaît pas encore",
