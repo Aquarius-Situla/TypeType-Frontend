@@ -1,4 +1,5 @@
 import type { MutableRefObject, ReactNode } from "react";
+import { useAdBreak } from "../hooks/use-ad-break";
 import { usePersistentWatchPlayer } from "../hooks/use-persistent-watch-player";
 import type { WatchAudioOnlyControls } from "../hooks/use-watch-audio-only-playback";
 import type { AutoplayState } from "../hooks/use-watch-ended-navigation";
@@ -8,6 +9,7 @@ import type { MediaSrc } from "../lib/vidstack";
 import type { SponsorBlockSegmentItem } from "../types/api";
 import type { VideoStream } from "../types/stream";
 import type { CaptionStyles, SettingsItem } from "../types/user";
+import { AdBreakOverlay } from "./ad-break-overlay";
 import { AutoplayCountdownOverlay } from "./autoplay-countdown-overlay";
 import { PageSpinner } from "./page-spinner";
 import { PlayerError } from "./player-error";
@@ -112,9 +114,19 @@ export function WatchStage({
   onError,
   onReset,
 }: Props) {
+  const adBreak = useAdBreak(stream.id, !isLive && !audioOnly);
   const playerOverlay = (
     <>
       {overlay}
+      {adBreak.ad && (
+        <AdBreakOverlay
+          key={stream.id}
+          ad={adBreak.ad}
+          progress={adBreak.progress}
+          resume={autoplay}
+          onFinish={adBreak.finish}
+        />
+      )}
       {autoplayState && (
         <AutoplayCountdownOverlay
           target={autoplayState.target}
@@ -145,7 +157,7 @@ export function WatchStage({
     manualSkipSegments,
     settings,
     settingsReady,
-    autoplay,
+    autoplay: autoplay && !adBreak.ad,
     originalLocale,
     overlay: playerOverlay,
     seekRef,

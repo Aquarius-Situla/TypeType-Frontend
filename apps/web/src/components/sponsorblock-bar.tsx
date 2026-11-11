@@ -42,9 +42,13 @@ function SegmentBar({ segment, duration }: SegmentBarProps) {
   );
 }
 
-type Props = { segments: SponsorBlockSegmentItem[] };
+// The yellow of an ad break on the timeline.
+const AD_BREAK_COLOR = "#ffcc00";
 
-export function SponsorBlockBar({ segments }: Props) {
+// `adBreak` marks the ad that plays before the video, at the very start of the timeline.
+type Props = { segments: SponsorBlockSegmentItem[]; adBreak?: boolean };
+
+export function SponsorBlockBar({ segments, adBreak = false }: Props) {
   const duration = useMediaState("duration");
   const controlsVisible = useMediaState("controlsVisible");
   const anchorRef = useRef<HTMLDivElement>(null);
@@ -109,7 +113,7 @@ export function SponsorBlockBar({ segments }: Props) {
     };
   }, [controlsVisible, duration]);
 
-  if (!duration || segments.length === 0) return null;
+  if (!duration || (segments.length === 0 && !adBreak)) return null;
 
   return (
     <>
@@ -125,6 +129,20 @@ export function SponsorBlockBar({ segments }: Props) {
           visibility: controlsVisible ? "visible" : "hidden",
         }}
       >
+        {adBreak && (
+          <div
+            className="typetype-ad-break-mark"
+            style={{
+              position: "absolute",
+              left: 0,
+              width: "max(8px, 1%)",
+              top: 0,
+              bottom: 0,
+              backgroundColor: AD_BREAK_COLOR,
+              pointerEvents: "none",
+            }}
+          />
+        )}
         {segments.map((seg) => (
           <SegmentBar key={`${seg.category}-${seg.startTime}`} segment={seg} duration={duration} />
         ))}
