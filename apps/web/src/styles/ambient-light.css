@@ -43,3 +43,8 @@ html[data-ambient-light] .typetype-shell > main {
     0 0 0.35rem color-mix(in srgb, var(--ambient-app) 85%, transparent),
     0 0 0.12rem color-mix(in srgb, var(--ambient-app) 90%, transparent);
 }
+
+/* In cinema mode the player band is black around the picture; it lets the light through instead. */
+html[data-ambient-light] .watch-player-wrap {
+  background-color: transparent;
+}

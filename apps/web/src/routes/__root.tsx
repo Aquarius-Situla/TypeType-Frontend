@@ -284,7 +284,7 @@ function RootLayoutContent() {
       }`}
     >
       <PersistentWatchPlayer />
-      <AmbientLightHost disabled={watchCinemaPage || watchWebFullscreenPage} />
+      <AmbientLightHost disabled={watchWebFullscreenPage} />
       {!watchWebFullscreenPage && (
         <div className="watch-page-chrome">
           <Navbar />

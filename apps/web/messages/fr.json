@@ -585,6 +585,8 @@
   "ui_audio_only_playback": "Audio-only playback",
   "ui_ambient_light": "Lumière ambiante",
   "ui_ambient_light_description": "Éclaire la page autour du lecteur avec les couleurs de la vidéo. Utilise la carte graphique : gardez l'accélération matérielle activée dans votre navigateur. Peut consommer plus de batterie.",
+  "ui_ambient_light_unstable_warning": "Expérimental : la lumière ambiante peut être instable. Si la lecture saccade ou si la page clignote, désactivez-la.",
+  "ui_ambient_light_credit": "Adapté d'Ambient light for YouTube de Wessel Kroos (licence MIT).",
   "ui_ambient_light_spread": "Étendue",
   "ui_ambient_light_blur": "Flou",
   "ui_ambient_light_brightness": "Intensité",

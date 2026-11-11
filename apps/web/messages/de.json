@@ -579,6 +579,8 @@
   "ui_audio_only_playback": "„Nur-Ton“ Wiedergabe",
   "ui_ambient_light": "Umgebungslicht",
   "ui_ambient_light_description": "Beleuchtet die Seite rund um den Player mit den Farben des Videos. Nutzt die Grafikkarte: Lass die Hardwarebeschleunigung im Browser aktiviert. Kann mehr Akku verbrauchen.",
+  "ui_ambient_light_unstable_warning": "Experimentell: Das Umgebungslicht kann instabil sein. Wenn die Wiedergabe ruckelt oder die Seite flackert, schalte es aus.",
+  "ui_ambient_light_credit": "Angepasst von Ambient light for YouTube von Wessel Kroos (MIT-Lizenz).",
   "ui_ambient_light_spread": "Ausdehnung",
   "ui_ambient_light_blur": "Unschärfe",
   "ui_ambient_light_brightness": "Intensität",

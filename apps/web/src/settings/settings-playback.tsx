@@ -8,6 +8,7 @@ import {
   playbackSpeedLabel,
 } from "../lib/playback-speed";
 import { m } from "../paraglide/messages.js";
+import { AmbientLightNotes } from "./ambient-light-notes";
 import { SettingsBilibiliBuffer } from "./settings-bilibili-buffer";
 import {
   PLAYBACK_ROW,
@@ -164,6 +165,7 @@ export function SettingsPlayback() {
           checked={settings.ambientLight}
           onClick={() => update.mutate({ ambientLight: !settings.ambientLight })}
         />
+        <AmbientLightNotes enabled={settings.ambientLight} />
         {settings.ambientLight && (
           <>
             <PlaybackRangeRow
