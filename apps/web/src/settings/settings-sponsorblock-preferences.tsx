@@ -2,6 +2,7 @@ import { useSettings } from "../hooks/use-settings";
 import { SPONSORBLOCK_CATEGORIES, type SponsorBlockCategory } from "../lib/sponsorblock-settings";
 import { m } from "../paraglide/messages.js";
 import type { SponsorBlockCategoryAction, SponsorBlockMode } from "../types/user";
+import { AdModeRow } from "./settings-ad-mode";
 import { ROW, ToggleSwitch } from "./settings-toggle-switch";
 
 function actions(): { value: SponsorBlockCategoryAction; label: string }[] {
@@ -76,6 +77,7 @@ function GlobalMode() {
           );
         })}
       </div>
+      <AdModeRow />
     </div>
   );
 }
