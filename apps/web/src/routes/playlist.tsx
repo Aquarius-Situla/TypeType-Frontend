@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { BookmarkCheck, BookmarkPlus } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PlaylistActions } from "../components/playlist-actions";
@@ -15,7 +15,7 @@ import { useSavedPlaylists } from "../hooks/use-saved-playlists";
 import { useScopedValue } from "../hooks/use-scoped-value";
 import { isBilibiliCollectionUrl } from "../lib/api-bilibili-channel-collections";
 import { randomShuffleSeed, shuffleByKey } from "../lib/playlist-shuffle";
-import { playlistListId } from "../lib/playlist-url";
+import { playlistListId, youtubePlaylistId } from "../lib/playlist-url";
 import { markWatchAutoplayIntent } from "../lib/watch-autoplay-intent";
 import { toPublicWatchParam } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
@@ -177,5 +177,9 @@ export const Route = createFileRoute("/playlist")({
     list: typeof search.list === "string" && search.list.length > 0 ? search.list : undefined,
     url: typeof search.url === "string" && search.url.length > 0 ? search.url : undefined,
   }),
+  beforeLoad: ({ search }) => {
+    const list = search.url ? youtubePlaylistId(search.url) : null;
+    if (list) throw redirect({ to: "/playlist", search: { list, url: undefined }, replace: true });
+  },
   component: PublicPlaylistPage,
 });

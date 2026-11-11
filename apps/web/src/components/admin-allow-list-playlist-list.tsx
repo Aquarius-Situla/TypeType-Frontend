@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { playlistPath, playlistSearch } from "../lib/playlist-url";
 import { proxyImage } from "../lib/proxy";
 import { m } from "../paraglide/messages.js";
 import type { AllowedPlaylistItem } from "../types/allow-list";
@@ -8,11 +9,6 @@ type Props = {
   playlists: AllowedPlaylistItem[];
   onRemove?: (url: string) => void;
 };
-
-function playlistPath(url: string): string {
-  const params = new URLSearchParams({ url });
-  return `/playlist?${params.toString()}`;
-}
 
 function XIcon() {
   return (
@@ -64,14 +60,14 @@ export function AdminAllowListPlaylistList({ title, playlists, onRemove }: Props
                 <div className="min-w-0 flex-1">
                   <Link
                     to="/playlist"
-                    search={{ list: undefined, url: playlist.url }}
+                    search={playlistSearch(playlist.url)}
                     className="block truncate text-sm font-medium text-fg hover:underline"
                   >
                     {label}
                   </Link>
                   <Link
                     to="/playlist"
-                    search={{ list: undefined, url: playlist.url }}
+                    search={playlistSearch(playlist.url)}
                     className="block truncate text-xs text-fg-soft hover:text-fg-muted"
                   >
                     {playlistPath(playlist.url)}

@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { playlistSearch } from "../lib/playlist-url";
 import { proxyImage } from "../lib/proxy";
 import { m } from "../paraglide/messages.js";
 import type { PublicPlaylistInfo } from "../types/playlist";
@@ -21,7 +22,7 @@ export function PublicPlaylistCard({ playlist }: Props) {
   return (
     <Link
       to="/playlist"
-      search={{ list: undefined, url: playlist.url }}
+      search={playlistSearch(playlist.url)}
       className="group flex flex-col gap-2"
     >
       <div className="relative aspect-video overflow-hidden rounded-xl bg-surface-strong">

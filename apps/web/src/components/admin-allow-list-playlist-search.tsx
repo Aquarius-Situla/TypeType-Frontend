@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useDebouncedValue } from "../hooks/use-debounced-value";
 import { fetchSearch } from "../lib/api-discovery";
+import { playlistPath, playlistSearch, youtubePlaylistId } from "../lib/playlist-url";
 import { proxyImage } from "../lib/proxy";
 import { m } from "../paraglide/messages.js";
 import type { AllowPlaylistInput } from "../types/allow-list";
@@ -16,18 +17,15 @@ type Props = {
   onAdd: (playlist: AllowPlaylistInput) => void;
 };
 
-function playlistPath(url: string): string {
-  const params = new URLSearchParams({ url });
-  return `/playlist?${params.toString()}`;
-}
-
 function playlistSourceUrl(input: string): string {
   const trimmed = input.trim();
   if (trimmed.length === 0) return "";
   try {
     const parsed = new URL(trimmed, "http://typetype.local");
-    const sourceUrl = parsed.pathname === "/playlist" ? parsed.searchParams.get("url") : null;
-    return sourceUrl?.trim() || trimmed;
+    if (parsed.pathname !== "/playlist" || youtubePlaylistId(trimmed)) return trimmed;
+    const list = parsed.searchParams.get("list")?.trim();
+    const sourceUrl = parsed.searchParams.get("url")?.trim();
+    return sourceUrl || (list ? `https://www.youtube.com/playlist?list=${list}` : trimmed);
   } catch {
     return trimmed;
   }
@@ -122,7 +120,7 @@ export function AdminAllowListPlaylistSearch({
                   <div className="min-w-0 flex-1">
                     <Link
                       to="/playlist"
-                      search={{ list: undefined, url: playlist.url }}
+                      search={playlistSearch(playlist.url)}
                       className="block truncate text-sm font-medium text-fg hover:underline"
                     >
                       {playlist.title}
