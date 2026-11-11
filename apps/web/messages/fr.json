@@ -1980,5 +1980,11 @@
   "ad_new_ending": "Nouvelle fin trouvée",
   "ad_credits_title": "Tu as trouvé les 5 fins",
   "ad_credits_text": "Les annonces sont désactivées. Merci d'avoir regardé.",
-  "ad_unavailable": "Les annonces ne sont pas disponibles sur cette instance."
+  "ad_unavailable": "Les annonces ne sont pas disponibles sur cette instance.",
+  "ad_ai_badge": "IA",
+  "ad_ai_note": "Voix, images et textes réalisés avec des outils d'IA.",
+  "ad_credits_heading": "Crédits",
+  "ad_credits_voices": "Voix",
+  "ad_credits_music": "Musique",
+  "ad_credits_sounds": "Bruitages"
 }

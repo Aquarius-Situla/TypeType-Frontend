@@ -1980,5 +1980,11 @@
   "ad_new_ending": "发现新结局",
   "ad_credits_title": "你已找到全部 5 个结局",
   "ad_credits_text": "广告已关闭。感谢观看。",
-  "ad_unavailable": "此实例不提供广告。"
+  "ad_unavailable": "此实例不提供广告。",
+  "ad_ai_badge": "AI",
+  "ad_ai_note": "配音、画面和文字均借助 AI 工具制作。",
+  "ad_credits_heading": "制作人员",
+  "ad_credits_voices": "配音",
+  "ad_credits_music": "音乐",
+  "ad_credits_sounds": "音效"
 }

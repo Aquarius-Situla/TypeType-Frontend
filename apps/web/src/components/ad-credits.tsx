@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { AD_ROTATION } from "../lib/ad-catalog";
 import { adCreditsPictureUrl } from "../lib/ad-media";
 import { m } from "../paraglide/messages.js";
+import { AdCreditList } from "./ad-credit-list";
 
 const ROLL_SECONDS = 26;
 
@@ -40,6 +41,7 @@ export function AdCredits({ onDone }: Props) {
             <p className="text-lg font-semibold sm:text-2xl">{ad.brand()}</p>
           </div>
         ))}
+        <AdCreditList className="text-white" />
         <p className="text-xs uppercase tracking-widest text-white/50">{m.ad_thanks_credit()}</p>
       </div>
     </button>

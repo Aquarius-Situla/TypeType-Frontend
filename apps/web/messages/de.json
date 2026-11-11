@@ -1980,5 +1980,11 @@
   "ad_new_ending": "Neues Ende gefunden",
   "ad_credits_title": "Du hast alle 5 Enden gefunden",
   "ad_credits_text": "Werbung ist jetzt aus. Danke fürs Zuschauen.",
-  "ad_unavailable": "Werbung ist auf dieser Instanz nicht verfügbar."
+  "ad_unavailable": "Werbung ist auf dieser Instanz nicht verfügbar.",
+  "ad_ai_badge": "KI",
+  "ad_ai_note": "Stimmen, Bilder und Texte wurden mit KI-Werkzeugen erstellt.",
+  "ad_credits_heading": "Mitwirkende",
+  "ad_credits_voices": "Stimmen",
+  "ad_credits_music": "Musik",
+  "ad_credits_sounds": "Geräusche"
 }

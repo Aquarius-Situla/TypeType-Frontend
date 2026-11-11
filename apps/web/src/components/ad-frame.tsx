@@ -230,6 +230,12 @@ export function AdFrame({
             <span className="hidden shrink-0 rounded-sm bg-yellow-400 px-1.5 py-0.5 font-semibold text-black sm:inline">
               {label}
             </span>
+            <span
+              title={m.ad_ai_note()}
+              className="shrink-0 rounded-sm px-1 py-0.5 text-[10px] font-semibold text-white/80 ring-1 ring-white/40"
+            >
+              {m.ad_ai_badge()}
+            </span>
             <span className="hidden truncate font-medium sm:inline">{brand}</span>
             {onSeek && duration > 0 ? (
               <span className="shrink-0 tabular-nums text-white/75">

@@ -1980,5 +1980,11 @@
   "ad_new_ending": "New ending found",
   "ad_credits_title": "You found all 5 endings",
   "ad_credits_text": "Ads are now off. Thank you for watching.",
-  "ad_unavailable": "Ads are not available on this instance."
+  "ad_unavailable": "Ads are not available on this instance.",
+  "ad_ai_badge": "AI",
+  "ad_ai_note": "Voices, pictures and texts were made with AI tools.",
+  "ad_credits_heading": "Credits",
+  "ad_credits_voices": "Voices",
+  "ad_credits_music": "Music",
+  "ad_credits_sounds": "Sound effects"
 }

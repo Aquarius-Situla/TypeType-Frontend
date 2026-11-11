@@ -8,6 +8,7 @@ import { endingTitle, TRIAL_ENDINGS } from "../lib/ad-trial";
 import { hasPremium, readAdVault, wantAds } from "../lib/ad-vault";
 import { m } from "../paraglide/messages.js";
 import { AdClassic } from "./ad-classic";
+import { AdCreditList } from "./ad-credit-list";
 import { AdPremium } from "./ad-premium";
 import { AdTrial } from "./ad-trial";
 
@@ -168,6 +169,7 @@ export function AdAgency() {
           </ul>
         </section>
       )}
+      <AdCreditList className="border-t border-border pt-6 text-fg-soft" />
       <div className="flex items-center justify-between gap-3 text-xs text-fg-soft">
         <span>{m.ad_agency_endings({ n: `${vault.endings.length}` })}</span>
         <button
