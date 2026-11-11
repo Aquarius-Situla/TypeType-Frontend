@@ -110,6 +110,7 @@ const DEFAULTS: SettingsItem = {
   hideContinueWatching: false,
   hideHomeRecommendations: false,
   hideRelatedVideos: false,
+  hideEndScreens: false,
   hideComments: false,
   hideShorts: false,
   hideSubscriptionLiveStreams: false,

@@ -961,6 +961,8 @@
   "ui_hide_personalized_recommendations_from_the_home_page": "Hide personalized recommendations from the home page.",
   "ui_hide_shorts_navigation_and_block_the_shorts_page": "隐藏短视频和 Shorts 页面",
   "ui_hide_the_suggestions_column_on_watch_pages": "Hide the suggestions column on watch pages.",
+  "ui_end_screens": "片尾画面",
+  "ui_hide_the_creator_cards_shown_at_the_end_of_youtube_videos": "隐藏 YouTube 视频结尾显示的创作者卡片。",
   "ui_hide_videos_that_require_a_paid_youtube_channel_membership": "Hide videos that require a paid YouTube channel membership.",
   "ui_history": "History:",
   "ui_history_count": "{count} 个条目",

@@ -1212,6 +1212,8 @@
   "ui_home_recommendations": "Recommandations de l'accueil",
   "ui_hide_personalized_recommendations_from_the_home_page": "Masquer les recommandations personnalisées de l'accueil.",
   "ui_hide_the_suggestions_column_on_watch_pages": "Masquer la colonne de suggestions sur les pages de lecture.",
+  "ui_end_screens": "Écrans de fin",
+  "ui_hide_the_creator_cards_shown_at_the_end_of_youtube_videos": "Masquer les cartes du créateur affichées à la fin des vidéos YouTube.",
   "ui_watch_and_shorts": "Lecture + Shorts",
   "ui_hide_shorts_navigation_and_block_the_shorts_page": "Masquer les vidéos courtes et la page Shorts.",
   "ui_hide_active_and_scheduled_live_streams_from_the_subscriptions_feed": "Masquer les directs actifs et programmés du flux des abonnements.",

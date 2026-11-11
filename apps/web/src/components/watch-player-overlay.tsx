@@ -37,7 +37,9 @@ export function WatchPlayerOverlay({
       {canLoadBulletComments && !hideComments && bulletCommentsOn && bulletComments && (
         <DanmakuOverlay comments={bulletComments} positionRef={positionRef} />
       )}
-      {stream.endScreenElements && <EndScreenOverlay elements={stream.endScreenElements} />}
+      {!settings.hideEndScreens && stream.endScreenElements && (
+        <EndScreenOverlay elements={stream.endScreenElements} />
+      )}
       <WatchPlayerDefaults
         settings={settings}
         qualityFailed={qualityFailed}

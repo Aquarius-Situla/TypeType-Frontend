@@ -1203,6 +1203,8 @@
   "ui_home_recommendations": "Empfehlungen auf der Startseite",
   "ui_hide_personalized_recommendations_from_the_home_page": "Personalisierte Empfehlungen auf der Startseite ausblenden.",
   "ui_hide_the_suggestions_column_on_watch_pages": "Die Spalte mit den Vorschlägen auf den Wiedergabeseite ausblenden.",
+  "ui_end_screens": "Endbildschirme",
+  "ui_hide_the_creator_cards_shown_at_the_end_of_youtube_videos": "Die Karten des Erstellers am Ende von YouTube-Videos ausblenden.",
   "ui_watch_and_shorts": "Wiedergabe + Shorts",
   "ui_hide_shorts_navigation_and_block_the_shorts_page": "Kurzvideos und die Shorts-Seite ausblenden.",
   "ui_hide_active_and_scheduled_live_streams_from_the_subscriptions_feed": "Laufende und geplante Livestreams aus dem Abonnement-Feed ausblenden.",

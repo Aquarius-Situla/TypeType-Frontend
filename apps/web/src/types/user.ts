@@ -146,6 +146,7 @@ export type SettingsItem = {
   hideContinueWatching: boolean;
   hideHomeRecommendations: boolean;
   hideRelatedVideos: boolean;
+  hideEndScreens: boolean;
   hideComments: boolean;
   hideShorts: boolean;
   hideSubscriptionLiveStreams: boolean;
