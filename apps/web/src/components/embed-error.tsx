@@ -4,6 +4,7 @@ import { isMemberOnlyMessage } from "../lib/member-only";
 import { type VideoAvailability, videoAvailabilityCopy } from "../lib/video-availability";
 import { m } from "../paraglide/messages.js";
 import { FlagIcon } from "./flag-icon";
+import { ReactionGif } from "./reaction-gif";
 import { VideoAvailabilityPoster } from "./video-availability-poster";
 
 export function playbackFailedMessage(): string {
@@ -37,15 +38,13 @@ export function EmbedError({
   const isMemberOnly = availability === "members_only" || isMemberOnlyMessage(displayedMessage);
   const familyListBlocked = familyListBlockedOverride ?? message === familyListBlockedMessage();
   const playbackFailed = message === playbackFailedMessage();
-  const imageSrc =
-    image ??
-    (playbackFailed
-      ? "/sad-sigh.gif"
-      : familyListBlocked
-        ? "/family-list-blocked.gif"
-        : isMemberOnly
-          ? "/member-only-source.gif"
-          : "/error-cat.gif");
+  const reactionKind = playbackFailed
+    ? "playbackError"
+    : familyListBlocked
+      ? "familyListBlocked"
+      : isMemberOnly
+        ? "membersOnly"
+        : "videoError";
   const headingText =
     heading ??
     availabilityCopy?.heading ??
@@ -62,13 +61,7 @@ export function EmbedError({
         />
       ) : (
         <>
-          <img
-            src={imageSrc}
-            width={familyListBlocked ? "120" : "140"}
-            height={familyListBlocked ? "120" : "140"}
-            alt=""
-            className="rounded-2xl"
-          />
+          <ReactionGif kind={reactionKind} size={140} src={image} className="size-[140px]" />
           <div className="flex flex-col items-center gap-1.5">
             <p className="text-white text-base font-semibold tracking-tight">{headingText}</p>
             <div className="flex items-center gap-2">

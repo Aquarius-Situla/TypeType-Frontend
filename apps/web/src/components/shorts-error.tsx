@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { m } from "../paraglide/messages.js";
+import { ReactionGif } from "./reaction-gif";
 import { YoutubeIcon } from "./youtube-icon";
 
 type Props = {
@@ -27,13 +28,7 @@ export function ShortsError({
             aria-label={m.ui_reconnect_with_youtube()}
             className="cursor-pointer"
           >
-            <img
-              src="/youtube-session-reconnect.gif"
-              width="112"
-              height="92"
-              alt=""
-              className="rounded-xl"
-            />
+            <ReactionGif kind="youtubeReconnect" size={112} className="size-28" />
           </Link>
         ) : null}
         <p className="text-sm text-fg">{message}</p>
