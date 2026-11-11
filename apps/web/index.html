@@ -11,7 +11,6 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="TypeType" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <link rel="preload" as="image" href="/loader-mascot.png" />
     <script>
       (() => {
         const STORAGE_KEY = "typed-theme";
@@ -108,22 +107,21 @@
       }
       .loading-mascot {
         object-fit: contain;
-        animation: mascot-loader-bob 1.4s ease-in-out infinite;
-        transform-origin: center;
-      }
-      @keyframes mascot-loader-bob {
-        0%, 100% { transform: translateY(0) rotate(-1deg); }
-        50% { transform: translateY(-3px) rotate(1deg); }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        .loading-mascot { animation: none; }
       }
     </style>
   </head>
   <body>
     <div id="app-loader">
-      <img class="loading-mascot" src="/loader-mascot.png" width="160" height="160" alt="" />
+      <img id="app-loader-gif" class="loading-mascot" width="160" height="160" alt="" />
     </div>
+    <script>
+      // Same list as `loading` in src/lib/reaction-gifs.ts: one of them is drawn at each start.
+      {
+        const gifs = ["/loader-mascot.gif", "/reactions/loading-1.webp", "/reactions/loading-2.webp"];
+        const img = document.getElementById("app-loader-gif");
+        if (img) img.src = gifs[Math.floor(Math.random() * gifs.length)];
+      }
+    </script>
     <script>
       if (window.location.pathname === "/hide-everything") {
         document.getElementById("app-loader")?.remove();
