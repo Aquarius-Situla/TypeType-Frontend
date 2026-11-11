@@ -7,3 +7,5 @@ tmp/
 *.tsbuildinfo
 apps/web/src/paraglide/
 .env
+# Ad media are served by the instance, never committed.
+apps/web/public/ads/
