@@ -3,6 +3,7 @@ import { AD_ROTATION } from "../lib/ad-catalog";
 import { adCreditsPictureUrl } from "../lib/ad-media";
 import { m } from "../paraglide/messages.js";
 import { AdCreditList } from "./ad-credit-list";
+import "../styles/ad-motion.css";
 
 const ROLL_SECONDS = 26;
 
