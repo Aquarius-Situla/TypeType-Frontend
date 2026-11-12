@@ -8,6 +8,11 @@ const BAR = 64;
 const EDGE = 6;
 const FAR = -999;
 
+// How close the pointer gets before an act reacts.
+export const SKIP_NEAR = 85;
+
+export type SkipAct = (stage: SkipStage) => void;
+
 export type SkipStage = {
   frame: HTMLElement;
   btn: HTMLButtonElement;
