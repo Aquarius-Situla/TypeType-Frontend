@@ -1,24 +1,13 @@
-import {
-  Download,
-  Maximize,
-  Pause,
-  Play,
-  RectangleHorizontal,
-  Volume1,
-  Volume2,
-  VolumeX,
-} from "lucide-react";
-import { type ReactNode, type SyntheticEvent, useEffect, useRef, useState } from "react";
+import { Play, VolumeX } from "lucide-react";
+import { type ReactNode, type SyntheticEvent, useRef } from "react";
 import { useAdGuard } from "../hooks/use-ad-guard";
-import { AD_CHIP, clampVolume } from "../lib/ad-player";
+import { useAdIdle } from "../hooks/use-ad-idle";
+import { clampVolume } from "../lib/ad-player";
 import { m } from "../paraglide/messages.js";
-import { useWatchLayoutStore } from "../stores/watch-layout-store";
+import { AdControls } from "./ad-controls";
 import { AdSkip } from "./ad-skip";
-import { AdSlider } from "./ad-slider";
-import { AdCaption, AdSubtitlesButton, useAdSubtitles } from "./ad-subtitles";
-
-// The controls fade out after this long without the pointer moving, as in the player.
-const IDLE_MS = 2500;
+import { AdCaption, useAdSubtitles } from "./ad-subtitles";
+import "../styles/ad-motion.css";
 
 type Props = {
   label: string;
@@ -56,19 +45,6 @@ function stopPlayerEvent(event: SyntheticEvent) {
   event.stopPropagation();
 }
 
-function adClock(seconds: number): string {
-  const whole = Math.max(0, Math.floor(seconds));
-  return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, "0")}`;
-}
-
-export const AD_BUTTON = `flex h-9 w-9 shrink-0 items-center justify-center transition hover:bg-black/80 ${AD_CHIP}`;
-
-function VolumeIcon({ muted, volume }: { muted: boolean; volume: number }) {
-  if (muted || volume === 0) return <VolumeX className="h-4 w-4" aria-hidden="true" />;
-  if (volume < 0.5) return <Volume1 className="h-4 w-4" aria-hidden="true" />;
-  return <Volume2 className="h-4 w-4" aria-hidden="true" />;
-}
-
 // The shell shared by every ad: it covers the player, locks it, and carries the controls an ad
 // allows (pause, sound, subtitles, fullscreen, cinema mode, and seeking where it is allowed) plus
 // the skip button.
@@ -96,9 +72,6 @@ export function AdFrame({
 }: Props) {
   const frame = useRef<HTMLElement | null>(null);
   const subtitles = useAdSubtitles(clip, elapsed);
-  const [idle, setIdle] = useState(false);
-  const idleTimer = useRef(0);
-
   // Keys can repeat faster than the player reports the new level: steps add up from here.
   const level = useRef({ volume, elapsed });
   level.current = { volume, elapsed };
@@ -121,8 +94,6 @@ export function AdFrame({
     volumeBy: (step) => changeVolume((muted ? 0 : level.current.volume) + step),
     toggleMute: onToggleMute,
   });
-  const cinemaMode = useWatchLayoutStore((state) => state.cinemaMode);
-  const toggleCinemaMode = useWatchLayoutStore((state) => state.toggleCinemaMode);
   // Fullscreen goes to the whole player so the ad keeps its place when the video takes over.
   function toggleFullscreen() {
     if (document.fullscreenElement) return void document.exitFullscreen();
@@ -130,21 +101,9 @@ export function AdFrame({
     void target?.requestFullscreen().catch(() => undefined);
   }
 
-  const resting = paused || blocked || covered;
-  function wake() {
-    setIdle(false);
-    window.clearTimeout(idleTimer.current);
-    idleTimer.current = window.setTimeout(() => setIdle(true), IDLE_MS);
-  }
-  // biome-ignore lint/correctness/useExhaustiveDependencies: the timer restarts whenever the ad starts or stops
-  useEffect(() => {
-    wake();
-    return () => window.clearTimeout(idleTimer.current);
-  }, [resting]);
-  const shown = resting || !idle;
+  const { shown, wake } = useAdIdle(paused || blocked || covered);
 
   const progress = duration > 0 ? Math.min(100, (elapsed / duration) * 100) : 0;
-  const left = duration - elapsed;
 
   return (
     <section
@@ -178,112 +137,25 @@ export function AdFrame({
         </button>
       )}
       <AdCaption line={subtitles.line} raised={shown} />
-      <div
-        className={`absolute inset-x-0 bottom-0 z-30 bg-gradient-to-t from-black/85 via-black/40 to-transparent px-3 pb-3 pt-10 transition-opacity duration-300 ${shown ? "opacity-100" : "pointer-events-none opacity-0"}`}
-      >
-        {onSeek && duration > 0 && (
-          <AdSlider
-            label={m.player_seek()}
-            value={elapsed}
-            max={duration}
-            step={0.1}
-            valueText={`${adClock(elapsed)} / ${adClock(duration)}`}
-            onChange={onSeek}
-            className="mb-2"
-          />
-        )}
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          {onTogglePause && (
-            <button
-              type="button"
-              onClick={onTogglePause}
-              aria-label={paused ? m.player_play() : m.player_pause()}
-              className={AD_BUTTON}
-            >
-              {paused ? (
-                <Play className="h-4 w-4" aria-hidden="true" />
-              ) : (
-                <Pause className="h-4 w-4" aria-hidden="true" />
-              )}
-            </button>
-          )}
-          <div className={`group/volume flex h-9 shrink-0 items-center ${AD_CHIP}`}>
-            <button
-              type="button"
-              onClick={onToggleMute}
-              aria-label={muted ? m.player_unmute() : m.player_mute()}
-              className="flex h-9 w-9 items-center justify-center"
-            >
-              <VolumeIcon muted={muted} volume={volume} />
-            </button>
-            <AdSlider
-              label={m.player_volume()}
-              value={muted ? 0 : volume}
-              max={1}
-              step={0.05}
-              valueText={`${Math.round((muted ? 0 : volume) * 100)} %`}
-              onChange={changeVolume}
-              className="mr-3 hidden w-16 sm:flex sm:w-20"
-            />
-          </div>
-          <div className={`flex h-9 min-w-0 items-center gap-2 px-2 text-xs ${AD_CHIP}`}>
-            <span className="hidden shrink-0 rounded-sm bg-yellow-400 px-1.5 py-0.5 font-semibold text-black sm:inline">
-              {label}
-            </span>
-            <span
-              title={m.ad_ai_note()}
-              className="shrink-0 rounded-sm px-1 py-0.5 text-[10px] font-semibold text-white/80 ring-1 ring-white/40"
-            >
-              {m.ad_ai_badge()}
-            </span>
-            <span className="hidden truncate font-medium sm:inline">{brand}</span>
-            {onSeek && duration > 0 ? (
-              <span className="shrink-0 tabular-nums text-white/75">
-                {adClock(elapsed)} / {adClock(duration)}
-              </span>
-            ) : (
-              left > 0.5 && (
-                <span className="shrink-0 tabular-nums text-white/75">{adClock(left)}</span>
-              )
-            )}
-          </div>
-          <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
-            {tools}
-            <AdSubtitlesButton {...subtitles} className={AD_BUTTON} />
-            {download && (
-              <a
-                href={download.href}
-                download={download.name}
-                aria-label={m.ad_download()}
-                title={m.ad_download()}
-                className={AD_BUTTON}
-              >
-                <Download className="h-4 w-4" aria-hidden="true" />
-              </a>
-            )}
-            {!replay && (
-              <button
-                type="button"
-                onClick={toggleCinemaMode}
-                aria-label={
-                  cinemaMode ? m.player_disable_cinema_mode() : m.player_enable_cinema_mode()
-                }
-                className={`${AD_BUTTON} hidden lg:flex`}
-              >
-                <RectangleHorizontal className="h-4 w-4" aria-hidden="true" />
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={toggleFullscreen}
-              aria-label={m.ad_fullscreen()}
-              className={AD_BUTTON}
-            >
-              <Maximize className="h-4 w-4" aria-hidden="true" />
-            </button>
-          </div>
-        </div>
-      </div>
+      <AdControls
+        shown={shown}
+        label={label}
+        brand={brand}
+        elapsed={elapsed}
+        duration={duration}
+        paused={paused}
+        muted={muted}
+        volume={volume}
+        subtitles={subtitles}
+        onTogglePause={onTogglePause}
+        onToggleMute={onToggleMute}
+        onVolume={changeVolume}
+        onSeek={onSeek}
+        onFullscreen={toggleFullscreen}
+        replay={replay}
+        download={download}
+        tools={tools}
+      />
       {soundBlocked && (
         <button
           type="button"
