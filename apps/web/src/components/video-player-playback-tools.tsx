@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { useCompactPlayer } from "../hooks/use-compact-player";
+import { adIsDue, readAdVault } from "../lib/ad-vault";
 import { shouldRunSponsorBlockAutoSkip } from "../lib/sponsorblock-playback-tools";
 import { useMediaState } from "../lib/vidstack";
 import type { SponsorBlockSegmentItem } from "../types/api";
@@ -24,6 +26,8 @@ export function VideoPlayerPlaybackTools(props: Props) {
   const floating = useCompactPlayer();
   const fullscreen = useMediaState("fullscreen");
   const compact = floating && !fullscreen;
+  // Ad mode only reads local storage: nothing is requested for viewers who never turned it on.
+  const [adBreak] = useState(() => adIsDue(readAdVault()));
   return (
     <>
       <PlayerHotkeys canSeek={props.canSeek} sabrVideo={props.sabrVideo} compact={compact} />
@@ -33,7 +37,9 @@ export function VideoPlayerPlaybackTools(props: Props) {
           muteInsteadOfSkip={props.mutedSkip}
         />
       )}
-      {!compact && props.segments && <SponsorBlockBar segments={props.segments} />}
+      {!compact && (props.segments || adBreak) && (
+        <SponsorBlockBar segments={props.segments ?? []} adBreak={adBreak} />
+      )}
       {!compact && props.segments && <SponsorBlockSkipNotice />}
       {!compact && props.showCurrent && props.segments && (
         <SponsorBlockCurrentSegment

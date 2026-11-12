@@ -31,6 +31,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ShortsRouteImport } from './routes/shorts'
+import { Route as SponsorsRouteImport } from './routes/sponsors'
 import { Route as SubscriptionGroupsPreviewRouteImport } from './routes/subscription-groups-preview'
 import { Route as SubscriptionsRouteImport } from './routes/subscriptions'
 import { Route as WatchRouteImport } from './routes/watch'
@@ -158,6 +159,11 @@ const ShortsRoute = ShortsRouteImport.update({
   path: '/shorts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SponsorsRoute = SponsorsRouteImport.update({
+  id: '/sponsors',
+  path: '/sponsors',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SubscriptionGroupsPreviewRoute =
   SubscriptionGroupsPreviewRouteImport.update({
     id: '/subscription-groups-preview',
@@ -264,6 +270,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/shorts': typeof ShortsRoute
+  '/sponsors': typeof SponsorsRoute
   '/subscription-groups-preview': typeof SubscriptionGroupsPreviewRoute
   '/subscriptions': typeof SubscriptionsRoute
   '/watch': typeof WatchRoute
@@ -303,6 +310,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/shorts': typeof ShortsRoute
+  '/sponsors': typeof SponsorsRoute
   '/subscription-groups-preview': typeof SubscriptionGroupsPreviewRoute
   '/subscriptions': typeof SubscriptionsRoute
   '/watch': typeof WatchRoute
@@ -344,6 +352,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/shorts': typeof ShortsRoute
+  '/sponsors': typeof SponsorsRoute
   '/subscription-groups-preview': typeof SubscriptionGroupsPreviewRoute
   '/subscriptions': typeof SubscriptionsRoute
   '/watch': typeof WatchRoute
@@ -386,6 +395,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/shorts'
+    | '/sponsors'
     | '/subscription-groups-preview'
     | '/subscriptions'
     | '/watch'
@@ -425,6 +435,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/shorts'
+    | '/sponsors'
     | '/subscription-groups-preview'
     | '/subscriptions'
     | '/watch'
@@ -465,6 +476,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/shorts'
+    | '/sponsors'
     | '/subscription-groups-preview'
     | '/subscriptions'
     | '/watch'
@@ -506,6 +518,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   SettingsRoute: typeof SettingsRoute
   ShortsRoute: typeof ShortsRoute
+  SponsorsRoute: typeof SponsorsRoute
   SubscriptionGroupsPreviewRoute: typeof SubscriptionGroupsPreviewRoute
   SubscriptionsRoute: typeof SubscriptionsRoute
   WatchRoute: typeof WatchRoute
@@ -677,6 +690,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShortsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sponsors': {
+      id: '/sponsors'
+      path: '/sponsors'
+      fullPath: '/sponsors'
+      preLoaderRoute: typeof SponsorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/subscription-groups-preview': {
       id: '/subscription-groups-preview'
       path: '/subscription-groups-preview'
@@ -830,6 +850,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   SettingsRoute: SettingsRoute,
   ShortsRoute: ShortsRoute,
+  SponsorsRoute: SponsorsRoute,
   SubscriptionGroupsPreviewRoute: SubscriptionGroupsPreviewRoute,
   SubscriptionsRoute: SubscriptionsRoute,
   WatchRoute: WatchRoute,
