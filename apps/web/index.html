@@ -12,6 +12,19 @@
     <meta name="apple-mobile-web-app-title" content="TypeType" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <script>
+      // Same list as `loading` in src/lib/reaction-gifs.ts: one of them is drawn at each start, and
+      // asked for here so it is on its way before the page body and the app scripts are read.
+      {
+        const gifs = ["/loader-mascot.gif", "/reactions/loading-1.webp", "/reactions/loading-2.webp"];
+        window.__appLoaderGif = gifs[Math.floor(Math.random() * gifs.length)];
+        const preload = document.createElement("link");
+        preload.rel = "preload";
+        preload.as = "image";
+        preload.href = window.__appLoaderGif;
+        document.head.appendChild(preload);
+      }
+    </script>
+    <script>
       (() => {
         const STORAGE_KEY = "typed-theme";
         const DARK = "dark";
@@ -115,11 +128,9 @@
       <img id="app-loader-gif" class="loading-mascot" width="160" height="160" alt="" />
     </div>
     <script>
-      // Same list as `loading` in src/lib/reaction-gifs.ts: one of them is drawn at each start.
       {
-        const gifs = ["/loader-mascot.gif", "/reactions/loading-1.webp", "/reactions/loading-2.webp"];
         const img = document.getElementById("app-loader-gif");
-        if (img) img.src = gifs[Math.floor(Math.random() * gifs.length)];
+        if (img) img.src = window.__appLoaderGif;
       }
     </script>
     <script>
