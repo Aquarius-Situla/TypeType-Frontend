@@ -1,4 +1,5 @@
 import { m } from "../paraglide/messages.js";
+import { ReactionGif } from "./reaction-gif";
 
 type EmbedGuestRequiredProps = {
   watchUrl: string;
@@ -7,7 +8,7 @@ type EmbedGuestRequiredProps = {
 export function EmbedGuestRequired({ watchUrl }: EmbedGuestRequiredProps) {
   return (
     <div className="w-full h-full bg-black flex flex-col items-center justify-center gap-5 px-4">
-      <img src="/error-cat.gif" width="140" height="140" alt="" className="rounded-2xl" />
+      <ReactionGif kind="guestDisabled" size={140} className="size-[140px]" />
       <div className="flex flex-col items-center gap-1.5">
         <p className="text-white text-base font-semibold tracking-tight">
           {m.ui_embed_unavailable()}

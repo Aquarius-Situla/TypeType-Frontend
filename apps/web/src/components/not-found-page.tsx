@@ -2,19 +2,14 @@ import { Link } from "@tanstack/react-router";
 import { ArrowLeft, House } from "lucide-react";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { m } from "../paraglide/messages.js";
+import { ReactionGif } from "./reaction-gif";
 
 export function NotFoundPage() {
   useInterfaceLocale();
 
   return (
     <section className="fixed inset-0 z-50 flex min-h-svh flex-col items-center justify-center gap-5 overflow-y-auto bg-black px-4 py-8 text-center text-white">
-      <img
-        src="/not-found-dark.gif"
-        alt=""
-        width={400}
-        height={433}
-        className="h-auto w-full max-w-[15rem]"
-      />
+      <ReactionGif kind="notFound" size={400} className="h-auto w-full max-w-[15rem]" />
       <div data-interface-copy className="max-w-sm">
         <h1 className="text-base font-semibold text-white">{m.not_found_title()}</h1>
         <p className="mt-1.5 text-sm leading-6 text-zinc-400">{m.not_found_description()}</p>

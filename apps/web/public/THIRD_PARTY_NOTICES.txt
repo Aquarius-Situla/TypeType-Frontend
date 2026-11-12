@@ -19,6 +19,17 @@ F-Droid icon
 https://gitlab.com/fdroid/fdroid-website/-/blob/master/assets/fdroid-logo.svg
 The F-Droid logo is available under CC BY-SA 3.0 or GPLv3+.
 
+Loading and error reactions
+---------------------------
+
+The animated reactions in /reactions are third-party GIFs found on KLIPY
+(https://klipy.com), with their backgrounds removed and re-encoded as WebP.
+They show characters that remain the property of their rights holders,
+including Pingu, Scrooge McDuck (Disney), SpongeBob SquarePants (Nickelodeon),
+Pudgy Penguins, Peach and Goma, and Milk and Mocha. The MIT license of this
+project does not cover them. The source of each file is listed in
+THIRD_PARTY_ASSETS.md in the repository.
+
 zip.js
 https://github.com/gildas-lormeau/zip.js
 BSD 3-Clause License
