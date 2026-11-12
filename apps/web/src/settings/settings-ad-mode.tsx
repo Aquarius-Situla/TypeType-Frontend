@@ -21,7 +21,7 @@ export function AdModeRow() {
   // Index of the confirmation on screen, or -1.
   const [step, setStep] = useState(-1);
   const current = step >= 0 ? askSteps()[step] : null;
-  // False once the instance was found not to serve the videos.
+  // False once the media host was found out of reach from here.
   const [available, setAvailable] = useState(true);
   function confirm() {
     if (step < askSteps().length - 1) return setStep(step + 1);
