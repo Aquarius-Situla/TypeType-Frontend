@@ -2,6 +2,12 @@ import { m } from "../paraglide/messages.js";
 import { ApiError } from "./api";
 import { isTemporaryApiError } from "./api-retry";
 
+const PERMANENT_CODES = new Set([
+  "content_unavailable",
+  "private_content",
+  "geographic_restriction",
+]);
+
 export function resolveStreamErrorMessage(error: unknown): string | null {
   if (!(error instanceof ApiError)) return null;
 
@@ -13,6 +19,7 @@ export function resolveStreamErrorMessage(error: unknown): string | null {
     case "no_playable_streams":
       return m.ui_error_no_playable_stream();
     case "private_content":
+    case "content_unavailable":
       return m.ui_error_private_video();
     case "age_restricted":
       return m.ui_error_age_restricted();
@@ -31,6 +38,10 @@ export function resolveStreamErrorMessage(error: unknown): string | null {
   if (isTemporaryApiError(error)) return m.ui_error_temporarily_unavailable();
   if (error.status === 422) return m.ui_error_stream_unavailable();
   return null;
+}
+
+export function isPermanentlyUnavailableError(error: unknown): boolean {
+  return error instanceof ApiError && PERMANENT_CODES.has(error.code ?? "");
 }
 
 export function streamRetryNotice(error: unknown, retrying: boolean): string | undefined {

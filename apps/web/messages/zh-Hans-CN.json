@@ -910,6 +910,7 @@
   "ui_error_no_playable_stream": "TypeType 无法找到此视频的兼容流，请稍后再试或播放其他视频",
   "ui_error_occurs_when_fetching_the_page_try_increase_the_loading_timeout": "Error occurs when fetching the page. Try increase the loading timeout in Settings.",
   "ui_error_private_video": "此视频为私密视频或已失效",
+  "ui_skipping_to_next_video": "正在跳到下一个视频…",
   "ui_error_provider_blocked": "视频源封锁了来自该 TypeType 服务器的请求，请尝试为服务器配置代理/变更出口网络后再试",
   "ui_error_region_restricted": "此视频在服务器所在地区不可用，可通过代理或切换网络解决",
   "ui_error_stream_unavailable": "视频服务未能提供可播放的媒体流，请稍后再试",

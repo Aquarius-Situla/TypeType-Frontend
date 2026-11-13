@@ -1,11 +1,16 @@
+import { useState } from "react";
 import { isStreamUnavailableError } from "../hooks/use-stream";
 import { familyListBlockedMessage, isChannelNotAllowedError } from "../lib/allow-list-error";
 import { ApiError } from "../lib/api";
 import { youtubeSessionActionForError } from "../lib/api-youtube-session";
-import { resolveStreamErrorMessage } from "../lib/stream-error-message";
+import {
+  isPermanentlyUnavailableError,
+  resolveStreamErrorMessage,
+} from "../lib/stream-error-message";
 import { resolveVideoAvailability, videoAvailabilityCopy } from "../lib/video-availability";
 import { youtubeSessionReturnToForWatch } from "../lib/youtube-session-route";
 import { m } from "../paraglide/messages.js";
+import { PlaylistSkipUnavailable } from "./playlist-skip-unavailable";
 import { StreamError } from "./stream-error";
 
 type Props = {
@@ -18,6 +23,8 @@ type Props = {
 };
 
 export function WatchStreamError({ error, publicParam, list, shuffle, poster, onRetry }: Props) {
+  const [skipping, setSkipping] = useState(false);
+  const skipInPlaylist = Boolean(list) && isPermanentlyUnavailableError(error);
   const genericExtractorError =
     error instanceof ApiError &&
     error.status === 422 &&
@@ -45,14 +52,25 @@ export function WatchStreamError({ error, publicParam, list, shuffle, poster, on
         : (streamErrorMessage ?? m.ui_failed_to_load_stream());
 
   return (
-    <StreamError
-      message={message}
-      familyListBlocked={familyListBlocked}
-      availability={availability ?? undefined}
-      poster={poster}
-      onRetry={availability || needsYoutubeSession || familyListBlocked ? undefined : onRetry}
-      youtubeSessionReturnTo={youtubeSessionReturnTo}
-      youtubeSessionAction={youtubeSessionAction ?? undefined}
-    />
+    <>
+      {list && skipInPlaylist && (
+        <PlaylistSkipUnavailable
+          list={list}
+          shuffle={shuffle}
+          currentParam={publicParam}
+          onScheduled={setSkipping}
+        />
+      )}
+      <StreamError
+        message={message}
+        notice={skipInPlaylist && skipping ? m.ui_skipping_to_next_video() : undefined}
+        familyListBlocked={familyListBlocked}
+        availability={availability ?? undefined}
+        poster={poster}
+        onRetry={availability || needsYoutubeSession || familyListBlocked ? undefined : onRetry}
+        youtubeSessionReturnTo={youtubeSessionReturnTo}
+        youtubeSessionAction={youtubeSessionAction ?? undefined}
+      />
+    </>
   );
 }

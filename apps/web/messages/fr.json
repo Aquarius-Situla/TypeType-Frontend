@@ -1057,6 +1057,7 @@
   "ui_error_region_restricted": "Cette vidéo n’est pas disponible dans la région du serveur. Un VPN ou un autre réseau sortant peut aider.",
   "ui_error_no_playable_stream": "TypeType n’a trouvé aucun flux compatible pour cette vidéo. Réessayez plus tard ou choisissez une autre vidéo.",
   "ui_error_private_video": "Cette vidéo est privée ou n’est plus disponible.",
+  "ui_skipping_to_next_video": "Passage à la vidéo suivante…",
   "ui_error_age_restricted": "Cette vidéo nécessite une vérification de l’âge. Connectez YouTube puis réessayez.",
   "ui_error_stream_unavailable": "Le service vidéo n’a pas pu fournir de flux lisible. Réessayez plus tard.",
   "ui_mute_zen_music": "Mute zen music",

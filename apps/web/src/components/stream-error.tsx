@@ -12,6 +12,7 @@ import { YoutubeIcon } from "./youtube-icon";
 
 type Props = {
   message: string;
+  notice?: string;
   onRetry?: () => void;
   youtubeSessionReturnTo?: string;
   youtubeSessionAction?: "connect" | "reconnect";
@@ -22,6 +23,7 @@ type Props = {
 
 export function StreamError({
   message,
+  notice,
   onRetry,
   youtubeSessionReturnTo,
   youtubeSessionAction,
@@ -81,6 +83,7 @@ export function StreamError({
               )}
               <p className="max-w-xs text-center text-sm text-fg-muted">{displayedMessage}</p>
             </div>
+            {notice && <p className="text-center text-sm text-fg-soft">{notice}</p>}
           </div>
         </>
       )}

@@ -1048,6 +1048,7 @@
   "ui_error_region_restricted": "Dieses Video ist in der Region des Servers nicht verfügbar. Ein VPN oder ein anderes ausgehendes Netzwerk kann helfen.",
   "ui_error_no_playable_stream": "TypeType konnte keinen kompatiblen Stream für dieses Video finden. Versuche es später erneut oder wähle ein anderes Video.",
   "ui_error_private_video": "Dieses Video ist privat oder nicht mehr verfügbar.",
+  "ui_skipping_to_next_video": "Weiter zum nächsten Video…",
   "ui_error_age_restricted": "Für dieses Video ist eine Altersbestätigung erforderlich. Verbinde YouTube und versuche es erneut.",
   "ui_error_stream_unavailable": "Der Videodienst konnte keinen abspielbaren Stream bereitstellen. Versuche es später erneut.",
   "ui_mute_zen_music": "Zen-Musik stumm schalten",
