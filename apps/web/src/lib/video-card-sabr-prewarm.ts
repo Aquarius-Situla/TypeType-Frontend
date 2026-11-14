@@ -52,7 +52,8 @@ export function resolveVideoCardSabrConfig(
     audioOptions.some((option) => option.id === audioState.selectedTrackId)
       ? audioState.selectedTrackId
       : defaultTrackId;
-  const storedAudioOnly = localStorage.getItem(AUDIO_ONLY_STORAGE_KEY);
+  const storedAudioOnly =
+    typeof localStorage === "undefined" ? null : localStorage.getItem(AUDIO_ONLY_STORAGE_KEY);
   const audioOnly =
     storedAudioOnly === null ? (settings?.audioOnlyPlayback ?? false) : storedAudioOnly === "true";
   return resolveSabrPlaybackConfig(stream, selectedItag, selectedTrackId, audioOnly);
@@ -73,5 +74,5 @@ export async function prewarmVideoCardSabr(
       serverPositionSeconds: stream.startPosition,
       durationSeconds: stream.duration,
     }) ?? 0;
-  await prewarmSabrPlayback(config, options.token, options.signal, startTimeMs);
+  await prewarmSabrPlayback(config, options.signal, startTimeMs);
 }

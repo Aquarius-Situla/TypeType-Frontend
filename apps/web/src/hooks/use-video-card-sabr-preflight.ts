@@ -64,8 +64,7 @@ export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
 
     const controller = new AbortController();
     activeControllerRef.current = controller;
-    const token = useAuthStore.getState().token;
-    const authenticated = Boolean(token);
+    const authenticated = Boolean(useAuthStore.getState().token);
     void preloadPlaybackRuntime(stream.id).catch(() => undefined);
     void Promise.all([
       queryClient.fetchQuery(streamQueryOptions(stream.id, authenticated, true, false, hover)),
@@ -75,7 +74,7 @@ export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
         if (controller.signal.aborted) return;
         return prewarmVideoCardSabr(fullStream, {
           settings: queryClient.getQueryData<SettingsItem>(["settings"]),
-          token,
+          token: useAuthStore.getState().token,
           progressMs,
           signal: controller.signal,
           committed: () => committedRef.current,

@@ -2,9 +2,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef } from "react";
 import { prewarmSabrPlayback } from "../lib/api-sabr-prewarm";
 import { canRetryAutoplayPreload, shouldPreloadAutoplayTarget } from "../lib/autoplay-preload";
-import { defaultSabrItag, resolveSabrPlaybackConfig, sabrQualityOptions } from "../lib/sabr-source";
+import { resolveVideoCardSabrConfig } from "../lib/video-card-sabr-prewarm";
 import { toWatchSourceUrl } from "../lib/watch-url";
-import { useAuthStore } from "../stores/auth-store";
 import { useAuth } from "./use-auth";
 import { useInstance } from "./use-instance";
 import { useSettings } from "./use-settings";
@@ -19,10 +18,9 @@ type Args = {
 
 export function useWatchAutoplayPreload({ durationMs, enabled, target }: Args) {
   const queryClient = useQueryClient();
-  const token = useAuthStore((state) => state.token);
   const { authReady, isAuthed } = useAuth();
   const { isPending: instancePending } = useInstance();
-  const { settingsReady } = useSettings();
+  const { settings, settingsReady } = useSettings();
   const preloadedRef = useRef(new Set<string>());
   const failedAtRef = useRef(new Map<string, number>());
   const activeRef = useRef<AbortController | null>(null);
@@ -61,9 +59,10 @@ export function useWatchAutoplayPreload({ durationMs, enabled, target }: Args) {
         .fetchQuery(streamQueryOptions(sourceUrl, useAuthenticatedStream, true, false, true))
         .then((stream) => {
           if (controller.signal.aborted) return;
-          const itag = defaultSabrItag(sabrQualityOptions(stream), "720p");
-          const config = resolveSabrPlaybackConfig(stream, itag);
-          if (config) return prewarmSabrPlayback(config, token, controller.signal);
+          const config = resolveVideoCardSabrConfig(stream, settings);
+          if (config) {
+            return prewarmSabrPlayback(config, controller.signal);
+          }
         })
         .catch(() => {
           if (controller.signal.aborted) return;
@@ -74,6 +73,6 @@ export function useWatchAutoplayPreload({ durationMs, enabled, target }: Args) {
           if (activeRef.current === controller) activeRef.current = null;
         });
     },
-    [durationMs, enabled, queryClient, ready, target, token, useAuthenticatedStream],
+    [durationMs, enabled, queryClient, ready, settings, target, useAuthenticatedStream],
   );
 }
