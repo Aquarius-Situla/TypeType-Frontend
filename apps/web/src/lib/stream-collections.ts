@@ -205,23 +205,41 @@ export function isCollectionPlaylist(playlist: {
   name?: string;
   description?: string;
 }): boolean {
-  if (playlist.id && getSubscribedCollectionIds().has(playlist.id)) return true;
-  const desc = (playlist.description ?? "").toLowerCase();
-  if (desc.includes("[collection") || desc.includes("[series")) return true;
   const type = (playlist.playlistType ?? "").toLowerCase();
   const url = (playlist.url ?? "").toLowerCase();
+  const id = (playlist.id ?? "").toLowerCase();
+
+  // Series are sequentially ordered playlists, NOT collections with sections
+  if (
+    type === "series" ||
+    [url, id].some(
+      (val) =>
+        val.includes("business=space_series") ||
+        val.includes("/channel/seriesdetail") ||
+        val.startsWith("series:") ||
+        val.startsWith("bilibili:series:"),
+    )
+  ) {
+    return false;
+  }
+
+  if (playlist.id && getSubscribedCollectionIds().has(playlist.id)) return true;
+  const desc = (playlist.description ?? "").toLowerCase();
+  if (desc.includes("[collection")) return true;
   const name = (playlist.name ?? "").toLowerCase();
   if (
     type === "collection" ||
-    type === "series" ||
     type === "season" ||
     type === "ugc_season" ||
-    url.includes("/series/") ||
-    url.includes("/season/") ||
-    url.includes("ugc_season") ||
-    url.includes("business=space_collection") ||
-    url.includes("business=space_series") ||
-    url.includes("collection") ||
+    [url, id].some(
+      (val) =>
+        val.includes("/season/") ||
+        val.includes("ugc_season") ||
+        val.includes("business=space_collection") ||
+        val.includes("/channel/collectiondetail") ||
+        val.startsWith("season:") ||
+        val.startsWith("bilibili:season:"),
+    ) ||
     name.includes("合集") ||
     name.includes("合辑")
   ) {

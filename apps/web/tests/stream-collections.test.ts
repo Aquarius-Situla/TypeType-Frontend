@@ -132,4 +132,22 @@ test("identifies collection playlist URLs and types", () => {
   expect(isCollectionPlaylist({ playlistType: "collection" })).toBe(true);
   expect(isCollectionPlaylist({ name: "合集·高一高二（上篇）" })).toBe(true);
   expect(isCollectionPlaylist({ playlistType: "normal", name: "Favorites" })).toBe(false);
+
+  // Series are not collections with sections
+  expect(isCollectionPlaylist({ playlistType: "series" })).toBe(false);
+  expect(
+    isCollectionPlaylist({
+      url: "https://www.bilibili.com/medialist/play/546195?business=space_series&business_id=123",
+    }),
+  ).toBe(false);
+  expect(
+    isCollectionPlaylist({
+      url: "https://space.bilibili.com/546195/channel/seriesdetail?sid=123",
+    }),
+  ).toBe(false);
+  expect(isCollectionPlaylist({ url: "series:546195:123" })).toBe(false);
+  expect(isCollectionPlaylist({ url: "bilibili:series:546195:123" })).toBe(false);
+  expect(isCollectionPlaylist({ id: "series:546195:123" })).toBe(false);
+  expect(isCollectionPlaylist({ id: "bilibili:series:546195:123" })).toBe(false);
+  expect(isCollectionPlaylist({ id: "season:546195:123" })).toBe(true);
 });
