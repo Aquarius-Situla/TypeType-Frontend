@@ -8,6 +8,7 @@ import { m } from "../paraglide/messages.js";
 function channelTabs(
   isBilibili: boolean,
   postsAvailable: boolean,
+  coursesAvailable: boolean,
 ): { tab: ChannelTab; label: string }[] {
   if (isBilibili) {
     return [
@@ -19,6 +20,7 @@ function channelTabs(
     { tab: "videos", label: m.ui_videos() },
     { tab: "live", label: m.ui_live() },
     { tab: "playlists", label: m.nav_playlists() },
+    ...(coursesAvailable ? [{ tab: "courses" as const, label: m.ui_courses() }] : []),
     ...(postsAvailable ? [{ tab: "posts" as const, label: m.ui_posts() }] : []),
   ];
 }
@@ -31,6 +33,7 @@ type Props = {
   searchAvailable: boolean;
   isBilibili?: boolean;
   postsAvailable?: boolean;
+  coursesAvailable?: boolean;
   onSearch: (query: string) => void;
   onTabChange: (tab: ChannelTab) => void;
   onSortChange: (sort: ChannelSort) => void;
@@ -44,6 +47,7 @@ export function ChannelFilterBar({
   searchAvailable,
   isBilibili = false,
   postsAvailable = false,
+  coursesAvailable = false,
   onSearch,
   onTabChange,
   onSortChange,
@@ -71,7 +75,7 @@ export function ChannelFilterBar({
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         {tabsAvailable && (
           <div className="flex max-w-full flex-wrap items-center gap-2 text-sm">
-            {channelTabs(isBilibili, postsAvailable).map((item) => (
+            {channelTabs(isBilibili, postsAvailable, coursesAvailable).map((item) => (
               <button
                 key={item.tab}
                 type="button"

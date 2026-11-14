@@ -86,6 +86,21 @@ export type StreamResponse = {
   relatedStreams: VideoItem[];
   collections?: StreamCollectionItem[];
   parts?: StreamPartItem[];
+  endScreenElements?: EndScreenItem[];
+};
+
+export type EndScreenItem = {
+  id: string;
+  type: "video" | "playlist" | "channel" | "website";
+  title: string;
+  url: string;
+  thumbnailUrl: string;
+  startMs: number;
+  endMs: number;
+  left: number;
+  top: number;
+  width: number;
+  aspectRatio: number;
 };
 
 export type ChannelResultItem = {
@@ -217,6 +232,7 @@ export type ChannelResponse = {
   videos: VideoItem[];
   nextpage: string | null;
   verification?: ChannelVerification | null;
+  hasCourses?: boolean;
 };
 
 export type PodcastItem = {
@@ -242,3 +258,5 @@ export type PodcastEpisodesResponse = {
   episodes: VideoItem[];
   nextpage: string | null;
 };
+
+export type SubscriptionFeedOrder = "newest" | "oldest";

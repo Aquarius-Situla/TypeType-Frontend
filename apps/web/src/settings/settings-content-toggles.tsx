@@ -12,6 +12,7 @@ const HIDE_KEYS = [
   "hideContinueWatching",
   "hideHomeRecommendations",
   "hideRelatedVideos",
+  "hideEndScreens",
   "hideComments",
   "hideShorts",
   "hideSubscriptionLiveStreams",
@@ -40,6 +41,7 @@ type ToggleKey = Extract<
   | "hideContinueWatching"
   | "hideHomeRecommendations"
   | "hideRelatedVideos"
+  | "hideEndScreens"
   | "hideComments"
   | "hideShorts"
   | "hideSubscriptionLiveStreams"
@@ -92,6 +94,12 @@ function discoveryOptions(): ToggleOption[] {
       key: "hideRelatedVideos",
       label: m.ui_related_videos(),
       description: m.ui_hide_the_suggestions_column_on_watch_pages(),
+      area: m.ui_watch_page(),
+    },
+    {
+      key: "hideEndScreens",
+      label: m.ui_end_screens(),
+      description: m.ui_hide_the_creator_cards_shown_at_the_end_of_youtube_videos(),
       area: m.ui_watch_page(),
     },
     {

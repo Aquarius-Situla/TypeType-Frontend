@@ -45,6 +45,7 @@ export function HideEverythingToggle() {
       hideContinueWatching: true,
       hideHomeRecommendations: true,
       hideRelatedVideos: true,
+      hideEndScreens: true,
       hideComments: true,
       hideShorts: true,
       hideSubscriptionLiveStreams: true,

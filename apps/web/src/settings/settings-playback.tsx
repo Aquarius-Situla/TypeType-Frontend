@@ -8,8 +8,14 @@ import {
   playbackSpeedLabel,
 } from "../lib/playback-speed";
 import { m } from "../paraglide/messages.js";
+import { AmbientLightNotes } from "./ambient-light-notes";
 import { SettingsBilibiliBuffer } from "./settings-bilibili-buffer";
-import { PLAYBACK_ROW, PlaybackNumberRow, PlaybackToggleRow } from "./settings-playback-row";
+import {
+  PLAYBACK_ROW,
+  PlaybackNumberRow,
+  PlaybackRangeRow,
+  PlaybackToggleRow,
+} from "./settings-playback-row";
 
 const SECTION_LABEL = "text-xs font-medium text-fg-soft uppercase tracking-wider px-1";
 const GROUP = "divide-y divide-border border-y border-border";
@@ -153,6 +159,40 @@ export function SettingsPlayback() {
           checked={settings.audioOnlyPlayback}
           onClick={() => update.mutate({ audioOnlyPlayback: !settings.audioOnlyPlayback })}
         />
+        <PlaybackToggleRow
+          title={m.ui_ambient_light()}
+          description={m.ui_ambient_light_description()}
+          checked={settings.ambientLight}
+          onClick={() => update.mutate({ ambientLight: !settings.ambientLight })}
+        />
+        <AmbientLightNotes enabled={settings.ambientLight} />
+        {settings.ambientLight && (
+          <>
+            <PlaybackRangeRow
+              title={m.ui_ambient_light_spread()}
+              value={settings.ambientLightSpread}
+              min={0}
+              max={200}
+              unit="%"
+              onCommit={(value) => update.mutate({ ambientLightSpread: value })}
+            />
+            <PlaybackRangeRow
+              title={m.ui_ambient_light_blur()}
+              value={settings.ambientLightBlur}
+              min={0}
+              max={100}
+              onCommit={(value) => update.mutate({ ambientLightBlur: value })}
+            />
+            <PlaybackRangeRow
+              title={m.ui_ambient_light_brightness()}
+              value={settings.ambientLightBrightness}
+              min={50}
+              max={150}
+              unit="%"
+              onCommit={(value) => update.mutate({ ambientLightBrightness: value })}
+            />
+          </>
+        )}
         <div className={PLAYBACK_ROW}>
           <div className="typetype-adaptive-label flex min-w-0 flex-1 flex-col gap-1">
             <span className="text-sm text-fg">{m.ui_default_quality()}</span>

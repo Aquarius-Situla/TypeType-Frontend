@@ -6,11 +6,13 @@ import { isMemberOnlyMessage } from "../lib/member-only";
 import { type VideoAvailability, videoAvailabilityCopy } from "../lib/video-availability";
 import { m } from "../paraglide/messages.js";
 import { FlagIcon } from "./flag-icon";
+import { ReactionGif } from "./reaction-gif";
 import { VideoAvailabilityPoster } from "./video-availability-poster";
 import { YoutubeIcon } from "./youtube-icon";
 
 type Props = {
   message: string;
+  notice?: string;
   onRetry?: () => void;
   youtubeSessionReturnTo?: string;
   youtubeSessionAction?: "connect" | "reconnect";
@@ -21,6 +23,7 @@ type Props = {
 
 export function StreamError({
   message,
+  notice,
   onRetry,
   youtubeSessionReturnTo,
   youtubeSessionAction,
@@ -36,20 +39,19 @@ export function StreamError({
   const isMemberOnly = availability === "members_only" || isMemberOnlyMessage(displayedMessage);
   const familyListBlocked = familyListBlockedOverride ?? message === familyListBlockedMessage();
   const youtubeSessionReconnect = youtubeSessionAction === "reconnect";
-  const imageSrc = youtubeSessionReconnect
-    ? "/youtube-session-reconnect.gif"
-    : familyListBlocked
-      ? "/family-list-blocked.gif"
-      : isMemberOnly
-        ? "/member-only-source.gif"
-        : "/error-cat.gif";
   const errorImage = (
-    <img
-      src={imageSrc}
-      width="220"
-      height={youtubeSessionReconnect ? "180" : familyListBlocked ? "181" : "220"}
-      alt=""
-      className="rounded-2xl"
+    <ReactionGif
+      kind={
+        youtubeSessionReconnect
+          ? "youtubeReconnect"
+          : familyListBlocked
+            ? "familyListBlocked"
+            : isMemberOnly
+              ? "membersOnly"
+              : "videoError"
+      }
+      size={220}
+      className="size-[220px]"
     />
   );
 
@@ -81,6 +83,7 @@ export function StreamError({
               )}
               <p className="max-w-xs text-center text-sm text-fg-muted">{displayedMessage}</p>
             </div>
+            {notice && <p className="text-center text-sm text-fg-soft">{notice}</p>}
           </div>
         </>
       )}

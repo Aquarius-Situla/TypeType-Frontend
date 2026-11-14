@@ -1,5 +1,6 @@
 import type {
   AudioStreamItem,
+  EndScreenItem,
   PreviewFrameItem,
   SponsorBlockSegmentItem,
   StreamSegmentItem,
@@ -50,4 +51,5 @@ export type VideoStream = {
   sponsorBlockSegments?: SponsorBlockSegmentItem[];
   collections?: StreamCollectionItem[];
   parts?: StreamPartItem[];
+  endScreenElements?: EndScreenItem[];
 };

@@ -46,8 +46,8 @@ export function Navbar() {
   const canOpenSearch = !authPage;
   const showBackButton = isMobile && canOpenSearch && pathname !== "/";
   const navClass = isMobile
-    ? "fixed top-0 left-0 right-0 z-50 bg-app/95 backdrop-blur border-b border-border flex items-center px-2 gap-1.5"
-    : "fixed top-0 left-0 right-0 z-50 h-14 bg-app/95 backdrop-blur border-b border-border flex items-center px-4 gap-4";
+    ? "typetype-navbar fixed top-0 left-0 right-0 z-50 bg-app/95 backdrop-blur border-b border-border flex items-center px-2 gap-1.5"
+    : "typetype-navbar fixed top-0 left-0 right-0 z-50 h-14 bg-app/95 backdrop-blur border-b border-border flex items-center px-4 gap-4";
   const navStyle: React.CSSProperties = isMobile
     ? {
         height: "calc(3.5rem + env(safe-area-inset-top, 0px))",

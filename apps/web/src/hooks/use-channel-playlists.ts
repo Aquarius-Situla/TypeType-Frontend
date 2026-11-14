@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { fetchChannelPlaylists } from "../lib/api-channel-playlists";
+import { type ChannelPlaylistTab, fetchChannelPlaylists } from "../lib/api-channel-playlists";
 import type { PublicPlaylistInfo } from "../types/playlist";
 
 type ChannelPlaylistsPage = {
@@ -7,11 +7,14 @@ type ChannelPlaylistsPage = {
   nextpage: string | null;
 };
 
-export function useChannelPlaylists(channelUrl: string) {
+export function useChannelPlaylists(channelUrl: string, tab: ChannelPlaylistTab = "playlists") {
   return useInfiniteQuery({
-    queryKey: ["channel-playlists", channelUrl],
+    queryKey:
+      tab === "playlists"
+        ? ["channel-playlists", channelUrl]
+        : ["channel-playlists", channelUrl, tab],
     queryFn: async ({ pageParam }: { pageParam: string | undefined }) => {
-      const res = await fetchChannelPlaylists(channelUrl, pageParam);
+      const res = await fetchChannelPlaylists(channelUrl, pageParam, tab);
       return {
         playlists: res.playlists ?? [],
         nextpage: res.nextpage,

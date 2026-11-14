@@ -1,6 +1,10 @@
 import { expect, test } from "bun:test";
 import { ApiError } from "../src/lib/api";
-import { resolveStreamErrorMessage, streamRetryNotice } from "../src/lib/stream-error-message";
+import {
+  isPermanentlyUnavailableError,
+  resolveStreamErrorMessage,
+  streamRetryNotice,
+} from "../src/lib/stream-error-message";
 
 test("explains provider access blocks and suggests a server-side VPN", () => {
   const error = new ApiError(
@@ -76,4 +80,14 @@ test("shows a retry notice only while a temporary failure is retried", () => {
   expect(streamRetryNotice(busy, true)).toContain("Retrying");
   expect(streamRetryNotice(busy, false)).toBeUndefined();
   expect(streamRetryNotice(new ApiError("gone", 422, "private_content"), true)).toBeUndefined();
+});
+
+test("names a video the provider no longer serves and lets a playlist skip it", () => {
+  const gone = new ApiError("This video is not available", 404, "content_unavailable");
+  const busy = new ApiError("busy", 429, "provider_paced", null, 2_000);
+
+  expect(resolveStreamErrorMessage(gone)).toContain("no longer available");
+  expect(isPermanentlyUnavailableError(gone)).toBe(true);
+  expect(isPermanentlyUnavailableError(busy)).toBe(false);
+  expect(isPermanentlyUnavailableError(new Error("offline"))).toBe(false);
 });

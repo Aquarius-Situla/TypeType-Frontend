@@ -12,10 +12,12 @@ type Props = {
   onAddToQueue?: () => void;
   onSaveToPlaylist?: () => void;
   onToggleWatchLater?: () => void;
+  onToggleWatched?: () => void;
   onToggleVideoBlock?: () => void;
   onToggleChannelBlock?: () => void;
   watchLaterSaved?: boolean;
   watchLaterPending?: boolean;
+  watched?: boolean;
   videoBlocked?: boolean;
   channelBlocked?: boolean;
 };
@@ -27,10 +29,12 @@ export function VideoBlockActionsDropdown({
   onAddToQueue,
   onSaveToPlaylist,
   onToggleWatchLater,
+  onToggleWatched,
   onToggleVideoBlock,
   onToggleChannelBlock,
   watchLaterSaved = false,
   watchLaterPending = false,
+  watched = false,
   videoBlocked,
   channelBlocked,
 }: Props) {
@@ -119,6 +123,19 @@ export function VideoBlockActionsDropdown({
           {watchLaterSaved
             ? m.watch_remove_later({}, { locale })
             : m.watch_save_later({}, { locale })}
+        </button>
+      )}
+      {onToggleWatched && (
+        <button
+          type="button"
+          onClick={() => {
+            onToggleWatched();
+            onClose();
+          }}
+          aria-pressed={watched}
+          className="w-full px-3 py-2 text-left text-sm text-fg transition-colors hover:bg-surface-strong"
+        >
+          {watched ? m.ui_mark_as_unwatched({}, { locale }) : m.ui_mark_as_watched({}, { locale })}
         </button>
       )}
       {onSaveToPlaylist && (

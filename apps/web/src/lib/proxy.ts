@@ -98,6 +98,7 @@ function needsProxy(url: string): boolean {
       host.endsWith("googleusercontent.com") ||
       host.endsWith("hdslb.com") ||
       host.endsWith("biliimg.com") ||
+      host.endsWith("nimg.jp") ||
       host.endsWith("ytimg.com")
     );
   } catch {

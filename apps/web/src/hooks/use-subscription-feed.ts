@@ -4,6 +4,7 @@ import { ApiError } from "../lib/api";
 import { mapVideoItem } from "../lib/mappers";
 import { proxyImage } from "../lib/proxy";
 import { subscriptionFeedQueryOptions } from "../lib/subscription-queries";
+import type { SubscriptionFeedOrder } from "../types/api";
 import type { VideoStream } from "../types/stream";
 import { useAuth } from "./use-auth";
 import { usePreparingWindow } from "./use-preparing-window";
@@ -27,7 +28,10 @@ type Result = {
   error: Error | null;
 };
 
-export function useSubscriptionFeed(filter = "all"): Result {
+export function useSubscriptionFeed(
+  filter = "all",
+  order: SubscriptionFeedOrder = "newest",
+): Result {
   const { authReady, isAuthed } = useAuth();
   const { query: subsQuery } = useSubscriptions(filter);
   const empty = subsQuery.isSuccess && subsQuery.data.length === 0;
@@ -38,7 +42,7 @@ export function useSubscriptionFeed(filter = "all"): Result {
   );
 
   const query = useInfiniteQuery({
-    ...subscriptionFeedQueryOptions(filter),
+    ...subscriptionFeedQueryOptions(filter, order),
     enabled: authReady && isAuthed && subsQuery.isSuccess && !empty,
     refetchInterval: (state) =>
       filter === "all" &&
@@ -62,11 +66,11 @@ export function useSubscriptionFeed(filter = "all"): Result {
       )
     ) {
       void queryClient.resetQueries({
-        queryKey: subscriptionFeedQueryOptions(filter).queryKey,
+        queryKey: subscriptionFeedQueryOptions(filter, order).queryKey,
         exact: true,
       });
     }
-  }, [query.error, queryClient, filter]);
+  }, [query.error, queryClient, filter, order]);
 
   const streams = useMemo(
     () =>

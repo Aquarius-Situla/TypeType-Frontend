@@ -1,5 +1,6 @@
 import { createRootRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { useEffect, useLayoutEffect } from "react";
+import { AmbientLightHost } from "../components/ambient-light";
 import { AppFooter } from "../components/app-footer";
 import { AuthBackdrop } from "../components/auth-backdrop";
 import { GuestDisabledScreen } from "../components/guest-disabled-screen";
@@ -15,6 +16,7 @@ import { useMobile } from "../hooks/use-mobile";
 import { useRegisterStatus } from "../hooks/use-register-status";
 import { useSeekbarIcon } from "../hooks/use-seekbar-icon";
 import { useSessionActivityReporting } from "../hooks/use-session-activity-reporting";
+import { releaseAppLoader } from "../lib/app-loader";
 import {
   isAdminRoute,
   isAuthPage,
@@ -100,9 +102,7 @@ function RootLayoutContent() {
   }, [theme]);
 
   useEffect(() => {
-    const loader = document.getElementById("app-loader");
-    if (!loader) return;
-    loader.remove();
+    releaseAppLoader();
   }, []);
 
   useEffect(() => {
@@ -278,11 +278,12 @@ function RootLayoutContent() {
 
   return (
     <div
-      className={`min-h-screen bg-app text-fg relative ${watchPage ? "watch-page-shell watch-page-shell-dark" : ""} ${
+      className={`typetype-shell min-h-screen bg-app text-fg relative ${watchPage ? "watch-page-shell watch-page-shell-dark" : ""} ${
         watchWebFullscreenPage ? "watch-web-fullscreen" : ""
       }`}
     >
       <PersistentWatchPlayer />
+      <AmbientLightHost disabled={watchWebFullscreenPage} />
       {!watchWebFullscreenPage && (
         <div className="watch-page-chrome">
           <Navbar />

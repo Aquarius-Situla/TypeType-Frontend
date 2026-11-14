@@ -1,4 +1,6 @@
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { proxyImage } from "../lib/proxy";
 import { m } from "../paraglide/messages.js";
 import type { PlaylistItem } from "../types/playlist";
 
@@ -56,18 +58,22 @@ function EmptyIcon() {
 }
 
 function ThumbnailContent({ playlist }: { playlist: PlaylistItem }) {
-  const thumbnail = playlist.videos?.[0]?.thumbnail;
+  const rawThumbnail = playlist.videos?.[0]?.thumbnail?.trim() ?? "";
+  const thumbnail = rawThumbnail ? proxyImage(rawThumbnail) : "";
+  const [failedThumbnail, setFailedThumbnail] = useState<string | null>(null);
+  const showThumbnail = thumbnail !== "" && failedThumbnail !== thumbnail;
   const count = playlist.videoCount ?? playlist.videos?.length ?? 0;
   const label = count === 1 ? m.ui_video_count({ count }) : m.ui_videos_count({ count });
   return (
     <div className="relative aspect-video rounded-xl overflow-hidden bg-surface-strong">
-      {thumbnail ? (
+      {showThumbnail ? (
         <img
           src={thumbnail}
           alt={playlist.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
           loading="lazy"
           decoding="async"
+          onError={() => setFailedThumbnail(thumbnail)}
         />
       ) : (
         <div className="w-full h-full flex items-center justify-center">

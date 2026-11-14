@@ -4,7 +4,7 @@ import {
   type QueryClient,
   queryOptions,
 } from "@tanstack/react-query";
-import type { SubscriptionFeedPage } from "../types/api";
+import type { SubscriptionFeedOrder, SubscriptionFeedPage } from "../types/api";
 import type { SubscriptionItem } from "../types/user";
 import { fetchSubscriptionFeed, fetchSubscriptions } from "./api-user";
 
@@ -24,8 +24,14 @@ export function subscriptionsQueryOptions(
   });
 }
 
+function subscriptionFeedKey(filter: string, order: SubscriptionFeedOrder): string[] {
+  if (order === "oldest") return [...SUBSCRIPTION_FEED_KEY, filter, order];
+  return filter === "all" ? SUBSCRIPTION_FEED_KEY : [...SUBSCRIPTION_FEED_KEY, filter];
+}
+
 export function subscriptionFeedQueryOptions(
   filter = "all",
+  order: SubscriptionFeedOrder = "newest",
 ): ReturnType<
   typeof infiniteQueryOptions<
     SubscriptionFeedPage,
@@ -36,8 +42,8 @@ export function subscriptionFeedQueryOptions(
   >
 > {
   return infiniteQueryOptions({
-    queryKey: filter === "all" ? SUBSCRIPTION_FEED_KEY : [...SUBSCRIPTION_FEED_KEY, filter],
-    queryFn: ({ pageParam, signal }) => fetchSubscriptionFeed(pageParam, signal, filter),
+    queryKey: subscriptionFeedKey(filter, order),
+    queryFn: ({ pageParam, signal }) => fetchSubscriptionFeed(pageParam, signal, filter, order),
     initialPageParam: null as string | null,
     getNextPageParam: (last) => last.nextpage ?? undefined,
     staleTime: SUBSCRIPTION_STALE_MS,

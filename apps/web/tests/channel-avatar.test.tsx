@@ -24,6 +24,26 @@ describe("channel avatar", () => {
     expect(html).toContain('loading="lazy"');
   });
 
+  test("loads a raw channel avatar through the instance proxy", () => {
+    const html = renderToStaticMarkup(
+      <ChannelAvatar src="https://yt3.ggpht.com/abc=s88-c-k-no" name="Channel" />,
+    );
+    const src = html.match(/<img[^>]*src="([^"]*)"/)?.[1]?.replaceAll("&amp;", "&") ?? "";
+
+    expect(src).toContain("/proxy?url=");
+    expect(new URL(src, "https://example.test").searchParams.get("url")).toBe(
+      "https://yt3.ggpht.com/abc=s88-c-k-no",
+    );
+  });
+
+  test("keeps an avatar that already goes through this instance", () => {
+    const html = renderToStaticMarkup(
+      <ChannelAvatar src="/api/proxy?url=https%3A%2F%2Fexample.test%2Favatar.jpg" name="Channel" />,
+    );
+
+    expect(html).toContain('src="/api/proxy?url=https%3A%2F%2Fexample.test%2Favatar.jpg"');
+  });
+
   test("loads primary watch avatars eagerly", () => {
     const html = renderToStaticMarkup(
       <ChannelAvatar

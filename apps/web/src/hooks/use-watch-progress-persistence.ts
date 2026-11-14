@@ -14,13 +14,14 @@ type Args = {
 export function useWatchProgressPersistence({ durationSec, isLive, mutate }: Args) {
   const positionRef = useRef(0);
   const lastSavedPositionRef = useRef(0);
-  const lastSeekedSaveRef = useRef(0);
+  const lastSeekedSaveRef = useRef<number | null>(null);
   const maxPositionSeenRef = useRef(0);
   const mutateRef = useRef(mutate);
   mutateRef.current = mutate;
 
   const saveRef = useRef<(reason: SaveReason) => void>(() => {});
   saveRef.current = (reason: SaveReason) => {
+    if (isLive) return;
     const positionMs = Math.max(0, Math.round(positionRef.current));
     const durationMs = durationSec * 1000;
     const previousSaved = lastSavedPositionRef.current;
@@ -72,6 +73,15 @@ export function useWatchProgressPersistence({ durationSec, isLive, mutate }: Arg
     saveRef.current("seeked");
   }, []);
 
+  const handleEnded = useCallback(() => {
+    if (isLive || !Number.isFinite(durationSec) || durationSec <= 0) return;
+    const endPositionMs = Math.round(durationSec * 1000);
+    positionRef.current = endPositionMs;
+    maxPositionSeenRef.current = Math.max(maxPositionSeenRef.current, endPositionMs);
+    lastSeekedSaveRef.current = null;
+    saveRef.current("ended");
+  }, [durationSec, isLive]);
+
   useEffect(() => {
     if (isLive) return;
     const onVisibilityChange = () => {
@@ -101,5 +111,6 @@ export function useWatchProgressPersistence({ durationSec, isLive, mutate }: Arg
     handleTimeUpdate,
     handlePause,
     handleSeeked,
+    handleEnded,
   };
 }

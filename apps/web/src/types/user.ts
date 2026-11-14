@@ -114,6 +114,10 @@ export type SettingsItem = {
   autoplayCountdownSeconds: number;
   skipPlaylistAutoplayScreen: boolean;
   hideUpcomingPlaylistVideos: boolean;
+  ambientLight: boolean;
+  ambientLightSpread: number;
+  ambientLightBlur: number;
+  ambientLightBrightness: number;
   audioOnlyPlayback: boolean;
   videoGridColumns: VideoGridColumns;
   relatedVideoSize: RelatedVideoSize;
@@ -142,6 +146,7 @@ export type SettingsItem = {
   hideContinueWatching: boolean;
   hideHomeRecommendations: boolean;
   hideRelatedVideos: boolean;
+  hideEndScreens: boolean;
   hideComments: boolean;
   hideShorts: boolean;
   hideSubscriptionLiveStreams: boolean;

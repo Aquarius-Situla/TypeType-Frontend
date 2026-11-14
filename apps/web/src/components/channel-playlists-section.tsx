@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useChannelPlaylists } from "../hooks/use-channel-playlists";
 import { useScopedValue } from "../hooks/use-scoped-value";
+import type { ChannelPlaylistTab } from "../lib/api-channel-playlists";
 import { m } from "../paraglide/messages.js";
 import type { PublicPlaylistInfo } from "../types/playlist";
 import { PageSpinner } from "./page-spinner";
@@ -9,6 +10,7 @@ import { ScrollSentinel } from "./scroll-sentinel";
 
 type Props = {
   channelUrl: string;
+  tab?: ChannelPlaylistTab;
 };
 
 type SubFilter = "all" | "collection" | "series";
@@ -23,9 +25,11 @@ function getPlaylistCategory(pl: PublicPlaylistInfo): "collection" | "series" | 
   return "normal";
 }
 
-export function ChannelPlaylistsSection({ channelUrl }: Props) {
-  const { data, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage } =
-    useChannelPlaylists(channelUrl);
+export function ChannelPlaylistsSection({ channelUrl, tab = "playlists" }: Props) {
+  const { data, isLoading, hasNextPage, isFetchingNextPage, fetchNextPage } = useChannelPlaylists(
+    channelUrl,
+    tab,
+  );
   const playlists = (data?.pages.flatMap((p) => p.playlists) ?? []).filter(
     (pl, i, arr) => arr.findIndex((x) => x.url === pl.url) === i,
   );
@@ -52,7 +56,13 @@ export function ChannelPlaylistsSection({ channelUrl }: Props) {
 
   if (isLoading) return <PageSpinner />;
   if (playlists.length === 0) {
-    return <p className="text-fg-muted text-sm">{m.ui_no_playlists_on_this_channel()}</p>;
+    return (
+      <p className="text-fg-muted text-sm">
+        {tab === "courses"
+          ? m.ui_no_courses_on_this_channel()
+          : m.ui_no_playlists_on_this_channel()}
+      </p>
+    );
   }
 
   return (

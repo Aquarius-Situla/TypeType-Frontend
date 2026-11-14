@@ -20,6 +20,16 @@ export default defineConfig(({ mode }) => {
       react(),
       tailwindcss(),
     ],
+    build: {
+      rolldownOptions: {
+        output: {
+          // Content blockers drop files whose name starts like an advertisement's.
+          chunkFileNames: (chunk) => `assets/${chunk.name.replace(/^ad-/, "interlude-")}-[hash].js`,
+          assetFileNames: (asset) =>
+            `assets/${(asset.names[0] ?? "asset").replace(/^ad-/, "interlude-").replace(/\.[^.]+$/, "")}-[hash][extname]`,
+        },
+      },
+    },
     server: {
       allowedHosts: true,
       proxy: {
