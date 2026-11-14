@@ -17,6 +17,7 @@ export function usePlaylistCollectionMeta(
   enabled: boolean,
   playlistName: string,
   videos: CollectionMetadataVideo[],
+  expectedStreamCount?: number,
 ): SubscribedCollectionMeta | undefined {
   const [meta, setMeta] = useScopedValue(scopeId, getSubscribedCollectionMeta(scopeId));
 
@@ -24,14 +25,16 @@ export function usePlaylistCollectionMeta(
     if (!enabled || videos.length === 0) return;
 
     let cancelled = false;
-    void ensureCollectionMetadata(scopeId, playlistName, videos).then((result) => {
-      if (!cancelled) setMeta(result);
-    });
+    void ensureCollectionMetadata(scopeId, playlistName, videos, expectedStreamCount).then(
+      (result) => {
+        if (!cancelled) setMeta(result);
+      },
+    );
 
     return () => {
       cancelled = true;
     };
-  }, [enabled, playlistName, scopeId, setMeta, videos]);
+  }, [enabled, expectedStreamCount, playlistName, scopeId, setMeta, videos]);
 
   return meta;
 }

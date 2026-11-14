@@ -1,5 +1,9 @@
 import type { WatchPlaylistItem } from "../types/playlist";
 import type { StreamCollectionItem } from "../types/stream-collection";
+import {
+  isBilibiliSeriesUrl,
+  parseBilibiliCollectionParams,
+} from "./api-bilibili-channel-collections";
 import { proxyImage } from "./proxy";
 import { toPublicWatchParam } from "./watch-url";
 
@@ -142,9 +146,32 @@ export async function ensureCollectionMetadata(
   playlistId: string,
   playlistName: string,
   videos: { url?: string; id?: string; title?: string }[],
+  expectedStreamCount?: number,
 ): Promise<SubscribedCollectionMeta | undefined> {
+  if (isBilibiliSeriesUrl(playlistId)) {
+    return undefined;
+  }
+
   const existing = getSubscribedCollectionMeta(playlistId);
-  if (existing?.sections && existing.sections.length > 0) {
+  const parsed = parseBilibiliCollectionParams(playlistId);
+  const hasEpisodes = Boolean(
+    existing?.sections?.every(
+      (sec) => sec.videoUrls.length === 0 || (sec.episodes && sec.episodes.length > 0),
+    ),
+  );
+  const cachedTotal =
+    existing?.sections?.reduce((acc, s) => acc + (s.episodes?.length ?? s.videoUrls.length), 0) ??
+    0;
+  const streamCountMatches =
+    !expectedStreamCount || expectedStreamCount <= 0 || cachedTotal === expectedStreamCount;
+
+  if (
+    existing?.sections &&
+    existing.sections.length > 0 &&
+    hasEpisodes &&
+    streamCountMatches &&
+    (!parsed?.id || !existing.sourceCollectionId || existing.sourceCollectionId === parsed.id)
+  ) {
     return existing;
   }
 
@@ -158,12 +185,16 @@ export async function ensureCollectionMetadata(
       if (stream.collections && stream.collections.length > 0) {
         const normName = playlistName.trim().toLowerCase();
         const matchedCol =
+          (parsed?.id ? stream.collections.find((col) => col.id === parsed.id) : undefined) ??
           stream.collections.find((col) => {
             const ctitle = col.title.trim().toLowerCase();
-            return ctitle === normName || normName.includes(ctitle) || ctitle.includes(normName);
-          }) ?? stream.collections[0];
+            return Boolean(
+              normName &&
+                (ctitle === normName || normName.includes(ctitle) || ctitle.includes(normName)),
+            );
+          });
 
-        if (matchedCol.sections && matchedCol.sections.length > 0) {
+        if (matchedCol?.sections && matchedCol.sections.length > 0) {
           const sectionsMeta: SubscribedCollectionSectionMeta[] = matchedCol.sections.map(
             (sec) => ({
               id: sec.id,
