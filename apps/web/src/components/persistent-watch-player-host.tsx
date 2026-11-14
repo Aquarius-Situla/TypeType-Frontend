@@ -400,7 +400,7 @@ export function PersistentWatchPlayerHost() {
         </div>
       )}
       <CompactPlayerContext.Provider value={floating}>
-        <WatchStagePlayer {...entry.props} />
+        <WatchStagePlayer key={entry.replayKey} {...entry.props} />
       </CompactPlayerContext.Provider>
     </div>
   );

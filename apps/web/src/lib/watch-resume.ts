@@ -10,6 +10,7 @@ export type WatchResumeInput = {
 
 export type SaveReason =
   | "beforeunload"
+  | "ended"
   | "interval"
   | "pagehide"
   | "pause"
@@ -44,6 +45,22 @@ export function evaluateProgressPersistence(input: {
   reason: SaveReason;
 }): ProgressPersistenceDecision {
   const { positionMs, lastSavedPositionMs, maxPositionSeenMs, durationMs, reason } = input;
+  if (reason === "ended") {
+    if (!Number.isFinite(durationMs) || durationMs <= 0) {
+      return { shouldSave: false };
+    }
+    const completedMs = Math.round(durationMs);
+    if (lastSavedPositionMs >= completedMs) {
+      return { shouldSave: false };
+    }
+    return {
+      shouldSave: true,
+      positionMs: completedMs,
+      keepalive: true,
+      isReset: false,
+      isBackwardJump: false,
+    };
+  }
   if (!Number.isFinite(positionMs)) {
     return { shouldSave: false };
   }
