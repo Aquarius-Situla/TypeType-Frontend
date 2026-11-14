@@ -1,3 +1,5 @@
+import { parseBilibiliCollectionParams } from "./api-bilibili-channel-collections";
+
 export function playlistListId(url: string): string | null {
   try {
     return new URL(url).searchParams.get("list");
@@ -37,4 +39,18 @@ const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{
 
 export function isManagedPlaylistId(id: string): boolean {
   return UUID_PATTERN.test(id);
+}
+
+export function isBilibiliSeriesPlaylist(url: string, playlistType?: string): boolean {
+  if (playlistType === "series") return true;
+  if (!url) return false;
+  return parseBilibiliCollectionParams(url)?.kind === "series";
+}
+
+export function resolvePublicPlaylistWatchListId(
+  playlistUrl: string,
+  listId: string | undefined,
+  playlistType?: string,
+): string | undefined {
+  return isBilibiliSeriesPlaylist(playlistUrl, playlistType) ? undefined : listId;
 }

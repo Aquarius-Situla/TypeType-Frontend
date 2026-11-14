@@ -15,7 +15,12 @@ import { useSavedPlaylists } from "../hooks/use-saved-playlists";
 import { useScopedValue } from "../hooks/use-scoped-value";
 import { isBilibiliCollectionUrl } from "../lib/api-bilibili-channel-collections";
 import { randomShuffleSeed, shuffleByKey } from "../lib/playlist-shuffle";
-import { playlistListId, youtubePlaylistId } from "../lib/playlist-url";
+import {
+  isBilibiliSeriesPlaylist,
+  playlistListId,
+  resolvePublicPlaylistWatchListId,
+  youtubePlaylistId,
+} from "../lib/playlist-url";
 import { markWatchAutoplayIntent } from "../lib/watch-autoplay-intent";
 import { toPublicWatchParam } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
@@ -46,6 +51,8 @@ function PublicPlaylistPage() {
   );
 
   const info = data?.pages[0]?.playlist;
+  const isSeries = isBilibiliSeriesPlaylist(playlistUrl, info?.playlistType);
+  const watchListId = resolvePublicPlaylistWatchListId(playlistUrl, listId, info?.playlistType);
   const isCollection = isBilibiliCollectionUrl(playlistUrl) || info?.playlistType === "collection";
 
   const [activeSectionId, setActiveSectionId] = useScopedValue<string | null>(playlistUrl, null);
@@ -98,8 +105,8 @@ function PublicPlaylistPage() {
       to: "/watch",
       search: {
         v: toPublicWatchParam(url),
-        ...(listId ? { list: listId } : {}),
-        ...(shuffle ? { shuffle } : {}),
+        ...(watchListId ? { list: watchListId } : {}),
+        ...(watchListId && shuffle ? { shuffle } : {}),
       },
     });
   }
@@ -128,10 +135,14 @@ function PublicPlaylistPage() {
           <div className="flex flex-wrap items-center gap-2">
             <PlaylistActions
               onPlayAll={() => playFrom(visibleStreams[0]?.id)}
-              onShuffle={() => {
-                const seed = randomShuffleSeed();
-                playFrom(shuffleByKey(visibleStreams, seed)[0]?.id, seed);
-              }}
+              onShuffle={
+                isSeries
+                  ? undefined
+                  : () => {
+                      const seed = randomShuffleSeed();
+                      playFrom(shuffleByKey(visibleStreams, seed)[0]?.id, seed);
+                    }
+              }
             />
             <button
               type="button"
@@ -163,7 +174,7 @@ function PublicPlaylistPage() {
       {visibleStreams.length === 0 ? (
         <p className="text-fg-muted text-sm">{m.ui_this_playlist_has_no_videos()}</p>
       ) : (
-        <VideoGrid streams={visibleStreams} listId={listId} />
+        <VideoGrid streams={visibleStreams} listId={watchListId} />
       )}
       {isFetchingNextPage && <VideoGridSkeleton idPrefix="public-playlist-next" />}
       <ScrollSentinel onIntersect={loadMore} enabled={!!hasNextPage && !isFetchingNextPage} />
