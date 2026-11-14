@@ -12,9 +12,11 @@ import { ParachuteIcon } from "./parachute-icon";
 const CHECK_INTERVAL_MS = 250;
 const UNDO_MS = 5000;
 const SHELL =
-  "pointer-events-auto absolute bottom-20 left-3 z-40 flex items-center gap-2 rounded-full border border-white/15 bg-black/75 px-3 py-1.5 text-xs text-white shadow-lg backdrop-blur";
+  "pointer-events-auto absolute bottom-20 left-3 z-40 flex items-center gap-2 rounded-full px-3 py-1.5 text-xs text-white shadow-lg";
+const OFFER = `${SHELL} bg-accent font-medium transition-colors hover:bg-accent-strong`;
+const STATUS = `${SHELL} border border-white/15 bg-black/75 backdrop-blur`;
 const ACTION =
-  "inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-black transition-colors hover:bg-white/85";
+  "inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 text-[11px] font-medium text-white transition-colors hover:bg-accent-strong";
 
 type Jump = { from: number; to: number };
 
@@ -73,7 +75,7 @@ export function DanmakuAirdropPrompt({ comments }: { comments: BulletCommentItem
   return (
     <div ref={rootRef} className="pointer-events-none absolute inset-0">
       {!compact && jump && (
-        <div role="status" className={SHELL}>
+        <div role="status" className={STATUS}>
           <ParachuteIcon className="h-4 w-4 flex-shrink-0 text-white/80" />
           <span>{m.ui_danmaku_airdrop_done({ time: formatDuration(jump.to) })}</span>
           <button type="button" onClick={() => undo(jump)} className={ACTION}>
@@ -83,7 +85,7 @@ export function DanmakuAirdropPrompt({ comments }: { comments: BulletCommentItem
         </div>
       )}
       {!compact && !jump && offer && (
-        <button type="button" onClick={() => airdrop(offer)} className={SHELL}>
+        <button type="button" onClick={() => airdrop(offer)} className={OFFER}>
           <ParachuteIcon className="h-4 w-4 flex-shrink-0" />
           {m.ui_danmaku_airdrop({ time: formatDuration(offer.seconds) })}
         </button>
