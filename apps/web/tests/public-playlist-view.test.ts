@@ -1,7 +1,9 @@
 import { expect, test } from "bun:test";
 import {
+  buildLoadedStreamParamSet,
   isPublicBilibiliCollection,
   resolvePublicPlaylistStreams,
+  shouldEnablePublicPlaylistPagination,
 } from "../src/lib/public-playlist-view";
 import type { SubscribedCollectionSectionMeta } from "../src/lib/stream-collections";
 import type { PublicPlaylistInfo } from "../src/types/playlist";
@@ -99,4 +101,81 @@ test("resolvePublicPlaylistStreams keeps full loaded streams in All view and fil
   expect(sectionView[0].duration).toBe(300);
   expect(sectionView[1].id).toBe("https://www.bilibili.com/video/BV3unloaded");
   expect(sectionView[1].channelName).toBe("Uploader");
+});
+
+test("shouldEnablePublicPlaylistPagination respects error state, legacy tabs, and loaded episodes", () => {
+  const rawStreams = [makeStream("https://www.bilibili.com/video/BV1one", "Keep Video 1")];
+  const loadedParams = buildLoadedStreamParamSet(rawStreams);
+
+  // Never paginate when next-page fetch failed
+  expect(
+    shouldEnablePublicPlaylistPagination({
+      activeSection: undefined,
+      loadedStreamParams: loadedParams,
+      hasNextPage: true,
+      isFetchingNextPage: false,
+      isFetchNextPageError: true,
+    }),
+  ).toBe(false);
+
+  // All tab paginates normally
+  expect(
+    shouldEnablePublicPlaylistPagination({
+      activeSection: undefined,
+      loadedStreamParams: loadedParams,
+      hasNextPage: true,
+      isFetchingNextPage: false,
+      isFetchNextPageError: false,
+    }),
+  ).toBe(true);
+
+  // Legacy section cache without episodes does not block pagination
+  const legacySection: SubscribedCollectionSectionMeta = {
+    id: "legacy",
+    title: "Legacy",
+    videoUrls: ["https://www.bilibili.com/video/BV2"],
+  };
+  expect(
+    shouldEnablePublicPlaylistPagination({
+      activeSection: legacySection,
+      loadedStreamParams: loadedParams,
+      hasNextPage: true,
+      isFetchingNextPage: false,
+      isFetchNextPageError: false,
+    }),
+  ).toBe(true);
+
+  // Section with unloaded episode stays enabled; stops once all episodes exist in loadedStreamParams
+  const sectionWithUnloaded: SubscribedCollectionSectionMeta = {
+    id: "sec",
+    title: "With Episodes",
+    videoUrls: ["https://www.bilibili.com/video/BV1one", "https://www.bilibili.com/video/BV2two"],
+    episodes: [
+      { videoId: "BV1one", title: "One", url: "https://www.bilibili.com/video/BV1one" },
+      { videoId: "BV2two", title: "Two", url: "https://www.bilibili.com/video/BV2two" },
+    ],
+  };
+  expect(
+    shouldEnablePublicPlaylistPagination({
+      activeSection: sectionWithUnloaded,
+      loadedStreamParams: loadedParams,
+      hasNextPage: true,
+      isFetchingNextPage: false,
+      isFetchNextPageError: false,
+    }),
+  ).toBe(true);
+
+  const allLoadedParams = buildLoadedStreamParamSet([
+    ...rawStreams,
+    makeStream("https://www.bilibili.com/video/BV2two", "Two"),
+  ]);
+  expect(
+    shouldEnablePublicPlaylistPagination({
+      activeSection: sectionWithUnloaded,
+      loadedStreamParams: allLoadedParams,
+      hasNextPage: true,
+      isFetchingNextPage: false,
+      isFetchNextPageError: false,
+    }),
+  ).toBe(false);
 });

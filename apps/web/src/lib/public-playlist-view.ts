@@ -17,6 +17,15 @@ export function isPublicBilibiliCollection(playlistUrl: string, playlistType?: s
   );
 }
 
+export function buildLoadedStreamParamSet(rawStreams: VideoStream[]): Set<string> {
+  const params = new Set<string>();
+  for (const s of rawStreams) {
+    params.add(toPublicWatchParam(s.id));
+    params.add(s.id);
+  }
+  return params;
+}
+
 export function resolvePublicPlaylistStreams({
   streams,
   activeSection,
@@ -81,5 +90,29 @@ export function resolvePublicPlaylistStreams({
   const urlSet = new Set(activeSection.videoUrls.map((u) => toPublicWatchParam(u)));
   return streams.filter(
     (s) => urlSet.has(toPublicWatchParam(s.id)) || activeSection.videoUrls.includes(s.id),
+  );
+}
+
+export function shouldEnablePublicPlaylistPagination({
+  activeSection,
+  loadedStreamParams,
+  hasNextPage,
+  isFetchingNextPage,
+  isFetchNextPageError,
+}: {
+  activeSection: SubscribedCollectionSectionMeta | undefined;
+  loadedStreamParams: Set<string>;
+  hasNextPage: boolean | undefined;
+  isFetchingNextPage: boolean;
+  isFetchNextPageError: boolean;
+}): boolean {
+  if (!hasNextPage || isFetchingNextPage || isFetchNextPageError) {
+    return false;
+  }
+  if (!activeSection?.episodes || activeSection.episodes.length === 0) {
+    return true;
+  }
+  return activeSection.episodes.some(
+    (ep) => !loadedStreamParams.has(toPublicWatchParam(ep.url)) && !loadedStreamParams.has(ep.url),
   );
 }
