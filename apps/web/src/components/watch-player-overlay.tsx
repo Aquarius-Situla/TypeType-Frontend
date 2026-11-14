@@ -3,6 +3,7 @@ import { getOriginalAudioTrackId, getPreferredDefaultAudioTrackId } from "../lib
 import type { BulletCommentItem } from "../types/api";
 import type { VideoStream } from "../types/stream";
 import type { SettingsItem } from "../types/user";
+import { DanmakuAirdropPrompt } from "./danmaku-airdrop-prompt";
 import { DanmakuOverlay } from "./danmaku-overlay";
 import { EndScreenOverlay } from "./end-screen-overlay";
 import { WatchPlayerDefaults } from "./watch-player-defaults";
@@ -35,7 +36,10 @@ export function WatchPlayerOverlay({
   return (
     <>
       {canLoadBulletComments && !hideComments && bulletCommentsOn && bulletComments && (
-        <DanmakuOverlay comments={bulletComments} positionRef={positionRef} />
+        <>
+          <DanmakuOverlay comments={bulletComments} positionRef={positionRef} />
+          <DanmakuAirdropPrompt comments={bulletComments} />
+        </>
       )}
       {!settings.hideEndScreens && stream.endScreenElements && (
         <EndScreenOverlay elements={stream.endScreenElements} />
