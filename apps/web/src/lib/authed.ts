@@ -57,6 +57,12 @@ function rejectExpiredSession(message: "Authentication required" | "Session expi
   throw new ApiError(message, 401);
 }
 
+export function extractBearerToken(authorization: string | null | undefined): string | null {
+  if (!authorization) return null;
+  const match = /^Bearer\s+(.+)$/i.exec(authorization.trim());
+  return match?.[1] || null;
+}
+
 export async function refreshUnauthorizedSession(method: string, path: string): Promise<string> {
   recordClientEvent("auth.unauthorized_retry", { method, path });
   try {
@@ -68,6 +74,24 @@ export async function refreshUnauthorizedSession(method: string, path: string): 
     }
     throw error;
   }
+}
+
+export async function resolveUnauthorizedRetryToken(
+  failedToken: string | null,
+  method: string,
+  path: string,
+): Promise<string | null> {
+  const currentToken = useAuthStore.getState().token;
+  if (!failedToken) {
+    return currentToken;
+  }
+  if (!currentToken) {
+    return null;
+  }
+  if (currentToken !== failedToken) {
+    return currentToken;
+  }
+  return refreshUnauthorizedSession(method, path);
 }
 
 export async function authed(
