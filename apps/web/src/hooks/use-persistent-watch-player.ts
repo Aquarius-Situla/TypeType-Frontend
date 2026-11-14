@@ -14,6 +14,8 @@ type PersistentWatchPlayerEntry = {
   enabled: boolean;
   anchor: HTMLElement | null;
   attached: boolean;
+  ended: boolean;
+  replayKey: number;
   resumedStart: ResumedStart | null;
 };
 
@@ -30,6 +32,7 @@ type PersistentWatchPlayerStore = {
     href: string,
   ) => void;
   setAnchor: (owner: PlayerOwner, anchor: HTMLElement | null) => void;
+  setEnded: (owner: PlayerOwner, ended: boolean) => void;
   detach: (owner: PlayerOwner) => void;
   setPosition: (position: PlayerPosition) => void;
   close: (owner: PlayerOwner) => void;
@@ -42,8 +45,9 @@ function nextResumedStart(
   owner: PlayerOwner,
   streamId: string,
   requested: number,
+  replayingEnded: boolean,
 ): ResumedStart | null {
-  if (!previous || previous.streamId !== streamId) return null;
+  if (!previous || previous.streamId !== streamId || replayingEnded) return null;
   if (previous.owner !== owner) return { requested, kept: previous.props.startTime };
   return previous.resumedStart?.requested === requested ? previous.resumedStart : null;
 }
@@ -53,7 +57,18 @@ export const usePersistentWatchPlayerStore = create<PersistentWatchPlayerStore>(
   position: null,
   register: (owner, streamId, props, enabled, href) =>
     set((state) => {
-      const resumedStart = nextResumedStart(state.entry, owner, streamId, props.startTime);
+      const previous = state.entry;
+      const replayingEnded = Boolean(
+        previous && previous.streamId === streamId && previous.owner !== owner && previous.ended,
+      );
+      const resumedStart = nextResumedStart(
+        previous,
+        owner,
+        streamId,
+        props.startTime,
+        replayingEnded,
+      );
+      const sameOwner = previous?.owner === owner;
       return {
         entry: {
           owner,
@@ -61,8 +76,14 @@ export const usePersistentWatchPlayerStore = create<PersistentWatchPlayerStore>(
           href,
           props: resumedStart ? { ...props, startTime: resumedStart.kept } : props,
           enabled,
-          anchor: state.entry?.owner === owner ? state.entry.anchor : null,
-          attached: state.entry?.owner === owner ? state.entry.attached : false,
+          anchor: sameOwner ? previous.anchor : null,
+          attached: sameOwner ? previous.attached : false,
+          ended: sameOwner && previous.streamId === streamId ? previous.ended : false,
+          replayKey: replayingEnded
+            ? (previous?.replayKey ?? 0) + 1
+            : previous?.streamId === streamId
+              ? previous.replayKey
+              : 0,
           resumedStart,
         },
       };
@@ -71,6 +92,12 @@ export const usePersistentWatchPlayerStore = create<PersistentWatchPlayerStore>(
     set((state) =>
       state.entry?.owner === owner
         ? { entry: { ...state.entry, anchor, attached: Boolean(anchor) } }
+        : state,
+    ),
+  setEnded: (owner, ended) =>
+    set((state) =>
+      state.entry?.owner === owner && state.entry.ended !== ended
+        ? { entry: { ...state.entry, ended } }
         : state,
     ),
   detach: (owner) =>
@@ -95,6 +122,7 @@ export function usePersistentWatchPlayer(
   const owner = ownerRef.current;
   const register = usePersistentWatchPlayerStore((state) => state.register);
   const setAnchor = usePersistentWatchPlayerStore((state) => state.setAnchor);
+  const setEnded = usePersistentWatchPlayerStore((state) => state.setEnded);
   const detach = usePersistentWatchPlayerStore((state) => state.detach);
   const anchorRef = useCallback(
     (anchor: HTMLDivElement | null) => {
@@ -105,9 +133,30 @@ export function usePersistentWatchPlayer(
   );
 
   useLayoutEffect(() => {
-    register(owner, streamId, props, enabled, window.location.pathname + window.location.search);
+    const trackedProps: WatchStagePlayerProps = {
+      ...props,
+      onPlay: () => {
+        setEnded(owner, false);
+        props.onPlay();
+      },
+      onSeeked: () => {
+        setEnded(owner, false);
+        props.onSeeked();
+      },
+      onEnded: () => {
+        setEnded(owner, true);
+        props.onEnded();
+      },
+    };
+    register(
+      owner,
+      streamId,
+      trackedProps,
+      enabled,
+      window.location.pathname + window.location.search,
+    );
     setAnchor(owner, anchorElementRef.current);
-  }, [enabled, owner, props, register, setAnchor, streamId]);
+  }, [enabled, owner, props, register, setAnchor, setEnded, streamId]);
 
   useEffect(() => () => detach(owner), [detach, owner]);
 
