@@ -106,7 +106,7 @@ export function VideoPlayer({
       src={activeSrc}
       viewType={viewType}
       streamType={streamType}
-      currentTime={startTime > 0 ? startTime / 1000 : undefined}
+      currentTime={!sabrConfig && startTime > 0 ? startTime / 1000 : undefined}
       logLevel="warn"
       crossOrigin
       playsInline
