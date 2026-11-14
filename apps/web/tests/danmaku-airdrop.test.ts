@@ -28,6 +28,15 @@ describe("danmaku airdrop", () => {
     expect(danmakuAirdropSeconds("1:2:3:4")).toBeNull();
   });
 
+  it("ignores the wall-clock time or date viewers post", () => {
+    expect(danmakuAirdropSeconds("北京时间17:17")).toBeNull();
+    expect(danmakuAirdropSeconds("2024年03月07日09:20高考生")).toBeNull();
+    expect(danmakuAirdropSeconds("2026年7月13号7:45")).toBeNull();
+    expect(danmakuAirdropSeconds("3.27 14:43")).toBeNull();
+    expect(danmakuAirdropSeconds("是实时的吗 17:22？")).toBeNull();
+    expect(danmakuAirdropSeconds("01:23:45 核心看点")).toBe(5025);
+  });
+
   it("offers the newest airdrop sent in the last seconds", () => {
     const comments = [comment("空降 02:00", 9_000), comment("空降 03:00", 10_000)];
     expect(currentDanmakuAirdrop(comments, 12_000, 600)).toEqual({ key: "1:180", seconds: 180 });
