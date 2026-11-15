@@ -4,6 +4,7 @@ import { PlayerBarSlotContext } from "../hooks/use-player-bar-slot";
 import { BAR_PILL } from "../lib/videojs-menu-classes";
 import type { SponsorBlockSegmentItem } from "../types/api";
 import type { CaptionStyles } from "../types/user";
+import { VideoJsChapterMenu } from "./videojs-chapter-menu";
 import { VideoJsMiniControls } from "./videojs-mini-controls";
 import {
   SKIN_HIDDEN_WHEN_IDLE,
@@ -89,6 +90,7 @@ export function VideoJsWatchSkin({
                 <Time.Separator />
                 <Time.Value type="duration" />
               </Time.Group>
+              {!options.flat && <VideoJsChapterMenu />}
             </Controls.Group>
             <div aria-hidden="true" className="flex-1" />
             <Controls.Group

@@ -3,6 +3,7 @@
 .typetype-persistent-player-frame[data-floating] .media-title,
 .typetype-persistent-player-frame[data-floating] [data-skin-transport],
 .typetype-persistent-player-frame[data-floating] [data-skin-volume-slider],
+.typetype-persistent-player-frame[data-floating] [data-skin-chapter],
 .typetype-persistent-player-frame[data-floating] [data-skin-right] > :not(:last-child) {
   display: none;
 }
