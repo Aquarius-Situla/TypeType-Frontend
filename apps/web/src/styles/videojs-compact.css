@@ -14,3 +14,14 @@
 .typetype-persistent-player-frame[data-floating] [data-skin-bottom] {
   padding-top: 0.75rem;
 }
+
+/* Server notices show inside the Video.js player while it sits in the page, and at the bottom of the page while it
+   floats or is gone, so one notice is on screen at a time. */
+.typetype-persistent-player-frame[data-floating] [data-server-notice="player"] {
+  display: none;
+}
+
+body:has(.typetype-persistent-player-frame:not([data-floating]) [data-player-engine="videojs"])
+  [data-server-notice="page"] {
+  display: none;
+}

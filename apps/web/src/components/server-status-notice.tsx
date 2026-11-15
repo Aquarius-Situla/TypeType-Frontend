@@ -37,9 +37,12 @@ export function ServerStatusNotice({ variant }: { variant: "page" | "player" }) 
   const placement =
     variant === "page"
       ? "fixed inset-x-0 bottom-20 z-[70] flex md:bottom-6"
-      : "absolute inset-x-0 top-4 z-40 hidden [:fullscreen_&]:flex";
+      : "absolute inset-x-0 top-4 z-40 flex";
   return (
-    <div className={`pointer-events-none justify-center px-4 ${placement}`}>
+    <div
+      data-server-notice={variant}
+      className={`pointer-events-none justify-center px-4 ${placement}`}
+    >
       <div
         role="status"
         aria-live="polite"
