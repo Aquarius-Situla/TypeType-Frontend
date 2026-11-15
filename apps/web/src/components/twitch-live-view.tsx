@@ -9,6 +9,7 @@ import { TwitchLiveMeta } from "./twitch-live-meta";
 import { TwitchOfflineChannel } from "./twitch-offline-channel";
 import { TwitchPlayer } from "./twitch-player";
 import { TwitchWatchHeading } from "./twitch-watch-heading";
+import { TwitchWatchLayout } from "./twitch-watch-layout";
 import { TwitchWatchStage } from "./twitch-watch-stage";
 
 const LIVE_CHECK_MS = 60_000;
@@ -27,7 +28,7 @@ export function TwitchLiveView({ login }: { login: string }) {
     if (wentLive) void refetch();
   }, [wentLive, refetch]);
   return (
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+    <TwitchWatchLayout chat={<TwitchChat login={login} />}>
       {offline ? (
         <TwitchOfflineChannel login={login} />
       ) : (
@@ -60,9 +61,6 @@ export function TwitchLiveView({ login }: { login: string }) {
           )}
         </TwitchWatchStage>
       )}
-      <aside className="w-full lg:sticky lg:top-4 lg:h-[calc(100vh-6rem)] lg:w-96">
-        <TwitchChat login={login} />
-      </aside>
-    </div>
+    </TwitchWatchLayout>
   );
 }

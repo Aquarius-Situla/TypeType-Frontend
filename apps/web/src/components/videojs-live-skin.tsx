@@ -12,6 +12,7 @@ import {
   SkinPoster,
   SkinVolume,
 } from "./videojs-skin-controls";
+import { SkinCinemaButton, SkinWebFullscreenButton } from "./videojs-watch-buttons";
 
 function LiveBadge() {
   return (
@@ -55,6 +56,8 @@ export function VideoJsLiveSkin({
           <Controls.Group data-skin-secondary="" className="flex items-center">
             <span ref={setBarSlot} className="flex items-center" />
             <VideoJsSettingsMenu speed={false} />
+            <SkinCinemaButton />
+            <SkinWebFullscreenButton />
             <SkinPipButton />
             <SkinFullscreenButton />
           </Controls.Group>

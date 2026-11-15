@@ -20,7 +20,6 @@ import { VideoJsPlayerEngine } from "./videojs-player-engine";
 import { VideoJsPlayerMedia } from "./videojs-player-media";
 import { VideoJsRecoveryCover } from "./videojs-recovery-cover";
 import { VideoJsSabrEngine } from "./videojs-sabr-engine";
-import { VideoJsVodSkin } from "./videojs-vod-skin";
 import { VideoJsWatchSkin, WatchSkinOptionsContext } from "./videojs-watch-skin";
 
 export type VideoJsVideoPlayerProps = VideoPlayerProps & {
@@ -63,7 +62,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
   useEffect(() => {
     if (root && captionStyles) applyCaptionStyles(root, captionStyles);
   }, [root, captionStyles]);
-  const Skin = live ? VideoJsLiveSkin : props.ownSkin ? VideoJsVodSkin : VideoJsWatchSkin;
+  const Skin = live ? VideoJsLiveSkin : VideoJsWatchSkin;
   const watchOptions = {
     segments: props.sponsorBlockSegments,
     danmaku: props.provider === "bilibili" || props.provider === "nicovideo",
