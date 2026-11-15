@@ -1,4 +1,5 @@
 import { type MutableRefObject, type ReactNode, useEffect, useRef, useState } from "react";
+import { useEngineHandoff } from "../hooks/use-engine-handoff";
 import type { Provider } from "../lib/provider";
 import { SabrPlaybackRatePreference } from "../lib/sabr-playback-rate-preference";
 import type { SabrPlaybackConfig } from "../lib/sabr-source";
@@ -68,6 +69,13 @@ export function WatchStagePlayer(props: WatchStagePlayerProps) {
       playbackRatePreference.current?.setPreferredRate(settings.defaultPlaybackSpeed);
     }
   }, [settings.defaultPlaybackSpeed]);
+  const handoff = useEngineHandoff(
+    settings.playerEngine,
+    props.playerKey,
+    props.isLive ? 0 : props.startTime,
+    props.onTimeUpdate,
+  );
+  const startTime = props.isLive ? props.startTime : handoff.startTime;
   const videoJs = videoJsSourceFor({
     engine: settings.playerEngine,
     source: props.manifestSrc,
@@ -78,6 +86,8 @@ export function WatchStagePlayer(props: WatchStagePlayerProps) {
     return (
       <VideoJsStagePlayer
         {...props}
+        startTime={startTime}
+        onTimeUpdate={handoff.onTimeUpdate}
         source={videoJs}
         playbackRatePreference={playbackRatePreference.current}
       />
@@ -99,7 +109,7 @@ export function WatchStagePlayer(props: WatchStagePlayerProps) {
         title={props.streamTitle}
         poster={props.poster}
         streamType={props.isLive ? "live" : "on-demand"}
-        startTime={props.startTime}
+        startTime={startTime}
         seekIntervalSeconds={props.seekIntervalSeconds}
         subtitles={props.subtitles}
         sponsorBlockSegments={props.sponsorBlockSegments}
@@ -128,7 +138,7 @@ export function WatchStagePlayer(props: WatchStagePlayerProps) {
         captionStyles={settings.captionStyles}
         onCaptionStylesChange={props.onCaptionStylesChange}
         onVolumeChange={props.onVolumeChange}
-        onTimeUpdate={props.onTimeUpdate}
+        onTimeUpdate={handoff.onTimeUpdate}
         onPlay={props.onPlay}
         onPause={props.onPause}
         onSeeking={props.onSeeking}
