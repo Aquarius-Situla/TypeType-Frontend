@@ -7,6 +7,7 @@ import { useWebVttUrl } from "../hooks/use-web-vtt-url";
 import { attachBilibiliDash } from "../lib/dash-bilibili-behaviour";
 import { registerDashPlayer } from "../lib/dash-player-registration";
 import { buildDashStreamingSettings } from "../lib/dash-streaming-settings";
+import { dedupeTrackOnLoad } from "../lib/dedupe-text-track";
 import { HLS_OUTAGE_LOAD_POLICIES } from "../lib/playback-outage-policy";
 import type { Provider } from "../lib/provider";
 import type { VideoJsSource } from "../lib/video-js-source";
@@ -42,6 +43,7 @@ function Tracks({
       {buildSafeSubtitleTracks(subtitles).map((track) => (
         <track
           key={track.key}
+          ref={dedupeTrackOnLoad}
           kind="subtitles"
           src={track.src}
           label={track.label}
