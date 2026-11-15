@@ -3,13 +3,9 @@ import type { VideoJsVideoPlayerProps } from "./videojs-video-player";
 
 const noop = () => undefined;
 
-type Props = {
-  video: HTMLVideoElement | null;
-  player: VideoJsVideoPlayerProps;
-  onAutoplayBlocked: () => void;
-};
+type Props = { video: HTMLVideoElement | null; player: VideoJsVideoPlayerProps };
 
-export function VideoJsSabrEngine({ video, player, onAutoplayBlocked }: Props) {
+export function VideoJsSabrEngine({ video, player }: Props) {
   if (!player.sabrConfig) return null;
   return (
     <SabrMsePlayer
@@ -23,7 +19,6 @@ export function VideoJsSabrEngine({ video, player, onAutoplayBlocked }: Props) {
       initialMuted={player.initialMuted ?? false}
       settingsReady={player.settingsReady ?? false}
       onVolumeChange={player.onVolumeChange}
-      onAutoplayBlocked={onAutoplayBlocked}
       onError={player.onError ?? noop}
       onSeekStateChange={noop}
       onSeekReady={player.onSeekReady ?? noop}

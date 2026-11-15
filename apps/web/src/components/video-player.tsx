@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePolicyMutedSave } from "../hooks/use-policy-muted-save";
+import { useEffect, useMemo } from "react";
 import { useSabrPlayerState } from "../hooks/use-sabr-player-state";
 import { BILIBILI_FLV_VIDEO_PROVIDER_LOADERS } from "../lib/bilibili-flv-loader";
 import { isIosDevice } from "../lib/ios-device";
@@ -23,7 +22,6 @@ import { VideoPlayerPlaybackTools } from "./video-player-playback-tools";
 import { VideoPlayerTracks } from "./video-player-tracks";
 import type { VideoPlayerProps } from "./video-player-types";
 import { VidstackPlayerMedia } from "./vidstack-player-media";
-import { VidstackStartWithSound } from "./vidstack-start-with-sound";
 import { VolumeRestorer } from "./volume-restorer";
 
 patchVidstackProviderLoaders();
@@ -98,9 +96,6 @@ export function VideoPlayer({
 
   const sabrState = useSabrPlayerState(Boolean(sabrConfig), handleProviderChange);
   const audioPosterVisible = audioOnly || sabrState.modeSwitching;
-  const { policyMuted, saveVolume } = usePolicyMutedSave(onVolumeChange);
-  const [autoplayBlocked, setAutoplayBlocked] = useState(0);
-  const onAutoplayBlocked = useCallback(() => setAutoplayBlocked((count) => count + 1), []);
   useEffect(
     () => onAudioPosterChange?.(audioPosterVisible),
     [audioPosterVisible, onAudioPosterChange],
@@ -124,7 +119,6 @@ export function VideoPlayer({
       poster={poster}
       onProviderChange={sabrState.handleProviderChange}
       onError={sabrConfig ? undefined : handleError}
-      onAutoPlayFail={onAutoplayBlocked}
       aria-busy={sabrState.seeking}
       data-sabr-seeking={sabrState.seeking ? "true" : undefined}
       data-player-root=""
@@ -148,8 +142,7 @@ export function VideoPlayer({
             initialVolume={initialVolume}
             initialMuted={initialMuted}
             settingsReady={settingsReady}
-            onVolumeChange={saveVolume}
-            onAutoplayBlocked={onAutoplayBlocked}
+            onVolumeChange={onVolumeChange}
             onError={onError ?? (() => undefined)}
             onSeekStateChange={sabrState.setSeeking}
             onModeSwitchChange={sabrState.setModeSwitching}
@@ -171,7 +164,6 @@ export function VideoPlayer({
           onEnded={handleEnded}
           onPositionReaderChange={onPositionReaderChange}
         />
-        <VidstackStartWithSound blocked={autoplayBlocked} policyMuted={policyMuted} />
         {overlay}
         <VideoPlayerLayout
           audioOnly={audioOnly}
@@ -192,7 +184,7 @@ export function VideoPlayer({
           initialVolume={initialVolume}
           initialMuted={initialMuted}
           settingsReady={settingsReady}
-          onVolumeChange={saveVolume}
+          onVolumeChange={onVolumeChange}
         />
         {captionStyles && onCaptionStylesChange && (
           <CaptionStyleRestorer
