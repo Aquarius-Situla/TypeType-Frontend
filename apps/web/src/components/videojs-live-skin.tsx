@@ -2,7 +2,6 @@ import {
   BufferingIndicator,
   Container,
   Controls,
-  ErrorDialog,
   FullscreenButton,
   Gesture,
   Hotkey,
@@ -163,13 +162,6 @@ export function VideoJsLiveSkin({
       <Gesture type="tap" action="toggleControls" pointer="touch" />
       <Gesture type="doubletap" action="toggleFullscreen" region="center" />
       <StatusAnnouncer />
-      <ErrorDialog.Root>
-        <ErrorDialog.Popup className="absolute inset-0 z-40 grid place-content-center gap-3 bg-black/85 p-6 text-center text-white [&:not([data-open])]:hidden">
-          <ErrorDialog.Title className="text-base font-semibold" />
-          <ErrorDialog.Description className="text-sm text-white/80" />
-          <ErrorDialog.Close className="mx-auto cursor-pointer rounded-md bg-white/15 px-3 py-1.5 text-sm hover:bg-white/25" />
-        </ErrorDialog.Popup>
-      </ErrorDialog.Root>
     </Container>
   );
 }

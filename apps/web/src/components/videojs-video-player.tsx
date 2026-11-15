@@ -6,6 +6,7 @@ import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import type { VideoJsSource } from "../lib/video-js-source";
 import { AudioCenterToggle } from "./audio-center-toggle";
 import { AudioOnlyPoster } from "./audio-only-poster";
+import { ServerStatusNotice } from "./server-status-notice";
 import type { VideoPlayerProps } from "./video-player-types";
 import { VideoJsAutoplay } from "./videojs-autoplay";
 import { VideoJsLivePlayer } from "./videojs-live-player";
@@ -16,6 +17,7 @@ import { VideoJsPlaybackTools } from "./videojs-playback-tools";
 import { VideoJsPlayerBridge } from "./videojs-player-bridge";
 import { VideoJsPlayerMedia } from "./videojs-player-media";
 import { VideoJsQualityDefault } from "./videojs-quality-default";
+import { VideoJsRecoveryCover } from "./videojs-recovery-cover";
 import { VideoJsSabrEngine } from "./videojs-sabr-engine";
 
 export type VideoJsVideoPlayerProps = VideoPlayerProps & {
@@ -111,6 +113,8 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
               mediaProps={mediaProps}
             />
             {!sabr && <VideoJsAutoplay enabled={autoplay} policyMuted={policyMuted} />}
+            <VideoJsRecoveryCover />
+            <ServerStatusNotice variant="player" />
             <VideoJsPlayerMedia root={root}>
               {props.overlay}
               <VideoJsPlaybackTools player={props} sabrVideo={sabr ? video : null} />

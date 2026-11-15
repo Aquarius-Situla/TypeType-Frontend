@@ -2111,5 +2111,12 @@
   "focus_study_none": "无",
   "focus_schedule": "生效时间",
   "focus_schedule_always": "每天",
-  "focus_schedule_weekdays": "工作日生效，周末不限"
+  "focus_schedule_weekdays": "工作日生效，周末不限",
+  "server_notice_restarting": "服务器正在重启，稍后会自动恢复。",
+  "server_notice_unreachable": "与服务器的连接已断开，正在重新连接。",
+  "server_notice_update": "服务器即将更新，播放会自动恢复。",
+  "server_notice_maintenance": "服务器正在维护。",
+  "server_notice_back": "服务器已恢复。",
+  "player_resuming_after_outage": "与服务器的连接已中断，播放会自动恢复。",
+  "twitch_live_failed": "直播没有响应。"
 }

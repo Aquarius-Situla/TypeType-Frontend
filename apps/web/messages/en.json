@@ -2111,5 +2111,12 @@
   "focus_study_none": "None",
   "focus_schedule": "When",
   "focus_schedule_always": "Every day",
-  "focus_schedule_weekdays": "Weekdays, free on weekends"
+  "focus_schedule_weekdays": "Weekdays, free on weekends",
+  "server_notice_restarting": "The server is restarting. Everything resumes by itself.",
+  "server_notice_unreachable": "Connection to the server lost. Reconnecting.",
+  "server_notice_update": "A server update is coming. Playback will resume by itself.",
+  "server_notice_maintenance": "Server maintenance in progress.",
+  "server_notice_back": "The server is back.",
+  "player_resuming_after_outage": "The connection to the server was interrupted. Playback resumes by itself.",
+  "twitch_live_failed": "The stream stopped responding."
 }

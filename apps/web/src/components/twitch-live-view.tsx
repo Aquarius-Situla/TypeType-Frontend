@@ -4,6 +4,7 @@ import { useTwitchLiveRecovery } from "../hooks/use-twitch-live-recovery";
 import { ApiError } from "../lib/api";
 import { TwitchChat } from "./twitch-chat";
 import { TwitchLiveEnded } from "./twitch-live-ended";
+import { TwitchLiveFailed } from "./twitch-live-failed";
 import { TwitchLiveMeta } from "./twitch-live-meta";
 import { TwitchOfflineChannel } from "./twitch-offline-channel";
 import { TwitchPlayer } from "./twitch-player";
@@ -43,6 +44,7 @@ export function TwitchLiveView({ login }: { login: string }) {
               onTimeUpdate={recovery.onPlaying}
             >
               {ended && <TwitchLiveEnded login={login} />}
+              {!ended && recovery.failed && <TwitchLiveFailed onRetry={recovery.retry} />}
             </TwitchPlayer>
           )}
           {data && (
