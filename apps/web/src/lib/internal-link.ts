@@ -8,6 +8,7 @@ const LIST_ID = /^[A-Za-z0-9_-]{10,64}$/;
 const START_TIME = /^(?:\d{1,6}|(?=\d)(?:\d{1,3}h)?(?:\d{1,3}m)?(?:\d{1,5}s)?)$/;
 const UNSUPPORTED = -1;
 const NICONICO_SHORT_ID = /^(?:sm|nm|so)\d{1,12}$/;
+const BILIBILI_SHORT_CODE = /^[A-Za-z0-9]{4,16}$/;
 
 function webUrl(href: string): URL | null {
   try {
@@ -32,6 +33,14 @@ function watchPath(url: URL): string | null {
   const start = url.searchParams.get("t");
   if (start && START_TIME.test(start)) search.set("t", start);
   return `/watch?${search.toString()}`;
+}
+
+// b23.tv share links hide their video behind a redirect that only the server follows.
+export function bilibiliShortCode(href: string): string | null {
+  const url = webUrl(href);
+  if (url?.hostname.toLowerCase() !== "b23.tv") return null;
+  const code = url.pathname.slice(1);
+  return BILIBILI_SHORT_CODE.test(code) ? code : null;
 }
 
 // Only identifiers that passed a strict pattern reach the internal route, never the link itself.

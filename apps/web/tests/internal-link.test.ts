@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { resolveInternalLink } from "../src/lib/internal-link";
+import { bilibiliShortCode, resolveInternalLink } from "../src/lib/internal-link";
 
 const open = (href: string, twitch = true) => resolveInternalLink(href, { twitch });
 
@@ -61,6 +61,13 @@ test("reroutes embeds, searches, tags and Twitch pages TypeType has a page for",
   expect(open("https://www.twitch.tv/directory/category/../x")).toBeNull();
   expect(open("https://www.twitch.tv/search?term=x", false)).toBeNull();
   expect(open("https://www.youtube.com/results")).toBeNull();
+});
+
+test("recognises b23.tv share links for the server to resolve", () => {
+  expect(bilibiliShortCode("https://b23.tv/AbC123x")).toBe("AbC123x");
+  expect(bilibiliShortCode("https://b23.tv/AbC123x/extra")).toBeNull();
+  expect(bilibiliShortCode("https://b23.tv.evil.example/AbC123x")).toBeNull();
+  expect(bilibiliShortCode("https://www.bilibili.com/video/BV1xx411c7mD")).toBeNull();
 });
 
 test("leaves everything else to the external link warning", () => {

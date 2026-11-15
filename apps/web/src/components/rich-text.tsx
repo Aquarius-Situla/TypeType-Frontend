@@ -44,7 +44,7 @@ export function RichText({ text, videoUrl, onSeekTimestamp }: RichTextProps) {
                 onSeekTimestamp(seconds);
                 return;
               }
-              if (!openInternal(segment.value)) setPendingUrl(segment.value);
+              openInternal(segment.value, setPendingUrl);
             }}
             className="text-accent hover:text-accent-strong underline underline-offset-2 transition-colors break-all text-left align-baseline"
           >
@@ -86,7 +86,7 @@ export function RichText({ text, videoUrl, onSeekTimestamp }: RichTextProps) {
           href={node.href}
           onClick={(event) => {
             event.preventDefault();
-            if (!openInternal(node.href)) setPendingUrl(node.href);
+            openInternal(node.href, setPendingUrl);
           }}
           className="text-accent hover:text-accent-strong underline underline-offset-2 transition-colors break-all text-left align-baseline"
         >

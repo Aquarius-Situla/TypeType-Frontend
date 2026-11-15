@@ -32,7 +32,7 @@ export function TwitchChat({ login, overlay = false }: Props) {
   const openInternal = useInternalLink();
   const onLink = useCallback(
     (href: string) => {
-      if (!openInternal(href)) setLink(href);
+      openInternal(href, setLink);
     },
     [openInternal],
   );
