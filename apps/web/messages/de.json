@@ -2085,5 +2085,6 @@
   "ui_twitch_status_disconnected": "Nicht verbunden",
   "ui_twitch_status_disconnected_description": "Livestreams, VODs, Clips und Chat funktionieren auch ohne Konto.",
   "ui_twitch_sign_in_first": "Melde dich bei TypeType an, um Twitch zu verbinden",
-  "watch_sponsorblock_unavailable": "SponsorBlock antwortet nicht, die Segmente sind für dieses Video nicht geladen"
+  "watch_sponsorblock_unavailable": "SponsorBlock antwortet nicht, die Segmente sind für dieses Video nicht geladen",
+  "player_unmute_hint": "Ton einschalten"
 }

@@ -2085,5 +2085,6 @@
   "ui_twitch_status_disconnected": "未连接",
   "ui_twitch_status_disconnected_description": "无需账号也能观看直播、回放、剪辑和查看聊天。",
   "ui_twitch_sign_in_first": "登录 TypeType 后即可连接 Twitch",
-  "watch_sponsorblock_unavailable": "SponsorBlock 无响应，此视频的片段未加载"
+  "watch_sponsorblock_unavailable": "SponsorBlock 无响应，此视频的片段未加载",
+  "player_unmute_hint": "点击取消静音"
 }

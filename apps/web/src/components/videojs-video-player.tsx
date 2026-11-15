@@ -7,6 +7,7 @@ import type { VideoJsSource } from "../lib/video-js-source";
 import { AudioCenterToggle } from "./audio-center-toggle";
 import { AudioOnlyPoster } from "./audio-only-poster";
 import type { VideoPlayerProps } from "./video-player-types";
+import { VideoJsAutoplay } from "./videojs-autoplay";
 import { VideoJsLivePlayer } from "./videojs-live-player";
 import { VideoJsLiveSkin } from "./videojs-live-skin";
 import { VideoJsMedia } from "./videojs-media";
@@ -50,6 +51,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
   const [video, setVideo] = useState<HTMLVideoElement | null>(null);
   const sabr = source.kind === "sabr";
   const [root, setRoot] = useState<HTMLDivElement | null>(null);
+  const policyMuted = useRef(false);
   const live = streamType === "live";
   const Player = live ? VideoJsLivePlayer : VideoPlayer;
   const Skin = live ? VideoJsLiveSkin : VideoSkin;
@@ -108,6 +110,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
               mediaRef={mediaRef}
               mediaProps={mediaProps}
             />
+            {!sabr && <VideoJsAutoplay enabled={autoplay} policyMuted={policyMuted} />}
             <VideoJsPlayerMedia root={root}>
               {props.overlay}
               <VideoJsPlaybackTools player={props} sabrVideo={sabr ? video : null} />
@@ -128,6 +131,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
               initialVolume={props.initialVolume ?? 1}
               initialMuted={props.initialMuted ?? false}
               settingsReady={props.settingsReady ?? false}
+              policyMuted={policyMuted}
               onVolumeChange={props.onVolumeChange}
               onSeekReady={props.onSeekReady}
             />
