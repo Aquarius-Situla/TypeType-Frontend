@@ -2136,5 +2136,7 @@
   "player_caption_color": "Subtitle colour",
   "player_caption_background": "Subtitle background",
   "player_color_yellow": "Yellow",
-  "player_color_cyan": "Cyan"
+  "player_color_cyan": "Cyan",
+  "twitch_chat_replay": "Chat replay",
+  "twitch_chat_replay_empty": "No messages at this point of the video."
 }

@@ -15,6 +15,7 @@ import type {
   TwitchStream,
   TwitchUserEmotes,
   TwitchVideo,
+  TwitchVideoComment,
   TwitchVideoPlayback,
 } from "../types/twitch";
 import { authed, authedJson } from "./authed";
@@ -42,6 +43,15 @@ export const fetchTwitchGameStreams = (slug: string, after?: string) =>
 
 export const fetchTwitchTagStreams = (tag: string, after?: string) =>
   get<TwitchPage<TwitchStream>>(`/tags/${encodeURIComponent(tag)}/streams?${pageQuery(after)}`);
+
+export const fetchTwitchVideoComments = (id: string, at: { offset?: number; cursor?: string }) => {
+  const params = new URLSearchParams();
+  if (at.cursor) params.set("cursor", at.cursor);
+  else params.set("offset", String(Math.max(0, Math.floor(at.offset ?? 0))));
+  return get<TwitchPage<TwitchVideoComment>>(
+    `/videos/${encodeURIComponent(id)}/comments?${params}`,
+  );
+};
 
 export const fetchTwitchChannel = (login: string) =>
   get<TwitchChannel>(`/channels/${encodeURIComponent(login)}`);

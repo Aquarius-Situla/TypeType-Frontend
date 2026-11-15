@@ -143,4 +143,15 @@ export type TwitchChatEvent = {
   deleted?: boolean;
 };
 
+export type TwitchVideoComment = {
+  id: string;
+  offset: number;
+  login?: string;
+  displayName?: string;
+  color?: string;
+  text: string;
+  emotes?: TwitchChatEmote[];
+  badges?: string[];
+};
+
 export type TwitchSearchType = "channels" | "games" | "streams";

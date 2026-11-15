@@ -2136,5 +2136,7 @@
   "player_caption_color": "Untertitelfarbe",
   "player_caption_background": "Untertitelhintergrund",
   "player_color_yellow": "Gelb",
-  "player_color_cyan": "Cyan"
+  "player_color_cyan": "Cyan",
+  "twitch_chat_replay": "Chat-Wiedergabe",
+  "twitch_chat_replay_empty": "An dieser Stelle des Videos gibt es keine Nachrichten."
 }

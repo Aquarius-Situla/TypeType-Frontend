@@ -2136,5 +2136,7 @@
   "player_caption_color": "Couleur des sous-titres",
   "player_caption_background": "Fond des sous-titres",
   "player_color_yellow": "Jaune",
-  "player_color_cyan": "Cyan"
+  "player_color_cyan": "Cyan",
+  "twitch_chat_replay": "Rediffusion du chat",
+  "twitch_chat_replay_empty": "Aucun message à ce moment de la vidéo."
 }

@@ -2136,5 +2136,7 @@
   "player_caption_color": "字幕颜色",
   "player_caption_background": "字幕背景",
   "player_color_yellow": "黄色",
-  "player_color_cyan": "青色"
+  "player_color_cyan": "青色",
+  "twitch_chat_replay": "聊天回放",
+  "twitch_chat_replay_empty": "视频此处没有消息。"
 }
