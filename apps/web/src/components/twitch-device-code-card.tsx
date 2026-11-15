@@ -2,32 +2,17 @@ import { Check, Copy, ExternalLink } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
 import { m } from "../paraglide/messages.js";
+import { DeviceLoginCountdown } from "./device-login-countdown";
 
 type Props = {
   userCode: string;
   link: string;
   expiresAt: number;
-  lifetimeMs: number;
   onCancel: () => void;
 };
 
-function remaining(expiresAt: number): number {
-  return Math.max(0, expiresAt - Date.now());
-}
-
-function clock(ms: number): string {
-  const total = Math.ceil(ms / 1000);
-  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
-}
-
-export function TwitchDeviceCodeCard({ userCode, link, expiresAt, lifetimeMs, onCancel }: Props) {
-  const [left, setLeft] = useState(() => remaining(expiresAt));
+export function TwitchDeviceCodeCard({ userCode, link, expiresAt, onCancel }: Props) {
   const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    const timer = window.setInterval(() => setLeft(remaining(expiresAt)), 1000);
-    return () => window.clearInterval(timer);
-  }, [expiresAt]);
 
   useEffect(() => {
     if (!copied) return;
@@ -44,7 +29,6 @@ export function TwitchDeviceCodeCard({ userCode, link, expiresAt, lifetimeMs, on
     }
   }
 
-  const progress = lifetimeMs > 0 ? (left / lifetimeMs) * 100 : 0;
   return (
     <div className="flex max-w-3xl flex-col gap-5 border-border border-l-2 pl-5">
       <ol className="flex flex-col gap-1 text-fg-muted text-sm leading-6">
@@ -85,17 +69,7 @@ export function TwitchDeviceCodeCard({ userCode, link, expiresAt, lifetimeMs, on
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-2">
-        <div className="h-1 w-full max-w-sm overflow-hidden rounded-full bg-surface-strong">
-          <div
-            className="h-full bg-[#9146ff] transition-[width] duration-1000 ease-linear"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        <p className="text-fg-soft text-xs">
-          {m.ui_twitch_device_expires_in({ time: clock(left) })} · {m.ui_device_login_waiting()}
-        </p>
-      </div>
+      <DeviceLoginCountdown expiresAt={expiresAt} barClassName="bg-[#9146ff]" />
       <button
         type="button"
         onClick={onCancel}

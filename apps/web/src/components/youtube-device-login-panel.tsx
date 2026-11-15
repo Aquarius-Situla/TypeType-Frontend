@@ -3,6 +3,7 @@ import type { YoutubeDeviceStart } from "../lib/api-youtube-session";
 import { fetchYoutubeDeviceStatus } from "../lib/api-youtube-session";
 import { recordClientEvent } from "../lib/client-debug-log";
 import { m } from "../paraglide/messages.js";
+import { DeviceLoginCountdown } from "./device-login-countdown";
 import { YoutubeIcon } from "./youtube-icon";
 
 type Props = {
@@ -12,13 +13,6 @@ type Props = {
   onCancel: () => void;
   onConnected: () => void;
 };
-
-function formatExpiry(expiresAt: number): string {
-  return new Date(expiresAt).toLocaleTimeString(undefined, {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 export function YoutubeDeviceLoginPanel({
   connected,
@@ -129,10 +123,7 @@ export function YoutubeDeviceLoginPanel({
       >
         {device.userCode}
       </a>
-      <p className="text-fg-soft text-xs">
-        {m.ui_bilibili_expires_at()} {formatExpiry(device.expiresAt)} ·{" "}
-        {m.ui_device_login_waiting()}
-      </p>
+      <DeviceLoginCountdown expiresAt={device.expiresAt} barClassName="bg-[#ff0000]" />
       <button
         type="button"
         onClick={() => {

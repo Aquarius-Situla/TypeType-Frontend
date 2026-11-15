@@ -117,7 +117,6 @@ export function TwitchDeviceLoginPanel({ connected, onConnected }: Props) {
       userCode={device.userCode}
       link={activationLink(device)}
       expiresAt={device.expiresAt}
-      lifetimeMs={device.expiresIn * 1000}
       onCancel={() => setDevice(null)}
     />
   );

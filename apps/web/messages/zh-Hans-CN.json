@@ -1842,7 +1842,7 @@
   "home_welcome_choose": "选择我的算法",
   "home_welcome_later": "以后再说",
   "ui_enter_this_code_on_google_com_device": "Enter this code on google.com/device",
-  "ui_device_login_waiting": "Waiting for the authorization",
+  "ui_device_login_waiting": "等待授权",
   "ui_youtube_device_sign_in": "使用代码登录 YouTube",
   "ui_youtube_device_sign_in_description": "TypeType 会显示一个代码，请在 google.com/device 输入，YouTube 授权将保留在服务器上，绝不会发送到网页界面",
   "ui_youtube_device_sign_in_hint": "请使用备用 YouTube 账号。代码会在几分钟后过期。",
@@ -2073,7 +2073,6 @@
   "ui_twitch_device_step_authorize": "授权后，此页面会自动完成连接。",
   "ui_twitch_device_open": "打开 Twitch",
   "ui_twitch_device_copy": "复制代码",
-  "ui_twitch_device_expires_in": "{time} 后过期",
   "ui_twitch_device_expired": "代码已过期，请重新获取。",
   "ui_twitch_session_connected_next": "Twitch 已连接。你关注的直播、聊天和关注功能均已可用。",
   "ui_twitch_open_twitch": "前往 Twitch",
@@ -2084,7 +2083,6 @@
   "ui_twitch_status_connected_description": "关注的频道、订阅者直播和聊天都会使用此账号。",
   "ui_twitch_status_disconnected": "未连接",
   "ui_twitch_status_disconnected_description": "无需账号也能观看直播、回放、剪辑和查看聊天。",
-  "ui_twitch_sign_in_first": "登录 TypeType 后即可连接 Twitch",
   "watch_sponsorblock_unavailable": "SponsorBlock 无响应，此视频的片段未加载",
   "settings_focus_label": "专注",
   "settings_focus_description": "逐步淡出一组频道。",
@@ -2124,5 +2122,7 @@
   "twitch_emotes_empty": "未找到表情",
   "twitch_emotes_show_all": "显示全部（{count}）",
   "player_quality_source": "原画（原始画质）",
-  "player_start_with_sound_hint": "点击任意位置开始有声播放"
+  "player_start_with_sound_hint": "点击任意位置开始有声播放",
+  "ui_device_login_expires_in": "{time} 后过期",
+  "ui_twitch_sign_in_first": "登录 TypeType 后即可连接 Twitch"
 }

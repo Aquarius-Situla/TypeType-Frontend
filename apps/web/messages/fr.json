@@ -1842,7 +1842,7 @@
   "language_german": "Allemand",
   "language_chinese_simplified": "Chinois simplifié",
   "ui_enter_this_code_on_google_com_device": "Enter this code on google.com/device",
-  "ui_device_login_waiting": "Waiting for the authorization",
+  "ui_device_login_waiting": "En attente de l'autorisation",
   "ui_youtube_device_sign_in": "Connexion YouTube par code",
   "ui_youtube_device_sign_in_description": "TypeType affiche un code à saisir sur google.com/device. La session YouTube reste sur le serveur et n'est jamais envoyée à l'interface web.",
   "ui_youtube_device_sign_in_hint": "Utilisez un compte YouTube secondaire. Le code expire au bout de quelques minutes.",
@@ -2073,7 +2073,6 @@
   "ui_twitch_device_step_authorize": "Autorisez : cette page se connecte toute seule.",
   "ui_twitch_device_open": "Ouvrir Twitch",
   "ui_twitch_device_copy": "Copier le code",
-  "ui_twitch_device_expires_in": "Expire dans {time}",
   "ui_twitch_device_expired": "Le code a expiré. Demandez-en un nouveau.",
   "ui_twitch_session_connected_next": "Twitch est connecté. Vos lives suivis, le chat et les follows sont prêts.",
   "ui_twitch_open_twitch": "Aller sur Twitch",
@@ -2084,7 +2083,6 @@
   "ui_twitch_status_connected_description": "Les chaînes suivies, les lives réservés aux abonnés et le chat utilisent ce compte.",
   "ui_twitch_status_disconnected": "Non connecté",
   "ui_twitch_status_disconnected_description": "Les lives, VODs, clips et le chat fonctionnent aussi sans compte.",
-  "ui_twitch_sign_in_first": "Connectez-vous à TypeType pour lier Twitch",
   "watch_sponsorblock_unavailable": "SponsorBlock ne répond pas, les segments ne sont pas chargés pour cette vidéo",
   "settings_focus_label": "Focus",
   "settings_focus_description": "Faire disparaître peu à peu un groupe de chaînes.",
@@ -2124,5 +2122,7 @@
   "twitch_emotes_empty": "Aucune emote trouvée",
   "twitch_emotes_show_all": "Tout afficher ({count})",
   "player_quality_source": "Source (qualité d'origine)",
-  "player_start_with_sound_hint": "Cliquez n'importe où pour lancer avec le son"
+  "player_start_with_sound_hint": "Cliquez n'importe où pour lancer avec le son",
+  "ui_device_login_expires_in": "Expire dans {time}",
+  "ui_twitch_sign_in_first": "Connectez-vous à TypeType pour lier Twitch"
 }

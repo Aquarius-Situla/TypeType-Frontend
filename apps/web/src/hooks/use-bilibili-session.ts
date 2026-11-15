@@ -39,6 +39,7 @@ export function useBiliBiliSession() {
   const { authReady, isAuthed } = useAuth();
   const [qrPhase, setQrPhase] = useState<BiliBiliQrPhase>("idle");
   const [qrUrl, setQrUrl] = useState<string | null>(null);
+  const [qrExpiresAt, setQrExpiresAt] = useState<number | null>(null);
   const [qrError, setQrError] = useState<string | null>(null);
   const qrcodeKeyRef = useRef<string | null>(null);
   const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -70,9 +71,10 @@ export function useBiliBiliSession() {
     try {
       const result = await startBiliBiliQrLogin();
       qrcodeKeyRef.current = result.qrcodeKey;
-      setQrUrl(result.qrUrl);
-      setQrPhase("waiting");
       const expiresAt = toBilibiliSessionTimeMs(result.expiresAt);
+      setQrUrl(result.qrUrl);
+      setQrExpiresAt(expiresAt);
+      setQrPhase("waiting");
       pollTimerRef.current = setInterval(async () => {
         if (expiresAt !== null && Date.now() > expiresAt) {
           stopPolling();
@@ -124,6 +126,7 @@ export function useBiliBiliSession() {
     disconnect,
     qrPhase,
     qrUrl,
+    qrExpiresAt,
     qrError,
     startQr,
     cancelQr,
