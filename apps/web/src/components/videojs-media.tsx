@@ -3,6 +3,7 @@ import { HlsJsVideo } from "@videojs/react/media/hlsjs-video";
 import { Video } from "@videojs/react/video";
 import { type ReactNode, useMemo, useRef, type VideoHTMLAttributes } from "react";
 import { useWebVttUrl } from "../hooks/use-web-vtt-url";
+import { HLS_OUTAGE_LOAD_POLICIES } from "../lib/hls-outage-policy";
 import type { VideoJsSource } from "../lib/video-js-source";
 import { buildSafeSubtitleTracks } from "./subtitle-track-utils";
 import type { VideoPlayerProps } from "./video-player-types";
@@ -56,7 +57,13 @@ export function VideoJsMedia({
     () => ({
       src: source.src,
       type: source.type ?? "application/x-mpegurl",
-      engine: { hlsJs: { startPosition: live ? -1 : startRef.current / 1000, startLevel: 0 } },
+      engine: {
+        hlsJs: {
+          ...HLS_OUTAGE_LOAD_POLICIES,
+          startPosition: live ? -1 : startRef.current / 1000,
+          startLevel: 0,
+        },
+      },
     }),
     [source.src, source.type, live],
   );

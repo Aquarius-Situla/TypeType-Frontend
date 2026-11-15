@@ -12,6 +12,7 @@ import { attachDashPlaybackDiagnostics } from "../lib/dash-playback-diagnostics"
 import { attachDashPlaybackStallRecovery } from "../lib/dash-playback-stall-recovery";
 import { notifyDashPlayer, setDashPlayer } from "../lib/dash-player-store";
 import { installDashQualityCompat } from "../lib/dash-quality-compat";
+import { HLS_OUTAGE_LOAD_POLICIES } from "../lib/hls-outage-policy";
 import type { Provider } from "../lib/provider";
 import type { MediaProviderAdapter } from "../lib/vidstack";
 import { isDASHProvider, isHLSProvider, Track, useMediaState } from "../lib/vidstack";
@@ -138,6 +139,7 @@ export function onProviderChange(
             FetchLoader: library.FetchLoader,
             policy: STREAMING_BUFFER_POLICY,
           }),
+          ...HLS_OUTAGE_LOAD_POLICIES,
           ...(startPosition > 0 ? { startPosition } : {}),
         };
         return library;
