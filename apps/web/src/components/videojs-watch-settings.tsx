@@ -18,9 +18,11 @@ import {
   Settings,
   SlidersHorizontal,
   Type,
+  Volume2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useVideoJsTextTrackVersion } from "../hooks/use-videojs-text-track-version";
+import { canBoost } from "../lib/audio-boost";
 import { isSourceRendition, qualityOptionsBestFirst } from "../lib/video-js-quality-order";
 import { BAR_BUTTON, BAR_MENU_ITEM, BAR_MENU_POPUP } from "../lib/videojs-menu-classes";
 import { m } from "../paraglide/messages.js";
@@ -28,6 +30,7 @@ import { useDanmakuStore } from "../stores/danmaku-store";
 import { useSabrAudioStore } from "../stores/sabr-audio-store";
 import type { CaptionStyles } from "../types/user";
 import { VideoJsAccessibilitySubmenu } from "./videojs-accessibility-submenu";
+import { useBoostTarget, VideoJsBoostPanel } from "./videojs-boost-panel";
 import { VideoJsCaptionStylePanel } from "./videojs-caption-style-panel";
 import { useFormatSection } from "./videojs-format-section";
 import {
@@ -172,6 +175,7 @@ function WatchSettingsRows({ danmaku, captionStyles, onCaptionStylesChange }: Pr
   const audio = useAudioSection();
   useVideoJsTextTrackVersion();
   const captions = useCaptionsOptions();
+  const boostTarget = useBoostTarget();
   const loop = useLoop();
   const hasQuality = quality?.state.availability === "available";
   return (
@@ -214,6 +218,11 @@ function WatchSettingsRows({ danmaku, captionStyles, onCaptionStylesChange }: Pr
             <VideoJsCaptionStylePanel styles={captionStyles} onChange={onCaptionStylesChange} />
           </MenuGroupSubmenu>
         )}
+      {boostTarget && canBoost(boostTarget) && (
+        <MenuGroupSubmenu icon={Volume2} label={m.player_boost()}>
+          <VideoJsBoostPanel video={boostTarget} />
+        </MenuGroupSubmenu>
+      )}
       <VideoJsAccessibilitySubmenu />
       <Menu.CheckboxItem
         checked={loop.value === ON}

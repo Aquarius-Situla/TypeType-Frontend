@@ -14,10 +14,10 @@ const KEY_STEPS: Record<string, number> = {
   Home: -MAX,
   End: MAX,
 };
-const ROUND =
+export const PANEL_ROUND_BUTTON =
   "flex size-8 shrink-0 items-center justify-center rounded-full bg-white/10 outline-none transition-colors duration-150 hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white";
 
-const SLIDER =
+export const PANEL_SLIDER =
   "h-1 flex-1 cursor-pointer appearance-none rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white/70 [&::-moz-range-thumb]:size-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-white [&::-moz-range-track]:bg-transparent [&::-webkit-slider-thumb]:size-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white";
 
 const bounded = (value: number) => Math.round(Math.min(MAX, Math.max(MIN, value)) * 100) / 100;
@@ -40,7 +40,7 @@ export function VideoJsSpeedPanel() {
         <button
           type="button"
           aria-label={m.algo_decrease({ name: label })}
-          className={ROUND}
+          className={PANEL_ROUND_BUTTON}
           onClick={() => set(value - STEP)}
         >
           <Minus className="size-4" aria-hidden="true" />
@@ -64,12 +64,12 @@ export function VideoJsSpeedPanel() {
           style={{
             background: `linear-gradient(to right, #fff ${fill}%, rgb(255 255 255 / 0.3) ${fill}%)`,
           }}
-          className={SLIDER}
+          className={PANEL_SLIDER}
         />
         <button
           type="button"
           aria-label={m.algo_increase({ name: label })}
-          className={ROUND}
+          className={PANEL_ROUND_BUTTON}
           onClick={() => set(value + STEP)}
         >
           <Plus className="size-4" aria-hidden="true" />
