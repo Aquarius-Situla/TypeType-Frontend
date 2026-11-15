@@ -32,6 +32,9 @@ test("prefers the captured SABR position during player recovery", () => {
   expect(playerErrorResumePosition(0, 1_795_023, 1_892_543)).toBe(1_795_023);
   expect(playerErrorResumePosition(420_000, undefined, 1_892_543)).toBe(420_000);
   expect(playerErrorResumePosition(0, 0, 1_892_543)).toBe(0);
+  expect(playerErrorResumePosition(0, undefined, 1_892_543)).toBeNull();
+  expect(playerErrorResumePosition(3_000, undefined, 1_892_543)).toBeNull();
+  expect(playerErrorResumePosition(1_892_000, undefined, 1_892_543)).toBe(0);
 });
 
 test("uses fallback start time only before an error-recovery position is recorded", () => {
