@@ -21,6 +21,7 @@ import {
   VolumeX,
 } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
+import { useVideoJsWheelVolume } from "../hooks/use-videojs-wheel-volume";
 import { BAR_BUTTON } from "../lib/videojs-menu-classes";
 import { VideoJsLoadingMascot } from "./videojs-loading-mascot";
 
@@ -49,8 +50,9 @@ export function SkinPlayButton() {
 }
 
 export function SkinVolume() {
+  const wheelVolume = useVideoJsWheelVolume();
   return (
-    <div data-skin-secondary="" className="flex items-center">
+    <div ref={wheelVolume} data-skin-secondary="" className="flex items-center">
       <MuteButton
         className={BAR_BUTTON}
         render={(props, state) => (
