@@ -44,7 +44,7 @@ export function RichText({ text, videoUrl, onSeekTimestamp }: RichTextProps) {
                 onSeekTimestamp(seconds);
                 return;
               }
-              setPendingUrl(segment.value);
+              if (!openInternal(segment.value)) setPendingUrl(segment.value);
             }}
             className="text-accent hover:text-accent-strong underline underline-offset-2 transition-colors break-all text-left align-baseline"
           >

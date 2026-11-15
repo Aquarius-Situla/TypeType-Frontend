@@ -11,6 +11,8 @@ test("reroutes supported videos with their list and start time", () => {
   );
   expect(open("https://www.nicovideo.jp/watch/sm9")).toBe("/watch?v=sm9");
   expect(open("https://www.bilibili.com/video/BV1xx411c7mD")).toBe("/watch?v=BV1xx411c7mD");
+  expect(open("https://nico.ms/sm9")).toBe("/watch?v=sm9");
+  expect(open("https://nico.ms/sm9/../x")).toBeNull();
 });
 
 test("reroutes playlists and channels", () => {
@@ -19,6 +21,9 @@ test("reroutes playlists and channels", () => {
   );
   expect(open("https://www.youtube.com/@SomeChannel")).toBe("/channel/youtube/@SomeChannel");
   expect(open("https://space.bilibili.com/12345")).toBe("/channel/bilibili/12345");
+  expect(open("https://www.youtube.com/@UCrPseYLGpNygVi34QpGNqpA")).toBe(
+    "/channel/youtube/UCrPseYLGpNygVi34QpGNqpA",
+  );
 });
 
 test("reroutes Twitch channels, videos and clips only when Twitch is enabled", () => {

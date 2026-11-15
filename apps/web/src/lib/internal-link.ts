@@ -6,6 +6,7 @@ import { toPublicWatchParam, watchServiceId } from "./watch-url";
 const LIST_ID = /^[A-Za-z0-9_-]{10,64}$/;
 const START_TIME = /^(?:\d{1,6}|(?=\d)(?:\d{1,3}h)?(?:\d{1,3}m)?(?:\d{1,5}s)?)$/;
 const UNSUPPORTED = -1;
+const NICONICO_SHORT_ID = /^(?:sm|nm|so)\d{1,12}$/;
 
 function webUrl(href: string): URL | null {
   try {
@@ -14,6 +15,12 @@ function webUrl(href: string): URL | null {
   } catch {
     return null;
   }
+}
+
+function niconicoShortLink(url: URL): URL {
+  const id = url.pathname.slice(1);
+  if (url.hostname !== "nico.ms" || !NICONICO_SHORT_ID.test(id)) return url;
+  return new URL(`https://www.nicovideo.jp/watch/${id}`);
 }
 
 function watchPath(url: URL): string | null {
@@ -28,8 +35,9 @@ function watchPath(url: URL): string | null {
 
 // Only identifiers that passed a strict pattern reach the internal route, never the link itself.
 export function resolveInternalLink(href: string, options: { twitch: boolean }): string | null {
-  const url = webUrl(href);
-  if (!url) return null;
+  const parsed = webUrl(href);
+  if (!parsed) return null;
+  const url = niconicoShortLink(parsed);
   const watch = watchPath(url);
   if (watch) return watch;
   const playlist = youtubePlaylistId(url.href);
