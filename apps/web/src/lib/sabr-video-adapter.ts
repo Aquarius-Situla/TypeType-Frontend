@@ -1,10 +1,18 @@
+import { MediaTracksMixin } from "@videojs/media/media-tracks";
 import { HTMLVideoAdapter } from "@videojs/react";
+import { mirrorSabrRenditions } from "./sabr-video-renditions";
 import { requestSabrSeek, requestSabrVidstackPlayback } from "./sabr-vidstack-bridge";
 
-export class SabrVideoAdapter extends HTMLVideoAdapter {
+export class SabrVideoAdapter extends MediaTracksMixin(HTMLVideoAdapter) {
   readonly engine = null;
   #resumePosition = 0;
   #protectStart = true;
+  #releaseRenditions = mirrorSabrRenditions(this);
+
+  override destroy(): void {
+    this.#releaseRenditions();
+    super.destroy();
+  }
 
   override play(): Promise<void> {
     const video = this.#video();

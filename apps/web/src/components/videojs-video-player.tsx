@@ -18,7 +18,6 @@ import { VideoJsPlayerBridge } from "./videojs-player-bridge";
 import { VideoJsPlayerMedia } from "./videojs-player-media";
 import { VideoJsQualityDefault } from "./videojs-quality-default";
 import { VideoJsSabrEngine } from "./videojs-sabr-engine";
-import { VideoJsSabrQualityMenu } from "./videojs-sabr-quality-menu";
 
 export type VideoJsVideoPlayerProps = VideoPlayerProps & {
   source: VideoJsSource;
@@ -124,7 +123,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
             </VideoJsPlayerMedia>
           </Skin>
           <VideoJsPlaybackSpeedDefault speed={props.defaultPlaybackSpeed} />
-          <VideoJsQualityDefault quality={props.defaultQuality} />
+          {!sabr && <VideoJsQualityDefault quality={props.defaultQuality} />}
           {sabr ? (
             <VideoJsSabrEngine video={video} player={props} />
           ) : (
@@ -136,7 +135,6 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
               onSeekReady={props.onSeekReady}
             />
           )}
-          {sabr && <VideoJsSabrQualityMenu />}
         </Player>
       </I18nProvider>
     </div>

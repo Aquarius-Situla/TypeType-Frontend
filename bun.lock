@@ -19,6 +19,7 @@
         "@typetype/mse": "0.1.80",
         "@videojs/dash-video": "10.3.0",
         "@videojs/hlsjs-video": "10.3.0",
+        "@videojs/media": "10.3.0",
         "@videojs/react": "10.3.0",
         "@vidstack/react": "1.15.7",
         "@zip.js/zip.js": "^2.24.0",
