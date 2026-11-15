@@ -2075,7 +2075,6 @@
   "ui_twitch_device_copy": "Copier le code",
   "ui_twitch_device_expired": "Le code a expiré. Demandez-en un nouveau.",
   "ui_twitch_session_connected_next": "Twitch est connecté. Vos lives suivis, le chat et les follows sont prêts.",
-  "ui_twitch_open_twitch": "Aller sur Twitch",
   "ui_twitch_session_connected": "Twitch est connecté.",
   "ui_twitch_session_disconnected": "Twitch déconnecté.",
   "ui_twitch_session_disconnect_failed": "Impossible de déconnecter Twitch.",
@@ -2123,5 +2122,6 @@
   "twitch_emotes_show_all": "Tout afficher ({count})",
   "player_quality_source": "Source (qualité d'origine)",
   "player_start_with_sound_hint": "Cliquez n'importe où pour lancer avec le son",
-  "ui_device_login_expires_in": "Expire dans {time}"
+  "ui_device_login_expires_in": "Expire dans {time}",
+  "ui_twitch_see_lives": "Voir des lives"
 }

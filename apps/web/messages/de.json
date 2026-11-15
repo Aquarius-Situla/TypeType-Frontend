@@ -2075,7 +2075,6 @@
   "ui_twitch_device_copy": "Code kopieren",
   "ui_twitch_device_expired": "Der Code ist abgelaufen. Fordere einen neuen an.",
   "ui_twitch_session_connected_next": "Twitch ist verbunden. Deine gefolgten Lives, der Chat und Follows sind bereit.",
-  "ui_twitch_open_twitch": "Zu Twitch",
   "ui_twitch_session_connected": "Twitch ist verbunden.",
   "ui_twitch_session_disconnected": "Twitch getrennt.",
   "ui_twitch_session_disconnect_failed": "Twitch konnte nicht getrennt werden.",
@@ -2123,5 +2122,6 @@
   "twitch_emotes_show_all": "Alle anzeigen ({count})",
   "player_quality_source": "Quelle (Originalqualität)",
   "player_start_with_sound_hint": "Irgendwo klicken, um mit Ton zu starten",
-  "ui_device_login_expires_in": "Läuft in {time} ab"
+  "ui_device_login_expires_in": "Läuft in {time} ab",
+  "ui_twitch_see_lives": "Ein paar Lives ansehen"
 }

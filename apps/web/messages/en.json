@@ -2075,7 +2075,6 @@
   "ui_twitch_device_copy": "Copy the code",
   "ui_twitch_device_expired": "The code expired. Ask for a new one.",
   "ui_twitch_session_connected_next": "Twitch is connected. Your followed lives, chat and follows are ready.",
-  "ui_twitch_open_twitch": "Go to Twitch",
   "ui_twitch_session_connected": "Twitch is connected.",
   "ui_twitch_session_disconnected": "Twitch disconnected.",
   "ui_twitch_session_disconnect_failed": "Could not disconnect Twitch.",
@@ -2123,5 +2122,6 @@
   "twitch_emotes_show_all": "Show all ({count})",
   "player_quality_source": "Source (original quality)",
   "player_start_with_sound_hint": "Click anywhere to start with sound",
-  "ui_device_login_expires_in": "Expires in {time}"
+  "ui_device_login_expires_in": "Expires in {time}",
+  "ui_twitch_see_lives": "Go see some lives"
 }

@@ -83,7 +83,7 @@ export function TwitchDeviceLoginPanel({ connected, onConnected }: Props) {
           className="inline-flex h-10 items-center gap-2 rounded-lg bg-[#9146ff] px-4 font-medium text-sm text-white hover:bg-[#772ce8]"
         >
           <TwitchIcon className="size-4" />
-          {m.ui_twitch_open_twitch()}
+          {m.ui_twitch_see_lives()}
         </Link>
       </div>
     );
