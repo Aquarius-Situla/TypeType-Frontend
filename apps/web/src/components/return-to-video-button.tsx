@@ -4,7 +4,7 @@ import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { usePersistentWatchPlayerStore } from "../hooks/use-persistent-watch-player";
 import { m } from "../paraglide/messages.js";
 
-export function ReturnToVideoButton() {
+export function ReturnToVideoButton({ className }: { className?: string }) {
   const navigate = useNavigate();
   const entry = usePersistentWatchPlayerStore((state) => state.entry);
   const { locale } = useInterfaceLocale();
@@ -14,6 +14,7 @@ export function ReturnToVideoButton() {
   return (
     <button
       type="button"
+      className={className}
       aria-label={label}
       title={label}
       onClick={(event) => {

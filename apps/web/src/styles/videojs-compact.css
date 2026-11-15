@@ -1,6 +1,10 @@
-/* The floating mini player has its own top bar (drag, back to the video, close): the skin title gives way to it,
-   and only play and the progress bar stay in a control bar sized for a small frame. */
+/* The floating mini player has its own top bar (drag, back to the video, close): the skin title gives way to it, the
+   bottom bar keeps only the progress bar, and the mini row takes the middle of the frame. */
 .typetype-persistent-player-frame[data-floating] .media-title,
-.typetype-persistent-player-frame[data-floating] [data-skin-secondary] {
+.typetype-persistent-player-frame[data-floating] [data-skin-bar] {
   display: none;
+}
+
+.typetype-persistent-player-frame[data-floating] [data-skin-mini] {
+  display: flex;
 }

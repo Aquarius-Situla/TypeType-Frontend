@@ -2,6 +2,7 @@ import { Controls, Gesture, Hotkey, LiveButton } from "@videojs/react";
 import { type CSSProperties, type ReactNode, useState } from "react";
 import { PlayerBarSlotContext } from "../hooks/use-player-bar-slot";
 import { m } from "../paraglide/messages.js";
+import { VideoJsMiniControls } from "./videojs-mini-controls";
 import { VideoJsSettingsMenu } from "./videojs-settings-menu";
 import {
   SKIN_HIDDEN_WHEN_IDLE,
@@ -45,6 +46,7 @@ export function VideoJsLiveSkin({
       <SkinPoster />
       <Controls.Root>
         <Controls.Content
+          data-skin-bar=""
           className={`absolute inset-x-0 bottom-0 z-20 flex items-center gap-1 bg-linear-to-t from-black/80 to-transparent px-2 pt-8 pb-2 contrast-more:from-black/95 [@media(prefers-reduced-transparency:reduce)]:bg-black/90 ${SKIN_HIDDEN_WHEN_IDLE}`}
         >
           <Controls.Group className="flex min-w-0 items-center">
@@ -62,6 +64,7 @@ export function VideoJsLiveSkin({
             <SkinFullscreenButton />
           </Controls.Group>
         </Controls.Content>
+        <VideoJsMiniControls live />
       </Controls.Root>
       <Hotkey keys="Space" action="togglePaused" />
       <Hotkey keys="k" action="togglePaused" />

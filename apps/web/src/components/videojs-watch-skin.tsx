@@ -2,6 +2,7 @@ import { Controls, ErrorDialog, Gesture, Hotkey, Time } from "@videojs/react";
 import { type CSSProperties, createContext, type ReactNode, useContext } from "react";
 import type { SponsorBlockSegmentItem } from "../types/api";
 import type { CaptionStyles } from "../types/user";
+import { VideoJsMiniControls } from "./videojs-mini-controls";
 import {
   SKIN_HIDDEN_WHEN_IDLE,
   SkinFrame,
@@ -59,7 +60,7 @@ export function VideoJsWatchSkin({
           <div className="px-2">
             <VideoJsWatchTimeline segments={options.segments} />
           </div>
-          <div className="flex items-center gap-0.5">
+          <div data-skin-bar="" className="flex items-center gap-0.5">
             <Controls.Group className="flex min-w-0 items-center">
               <SkinTrackButton direction="previous" onClick={options.onPrevious} />
               <SkinPlayButton />
@@ -89,6 +90,7 @@ export function VideoJsWatchSkin({
             </Controls.Group>
           </div>
         </Controls.Content>
+        <VideoJsMiniControls />
       </Controls.Root>
       <Hotkey keys="m" action="toggleMuted" />
       <Hotkey keys="ArrowUp" action="volumeStep" />
