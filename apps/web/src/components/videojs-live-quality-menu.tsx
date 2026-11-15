@@ -1,46 +1,41 @@
 import { Menu, QualityRadioGroup } from "@videojs/react";
-import { Check, Settings2 } from "lucide-react";
+import { Check, Settings } from "lucide-react";
 import {
-  CORNER_MENU_ITEM,
-  CORNER_MENU_POPUP,
-  CORNER_MENU_TRIGGER,
-  CORNER_MENU_WRAPPER,
+  BAR_BUTTON,
+  BAR_MENU_ITEM,
+  BAR_MENU_LABEL,
+  BAR_MENU_POPUP,
 } from "../lib/videojs-menu-classes";
 import { m } from "../paraglide/messages.js";
-import { useVideoJsLivePlayer } from "./videojs-live-player";
 
 export function VideoJsLiveQualityMenu() {
-  const visible = useVideoJsLivePlayer((state) => state.controlsVisible);
   return (
-    <div
-      className={`${CORNER_MENU_WRAPPER} ${visible ? "opacity-100" : "pointer-events-none opacity-0"}`}
-    >
-      <Menu.Root side="bottom" align="end">
-        <QualityRadioGroup.Root label={m.player_quality()}>
-          <Menu.Trigger
-            aria-label={m.player_quality()}
-            className={CORNER_MENU_TRIGGER}
-            render={<button type="button" />}
-          >
-            <Settings2 className="size-4" aria-hidden="true" />
-            <QualityRadioGroup.Value />
-          </Menu.Trigger>
-          <Menu.Popup className={CORNER_MENU_POPUP}>
-            <Menu.Content>
-              <QualityRadioGroup.Options
-                renderItem={(props, item) => (
-                  <Menu.RadioItem {...props} className={CORNER_MENU_ITEM}>
-                    <span>{item.label}</span>
-                    <Menu.ItemIndicator checked={item.checked}>
-                      <Check className="size-4" aria-hidden="true" />
-                    </Menu.ItemIndicator>
-                  </Menu.RadioItem>
-                )}
-              />
-            </Menu.Content>
-          </Menu.Popup>
-        </QualityRadioGroup.Root>
-      </Menu.Root>
-    </div>
+    <Menu.Root side="top" align="end">
+      <QualityRadioGroup.Root label={m.player_quality()}>
+        <Menu.Trigger
+          aria-label={m.player_quality()}
+          title={m.player_quality()}
+          className={BAR_BUTTON}
+          render={<button type="button" />}
+        >
+          <Settings className="size-5" aria-hidden="true" />
+        </Menu.Trigger>
+        <Menu.Popup className={BAR_MENU_POPUP}>
+          <Menu.Content>
+            <p className={BAR_MENU_LABEL}>{m.player_quality()}</p>
+            <QualityRadioGroup.Options
+              renderItem={(props, item) => (
+                <Menu.RadioItem {...props} className={BAR_MENU_ITEM}>
+                  <span>{item.label}</span>
+                  <Menu.ItemIndicator checked={item.checked}>
+                    <Check className="size-4" aria-hidden="true" />
+                  </Menu.ItemIndicator>
+                </Menu.RadioItem>
+              )}
+            />
+          </Menu.Content>
+        </Menu.Popup>
+      </QualityRadioGroup.Root>
+    </Menu.Root>
   );
 }

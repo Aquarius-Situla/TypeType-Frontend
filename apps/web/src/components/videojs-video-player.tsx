@@ -1,7 +1,5 @@
 import "@videojs/react/video/skin.css";
-import "@videojs/react/live-video/skin.css";
 import { I18nProvider } from "@videojs/react/i18n";
-import { LiveVideoSkin } from "@videojs/react/live-video";
 import { VideoPlayer, VideoSkin } from "@videojs/react/video";
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
@@ -10,7 +8,7 @@ import { AudioCenterToggle } from "./audio-center-toggle";
 import { AudioOnlyPoster } from "./audio-only-poster";
 import type { VideoPlayerProps } from "./video-player-types";
 import { VideoJsLivePlayer } from "./videojs-live-player";
-import { VideoJsLiveQualityMenu } from "./videojs-live-quality-menu";
+import { VideoJsLiveSkin } from "./videojs-live-skin";
 import { VideoJsMedia } from "./videojs-media";
 import { VideoJsPlaybackSpeedDefault } from "./videojs-playback-speed-default";
 import { VideoJsPlaybackTools } from "./videojs-playback-tools";
@@ -54,7 +52,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
   const [root, setRoot] = useState<HTMLDivElement | null>(null);
   const live = streamType === "live";
   const Player = live ? VideoJsLivePlayer : VideoPlayer;
-  const Skin = live ? LiveVideoSkin : VideoSkin;
+  const Skin = live ? VideoJsLiveSkin : VideoSkin;
   const { onPositionReaderChange } = props;
 
   useEffect(() => {
@@ -110,7 +108,6 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
               mediaRef={mediaRef}
               mediaProps={mediaProps}
             />
-            {live && <VideoJsLiveQualityMenu />}
             <VideoJsPlayerMedia root={root}>
               {props.overlay}
               <VideoJsPlaybackTools player={props} sabrVideo={sabr ? video : null} />

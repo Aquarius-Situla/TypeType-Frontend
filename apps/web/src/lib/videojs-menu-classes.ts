@@ -1,7 +1,7 @@
-export const CORNER_MENU_WRAPPER = "absolute top-3 right-3 z-20 transition-opacity duration-200";
-export const CORNER_MENU_TRIGGER =
-  "flex h-9 items-center gap-1.5 rounded-full bg-black/55 px-3 text-sm text-white backdrop-blur hover:bg-black/70 data-[hidden]:hidden";
-export const CORNER_MENU_POPUP =
-  "z-30 min-w-36 rounded-xl bg-black/85 p-1 text-sm text-white shadow-xl backdrop-blur";
-export const CORNER_MENU_ITEM =
-  "flex cursor-pointer items-center justify-between gap-4 rounded-lg px-3 py-1.5 outline-none data-[highlighted]:bg-white/15";
+export const BAR_BUTTON =
+  "inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-white outline-none transition-colors hover:bg-white/15 focus-visible:ring-2 focus-visible:ring-white data-[hidden]:hidden data-[availability=unsupported]:hidden";
+export const BAR_MENU_POPUP =
+  "z-30 min-w-40 rounded-lg bg-neutral-900 p-1 text-sm text-white shadow-xl ring-1 ring-white/10";
+export const BAR_MENU_LABEL = "px-3 pt-1.5 pb-1 text-xs font-medium text-white/60";
+export const BAR_MENU_ITEM =
+  "flex cursor-pointer items-center justify-between gap-4 rounded-md px-3 py-1.5 outline-none data-[highlighted]:bg-white/15";
