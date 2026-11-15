@@ -2118,5 +2118,10 @@
   "server_notice_maintenance": "Serverwartung läuft.",
   "server_notice_back": "Der Server ist wieder da.",
   "player_resuming_after_outage": "Die Verbindung zum Server wurde unterbrochen. Die Wiedergabe läuft von selbst weiter.",
-  "twitch_live_failed": "Der Stream reagiert nicht mehr."
+  "twitch_live_failed": "Der Stream reagiert nicht mehr.",
+  "twitch_emotes_open": "Emotes",
+  "twitch_emotes_search": "Emote suchen",
+  "twitch_emotes_channel": "Kanal",
+  "twitch_emotes_empty": "Kein Emote gefunden",
+  "twitch_emotes_show_all": "Alle anzeigen ({count})"
 }

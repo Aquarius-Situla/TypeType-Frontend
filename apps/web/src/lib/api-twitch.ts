@@ -13,6 +13,7 @@ import type {
   TwitchPollResult,
   TwitchSearchType,
   TwitchStream,
+  TwitchUserEmotes,
   TwitchVideo,
   TwitchVideoPlayback,
 } from "../types/twitch";
@@ -84,6 +85,9 @@ export const fetchTwitchGlobalChatAssets = () => get<TwitchChatAssets>("/chat/as
 
 export const fetchTwitchChannelChatAssets = (login: string) =>
   get<TwitchChatAssets>(`/chat/${encodeURIComponent(login)}/assets`);
+
+export const fetchTwitchUserEmotes = (login: string) =>
+  authedJson<TwitchUserEmotes>(`${BASE}/twitch/me/emotes/${encodeURIComponent(login)}`);
 
 export const fetchTwitchFollow = (login: string) =>
   authedJson<TwitchFollowState>(`${BASE}/twitch/me/follows/${encodeURIComponent(login)}`);

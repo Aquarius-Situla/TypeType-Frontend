@@ -92,7 +92,7 @@ export function TwitchChat({ login }: { login: string }) {
       )}
       <TwitchChatModes room={chat.room} />
       {account.data?.linked ? (
-        <TwitchChatComposer login={login} room={chat.room} />
+        <TwitchChatComposer login={login} room={chat.room} emotes={assets.emotes} />
       ) : (
         <Link
           to="/twitch-session"

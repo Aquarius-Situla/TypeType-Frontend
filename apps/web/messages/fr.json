@@ -2118,5 +2118,10 @@
   "server_notice_maintenance": "Maintenance du serveur en cours.",
   "server_notice_back": "Le serveur est de retour.",
   "player_resuming_after_outage": "La connexion au serveur a été interrompue. La lecture reprend toute seule.",
-  "twitch_live_failed": "Le direct ne répond plus."
+  "twitch_live_failed": "Le direct ne répond plus.",
+  "twitch_emotes_open": "Émoticônes",
+  "twitch_emotes_search": "Rechercher une emote",
+  "twitch_emotes_channel": "Chaîne",
+  "twitch_emotes_empty": "Aucune emote trouvée",
+  "twitch_emotes_show_all": "Tout afficher ({count})"
 }

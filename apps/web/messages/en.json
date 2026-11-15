@@ -2118,5 +2118,10 @@
   "server_notice_maintenance": "Server maintenance in progress.",
   "server_notice_back": "The server is back.",
   "player_resuming_after_outage": "The connection to the server was interrupted. Playback resumes by itself.",
-  "twitch_live_failed": "The stream stopped responding."
+  "twitch_live_failed": "The stream stopped responding.",
+  "twitch_emotes_open": "Emotes",
+  "twitch_emotes_search": "Search an emote",
+  "twitch_emotes_channel": "Channel",
+  "twitch_emotes_empty": "No emote found",
+  "twitch_emotes_show_all": "Show all ({count})"
 }

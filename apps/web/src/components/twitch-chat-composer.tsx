@@ -1,14 +1,17 @@
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { useTwitchFollow } from "../hooks/use-twitch-follow";
 import { sendTwitchChatMessage } from "../lib/api-twitch";
+import type { ChatEmoteMap } from "../lib/twitch-chat-parts";
 import { type ChatRefusal, chatRefusal } from "../lib/twitch-chat-reasons";
 import { chatDuration } from "../lib/twitch-duration";
+import { insertEmote } from "../lib/twitch-emote-picker";
 import { m } from "../paraglide/messages.js";
 import type { TwitchRoomState } from "../types/twitch";
+import { TwitchEmotePicker } from "./twitch-emote-picker";
 import { TwitchFollowButton } from "./twitch-follow-button";
 
-type Props = { login: string; room: TwitchRoomState | null };
+type Props = { login: string; room: TwitchRoomState | null; emotes: ChatEmoteMap };
 
 function useCooldown(): [number, (seconds: number) => void] {
   const [until, setUntil] = useState(0);
@@ -34,8 +37,9 @@ function followWait(room: TwitchRoomState | null, followedAt: string | undefined
   return left > 0 ? Math.ceil(left / 60_000) : 0;
 }
 
-export function TwitchChatComposer({ login, room }: Props) {
+export function TwitchChatComposer({ login, room, emotes }: Props) {
   const [draft, setDraft] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
   const [sending, setSending] = useState(false);
   const [refusal, setRefusal] = useState<ChatRefusal | null>(null);
   const [cooldown, startCooldown] = useCooldown();
@@ -52,6 +56,20 @@ export function TwitchChatComposer({ login, room }: Props) {
       : waitMinutes > 0
         ? m.twitch_chat_follow_wait({ duration: chatDuration(waitMinutes, locale) })
         : null);
+
+  function pickEmote(name: string) {
+    const input = inputRef.current;
+    const start = input?.selectionStart ?? draft.length;
+    const end = input?.selectionEnd ?? draft.length;
+    const next = insertEmote(draft, start, end, name);
+    if (!next) return;
+    setDraft(next.text);
+    setRefusal(null);
+    requestAnimationFrame(() => {
+      input?.focus();
+      input?.setSelectionRange(next.caret, next.caret);
+    });
+  }
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -92,6 +110,7 @@ export function TwitchChatComposer({ login, room }: Props) {
       )}
       <form onSubmit={submit} className="flex gap-2 p-2">
         <input
+          ref={inputRef}
           value={draft}
           onChange={(e) => {
             setDraft(e.target.value);
@@ -102,6 +121,7 @@ export function TwitchChatComposer({ login, room }: Props) {
           aria-label={m.twitch_chat_placeholder()}
           className="min-w-0 flex-1 rounded-lg border border-border bg-app px-3 py-1.5 text-fg text-sm"
         />
+        <TwitchEmotePicker login={login} emotes={emotes} onPick={pickEmote} />
         <button
           type="submit"
           disabled={sending || cooldown > 0 || draft.trim().length === 0}
