@@ -2,18 +2,20 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useInternalLink } from "../hooks/use-internal-link";
 import { useTwitchChatAssets } from "../hooks/use-twitch-chat-assets";
 import { useTwitchVodChat } from "../hooks/use-twitch-vod-chat";
+import { TWITCH_CHAT_OVERLAY, TWITCH_CHAT_PANEL } from "../lib/twitch-chat-classes";
 import { m } from "../paraglide/messages.js";
 import { resolveEffectiveTheme, useThemeStore } from "../stores/theme-store";
 import { TwitchChatLine } from "./twitch-chat-line";
 import { TwitchExternalLinkDialog } from "./twitch-external-link-dialog";
 
-type Props = { videoId: string; login: string; seconds: number };
+type Props = { videoId: string; login: string; seconds: number; overlay?: boolean };
 
 // The chat of a past broadcast as it scrolled at that moment of the video, drawn by the live chat line.
-export function TwitchVodChat({ videoId, login, seconds }: Props) {
+export function TwitchVodChat({ videoId, login, seconds, overlay = false }: Props) {
   const { comments, ready } = useTwitchVodChat(videoId, seconds);
   const assets = useTwitchChatAssets(login);
-  const theme = resolveEffectiveTheme(useThemeStore((state) => state.theme));
+  const pageTheme = resolveEffectiveTheme(useThemeStore((state) => state.theme));
+  const theme = overlay ? "dark" : pageTheme;
   const [link, setLink] = useState<string | null>(null);
   const [paused, setPaused] = useState(false);
   const listRef = useRef<HTMLOListElement>(null);
@@ -28,9 +30,11 @@ export function TwitchVodChat({ videoId, login, seconds }: Props) {
   return (
     <section
       aria-label={m.twitch_chat_replay()}
-      className="relative flex h-[28rem] flex-col overflow-hidden rounded-xl border border-border bg-surface lg:h-full"
+      className={overlay ? TWITCH_CHAT_OVERLAY : TWITCH_CHAT_PANEL}
     >
-      <h2 className="border-border border-b px-3 py-2 font-semibold text-fg text-sm">
+      <h2
+        className={`border-border border-b px-3 py-2 font-semibold text-fg text-sm ${overlay ? "sr-only" : ""}`}
+      >
         {m.twitch_chat_replay()}
       </h2>
       <ol

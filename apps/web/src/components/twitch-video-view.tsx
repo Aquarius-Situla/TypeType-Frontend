@@ -32,6 +32,7 @@ function ResumablePlayer({ id, data, onError, onSecond }: ResumableProps) {
       poster={data.video.previewUrl}
       startTime={progress.startTime}
       chaptersVtt={chaptersVtt}
+      vodChatLogin={data.video.owner.login}
       onTimeUpdate={(positionMs) => {
         progress.onTimeUpdate(positionMs);
         onSecond(Math.floor(positionMs / 1000));

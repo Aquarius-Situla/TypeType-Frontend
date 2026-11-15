@@ -5,7 +5,9 @@ import { useVolumeSync } from "../hooks/use-volume-sync";
 import { proxyImage } from "../lib/proxy";
 import { TWITCH_STAGE_SIZE } from "../lib/twitch-stage-size";
 import { type TwitchWatchTarget, twitchStreamId } from "../lib/twitch-stream-id";
+import { TwitchChat } from "./twitch-chat";
 import { TwitchFullscreenChat } from "./twitch-fullscreen-chat";
+import { TwitchVodChatOverlay } from "./twitch-vod-chat-overlay";
 import type { WatchStagePlayerProps } from "./watch-stage-player";
 
 const noop = () => undefined;
@@ -30,6 +32,8 @@ type Props = TwitchPlayerEvents & {
   retryKey?: number;
   enabled?: boolean;
   chaptersVtt?: string;
+  // The channel of a past broadcast, whose chat is replayed over the fullscreen video.
+  vodChatLogin?: string;
 };
 
 export function TwitchPlayer({
@@ -43,6 +47,7 @@ export function TwitchPlayer({
   retryKey = 0,
   enabled = true,
   chaptersVtt,
+  vodChatLogin,
   children,
   ...events
 }: Props) {
@@ -53,6 +58,7 @@ export function TwitchPlayer({
   const seekRef = useRef<((seconds: number) => void) | null>(null);
   const streamId = twitchStreamId(target);
   const chatLogin = live && "c" in target ? target.c : null;
+  const vodId = target.v;
   const playerProps = useMemo<WatchStagePlayerProps>(
     () => ({
       audioOnly: false,
@@ -70,7 +76,15 @@ export function TwitchPlayer({
       settingsReady,
       autoplay: settings.autoplayOnOpen,
       originalLocale: null,
-      overlay: chatLogin ? <TwitchFullscreenChat login={chatLogin} /> : null,
+      overlay: chatLogin ? (
+        <TwitchFullscreenChat>
+          <TwitchChat login={chatLogin} overlay />
+        </TwitchFullscreenChat>
+      ) : vodChatLogin && vodId ? (
+        <TwitchFullscreenChat>
+          <TwitchVodChatOverlay videoId={vodId} login={vodChatLogin} />
+        </TwitchFullscreenChat>
+      ) : null,
       seekRef,
       ownSkin: true,
       onCaptionStylesChange: (captionStyles) => update.mutate({ captionStyles }),
@@ -86,6 +100,8 @@ export function TwitchPlayer({
     }),
     [
       chatLogin,
+      vodChatLogin,
+      vodId,
       title,
       poster,
       src,

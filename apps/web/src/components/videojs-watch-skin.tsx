@@ -1,5 +1,6 @@
 import { Controls, ErrorDialog, Gesture, Hotkey, Time } from "@videojs/react";
-import { type CSSProperties, createContext, type ReactNode, useContext } from "react";
+import { type CSSProperties, createContext, type ReactNode, useContext, useState } from "react";
+import { PlayerBarSlotContext } from "../hooks/use-player-bar-slot";
 import type { SponsorBlockSegmentItem } from "../types/api";
 import type { CaptionStyles } from "../types/user";
 import { VideoJsMiniControls } from "./videojs-mini-controls";
@@ -49,9 +50,10 @@ export function VideoJsWatchSkin({
   style?: CSSProperties;
 }) {
   const options = useContext(WatchSkinOptionsContext);
+  const [barSlot, setBarSlot] = useState<HTMLElement | null>(null);
   return (
     <SkinFrame style={style} autoplay={options.autoplay}>
-      {children}
+      <PlayerBarSlotContext.Provider value={barSlot}>{children}</PlayerBarSlotContext.Provider>
       <SkinPoster />
       <Controls.Root>
         <Controls.Content
@@ -77,6 +79,7 @@ export function VideoJsWatchSkin({
             </Controls.Group>
             <div aria-hidden="true" className="flex-1" />
             <Controls.Group data-skin-right="" className="flex items-center">
+              <span ref={setBarSlot} className="flex items-center" />
               <SkinCaptionsButton />
               <VideoJsWatchSettings
                 danmaku={options.danmaku}
