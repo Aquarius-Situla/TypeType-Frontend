@@ -102,7 +102,11 @@ export function TwitchEmotePicker({ login, emotes, onPick }: Props) {
         <Smile className="size-5" aria-hidden="true" />
       </button>
       {open && (
-        <div className="absolute right-0 bottom-full z-30 mb-2 flex max-h-80 w-80 max-w-[calc(100vw-2rem)] flex-col gap-2 rounded-xl border border-border bg-surface p-2 shadow-xl">
+        <div
+          role="dialog"
+          aria-label={m.twitch_emotes_open()}
+          className="absolute right-0 bottom-full z-30 mb-2 flex max-h-80 w-80 max-w-[calc(100vw-2rem)] flex-col gap-2 rounded-xl border border-border bg-surface p-2 shadow-xl"
+        >
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
