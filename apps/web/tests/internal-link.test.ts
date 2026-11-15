@@ -38,6 +38,31 @@ test("reroutes Twitch channels, videos and clips only when Twitch is enabled", (
   expect(open("https://www.twitch.tv/SomeChannel", false)).toBeNull();
 });
 
+test("reroutes embeds, searches, tags and Twitch pages TypeType has a page for", () => {
+  expect(open("https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ")).toBe("/watch?v=dQw4w9WgXcQ");
+  expect(open("https://www.youtube.com/v/dQw4w9WgXcQ")).toBe("/watch?v=dQw4w9WgXcQ");
+  expect(open("https://www.youtube.com/results?search_query=lofi+hip+hop")).toBe(
+    "/search?q=lofi+hip+hop&service=0",
+  );
+  expect(open("https://www.youtube.com/hashtag/minecraft")).toBe(
+    "/search?q=%23minecraft&service=0",
+  );
+  expect(open("https://search.bilibili.com/all?keyword=%E9%AC%BC%E7%95%9C")).toBe(
+    "/search?q=%E9%AC%BC%E7%95%9C&service=5",
+  );
+  expect(open("https://www.nicovideo.jp/tag/VOCALOID")).toBe("/search?q=VOCALOID&service=6");
+  expect(open("https://www.twitch.tv/DarkViperAU/videos")).toBe("/twitch/channel/darkviperau");
+  expect(open("https://www.twitch.tv/directory/category/just-chatting")).toBe(
+    "/twitch/category/just-chatting",
+  );
+  expect(open("https://www.twitch.tv/directory/all/tags/Speedrun")).toBe("/twitch/tag/Speedrun");
+  expect(open("https://www.twitch.tv/search?term=speedrun")).toBe("/twitch/search?q=speedrun");
+  expect(open("https://www.twitch.tv/directory/all/tags/a.b")).toBeNull();
+  expect(open("https://www.twitch.tv/directory/category/../x")).toBeNull();
+  expect(open("https://www.twitch.tv/search?term=x", false)).toBeNull();
+  expect(open("https://www.youtube.com/results")).toBeNull();
+});
+
 test("leaves everything else to the external link warning", () => {
   expect(open("https://example.com/watch?v=dQw4w9WgXcQ")).toBeNull();
   expect(open("https://youtube.com.evil.example/watch?v=dQw4w9WgXcQ")).toBeNull();

@@ -1,4 +1,5 @@
 import { toCanonicalChannelRoute } from "./channel-route-url";
+import { canonicalYoutubeEmbed, externalPagePath } from "./external-page-link";
 import { youtubePlaylistId } from "./playlist-url";
 import { twitchUrlTarget } from "./twitch-url";
 import { toPublicWatchParam, watchServiceId } from "./watch-url";
@@ -37,7 +38,7 @@ function watchPath(url: URL): string | null {
 export function resolveInternalLink(href: string, options: { twitch: boolean }): string | null {
   const parsed = webUrl(href);
   if (!parsed) return null;
-  const url = niconicoShortLink(parsed);
+  const url = canonicalYoutubeEmbed(niconicoShortLink(parsed));
   const watch = watchPath(url);
   if (watch) return watch;
   const playlist = youtubePlaylistId(url.href);
@@ -47,5 +48,6 @@ export function resolveInternalLink(href: string, options: { twitch: boolean }):
   const channel = toCanonicalChannelRoute(url.href);
   if (channel) return `/channel/${channel.provider}/${channel.id}`;
   const twitch = options.twitch ? twitchUrlTarget(url.href) : null;
-  return twitch ? `/twitch/watch?${new URLSearchParams(twitch).toString()}` : null;
+  if (twitch) return `/twitch/watch?${new URLSearchParams(twitch).toString()}`;
+  return externalPagePath(url, options);
 }
