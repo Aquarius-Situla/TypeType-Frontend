@@ -17,16 +17,23 @@ export function playerErrorResumePosition(
   return Math.round(candidate);
 }
 
+export function resolvePlayerRetryStartTime(
+  retryStartTime: number | null,
+  fallbackStartTime: number,
+): number {
+  return retryStartTime ?? fallbackStartTime;
+}
+
 export function usePlayerErrorResume(
   streamId: string,
   duration: number,
   positionRef: PositionRef,
   onError: () => void,
 ) {
-  const [retryStartTime, setRetryStartTime] = useState(0);
+  const [retryStartTime, setRetryStartTime] = useState<number | null>(null);
 
   useEffect(() => {
-    if (streamId.length > 0) setRetryStartTime(0);
+    if (streamId.length > 0) setRetryStartTime(null);
   }, [streamId]);
 
   const handlePlayerError = useCallback(
@@ -36,7 +43,7 @@ export function usePlayerErrorResume(
         recoveryPositionMs,
         duration * 1000,
       );
-      if (position > 0) setRetryStartTime(position);
+      setRetryStartTime(position);
       onError();
     },
     [duration, onError, positionRef],

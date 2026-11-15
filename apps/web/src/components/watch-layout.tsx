@@ -3,7 +3,10 @@ import { useBlockedFilter } from "../hooks/use-blocked-filter";
 import { useDeArrowBranding } from "../hooks/use-dearrow";
 import { useMobile } from "../hooks/use-mobile";
 import { usePlayerError } from "../hooks/use-player-error";
-import { usePlayerErrorResume } from "../hooks/use-player-error-resume";
+import {
+  resolvePlayerRetryStartTime,
+  usePlayerErrorResume,
+} from "../hooks/use-player-error-resume";
 import { useSaveProgress } from "../hooks/use-progress";
 import { useSabrPlaybackConfig } from "../hooks/use-sabr-playback-config";
 import { useSettings } from "../hooks/use-settings";
@@ -129,7 +132,7 @@ export function WatchLayout({
   const sourceState = useWatchPlayerSourceState({
     streamId: stream.id,
     retryKey: player.retryKey,
-    startTime: retryStartTime > 0 ? retryStartTime : (audioOnly.switchPositionMs ?? startTime),
+    startTime: resolvePlayerRetryStartTime(retryStartTime, audioOnly.switchPositionMs ?? startTime),
     manifestSrc: audioOnly.src ?? player.manifestSrc,
     positionRef: playerEvents.positionRef,
     highQuality: true,
