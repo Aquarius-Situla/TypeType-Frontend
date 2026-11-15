@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { isVideoWatched } from "../lib/watch-progress";
 import { useProgress, useSaveProgress } from "./use-progress";
 import { useWatchProgressPersistence } from "./use-watch-progress-persistence";
@@ -13,11 +14,14 @@ export function useTwitchVodProgress(id: string, durationSec: number) {
     isLive: false,
     mutate: (position, keepalive) => save.mutate({ position, keepalive }),
   });
-  const position = progress.data?.position ?? 0;
-  const startTime = isVideoWatched(position, durationSec * 1000) ? 0 : position;
+  const [resumeAt, setResumeAt] = useState<number | null>(null);
+  if (resumeAt === null && !progress.isLoading) {
+    const position = progress.data?.position ?? 0;
+    setResumeAt(isVideoWatched(position, durationSec * 1000) ? 0 : position);
+  }
   return {
-    ready: !progress.isLoading,
-    startTime,
+    ready: resumeAt !== null,
+    startTime: resumeAt ?? 0,
     onTimeUpdate: persistence.handleTimeUpdate,
     onPause: persistence.handlePause,
     onSeeked: persistence.handleSeeked,

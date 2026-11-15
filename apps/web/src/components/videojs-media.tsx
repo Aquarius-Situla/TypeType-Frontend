@@ -1,7 +1,7 @@
 import { DashVideo } from "@videojs/react/media/dash-video";
 import { HlsJsVideo } from "@videojs/react/media/hlsjs-video";
 import { Video } from "@videojs/react/video";
-import type { ReactNode, VideoHTMLAttributes } from "react";
+import { type ReactNode, useMemo, useRef, type VideoHTMLAttributes } from "react";
 import { useWebVttUrl } from "../hooks/use-web-vtt-url";
 import type { VideoJsSource } from "../lib/video-js-source";
 import { buildSafeSubtitleTracks } from "./subtitle-track-utils";
@@ -50,6 +50,16 @@ export function VideoJsMedia({
   mediaProps,
 }: Props) {
   const tracks = <Tracks subtitles={subtitles} thumbnailVtt={thumbnailVtt} />;
+  const startRef = useRef(startTime);
+  startRef.current = startTime;
+  const hlsSource = useMemo(
+    () => ({
+      src: source.src,
+      type: source.type ?? "application/x-mpegurl",
+      engine: { hlsJs: { startPosition: live ? -1 : startRef.current / 1000 } },
+    }),
+    [source.src, source.type, live],
+  );
   switch (source.kind) {
     case "sabr":
       return (
@@ -59,15 +69,7 @@ export function VideoJsMedia({
       );
     case "hls":
       return (
-        <HlsJsVideo
-          ref={mediaRef}
-          {...mediaProps}
-          source={{
-            src: source.src,
-            type: source.type ?? "application/x-mpegurl",
-            engine: { hlsJs: { startPosition: live ? -1 : startTime / 1000 } },
-          }}
-        >
+        <HlsJsVideo ref={mediaRef} {...mediaProps} source={hlsSource}>
           {tracks}
         </HlsJsVideo>
       );
