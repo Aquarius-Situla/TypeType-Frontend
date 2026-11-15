@@ -17,6 +17,15 @@ export function isPublicBilibiliCollection(playlistUrl: string, playlistType?: s
   );
 }
 
+export function publicPlaylistCardListId(
+  playlistUrl: string,
+  listId: string | undefined,
+  playlistType?: string,
+): string | undefined {
+  const series = isBilibiliSeriesUrl(playlistUrl) || playlistType?.toLowerCase() === "series";
+  return series ? undefined : listId;
+}
+
 export function buildLoadedStreamParamSet(rawStreams: VideoStream[]): Set<string> {
   const params = new Set<string>();
   for (const s of rawStreams) {

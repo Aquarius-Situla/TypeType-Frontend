@@ -13,6 +13,7 @@ import { InterfaceLocaleProvider } from "../src/hooks/use-interface-locale";
 import {
   buildLoadedStreamParamSet,
   isPublicBilibiliCollection,
+  publicPlaylistCardListId,
   resolvePublicPlaylistStreams,
   shouldEnablePublicPlaylistPagination,
 } from "../src/lib/public-playlist-view";
@@ -252,4 +253,29 @@ test("shouldEnablePublicPlaylistPagination respects error state, legacy tabs, an
       isFetchNextPageError: false,
     }),
   ).toBe(false);
+});
+
+test("publicPlaylistCardListId drops the list on Bilibili series cards only", () => {
+  const LIST = "PL4EBEsF92mtlXM0JjGUkxYTUZHP34ZRqn";
+  const seriesUrls = [
+    "https://www.bilibili.com/medialist/play/1526560679?business=space_series&business_id=1916889",
+    "https://space.bilibili.com/1526560679/channel/seriesdetail?sid=1916889",
+    "https://space.bilibili.com/1526560679/lists/1916889?type=series",
+    "bilibili:series:1526560679:1916889",
+  ];
+  for (const url of seriesUrls) {
+    expect(publicPlaylistCardListId(url, url)).toBeUndefined();
+  }
+  expect(publicPlaylistCardListId("https://example.com/p", "list-1", "Series")).toBeUndefined();
+
+  const collectionUrls = [
+    "https://www.bilibili.com/medialist/play/23630128?business=space_collection&business_id=2181",
+    "https://space.bilibili.com/23630128/lists/2181?type=season",
+  ];
+  for (const url of collectionUrls) {
+    expect(publicPlaylistCardListId(url, url, "collection")).toBe(url);
+  }
+  expect(publicPlaylistCardListId(`https://www.youtube.com/playlist?list=${LIST}`, LIST)).toBe(
+    LIST,
+  );
 });

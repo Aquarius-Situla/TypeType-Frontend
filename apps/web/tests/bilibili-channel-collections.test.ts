@@ -59,6 +59,13 @@ describe("bilibili channel and collection url parser", () => {
     expect(
       isBilibiliCollectionUrl("https://space.bilibili.com/546195/channel/seriesdetail?sid=456"),
     ).toBe(true);
+    expect(isBilibiliCollectionUrl("https://space.bilibili.com/546195/lists/123?type=season")).toBe(
+      true,
+    );
+    expect(isBilibiliCollectionUrl("https://space.bilibili.com/546195/lists/456?type=series")).toBe(
+      true,
+    );
+    expect(isBilibiliCollectionUrl("https://space.bilibili.com/546195/lists/456")).toBe(false);
     expect(isBilibiliCollectionUrl("https://www.youtube.com/playlist?list=PL123")).toBe(false);
   });
 
@@ -126,6 +133,23 @@ describe("bilibili channel and collection url parser", () => {
       mid: "546195",
       id: "456",
     });
+
+    // Space web URLs with /lists/<id>?type=season|series
+    expect(
+      parseBilibiliCollectionParams("https://space.bilibili.com/546195/lists/123?type=season"),
+    ).toEqual({
+      kind: "season",
+      mid: "546195",
+      id: "123",
+    });
+    expect(
+      parseBilibiliCollectionParams("https://space.bilibili.com/546195/lists/456?type=series"),
+    ).toEqual({
+      kind: "series",
+      mid: "546195",
+      id: "456",
+    });
+    expect(parseBilibiliCollectionParams("https://space.bilibili.com/546195/lists/456")).toBeNull();
 
     // Medialist play URLs with query params
     expect(
