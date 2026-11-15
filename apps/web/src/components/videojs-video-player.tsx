@@ -123,7 +123,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
             </VideoJsPlayerMedia>
           </Skin>
           <VideoJsPlaybackSpeedDefault speed={props.defaultPlaybackSpeed} />
-          {!sabr && <VideoJsQualityDefault quality={props.defaultQuality} />}
+          <VideoJsQualityDefault quality={props.defaultQuality} />
           {sabr ? (
             <VideoJsSabrEngine video={video} player={props} />
           ) : (
