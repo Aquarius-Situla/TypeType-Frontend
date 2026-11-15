@@ -17,6 +17,7 @@ import { VideoJsMedia } from "./videojs-media";
 import { VideoJsPlaybackSpeedDefault } from "./videojs-playback-speed-default";
 import { VideoJsPlaybackTools } from "./videojs-playback-tools";
 import { VideoJsPlayerBridge } from "./videojs-player-bridge";
+import { VideoJsPlayerEngine } from "./videojs-player-engine";
 import { VideoJsPlayerMedia } from "./videojs-player-media";
 import { VideoJsRecoveryCover } from "./videojs-recovery-cover";
 import { VideoJsSabrEngine } from "./videojs-sabr-engine";
@@ -124,14 +125,16 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
             <VideoJsRecoveryCover />
             <ServerStatusNotice variant="player" />
             <VideoJsPlayerMedia root={root}>
-              {props.overlay}
-              <VideoJsPlaybackTools player={props} sabrVideo={sabr ? video : null} />
-              {props.audioOnly && (
-                <>
-                  <AudioOnlyPoster poster={poster} title={title} media={video} />
-                  <AudioCenterToggle video={sabr ? video : null} />
-                </>
-              )}
+              <VideoJsPlayerEngine root={root}>
+                {props.overlay}
+                <VideoJsPlaybackTools player={props} sabrVideo={sabr ? video : null} />
+                {props.audioOnly && (
+                  <>
+                    <AudioOnlyPoster poster={poster} title={title} media={video} />
+                    <AudioCenterToggle video={sabr ? video : null} />
+                  </>
+                )}
+              </VideoJsPlayerEngine>
             </VideoJsPlayerMedia>
           </Skin>
           <VideoJsPlaybackSpeedDefault speed={props.defaultPlaybackSpeed} />

@@ -1,4 +1,5 @@
 import { MediaSessionSync } from "./media-session-sync";
+import { PlayerHotkeys } from "./player-hotkeys";
 import { SponsorBlockSkipper } from "./player-internals";
 import { SponsorBlockCurrentSegment } from "./sponsorblock-current-segment";
 import { SponsorBlockSkipNotice } from "./sponsorblock-skip-notice";
@@ -12,6 +13,7 @@ export function VideoJsPlaybackTools({ player, sabrVideo }: Props) {
   const autoSkip = player.autoSkipSponsorBlock !== false && player.autoSkipSponsorBlockSegments;
   return (
     <>
+      <PlayerHotkeys canSeek={!live} />
       {autoSkip && (
         <SponsorBlockSkipper
           segments={player.autoSkipSponsorBlockSegments ?? []}
