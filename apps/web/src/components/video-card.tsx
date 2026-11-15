@@ -47,6 +47,7 @@ function VideoCardComponent({
     stream.duration,
   );
   const publishedText = formatPublishedDate(stream.publishedAt, undefined, locale);
+  const metadataText = [formatViews(stream.views), publishedText].filter(Boolean).join(" · ");
   const progressSeconds = Math.max(0, progressMs / 1_000);
   const watched = !stream.isLive && isVideoWatched(progressSeconds, stream.duration);
   const watchSearch = watchListSearch(stream.id, listId);
@@ -177,10 +178,7 @@ function VideoCardComponent({
               {stream.uploaderVerified && <VerifiedBadgeIcon />}
             </p>
           )}
-          <p className="text-xs text-fg-soft">
-            {formatViews(stream.views)}
-            {publishedText && ` · ${publishedText}`}
-          </p>
+          {metadataText && <p className="text-xs text-fg-soft">{metadataText}</p>}
         </div>
         <VideoCardFeedbackMenu stream={stream} />
       </div>

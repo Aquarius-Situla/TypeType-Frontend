@@ -79,8 +79,8 @@ export function resolvePublicPlaylistStreams({
         channelName: ep.channelName || fallbackChannelName,
         channelUrl: fallbackChannelUrl,
         channelAvatar: fallbackChannelAvatar,
-        views: 0,
-        duration: 0,
+        views: -1,
+        duration: -1,
       } satisfies VideoStream;
     });
 

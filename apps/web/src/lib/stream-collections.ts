@@ -142,6 +142,9 @@ export function getSubscribedCollectionMeta(id: string): SubscribedCollectionMet
   return getSubscribedCollectionsMeta()[id];
 }
 
+const attemptedCountRefreshByPlaylist = new Map<string, number>();
+const inFlightCollectionMetadata = new Map<string, Promise<SubscribedCollectionMeta | undefined>>();
+
 export async function ensureCollectionMetadata(
   playlistId: string,
   playlistName: string,
@@ -164,22 +167,42 @@ export async function ensureCollectionMetadata(
     0;
   const streamCountMatches =
     !expectedStreamCount || expectedStreamCount <= 0 || cachedTotal === expectedStreamCount;
+  const hasCachedSections = Boolean(
+    existing?.sections &&
+      existing.sections.length > 0 &&
+      hasEpisodes &&
+      (!parsed?.id || !existing.sourceCollectionId || existing.sourceCollectionId === parsed.id),
+  );
+
+  if (hasCachedSections && streamCountMatches) {
+    return existing;
+  }
+
+  const pending = inFlightCollectionMetadata.get(playlistId);
+  if (pending) {
+    return pending;
+  }
 
   if (
-    existing?.sections &&
-    existing.sections.length > 0 &&
-    hasEpisodes &&
-    streamCountMatches &&
-    (!parsed?.id || !existing.sourceCollectionId || existing.sourceCollectionId === parsed.id)
+    hasCachedSections &&
+    !streamCountMatches &&
+    expectedStreamCount &&
+    attemptedCountRefreshByPlaylist.get(playlistId) === expectedStreamCount
   ) {
     return existing;
   }
 
   if (!videos || videos.length === 0) return existing;
 
-  try {
-    const firstUrl = (videos[0].url || videos[0].id || "").trim();
-    if (firstUrl) {
+  const firstUrl = (videos[0].url || videos[0].id || "").trim();
+  if (!firstUrl) return existing;
+
+  if (hasCachedSections && !streamCountMatches && expectedStreamCount) {
+    attemptedCountRefreshByPlaylist.set(playlistId, expectedStreamCount);
+  }
+
+  const request = (async () => {
+    try {
       const { fetchStream } = await import("./api-stream");
       const stream = await fetchStream(firstUrl);
       if (stream.collections && stream.collections.length > 0) {
@@ -221,12 +244,17 @@ export async function ensureCollectionMetadata(
           return meta;
         }
       }
+    } catch (err) {
+      console.warn("Failed to fetch stream collection metadata:", err);
     }
-  } catch (err) {
-    console.warn("Failed to fetch stream collection metadata:", err);
-  }
 
-  return existing;
+    return existing;
+  })().finally(() => {
+    inFlightCollectionMetadata.delete(playlistId);
+  });
+
+  inFlightCollectionMetadata.set(playlistId, request);
+  return request;
 }
 
 export function isCollectionPlaylist(playlist: {

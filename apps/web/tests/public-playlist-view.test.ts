@@ -1,4 +1,15 @@
 import { expect, test } from "bun:test";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  createMemoryHistory,
+  createRootRoute,
+  createRouter,
+  RouterProvider,
+} from "@tanstack/react-router";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { VideoCard } from "../src/components/video-card";
+import { InterfaceLocaleProvider } from "../src/hooks/use-interface-locale";
 import {
   buildLoadedStreamParamSet,
   isPublicBilibiliCollection,
@@ -101,6 +112,69 @@ test("resolvePublicPlaylistStreams keeps full loaded streams in All view and fil
   expect(sectionView[0].duration).toBe(300);
   expect(sectionView[1].id).toBe("https://www.bilibili.com/video/BV3unloaded");
   expect(sectionView[1].channelName).toBe("Uploader");
+  expect(sectionView[1].views).toBe(-1);
+  expect(sectionView[1].duration).toBe(-1);
+});
+
+test("VideoCard hides views and duration for unloaded placeholder episodes", async () => {
+  const placeholder = resolvePublicPlaylistStreams({
+    streams: [makeStream("https://www.bilibili.com/video/BV1one", "Loaded Episode", 300)],
+    activeSection: {
+      id: "sec1",
+      title: "Chapter 1",
+      videoUrls: [
+        "https://www.bilibili.com/video/BV1one",
+        "https://www.bilibili.com/video/BV2unloaded",
+      ],
+      episodes: [
+        {
+          videoId: "BV1one",
+          title: "Loaded Episode",
+          url: "https://www.bilibili.com/video/BV1one",
+        },
+        {
+          videoId: "BV2unloaded",
+          title: "Unloaded Episode",
+          url: "https://www.bilibili.com/video/BV2unloaded",
+        },
+      ],
+    },
+    info,
+    filter: (items) => items,
+  });
+
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  const router = createRouter({
+    history: createMemoryHistory({ initialEntries: ["/"] }),
+    routeTree: createRootRoute({
+      component: () =>
+        createElement(
+          InterfaceLocaleProvider,
+          null,
+          createElement(
+            QueryClientProvider,
+            { client: queryClient },
+            createElement(
+              "div",
+              null,
+              createElement(VideoCard, { stream: placeholder[0] }),
+              createElement(VideoCard, { stream: placeholder[1] }),
+            ),
+          ),
+        ),
+    }),
+  });
+  await router.load();
+  const html = renderToStaticMarkup(createElement(RouterProvider, { router }));
+
+  expect(html).toContain("Loaded Episode");
+  expect(html).toContain("1K views");
+  expect(html).toContain("5:00");
+  expect(html).toContain("Unloaded Episode");
+  expect(html).not.toContain("0 views");
+  expect(html).not.toContain("0:00");
 });
 
 test("shouldEnablePublicPlaylistPagination respects error state, legacy tabs, and loaded episodes", () => {

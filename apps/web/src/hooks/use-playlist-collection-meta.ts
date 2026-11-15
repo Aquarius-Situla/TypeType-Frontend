@@ -20,21 +20,25 @@ export function usePlaylistCollectionMeta(
   expectedStreamCount?: number,
 ): SubscribedCollectionMeta | undefined {
   const [meta, setMeta] = useScopedValue(scopeId, getSubscribedCollectionMeta(scopeId));
+  const firstVideoUrl = (videos[0]?.url || videos[0]?.id || "").trim();
 
   useEffect(() => {
-    if (!enabled || videos.length === 0) return;
+    if (!enabled || !firstVideoUrl) return;
 
     let cancelled = false;
-    void ensureCollectionMetadata(scopeId, playlistName, videos, expectedStreamCount).then(
-      (result) => {
-        if (!cancelled) setMeta(result);
-      },
-    );
+    void ensureCollectionMetadata(
+      scopeId,
+      playlistName,
+      [{ url: firstVideoUrl }],
+      expectedStreamCount,
+    ).then((result) => {
+      if (!cancelled) setMeta(result);
+    });
 
     return () => {
       cancelled = true;
     };
-  }, [enabled, expectedStreamCount, playlistName, scopeId, setMeta, videos]);
+  }, [enabled, expectedStreamCount, firstVideoUrl, playlistName, scopeId, setMeta]);
 
   return meta;
 }

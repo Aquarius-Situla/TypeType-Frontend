@@ -292,3 +292,111 @@ test("ensureCollectionMetadata prioritizes strict ID match, backfills missing ep
     localStorage.clear();
   }
 });
+
+test("ensureCollectionMetadata retries a streamCount mismatch only once per playlist+count and dedupes concurrent calls", async () => {
+  localStorage.clear();
+  const playlistId =
+    "https://www.bilibili.com/medialist/play/546195?business=space_collection&business_id=201";
+
+  localStorage.setItem(
+    "typetype:subscribed-collections-meta",
+    JSON.stringify({
+      [playlistId]: {
+        id: playlistId,
+        title: "Deleted Video Collection",
+        sourceCollectionId: "201",
+        sections: [
+          {
+            id: "sec1",
+            title: "Section 1",
+            videoUrls: [
+              "https://www.bilibili.com/video/BV10",
+              "https://www.bilibili.com/video/BV11",
+            ],
+            episodes: [
+              { videoId: "BV10", title: "Ep10", url: "https://www.bilibili.com/video/BV10" },
+              { videoId: "BV11", title: "Ep11", url: "https://www.bilibili.com/video/BV11" },
+            ],
+          },
+        ],
+      },
+    }),
+  );
+
+  const originalFetch = globalThis.fetch;
+  let fetchCalls = 0;
+
+  globalThis.fetch = (async () => {
+    fetchCalls += 1;
+    // Simulates 1 deleted/private video: remote episodes still have length 2 while streamCount is 3
+    return new Response(
+      JSON.stringify({
+        id: "BV10",
+        title: "Test Video",
+        collections: [
+          {
+            id: "201",
+            title: "Deleted Video Collection",
+            sections: [
+              {
+                id: "sec1",
+                title: "Section 1",
+                episodes: [
+                  { videoId: "BV10", title: "Ep10", url: "https://www.bilibili.com/video/BV10" },
+                  { videoId: "BV11", title: "Ep11", url: "https://www.bilibili.com/video/BV11" },
+                ],
+              },
+            ],
+          },
+        ],
+      }),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  }) as unknown as typeof fetch;
+
+  try {
+    // Concurrent mismatch calls share a single fetch
+    const [first, concurrent] = await Promise.all([
+      ensureCollectionMetadata(
+        playlistId,
+        "Deleted Video Collection",
+        [{ url: "https://www.bilibili.com/video/BV10" }],
+        3,
+      ),
+      ensureCollectionMetadata(
+        playlistId,
+        "Deleted Video Collection",
+        [{ url: "https://www.bilibili.com/video/BV10" }],
+        3,
+      ),
+    ]);
+    expect(fetchCalls).toBe(1);
+    expect(first?.sections?.[0].episodes).toHaveLength(2);
+    expect(concurrent?.sections?.[0].episodes).toHaveLength(2);
+
+    // Subsequent page loads (new videos array) or revisits with same mismatched streamCount do not refetch
+    const revisit = await ensureCollectionMetadata(
+      playlistId,
+      "Deleted Video Collection",
+      [
+        { url: "https://www.bilibili.com/video/BV10" },
+        { url: "https://www.bilibili.com/video/BV11" },
+      ],
+      3,
+    );
+    expect(fetchCalls).toBe(1);
+    expect(revisit?.sections?.[0].episodes).toHaveLength(2);
+
+    // If expectedStreamCount later changes (e.g. a new video is added), refresh once for the new count
+    await ensureCollectionMetadata(
+      playlistId,
+      "Deleted Video Collection",
+      [{ url: "https://www.bilibili.com/video/BV10" }],
+      4,
+    );
+    expect(fetchCalls).toBe(2);
+  } finally {
+    globalThis.fetch = originalFetch;
+    localStorage.clear();
+  }
+});
