@@ -68,6 +68,7 @@ export function TwitchPlayer({
       overlay: null,
       seekRef,
       hideCinemaMode: true,
+      ownSkin: true,
       smallLayoutHeight: TWITCH_SMALL_LAYOUT_HEIGHT,
       onCaptionStylesChange: (captionStyles) => update.mutate({ captionStyles }),
       onVolumeChange,

@@ -18,10 +18,12 @@ import { VideoJsPlayerBridge } from "./videojs-player-bridge";
 import { VideoJsPlayerMedia } from "./videojs-player-media";
 import { VideoJsRecoveryCover } from "./videojs-recovery-cover";
 import { VideoJsSabrEngine } from "./videojs-sabr-engine";
+import { VideoJsVodSkin } from "./videojs-vod-skin";
 
 export type VideoJsVideoPlayerProps = VideoPlayerProps & {
   source: VideoJsSource;
   defaultPlaybackSpeed?: number;
+  ownSkin?: boolean;
 };
 
 const SKIN_STYLE = {
@@ -54,7 +56,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
   const policyMuted = useRef(false);
   const live = streamType === "live";
   const Player = live ? VideoJsLivePlayer : VideoPlayer;
-  const Skin = live ? VideoJsLiveSkin : VideoSkin;
+  const Skin = live ? VideoJsLiveSkin : props.ownSkin ? VideoJsVodSkin : VideoSkin;
   const { onPositionReaderChange } = props;
 
   useEffect(() => {

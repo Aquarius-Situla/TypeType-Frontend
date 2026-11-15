@@ -39,6 +39,7 @@ export type WatchStagePlayerProps = {
   playerClassName?: string;
   mediaClassName?: string;
   hideCinemaMode?: boolean;
+  ownSkin?: boolean;
   smallLayoutHeight?: number;
   onCaptionStylesChange: (styles: CaptionStyles) => void;
   onVolumeChange: (volume: number, muted: boolean) => void;
