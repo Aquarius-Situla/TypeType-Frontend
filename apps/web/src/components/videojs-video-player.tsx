@@ -24,6 +24,7 @@ import { VideoJsPlayerEngine } from "./videojs-player-engine";
 import { VideoJsPlayerMedia } from "./videojs-player-media";
 import { VideoJsRecoveryCover } from "./videojs-recovery-cover";
 import { VideoJsSabrEngine } from "./videojs-sabr-engine";
+import { VideoJsSingleSubtitle } from "./videojs-single-subtitle";
 import { VideoJsWatchSkin, WatchSkinOptionsContext } from "./videojs-watch-skin";
 
 export type VideoJsVideoPlayerProps = VideoPlayerProps & {
@@ -146,6 +147,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
                 <VideoJsRecoveryCover />
                 <VideoJsKeyboardFeedback video={video} />
                 <VideoJsCaptionsHotkey />
+                <VideoJsSingleSubtitle video={video} />
                 {live && <VideoJsLiveStallWatchdog onStall={() => props.onError?.(positionMs())} />}
                 <ServerStatusNotice variant="player" />
                 <VideoJsPlayerMedia root={root}>
