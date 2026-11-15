@@ -9,6 +9,7 @@ const PROFILE_QUERIES = new Set([
   "blocked-videos",
   "downloader-job",
   "favorites",
+  "focus",
   "history",
   "history-all",
   "history-filtered",
