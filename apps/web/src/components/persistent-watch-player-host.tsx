@@ -7,6 +7,7 @@ import {
   type PlayerPosition,
   usePersistentWatchPlayerStore,
 } from "../hooks/use-persistent-watch-player";
+import { useSettings } from "../hooks/use-settings";
 import { isPlayerOutsideViewport } from "../lib/compact-player-position";
 import { playerPagePath } from "../lib/persistent-player-navigation";
 import { useMediaRemote } from "../lib/vidstack";
@@ -90,6 +91,7 @@ export function PersistentWatchPlayerHost() {
   const [landscapeWatch, setLandscapeWatch] = useState(false);
   const [floatingDismissed, setFloatingDismissed] = useState(false);
   const remote = useMediaRemote();
+  const videoJs = useSettings().settings.playerEngine === "videojs";
   const navigate = useNavigate();
   const watchPage = entry ? pathname === playerPagePath(entry.href) : false;
   const hiddenPage =
@@ -376,7 +378,7 @@ export function PersistentWatchPlayerHost() {
           ? "fixed inset-0 z-[60] rounded-none shadow-none ring-0"
           : floating
             ? "fixed z-30 rounded-lg shadow-2xl ring-1 ring-black/30"
-            : "absolute z-10 rounded-none shadow-none ring-0"
+            : `absolute z-10 shadow-none ring-0 ${videoJs ? "rounded-xl" : "rounded-none"}`
       }${floating && floatingDismissed ? " invisible" : ""}`}
       data-web-fullscreen={webFullscreen && watchPage ? "" : undefined}
       data-floating={floating ? "" : undefined}

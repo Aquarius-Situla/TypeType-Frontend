@@ -30,7 +30,7 @@ const SKIN_STYLE = {
   width: "100%",
   height: "100%",
   "--media-accent-color": "var(--color-accent)",
-  "--media-border-radius": "0",
+  "--media-border-radius": "0.75rem",
   "--media-border-color": "transparent",
 } as CSSProperties;
 
