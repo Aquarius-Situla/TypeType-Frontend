@@ -1,10 +1,16 @@
-/* The floating mini player has its own top bar (drag, back to the video, close): the skin title gives way to it, the
-   bottom bar keeps only the progress bar, and the mini row takes the middle of the frame. */
+/* The floating mini player has its own top bar (drag, back to the video, close): the skin title gives way to it.
+   The bottom bar keeps the progress, sound, time and fullscreen; play and the seeks move to the middle row. */
 .typetype-persistent-player-frame[data-floating] .media-title,
-.typetype-persistent-player-frame[data-floating] [data-skin-bar] {
+.typetype-persistent-player-frame[data-floating] [data-skin-transport],
+.typetype-persistent-player-frame[data-floating] [data-skin-volume-slider],
+.typetype-persistent-player-frame[data-floating] [data-skin-right] > :not(:last-child) {
   display: none;
 }
 
 .typetype-persistent-player-frame[data-floating] [data-skin-mini] {
   display: flex;
+}
+
+.typetype-persistent-player-frame[data-floating] [data-skin-bottom] {
+  padding-top: 0.75rem;
 }

@@ -55,28 +55,28 @@ export function VideoJsWatchSkin({
       <SkinPoster />
       <Controls.Root>
         <Controls.Content
+          data-skin-bottom=""
           className={`absolute inset-x-0 bottom-0 z-20 flex flex-col bg-linear-to-t from-black/80 to-transparent px-2 pt-10 pb-1.5 contrast-more:from-black/95 [@media(prefers-reduced-transparency:reduce)]:bg-black/90 ${SKIN_HIDDEN_WHEN_IDLE}`}
         >
           <div className="px-2">
             <VideoJsWatchTimeline segments={options.segments} />
           </div>
-          <div data-skin-bar="" className="flex items-center gap-0.5">
+          <div className="flex items-center gap-0.5">
             <Controls.Group className="flex min-w-0 items-center">
-              <SkinTrackButton direction="previous" onClick={options.onPrevious} />
-              <SkinPlayButton />
-              <SkinTrackButton direction="next" onClick={options.onNext} />
+              <span data-skin-transport="" className="flex items-center">
+                <SkinTrackButton direction="previous" onClick={options.onPrevious} />
+                <SkinPlayButton />
+                <SkinTrackButton direction="next" onClick={options.onNext} />
+              </span>
               <SkinVolume />
-              <Time.Group
-                data-skin-secondary=""
-                className="ml-1 flex items-center gap-1 text-xs tabular-nums text-white"
-              >
+              <Time.Group className="ml-1 flex items-center gap-1 text-xs tabular-nums text-white">
                 <Time.Value type="current" />
                 <Time.Separator />
                 <Time.Value type="duration" />
               </Time.Group>
             </Controls.Group>
             <div aria-hidden="true" className="flex-1" />
-            <Controls.Group data-skin-secondary="" className="flex items-center">
+            <Controls.Group data-skin-right="" className="flex items-center">
               <SkinCaptionsButton />
               <VideoJsWatchSettings
                 danmaku={options.danmaku}

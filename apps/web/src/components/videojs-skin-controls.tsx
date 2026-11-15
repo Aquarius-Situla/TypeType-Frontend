@@ -30,10 +30,10 @@ export const SKIN_HIDDEN_WHEN_IDLE =
 
 const ICON = "size-5";
 
-export function SkinPlayButton() {
+export function SkinPlayButton({ className = BAR_BUTTON }: { className?: string }) {
   return (
     <PlayButton
-      className={BAR_BUTTON}
+      className={className}
       render={(props, state) => (
         <button {...props} type="button">
           {state.ended ? (
@@ -52,7 +52,7 @@ export function SkinPlayButton() {
 export function SkinVolume() {
   const wheelVolume = useVideoJsWheelVolume();
   return (
-    <div ref={wheelVolume} data-skin-secondary="" className="flex items-center">
+    <div ref={wheelVolume} className="flex items-center">
       <MuteButton
         className={BAR_BUTTON}
         render={(props, state) => (
@@ -67,7 +67,10 @@ export function SkinVolume() {
           </button>
         )}
       />
-      <VolumeSlider.Root className="relative mx-1 hidden h-9 w-20 cursor-pointer touch-none items-center outline-none sm:flex">
+      <VolumeSlider.Root
+        data-skin-volume-slider=""
+        className="relative mx-1 hidden h-9 w-20 cursor-pointer touch-none items-center outline-none sm:flex"
+      >
         <VolumeSlider.Track className="relative h-1 w-full rounded-full bg-white/30">
           <VolumeSlider.Fill className="absolute inset-y-0 left-0 w-(--media-slider-fill) rounded-full bg-white" />
         </VolumeSlider.Track>

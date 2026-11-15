@@ -46,16 +46,18 @@ export function VideoJsLiveSkin({
       <SkinPoster />
       <Controls.Root>
         <Controls.Content
-          data-skin-bar=""
+          data-skin-bottom=""
           className={`absolute inset-x-0 bottom-0 z-20 flex items-center gap-1 bg-linear-to-t from-black/80 to-transparent px-2 pt-8 pb-2 contrast-more:from-black/95 [@media(prefers-reduced-transparency:reduce)]:bg-black/90 ${SKIN_HIDDEN_WHEN_IDLE}`}
         >
           <Controls.Group className="flex min-w-0 items-center">
-            <SkinPlayButton />
+            <span data-skin-transport="" className="flex items-center">
+              <SkinPlayButton />
+            </span>
             <SkinVolume />
             <LiveBadge />
           </Controls.Group>
           <div aria-hidden="true" className="flex-1" />
-          <Controls.Group data-skin-secondary="" className="flex items-center">
+          <Controls.Group data-skin-right="" className="flex items-center">
             <span ref={setBarSlot} className="flex items-center" />
             <VideoJsSettingsMenu speed={false} />
             <SkinCinemaButton />
