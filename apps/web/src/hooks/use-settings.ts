@@ -7,6 +7,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
+import { retryApiCall } from "../lib/api-retry";
 import { fetchSettings, updateSettings } from "../lib/api-user";
 import { EMPTY_CAPTION_STYLES } from "../lib/caption-styles";
 import { readStoredLandingSettings, syncStoredLandingSettings } from "../lib/default-landing";
@@ -189,7 +190,10 @@ export function useSettings({ forceAnonymous = false }: UseSettingsOptions = {})
     mutationFn: ({ id, base }) =>
       writeQueue.execute(
         id,
-        (settings) => (useAccountSettings ? updateSettings(settings) : Promise.resolve(settings)),
+        (settings) =>
+          useAccountSettings
+            ? retryApiCall(() => updateSettings(settings))
+            : Promise.resolve(settings),
         () => base,
         (settings) => {
           writeCachedSettings(settings, userId);

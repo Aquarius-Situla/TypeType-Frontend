@@ -35,3 +35,14 @@ export function apiRetryDelay(attempt: number, error: unknown): number {
   }
   return Math.min(300 * 2 ** attempt, 1500);
 }
+
+export async function retryApiCall<T>(call: () => Promise<T>): Promise<T> {
+  for (let failures = 0; ; failures++) {
+    try {
+      return await call();
+    } catch (error) {
+      if (!shouldRetryApiError(failures, error)) throw error;
+      await new Promise((resolve) => setTimeout(resolve, apiRetryDelay(failures, error)));
+    }
+  }
+}
