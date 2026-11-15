@@ -4,6 +4,7 @@ import { useSettings } from "../hooks/use-settings";
 import { useVolumeSync } from "../hooks/use-volume-sync";
 import { proxyImage } from "../lib/proxy";
 import { type TwitchWatchTarget, twitchStreamId } from "../lib/twitch-stream-id";
+import { TwitchFullscreenChat } from "./twitch-fullscreen-chat";
 import type { WatchStagePlayerProps } from "./watch-stage-player";
 
 const noop = () => undefined;
@@ -48,6 +49,7 @@ export function TwitchPlayer({
   const onVolumeChange = useVolumeSync(update.mutate, settings);
   const seekRef = useRef<((seconds: number) => void) | null>(null);
   const streamId = twitchStreamId(target);
+  const chatLogin = live && "c" in target ? target.c : null;
   const playerProps = useMemo<WatchStagePlayerProps>(
     () => ({
       audioOnly: false,
@@ -64,7 +66,7 @@ export function TwitchPlayer({
       settingsReady,
       autoplay: settings.autoplayOnOpen,
       originalLocale: null,
-      overlay: null,
+      overlay: chatLogin ? <TwitchFullscreenChat login={chatLogin} /> : null,
       seekRef,
       ownSkin: true,
       onCaptionStylesChange: (captionStyles) => update.mutate({ captionStyles }),
@@ -79,6 +81,7 @@ export function TwitchPlayer({
       onEnded: () => eventsRef.current.onEnded?.(),
     }),
     [
+      chatLogin,
       title,
       poster,
       src,

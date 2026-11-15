@@ -2126,5 +2126,7 @@
   "player_unmute_hint": "Klicken, um den Ton einzuschalten",
   "twitch_tag_title": "{tag}-Lives",
   "twitch_tag_link": "Lives mit dem Tag {tag} ansehen",
-  "shell_videojs_locked_twitch": "Twitch läuft immer im Video.js-Player"
+  "shell_videojs_locked_twitch": "Twitch läuft immer im Video.js-Player",
+  "twitch_chat_hide": "Chat ausblenden",
+  "twitch_chat_show": "Chat einblenden"
 }
