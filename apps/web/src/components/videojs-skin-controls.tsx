@@ -26,7 +26,7 @@ import { BAR_BUTTON } from "../lib/videojs-menu-classes";
 import { VideoJsLoadingMascot } from "./videojs-loading-mascot";
 
 export const SKIN_HIDDEN_WHEN_IDLE =
-  "transition-opacity duration-200 motion-reduce:transition-none [&:not([data-visible]):not(:has(:focus-visible))]:pointer-events-none [&:not([data-visible]):not(:has(:focus-visible))]:opacity-0";
+  "transition-[opacity,translate] duration-100 ease-out will-change-[opacity,translate] motion-reduce:transition-none [&:not([data-visible]):not(:has(:focus-visible))]:pointer-events-none [&:not([data-visible]):not(:has(:focus-visible))]:translate-y-1 [&:not([data-visible]):not(:has(:focus-visible))]:opacity-0 [&:not([data-visible]):not(:has(:focus-visible))]:duration-300";
 
 const ICON = "size-5";
 
@@ -113,7 +113,7 @@ export function SkinFrame({ children, style, autoplay = false }: SkinFrameProps)
   return (
     <Container
       style={style}
-      className="relative block overflow-hidden rounded-(--media-border-radius) bg-black text-white outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-inset fullscreen:rounded-none"
+      className="relative block overflow-hidden rounded-(--media-border-radius) bg-black text-white outline-none [&_img]:rounded-[inherit] [&_video]:rounded-[inherit] focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-inset fullscreen:rounded-none"
     >
       {children}
       <VideoJsLoadingMascot autoplay={autoplay} />

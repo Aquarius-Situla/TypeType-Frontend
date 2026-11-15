@@ -8,7 +8,21 @@ import {
   usePlayer,
   useQualityOptions,
 } from "@videojs/react";
-import { Check, Settings } from "lucide-react";
+import {
+  ALargeSmall,
+  AudioLines,
+  Captions,
+  Check,
+  Film,
+  Gauge,
+  MessageSquareText,
+  Palette,
+  Repeat,
+  Settings,
+  SlidersHorizontal,
+  Square,
+  Type,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { DEFAULT_PLAYBACK_SPEED_OPTIONS, playbackSpeedLabel } from "../lib/playback-speed";
 import { isSourceRendition, qualityOptionsBestFirst } from "../lib/video-js-quality-order";
@@ -18,7 +32,7 @@ import { useDanmakuStore } from "../stores/danmaku-store";
 import { useSabrAudioStore } from "../stores/sabr-audio-store";
 import type { CaptionStyles } from "../types/user";
 import { useFormatSection } from "./videojs-format-section";
-import { MenuGroupSubmenu, type MenuOption, MenuSubmenu } from "./videojs-menu-section";
+import { MenuGroupSubmenu, type MenuOption, MenuSubmenu, RowLabel } from "./videojs-menu-section";
 
 const ON = "on";
 const OFF = "off";
@@ -80,6 +94,7 @@ function DanmakuSections() {
   return (
     <>
       <MenuSubmenu
+        icon={MessageSquareText}
         label={m.ui_danmaku()}
         value={on ? ON : OFF}
         options={[option(ON, m.ui_danmaku_on()), option(OFF, m.player_off())]}
@@ -90,6 +105,7 @@ function DanmakuSections() {
       {on && (
         <>
           <MenuSubmenu
+            icon={Gauge}
             label={m.danmaku_speed_label()}
             value={nearest(DANMAKU_SPEEDS, speed)}
             options={[
@@ -100,6 +116,7 @@ function DanmakuSections() {
             onChange={(value) => setSpeed(Number(value))}
           />
           <MenuSubmenu
+            icon={ALargeSmall}
             label={m.danmaku_size_label()}
             value={nearest(DANMAKU_SIZES, size)}
             options={[
@@ -127,12 +144,14 @@ function CaptionStyleSections({ styles, onChange }: CaptionStyleProps) {
   return (
     <>
       <MenuSubmenu
+        icon={ALargeSmall}
         label={m.player_caption_size()}
         value={styles.fontSize || "100%"}
         options={CAPTION_SIZES.map((size) => option(size, size))}
         onChange={set("fontSize")}
       />
       <MenuSubmenu
+        icon={Palette}
         label={m.player_caption_color()}
         value={styles.textColor || "#ffffff"}
         options={[
@@ -144,6 +163,7 @@ function CaptionStyleSections({ styles, onChange }: CaptionStyleProps) {
         onChange={set("textColor")}
       />
       <MenuSubmenu
+        icon={Square}
         label={m.player_caption_background()}
         value={styles.textBgOpacity || "100%"}
         options={CAPTION_BACKGROUNDS.map((opacity) => option(opacity, opacity))}
@@ -159,7 +179,32 @@ type Props = {
   onCaptionStylesChange?: (styles: CaptionStyles) => void;
 };
 
-export function VideoJsWatchSettings({ danmaku, captionStyles, onCaptionStylesChange }: Props) {
+// The rows follow the player store, which changes on every frame while playing; keeping them in their own component
+// stops the popup from re-rendering, because each popup render re-measures its anchor and forces a page layout.
+export function VideoJsWatchSettings(props: Props) {
+  return (
+    <Menu.Root side="top" align="end">
+      <Menu.Trigger
+        aria-label={m.player_settings()}
+        title={m.player_settings()}
+        className={BAR_BUTTON}
+        render={<button type="button" />}
+      >
+        <Settings className="size-5" aria-hidden="true" />
+      </Menu.Trigger>
+      <Menu.Popup
+        keepMounted
+        className={`typetype-settings-menu ${BAR_MENU_POPUP} max-h-[min(24rem,70vh)] w-64 overflow-y-auto overscroll-contain`}
+      >
+        <Menu.Content>
+          <WatchSettingsRows {...props} />
+        </Menu.Content>
+      </Menu.Popup>
+    </Menu.Root>
+  );
+}
+
+function WatchSettingsRows({ danmaku, captionStyles, onCaptionStylesChange }: Props) {
   const quality = useQualityOptions({
     formatRendition: (rendition) =>
       isSourceRendition(rendition)
@@ -174,64 +219,52 @@ export function VideoJsWatchSettings({ danmaku, captionStyles, onCaptionStylesCh
   const loop = useLoop();
   const hasQuality = quality?.state.availability === "available";
   return (
-    <Menu.Root side="top" align="end">
-      <Menu.Trigger
-        aria-label={m.player_settings()}
-        title={m.player_settings()}
-        className={BAR_BUTTON}
-        render={<button type="button" />}
+    <>
+      {hasQuality && quality && (
+        <MenuSubmenu
+          icon={SlidersHorizontal}
+          label={m.player_quality()}
+          value={quality.value}
+          options={qualityOptionsBestFirst(quality.options, renditions ?? [])}
+          onChange={quality.setValue}
+        />
+      )}
+      {format && <MenuSubmenu icon={Film} label={m.player_format()} {...format} />}
+      {speed && <MenuSubmenu icon={Gauge} label={m.player_speed()} {...speed} />}
+      {audio && <MenuSubmenu icon={AudioLines} label={m.player_audio()} {...audio} />}
+      {captions && !captions.hidden && captions.options.length > 1 && (
+        <MenuSubmenu
+          icon={Captions}
+          label={m.player_subtitles()}
+          value={captions.value}
+          options={captions.options}
+          onChange={captions.setValue}
+        />
+      )}
+      {captions &&
+        !captions.hidden &&
+        captions.options.length > 1 &&
+        captionStyles &&
+        onCaptionStylesChange && (
+          <MenuGroupSubmenu icon={Type} label={m.player_caption_styles()}>
+            <CaptionStyleSections styles={captionStyles} onChange={onCaptionStylesChange} />
+          </MenuGroupSubmenu>
+        )}
+      <Menu.CheckboxItem
+        checked={loop.value === ON}
+        onCheckedChange={(checked: boolean) => loop.onChange(checked ? ON : OFF)}
+        className={BAR_MENU_ITEM}
       >
-        <Settings className="size-5" aria-hidden="true" />
-      </Menu.Trigger>
-      <Menu.Popup
-        className={`typetype-settings-menu ${BAR_MENU_POPUP} max-h-[min(24rem,70vh)] w-56 overflow-y-auto overscroll-contain`}
-      >
-        <Menu.Content>
-          {hasQuality && quality && (
-            <MenuSubmenu
-              label={m.player_quality()}
-              value={quality.value}
-              options={qualityOptionsBestFirst(quality.options, renditions ?? [])}
-              onChange={quality.setValue}
-            />
-          )}
-          {format && <MenuSubmenu label={m.player_format()} {...format} />}
-          {speed && <MenuSubmenu label={m.player_speed()} {...speed} />}
-          {audio && <MenuSubmenu label={m.player_audio()} {...audio} />}
-          {captions && !captions.hidden && captions.options.length > 1 && (
-            <MenuSubmenu
-              label={m.player_subtitles()}
-              value={captions.value}
-              options={captions.options}
-              onChange={captions.setValue}
-            />
-          )}
-          {captions &&
-            !captions.hidden &&
-            captions.options.length > 1 &&
-            captionStyles &&
-            onCaptionStylesChange && (
-              <MenuGroupSubmenu label={m.player_caption_styles()}>
-                <CaptionStyleSections styles={captionStyles} onChange={onCaptionStylesChange} />
-              </MenuGroupSubmenu>
-            )}
-          <Menu.CheckboxItem
-            checked={loop.value === ON}
-            onCheckedChange={(checked: boolean) => loop.onChange(checked ? ON : OFF)}
-            className={BAR_MENU_ITEM}
-          >
-            <span>{m.player_loop()}</span>
-            <Menu.ItemIndicator checked={loop.value === ON}>
-              <Check className="size-4" aria-hidden="true" />
-            </Menu.ItemIndicator>
-          </Menu.CheckboxItem>
-          {danmaku && (
-            <MenuGroupSubmenu label={m.ui_danmaku()}>
-              <DanmakuSections />
-            </MenuGroupSubmenu>
-          )}
-        </Menu.Content>
-      </Menu.Popup>
-    </Menu.Root>
+        <RowLabel icon={Repeat} label={m.player_loop()} />
+        <Menu.ItemIndicator checked={loop.value === ON}>
+          <Check className="size-4" aria-hidden="true" />
+        </Menu.ItemIndicator>
+      </Menu.CheckboxItem>
+      {danmaku && (
+        <MenuGroupSubmenu icon={MessageSquareText} label={m.ui_danmaku()}>
+          <DanmakuSections />
+        </MenuGroupSubmenu>
+      )}
+    </>
   );
 }
