@@ -1,0 +1,5 @@
+/* In the settings menu an open submenu takes the place of the list, as on YouTube: while a Content has an open child,
+   it only shows that child. */
+.typetype-settings-menu [data-child-open] > :not([data-submenu][data-open]) {
+  display: none;
+}

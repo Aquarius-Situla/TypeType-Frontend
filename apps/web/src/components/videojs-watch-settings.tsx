@@ -8,16 +8,16 @@ import {
   usePlayer,
   useQualityOptions,
 } from "@videojs/react";
-import { Settings } from "lucide-react";
+import { Check, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DEFAULT_PLAYBACK_SPEED_OPTIONS, playbackSpeedLabel } from "../lib/playback-speed";
 import { isSourceRendition, qualityOptionsBestFirst } from "../lib/video-js-quality-order";
-import { BAR_BUTTON, BAR_MENU_POPUP } from "../lib/videojs-menu-classes";
+import { BAR_BUTTON, BAR_MENU_ITEM, BAR_MENU_POPUP } from "../lib/videojs-menu-classes";
 import { m } from "../paraglide/messages.js";
 import { useDanmakuStore } from "../stores/danmaku-store";
 import { useSabrAudioStore } from "../stores/sabr-audio-store";
 import type { CaptionStyles } from "../types/user";
-import { type MenuOption, MenuSection } from "./videojs-menu-section";
+import { MenuGroupSubmenu, type MenuOption, MenuSubmenu } from "./videojs-menu-section";
 
 const ON = "on";
 const OFF = "off";
@@ -78,7 +78,7 @@ function DanmakuSections() {
     );
   return (
     <>
-      <MenuSection
+      <MenuSubmenu
         label={m.ui_danmaku()}
         value={on ? ON : OFF}
         options={[option(ON, m.ui_danmaku_on()), option(OFF, m.player_off())]}
@@ -88,7 +88,7 @@ function DanmakuSections() {
       />
       {on && (
         <>
-          <MenuSection
+          <MenuSubmenu
             label={m.danmaku_speed_label()}
             value={nearest(DANMAKU_SPEEDS, speed)}
             options={[
@@ -98,7 +98,7 @@ function DanmakuSections() {
             ]}
             onChange={(value) => setSpeed(Number(value))}
           />
-          <MenuSection
+          <MenuSubmenu
             label={m.danmaku_size_label()}
             value={nearest(DANMAKU_SIZES, size)}
             options={[
@@ -125,13 +125,13 @@ function CaptionStyleSections({ styles, onChange }: CaptionStyleProps) {
     onChange({ ...styles, [key]: value });
   return (
     <>
-      <MenuSection
+      <MenuSubmenu
         label={m.player_caption_size()}
         value={styles.fontSize || "100%"}
         options={CAPTION_SIZES.map((size) => option(size, size))}
         onChange={set("fontSize")}
       />
-      <MenuSection
+      <MenuSubmenu
         label={m.player_caption_color()}
         value={styles.textColor || "#ffffff"}
         options={[
@@ -142,7 +142,7 @@ function CaptionStyleSections({ styles, onChange }: CaptionStyleProps) {
         ]}
         onChange={set("textColor")}
       />
-      <MenuSection
+      <MenuSubmenu
         label={m.player_caption_background()}
         value={styles.textBgOpacity || "100%"}
         options={CAPTION_BACKGROUNDS.map((opacity) => option(opacity, opacity))}
@@ -182,21 +182,21 @@ export function VideoJsWatchSettings({ danmaku, captionStyles, onCaptionStylesCh
         <Settings className="size-5" aria-hidden="true" />
       </Menu.Trigger>
       <Menu.Popup
-        className={`${BAR_MENU_POPUP} max-h-[min(24rem,70vh)] w-56 overflow-y-auto overscroll-contain`}
+        className={`typetype-settings-menu ${BAR_MENU_POPUP} max-h-[min(24rem,70vh)] w-56 overflow-y-auto overscroll-contain`}
       >
         <Menu.Content>
           {hasQuality && quality && (
-            <MenuSection
+            <MenuSubmenu
               label={m.player_quality()}
               value={quality.value}
               options={qualityOptionsBestFirst(quality.options, renditions ?? [])}
               onChange={quality.setValue}
             />
           )}
-          {speed && <MenuSection label={m.player_speed()} {...speed} />}
-          {audio && <MenuSection label={m.player_audio()} {...audio} />}
+          {speed && <MenuSubmenu label={m.player_speed()} {...speed} />}
+          {audio && <MenuSubmenu label={m.player_audio()} {...audio} />}
           {captions && !captions.hidden && captions.options.length > 1 && (
-            <MenuSection
+            <MenuSubmenu
               label={m.player_subtitles()}
               value={captions.value}
               options={captions.options}
@@ -208,15 +208,25 @@ export function VideoJsWatchSettings({ danmaku, captionStyles, onCaptionStylesCh
             captions.options.length > 1 &&
             captionStyles &&
             onCaptionStylesChange && (
-              <CaptionStyleSections styles={captionStyles} onChange={onCaptionStylesChange} />
+              <MenuGroupSubmenu label={m.player_caption_styles()}>
+                <CaptionStyleSections styles={captionStyles} onChange={onCaptionStylesChange} />
+              </MenuGroupSubmenu>
             )}
-          <MenuSection
-            label={m.player_loop()}
-            value={loop.value}
-            options={[option(ON, m.player_loop()), option(OFF, m.player_off())]}
-            onChange={loop.onChange}
-          />
-          {danmaku && <DanmakuSections />}
+          <Menu.CheckboxItem
+            checked={loop.value === ON}
+            onCheckedChange={(checked: boolean) => loop.onChange(checked ? ON : OFF)}
+            className={BAR_MENU_ITEM}
+          >
+            <span>{m.player_loop()}</span>
+            <Menu.ItemIndicator checked={loop.value === ON}>
+              <Check className="size-4" aria-hidden="true" />
+            </Menu.ItemIndicator>
+          </Menu.CheckboxItem>
+          {danmaku && (
+            <MenuGroupSubmenu label={m.ui_danmaku()}>
+              <DanmakuSections />
+            </MenuGroupSubmenu>
+          )}
         </Menu.Content>
       </Menu.Popup>
     </Menu.Root>
