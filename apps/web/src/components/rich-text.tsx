@@ -1,4 +1,5 @@
 import { type ReactNode, useState } from "react";
+import { useInternalLink } from "../hooks/use-internal-link";
 import {
   parseRichTextMarkup,
   parseTextSegments,
@@ -15,6 +16,7 @@ type RichTextProps = {
 
 export function RichText({ text, videoUrl, onSeekTimestamp }: RichTextProps) {
   const [pendingUrl, setPendingUrl] = useState<string | null>(null);
+  const openInternal = useInternalLink();
   const nodes = parseRichTextMarkup(text);
 
   function renderNodes(
@@ -84,7 +86,7 @@ export function RichText({ text, videoUrl, onSeekTimestamp }: RichTextProps) {
           href={node.href}
           onClick={(event) => {
             event.preventDefault();
-            setPendingUrl(node.href);
+            if (!openInternal(node.href)) setPendingUrl(node.href);
           }}
           className="text-accent hover:text-accent-strong underline underline-offset-2 transition-colors break-all text-left align-baseline"
         >
