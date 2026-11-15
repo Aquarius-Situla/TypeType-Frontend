@@ -40,6 +40,9 @@ export const fetchTwitchGames = (after?: string) =>
 export const fetchTwitchGameStreams = (slug: string, after?: string) =>
   get<TwitchGameStreams>(`/games/${encodeURIComponent(slug)}/streams?${pageQuery(after)}`);
 
+export const fetchTwitchTagStreams = (tag: string, after?: string) =>
+  get<TwitchPage<TwitchStream>>(`/tags/${encodeURIComponent(tag)}/streams?${pageQuery(after)}`);
+
 export const fetchTwitchChannel = (login: string) =>
   get<TwitchChannel>(`/channels/${encodeURIComponent(login)}`);
 

@@ -2123,5 +2123,7 @@
   "ui_device_login_expires_in": "Expire dans {time}",
   "ui_twitch_see_lives": "Voir des lives",
   "nav_live": "Live",
-  "player_unmute_hint": "Cliquez pour activer le son"
+  "player_unmute_hint": "Cliquez pour activer le son",
+  "twitch_tag_title": "Lives {tag}",
+  "twitch_tag_link": "Voir les lives avec le tag {tag}"
 }

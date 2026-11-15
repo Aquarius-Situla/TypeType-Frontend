@@ -11,6 +11,7 @@ import {
   fetchTwitchLive,
   fetchTwitchSearch,
   fetchTwitchStreams,
+  fetchTwitchTagStreams,
   fetchTwitchVideo,
 } from "../lib/api-twitch";
 import type { TwitchPage, TwitchSearchType } from "../types/twitch";
@@ -60,6 +61,9 @@ export function useTwitchGameStreams(slug: string) {
     items: query.data?.pages.flatMap((page) => page.streams.items) ?? [],
   };
 }
+
+export const useTwitchTagStreams = (tag: string) =>
+  usePagedTwitch(["tag", tag], (after) => fetchTwitchTagStreams(tag, after), useTwitchEnabled());
 
 export const useTwitchChannelVideos = (login: string) =>
   usePagedTwitch(
