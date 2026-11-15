@@ -136,6 +136,16 @@ export function SabrMsePlayer({
     const offPosition = registerPosition(video, videoHandoffRef.current, config.videoId);
     const offSeekTargets = followSabrEngineSeeks(video, engine);
     const playEngine = () => engine.play().then(settlePlaybackRate);
+    const seekEngine = (seconds: number) => {
+      const targetMs = Math.max(0, Math.round(seconds * 1000));
+      runSabrSeek(
+        engine,
+        targetMs,
+        seekingRef,
+        (error) => reportError(error, targetMs),
+        latestHandlers().onSeekStateChange,
+      );
+    };
     playbackRate.initialize(video);
     const unregisterNativePause = sabrNativePause.registerSabrNativePause(
       video,
@@ -186,10 +196,7 @@ export function SabrMsePlayer({
         video.autoplay = false;
         return engine.pause();
       },
-      seek: (seconds) => {
-        const targetMs = Math.max(0, Math.round(seconds * 1000));
-        runSabrSeek(engine, targetMs, seekingRef, reportError, latestHandlers().onSeekStateChange);
-      },
+      seek: seekEngine,
       isTransitioning: () => seekingRef.current,
       isApplyingTransientMediaState: () => engine.isApplyingTransientMediaState(),
     });
@@ -204,10 +211,7 @@ export function SabrMsePlayer({
       .catch((error: unknown) => {
         if (!isAbortError(error)) reportError(error);
       });
-    latestHandlers().onSeekReady((seconds) => {
-      const targetMs = Math.max(0, Math.round(seconds * 1000));
-      runSabrSeek(engine, targetMs, seekingRef, reportError, latestHandlers().onSeekStateChange);
-    });
+    latestHandlers().onSeekReady(seekEngine);
     latestHandlers().onPositionReaderChange(() => positionMs(video));
     return () => {
       offSeekTargets();
