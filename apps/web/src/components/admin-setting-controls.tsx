@@ -31,17 +31,23 @@ type ToggleProps = {
   label: string;
   description: string;
   checked: boolean;
+  disabled?: boolean;
   onChange: (value: boolean) => void;
 };
 
-export function AdminToggleRow({ label, description, checked, onChange }: ToggleProps) {
+export function AdminToggleRow({ label, description, checked, disabled, onChange }: ToggleProps) {
   return (
     <div className={ROW}>
       <div className="min-w-0">
         <p className="text-sm font-medium text-fg">{label}</p>
         <p className="mt-0.5 text-xs text-fg-soft">{description}</p>
       </div>
-      <ToggleSwitch checked={checked} ariaLabel={label} onClick={() => onChange(!checked)} />
+      <ToggleSwitch
+        checked={checked}
+        disabled={disabled}
+        ariaLabel={label}
+        onClick={() => onChange(!checked)}
+      />
     </div>
   );
 }

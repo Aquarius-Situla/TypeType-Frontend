@@ -10,6 +10,7 @@ import { AdminAllowListForm } from "./admin-allow-list-form";
 import { AdminAllowListPlaylistList } from "./admin-allow-list-playlist-list";
 import { AdminAllowListPlaylistSearch } from "./admin-allow-list-playlist-search";
 import { AdminAllowListUsers } from "./admin-allow-list-users";
+import { AdminToggleRow } from "./admin-setting-controls";
 
 const MODE_BUTTON =
   "h-8 border border-border px-3 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-60";
@@ -29,13 +30,19 @@ export function AdminAllowListSection({ enabled, onToast }: Props) {
   const playlists = globalPlaylists.data ?? [];
   const instanceRestricted = settings?.accessMode === "allow_list";
 
-  function setMode(accessMode: "unrestricted" | "allow_list") {
+  function updateSetting(
+    patch: {
+      accessMode?: "unrestricted" | "allow_list";
+      applyParentalControlsToAdmins?: boolean;
+    },
+    messages: { success: string; error: string },
+  ) {
     if (!settings) return;
     adminSettings.update.mutate(
-      { ...settings, accessMode },
+      { ...settings, ...patch },
       {
-        onSuccess: () => onToast(m.ui_allow_list_mode_updated()),
-        onError: () => onToast(m.ui_unable_to_update_mode()),
+        onSuccess: () => onToast(messages.success),
+        onError: () => onToast(messages.error),
       },
     );
   }
@@ -70,7 +77,15 @@ export function AdminAllowListSection({ enabled, onToast }: Props) {
             <button
               type="button"
               disabled={adminSettings.update.isPending}
-              onClick={() => setMode("unrestricted")}
+              onClick={() =>
+                updateSetting(
+                  { accessMode: "unrestricted" },
+                  {
+                    success: m.ui_allow_list_mode_updated(),
+                    error: m.ui_unable_to_update_mode(),
+                  },
+                )
+              }
               className={`${MODE_BUTTON} ${!instanceRestricted ? "bg-fg text-app" : "text-fg-soft hover:text-fg"}`}
             >
               {m.admin_unrestricted_label()}
@@ -78,13 +93,38 @@ export function AdminAllowListSection({ enabled, onToast }: Props) {
             <button
               type="button"
               disabled={adminSettings.update.isPending}
-              onClick={() => setMode("allow_list")}
+              onClick={() =>
+                updateSetting(
+                  { accessMode: "allow_list" },
+                  {
+                    success: m.ui_allow_list_mode_updated(),
+                    error: m.ui_unable_to_update_mode(),
+                  },
+                )
+              }
               className={`${MODE_BUTTON} ${instanceRestricted ? "bg-fg text-app" : "text-fg-soft hover:text-fg"}`}
             >
               {m.ui_restrict_entire_instance()}
             </button>
           </div>
         </div>
+      </section>
+      <section className="border-t border-border pt-1">
+        <AdminToggleRow
+          label={m.admin_parental_apply_to_admins_label()}
+          description={m.admin_parental_apply_to_admins_description()}
+          checked={settings.applyParentalControlsToAdmins ?? false}
+          disabled={adminSettings.update.isPending}
+          onChange={(value) =>
+            updateSetting(
+              { applyParentalControlsToAdmins: value },
+              {
+                success: m.admin_parental_apply_to_admins_updated(),
+                error: m.admin_parental_apply_to_admins_update_failed(),
+              },
+            )
+          }
+        />
       </section>
       <AdminAllowListUsers
         enabled={enabled}

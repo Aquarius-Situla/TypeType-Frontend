@@ -11,7 +11,7 @@ type AdminUsersPage = {
   total: number;
 };
 
-function isAdminSettings(value: unknown): value is AdminSettings {
+export function isAdminSettings(value: unknown): value is AdminSettings {
   if (!value || typeof value !== "object") return false;
   const record = value as Partial<AdminSettings>;
   return (
@@ -33,7 +33,9 @@ function isAdminSettings(value: unknown): value is AdminSettings {
     typeof record.rssMaxItems === "number" &&
     typeof record.rssMinimumPollMinutes === "number" &&
     typeof record.rssRateLimitPerMinute === "number" &&
-    (record.accessMode === "unrestricted" || record.accessMode === "allow_list")
+    (record.accessMode === "unrestricted" || record.accessMode === "allow_list") &&
+    (record.applyParentalControlsToAdmins === undefined ||
+      typeof record.applyParentalControlsToAdmins === "boolean")
   );
 }
 

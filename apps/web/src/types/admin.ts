@@ -13,6 +13,7 @@ export type AdminSettings = {
   localLoginEnabled: boolean;
   oidcAutoRedirect: boolean;
   accessMode: AccessMode;
+  applyParentalControlsToAdmins?: boolean;
   rssEnabled: boolean;
   rssPublicBaseUrl: string | null;
   rssMaxFeedsPerUser: number;
