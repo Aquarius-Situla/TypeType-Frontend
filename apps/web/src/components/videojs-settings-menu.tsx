@@ -33,11 +33,8 @@ export function VideoJsSettingsMenu({ speed }: { speed: boolean }) {
       >
         <Settings className="size-5" aria-hidden="true" />
       </Menu.Trigger>
-      <Menu.Popup
-        keepMounted
-        className={`typetype-settings-menu ${BAR_MENU_POPUP} max-h-72 w-64 overflow-y-auto`}
-      >
-        <Menu.Content>
+      <Menu.Popup keepMounted className={`typetype-settings-menu ${BAR_MENU_POPUP}`}>
+        <Menu.Content className="typetype-menu-content">
           {hasQuality && quality && (
             <MenuSubmenu
               icon={SlidersHorizontal}

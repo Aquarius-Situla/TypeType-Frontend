@@ -192,11 +192,8 @@ export function VideoJsWatchSettings(props: Props) {
       >
         <Settings className="size-5" aria-hidden="true" />
       </Menu.Trigger>
-      <Menu.Popup
-        keepMounted
-        className={`typetype-settings-menu ${BAR_MENU_POPUP} max-h-[min(24rem,70vh)] w-64 overflow-y-auto overscroll-contain`}
-      >
-        <Menu.Content>
+      <Menu.Popup keepMounted className={`typetype-settings-menu ${BAR_MENU_POPUP}`}>
+        <Menu.Content className="typetype-menu-content">
           <WatchSettingsRows {...props} />
         </Menu.Content>
       </Menu.Popup>

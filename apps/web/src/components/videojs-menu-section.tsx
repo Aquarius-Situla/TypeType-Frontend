@@ -1,7 +1,7 @@
 import { Menu } from "@videojs/react";
 import { Check, ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { BAR_MENU_ITEM, BAR_SUBMENU_CONTENT } from "../lib/videojs-menu-classes";
+import { BAR_MENU_ITEM } from "../lib/videojs-menu-classes";
 
 export type MenuOption = { value: string; label: string; disabled: boolean };
 
@@ -36,7 +36,7 @@ export function MenuSubmenu({ icon, label, value, options, onChange }: SubmenuPr
           <ChevronRight className="size-4" aria-hidden="true" />
         </span>
       </Menu.Trigger>
-      <Menu.Content className={BAR_SUBMENU_CONTENT}>
+      <Menu.Content className="typetype-menu-content">
         <Menu.Item className={`${BAR_MENU_ITEM} justify-start font-medium`}>
           <ChevronLeft className="size-4" aria-hidden="true" />
           <span>{label}</span>
@@ -75,7 +75,7 @@ export function MenuGroupSubmenu({ icon, label, hint, children }: GroupProps) {
           <ChevronRight className="size-4" aria-hidden="true" />
         </span>
       </Menu.Trigger>
-      <Menu.Content className={BAR_SUBMENU_CONTENT}>
+      <Menu.Content className="typetype-menu-content">
         <Menu.Item className={`${BAR_MENU_ITEM} justify-start font-medium`}>
           <ChevronLeft className="size-4" aria-hidden="true" />
           <span>{label}</span>

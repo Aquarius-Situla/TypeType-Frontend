@@ -1,5 +1,56 @@
-/* In the settings menu an open submenu takes the place of the list, as on YouTube: while a Content has an open child,
-   it only shows that child. */
-.typetype-settings-menu [data-child-open] > :not([data-submenu][data-open]) {
-  display: none;
+/* The settings menu works like the Video.js default skin: Video.js measures the shown panel into --media-menu-width
+   and --media-menu-height, every panel sits at the top of the popup, and an opening submenu slides over the list
+   while the popup resizes to it, so the switch is one animation instead of a jump. */
+.typetype-settings-menu {
+  width: max(var(--media-menu-width, 15rem), 15rem);
+  height: var(--media-menu-height, auto);
+  max-height: min(var(--media-menu-available-height, 24rem), 24rem);
+  overflow: hidden;
+  transition-property: opacity, scale, width, height;
+  transition-duration: 150ms, 150ms, 220ms, 220ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+.typetype-settings-menu .typetype-menu-content {
+  position: absolute;
+  max-height: inherit;
+  overflow: auto;
+  overscroll-behavior: contain;
+  transition-property: translate, opacity;
+  transition-duration: 220ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+.typetype-settings-menu .typetype-menu-content:not([data-submenu]) {
+  inset-inline: 0.25rem;
+  top: 0.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.typetype-settings-menu .typetype-menu-content:not([data-submenu])[data-child-open] {
+  translate: -30% 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.typetype-settings-menu .typetype-menu-content[data-submenu] {
+  z-index: 10;
+  inset-inline: 0;
+  top: 0;
+  padding: 0.25rem;
+}
+
+.typetype-settings-menu
+  .typetype-menu-content[data-submenu]:is([data-starting-style], [data-ending-style]) {
+  translate: 30% 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typetype-settings-menu,
+  .typetype-settings-menu .typetype-menu-content {
+    transition-duration: 0s;
+  }
 }
