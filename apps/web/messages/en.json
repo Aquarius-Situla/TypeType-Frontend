@@ -70,6 +70,8 @@
   "shell_built_by_community": "Built by the TypeType community",
   "shell_search": "Search",
   "shell_support": "Support",
+  "shell_videojs": "Video.js",
+  "shell_try_videojs": "Try the new Video.js player",
   "shell_support_typetype": "Support TypeType",
   "watch_audio_loading": "Loading audio...",
   "watch_audio_only": "Audio only",
