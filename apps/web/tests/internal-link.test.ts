@@ -12,6 +12,8 @@ test("reroutes supported videos with their list and start time", () => {
   expect(open("https://www.nicovideo.jp/watch/sm9")).toBe("/watch?v=sm9");
   expect(open("https://www.bilibili.com/video/BV1xx411c7mD")).toBe("/watch?v=BV1xx411c7mD");
   expect(open("https://nico.ms/sm9")).toBe("/watch?v=sm9");
+  expect(open("https://live.nicovideo.jp/watch/lv345123")).toBe("/watch?v=nicolive.lv345123");
+  expect(open("https://live.bilibili.com/7734200")).toBe("/watch?v=bililive.7734200");
   expect(open("https://nico.ms/sm9/../x")).toBeNull();
 });
 

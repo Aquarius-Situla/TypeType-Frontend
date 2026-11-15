@@ -4,6 +4,11 @@ const YOUTUBE_VIDEO_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/;
 const NICONICO_VIDEO_ID_PATTERN = /^(sm|nm|so)\d+$/i;
 const BILIBILI_VIDEO_ID_PATTERN = /^BV[A-Za-z0-9]{10}$/i;
 const BILIBILI_WATCH_PARAM_PATTERN = /^(BV[A-Za-z0-9]{10})(?:\?p=(\d+))?$/i;
+// Lives get a short watch param too, never a full URL. The dot keeps it apart from an 11 character YouTube id, which
+// a NicoNico live id such as lv345678912 would otherwise look like.
+const NICONICO_LIVE_ID_PATTERN = /^(?:lv|ch)\d{1,12}$/i;
+const NICONICO_LIVE_PARAM_PATTERN = /^nicolive\.((?:lv|ch)\d{1,12})$/i;
+const BILIBILI_LIVE_PARAM_PATTERN = /^bililive\.(\d{1,12})$/i;
 
 type WatchRouteSearch = {
   v: string;
@@ -39,6 +44,22 @@ function isSupportedVideoHost(host: string): boolean {
     host === "b23.tv" ||
     hostMatches(host, "bilibili.com")
   );
+}
+
+function niconicoLiveIdFromUrl(value: string): string | null {
+  const parsed = parseUrl(value);
+  if (parsed?.hostname.toLowerCase() !== "live.nicovideo.jp") return null;
+  const [kind, id] = parsed.pathname.split("/").filter(Boolean);
+  return kind === "watch" && id && NICONICO_LIVE_ID_PATTERN.test(id)
+    ? `nicolive.${id.toLowerCase()}`
+    : null;
+}
+
+function bilibiliLiveParamFromUrl(value: string): string | null {
+  const parsed = parseUrl(value);
+  if (parsed?.hostname.toLowerCase() !== "live.bilibili.com") return null;
+  const [room, extra] = parsed.pathname.split("/").filter(Boolean);
+  return room && !extra && /^\d{1,12}$/.test(room) ? `bililive.${room}` : null;
 }
 
 function isValidWatchQueryParam(host: string, v: string): boolean {
@@ -110,6 +131,10 @@ export function youtubeThumbnailUrl(value: string): string | null {
 
 export function toWatchSourceUrl(value: string): string {
   const trimmed = withBilibiliBvid(value.trim());
+  const niconicoLive = trimmed.match(NICONICO_LIVE_PARAM_PATTERN);
+  if (niconicoLive) return `https://live.nicovideo.jp/watch/${niconicoLive[1]?.toLowerCase()}`;
+  const bilibiliLive = trimmed.match(BILIBILI_LIVE_PARAM_PATTERN);
+  if (bilibiliLive) return `https://live.bilibili.com/${bilibiliLive[1]}`;
   if (YOUTUBE_VIDEO_ID_PATTERN.test(trimmed)) {
     return `https://www.youtube.com/watch?v=${trimmed}`;
   }
@@ -158,7 +183,9 @@ export function toPublicWatchParam(sourceUrl: string): string {
   return (
     youtubeVideoIdFromUrl(trimmed) ??
     niconicoVideoIdFromUrl(trimmed) ??
+    niconicoLiveIdFromUrl(trimmed) ??
     bilibiliWatchParamFromUrl(trimmed) ??
+    bilibiliLiveParamFromUrl(trimmed) ??
     trimmed
   );
 }
@@ -167,7 +194,9 @@ export function watchServiceId(sourceUrl: string, fallback: number): number {
   const value = withBilibiliBvid(sourceUrl.trim());
   if (youtubeVideoId(value)) return 0;
   if (NICONICO_VIDEO_ID_PATTERN.test(value) || niconicoVideoIdFromUrl(value)) return 1;
+  if (NICONICO_LIVE_PARAM_PATTERN.test(value) || niconicoLiveIdFromUrl(value)) return 1;
   if (BILIBILI_WATCH_PARAM_PATTERN.test(value) || bilibiliWatchParamFromUrl(value)) return 2;
+  if (BILIBILI_LIVE_PARAM_PATTERN.test(value) || bilibiliLiveParamFromUrl(value)) return 2;
   return fallback;
 }
 

@@ -108,3 +108,23 @@ test("opens legacy Bilibili AV links under their BV ID", () => {
   expect(toPublicWatchParam("av170001?p=2")).toBe("BV17x411w7KC?p=2");
   expect(watchServiceId("av170001", 0)).toBe(2);
 });
+
+test("gives NicoNico and Bilibili lives a short watch param and maps it back", () => {
+  expect(toPublicWatchParam("https://live.nicovideo.jp/watch/lv345123")).toBe("nicolive.lv345123");
+  expect(toPublicWatchParam("https://live.nicovideo.jp/watch/ch2646485")).toBe(
+    "nicolive.ch2646485",
+  );
+  expect(toPublicWatchParam("https://live.bilibili.com/7734200")).toBe("bililive.7734200");
+  expect(toWatchSourceUrl("nicolive.lv345123")).toBe("https://live.nicovideo.jp/watch/lv345123");
+  expect(toWatchSourceUrl("nicolive.ch2646485")).toBe("https://live.nicovideo.jp/watch/ch2646485");
+  expect(toWatchSourceUrl("bililive.7734200")).toBe("https://live.bilibili.com/7734200");
+  expect(watchServiceId("https://live.nicovideo.jp/watch/lv345123", -1)).toBe(1);
+  expect(watchServiceId("https://live.bilibili.com/7734200", -1)).toBe(2);
+  expect(watchServiceId("https://live.bilibili.com/7734200/extra", -1)).toBe(-1);
+  expect(toPublicWatchParam("https://live.nicovideo.jp/watch/lv345678912")).toBe(
+    "nicolive.lv345678912",
+  );
+  expect(toWatchSourceUrl("nicolive.lv345678912")).toBe(
+    "https://live.nicovideo.jp/watch/lv345678912",
+  );
+});
