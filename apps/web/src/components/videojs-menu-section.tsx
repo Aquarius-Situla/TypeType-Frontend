@@ -76,6 +76,31 @@ export function MenuSubmenu({ icon, label, value, options, onChange }: SubmenuPr
   );
 }
 
+// A titled list of choices inside a panel, for the panels that hold several settings (caption style, danmaku). A
+// submenu opened from inside a submenu closed without applying the choice, so these stay one level deep.
+export function MenuRadioSection({ label, value, options, onChange }: SectionProps) {
+  return (
+    <div className="flex flex-col">
+      <p className="px-3 pt-2 pb-1 font-medium text-white/60 text-xs">{label}</p>
+      <Menu.RadioGroup aria-label={label} value={value} onValueChange={onChange}>
+        {options.map((option) => (
+          <Menu.RadioItem
+            key={option.value}
+            value={option.value}
+            disabled={option.disabled}
+            className={BAR_MENU_ITEM}
+          >
+            <span>{option.label}</span>
+            <Menu.ItemIndicator checked={option.value === value}>
+              <Check className="size-4" aria-hidden="true" />
+            </Menu.ItemIndicator>
+          </Menu.RadioItem>
+        ))}
+      </Menu.RadioGroup>
+    </div>
+  );
+}
+
 // A row that opens a list of further rows, such as the caption style or the danmaku options.
 type GroupProps = { icon: LucideIcon; label: string; hint?: string; children: ReactNode };
 

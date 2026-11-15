@@ -9,17 +9,14 @@ import {
   useQualityOptions,
 } from "@videojs/react";
 import {
-  ALargeSmall,
   AudioLines,
   Captions,
   Film,
   Gauge,
   MessageSquareText,
-  Palette,
   Repeat,
   Settings,
   SlidersHorizontal,
-  Square,
   Type,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -34,6 +31,7 @@ import { useFormatSection } from "./videojs-format-section";
 import {
   MenuGroupSubmenu,
   type MenuOption,
+  MenuRadioSection,
   MenuSubmenu,
   MenuSwitch,
   RowLabel,
@@ -93,19 +91,19 @@ function DanmakuSections() {
     );
   return (
     <>
-      <MenuSubmenu
-        icon={MessageSquareText}
-        label={m.ui_danmaku()}
-        value={on ? ON : OFF}
-        options={[option(ON, m.ui_danmaku_on()), option(OFF, m.player_off())]}
-        onChange={(value) => {
-          if ((value === ON) !== on) toggle();
+      <Menu.CheckboxItem
+        checked={on}
+        onCheckedChange={(checked: boolean) => {
+          if (checked !== on) toggle();
         }}
-      />
+        className={`${BAR_MENU_ITEM} min-h-12`}
+      >
+        <RowLabel icon={MessageSquareText} label={m.ui_danmaku_on()} />
+        <MenuSwitch on={on} />
+      </Menu.CheckboxItem>
       {on && (
         <>
-          <MenuSubmenu
-            icon={Gauge}
+          <MenuRadioSection
             label={m.danmaku_speed_label()}
             value={nearest(DANMAKU_SPEEDS, speed)}
             options={[
@@ -115,8 +113,7 @@ function DanmakuSections() {
             ]}
             onChange={(value) => setSpeed(Number(value))}
           />
-          <MenuSubmenu
-            icon={ALargeSmall}
+          <MenuRadioSection
             label={m.danmaku_size_label()}
             value={nearest(DANMAKU_SIZES, size)}
             options={[
@@ -143,15 +140,13 @@ function CaptionStyleSections({ styles, onChange }: CaptionStyleProps) {
     onChange({ ...styles, [key]: value });
   return (
     <>
-      <MenuSubmenu
-        icon={ALargeSmall}
+      <MenuRadioSection
         label={m.player_caption_size()}
         value={styles.fontSize || "100%"}
         options={CAPTION_SIZES.map((size) => option(size, size))}
         onChange={set("fontSize")}
       />
-      <MenuSubmenu
-        icon={Palette}
+      <MenuRadioSection
         label={m.player_caption_color()}
         value={styles.textColor || "#ffffff"}
         options={[
@@ -162,8 +157,7 @@ function CaptionStyleSections({ styles, onChange }: CaptionStyleProps) {
         ]}
         onChange={set("textColor")}
       />
-      <MenuSubmenu
-        icon={Square}
+      <MenuRadioSection
         label={m.player_caption_background()}
         value={styles.textBgOpacity || "100%"}
         options={CAPTION_BACKGROUNDS.map((opacity) => option(opacity, opacity))}
