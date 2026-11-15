@@ -119,6 +119,7 @@ const DEFAULTS: SettingsItem = {
   captionStyles: EMPTY_CAPTION_STYLES,
   seekbarIcon: "typetype",
   seekbarIconUrl: "",
+  playerEngine: "vidstack",
 };
 
 function readAudioOnlyPlayback(): boolean | null {
