@@ -207,7 +207,7 @@
   "settings_player_color_description": "Couleur de la barre de progression et des contrôles du lecteur",
   "settings_seekbar_icon_label": "Icône de la barre de progression",
   "settings_player_engine_label": "Moteur du lecteur",
-  "settings_player_engine_description": "TypeType passe au lecteur Video.js. Essayez-le sur YouTube, NicoNico, BiliBili et Twitch, et signalez les bugs que vous trouvez. Les anciens flux FLV de BiliBili s'ouvrent encore dans le lecteur classique.",
+  "settings_player_engine_description": "TypeType passe au lecteur Video.js. Essayez-le sur YouTube, NicoNico et BiliBili, et signalez les bugs que vous trouvez. Twitch se lit toujours dans Video.js. Les anciens flux FLV de BiliBili s'ouvrent encore dans le lecteur classique.",
   "settings_player_engine_vidstack": "Classique (Vidstack)",
   "settings_player_engine_videojs": "Video.js (bêta)",
   "settings_seekbar_icon_description": "Elle avance sur la barre de progression, sur tous les appareils où vous êtes connecté",
@@ -2125,5 +2125,6 @@
   "nav_live": "Live",
   "player_unmute_hint": "Cliquez pour activer le son",
   "twitch_tag_title": "Lives {tag}",
-  "twitch_tag_link": "Voir les lives avec le tag {tag}"
+  "twitch_tag_link": "Voir les lives avec le tag {tag}",
+  "shell_videojs_locked_twitch": "Twitch se lit toujours dans le lecteur Video.js"
 }

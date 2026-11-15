@@ -207,7 +207,7 @@
   "settings_player_color_description": "Color of the progress bar and player controls",
   "settings_seekbar_icon_label": "Progress bar icon",
   "settings_player_engine_label": "Player engine",
-  "settings_player_engine_description": "TypeType is moving to the Video.js player. Try it on YouTube, NicoNico, BiliBili and Twitch, and report any bug you find. Old BiliBili FLV streams still open in the classic player.",
+  "settings_player_engine_description": "TypeType is moving to the Video.js player. Try it on YouTube, NicoNico and BiliBili, and report any bug you find. Twitch always plays in Video.js. Old BiliBili FLV streams still open in the classic player.",
   "settings_player_engine_vidstack": "Classic (Vidstack)",
   "settings_player_engine_videojs": "Video.js (beta)",
   "settings_seekbar_icon_description": "Rides along the progress bar, on every device you sign in to",
@@ -2125,5 +2125,6 @@
   "nav_live": "Live",
   "player_unmute_hint": "Click to turn the sound on",
   "twitch_tag_title": "{tag} lives",
-  "twitch_tag_link": "See the lives tagged {tag}"
+  "twitch_tag_link": "See the lives tagged {tag}",
+  "shell_videojs_locked_twitch": "Twitch always plays in the Video.js player"
 }
