@@ -2,12 +2,14 @@ import { type MutableRefObject, type ReactNode, useEffect, useRef, useState } fr
 import type { Provider } from "../lib/provider";
 import { SabrPlaybackRatePreference } from "../lib/sabr-playback-rate-preference";
 import type { SabrPlaybackConfig } from "../lib/sabr-source";
+import { videoJsSourceFor } from "../lib/video-js-source";
 import type { MediaSrc } from "../lib/vidstack";
 import { usePlaybackRateStore } from "../stores/playback-rate-store";
 import type { SponsorBlockSegmentItem, SubtitleItem } from "../types/api";
 import type { CaptionStyles, SettingsItem } from "../types/user";
 import { PlayerPlaybackSpeedDefault } from "./player-defaults";
 import { VideoPlayer } from "./video-player";
+import { VideoJsStagePlayer } from "./videojs-stage-player";
 import { WatchPlayerCrossfade } from "./watch-player-crossfade";
 
 export type WatchStagePlayerProps = {
@@ -36,6 +38,8 @@ export type WatchStagePlayerProps = {
   chaptersVtt?: string;
   playerClassName?: string;
   mediaClassName?: string;
+  hideCinemaMode?: boolean;
+  smallLayoutHeight?: number;
   onCaptionStylesChange: (styles: CaptionStyles) => void;
   onVolumeChange: (volume: number, muted: boolean) => void;
   onTimeUpdate: (positionMs: number) => void;
@@ -63,6 +67,20 @@ export function WatchStagePlayer(props: WatchStagePlayerProps) {
       playbackRatePreference.current?.setPreferredRate(settings.defaultPlaybackSpeed);
     }
   }, [settings.defaultPlaybackSpeed]);
+  const videoJs = videoJsSourceFor({
+    engine: settings.playerEngine,
+    source: props.manifestSrc,
+    sabr: Boolean(props.sabrConfig),
+    audioOnly: props.audioOnly,
+  });
+  if (videoJs)
+    return (
+      <VideoJsStagePlayer
+        {...props}
+        source={videoJs}
+        playbackRatePreference={playbackRatePreference.current}
+      />
+    );
   return (
     <WatchPlayerCrossfade
       audioOnly={audioPosterVisible}
@@ -121,6 +139,8 @@ export function WatchStagePlayer(props: WatchStagePlayerProps) {
         onNextVideo={props.onNextVideo}
         onAudioPosterChange={setAudioPosterVisible}
         onSeekReady={(seek) => (props.seekRef.current = seek)}
+        hideCinemaMode={props.hideCinemaMode}
+        smallLayoutHeight={props.smallLayoutHeight}
         className={props.playerClassName}
         mediaClassName={props.mediaClassName}
       />
