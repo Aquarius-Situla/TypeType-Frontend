@@ -2086,7 +2086,6 @@
   "ui_twitch_status_disconnected_description": "Livestreams, VODs, Clips und Chat funktionieren auch ohne Konto.",
   "ui_twitch_sign_in_first": "Melde dich bei TypeType an, um Twitch zu verbinden",
   "watch_sponsorblock_unavailable": "SponsorBlock antwortet nicht, die Segmente sind für dieses Video nicht geladen",
-  "player_unmute_hint": "Ton einschalten",
   "settings_focus_label": "Fokus",
   "settings_focus_description": "Eine Kanalgruppe langsam ausblenden.",
   "focus_intro": "Wähle die Kanalgruppe, die dich ablenkt. Ihre Videos verschwinden langsam von der Startseite und aus dem Abo-Feed, und ihre Kanalseiten zeigen nur neue Videos. Die Suche bleibt unverändert.",
@@ -2124,5 +2123,6 @@
   "twitch_emotes_channel": "Kanal",
   "twitch_emotes_empty": "Kein Emote gefunden",
   "twitch_emotes_show_all": "Alle anzeigen ({count})",
-  "player_quality_source": "Quelle"
+  "player_quality_source": "Quelle",
+  "player_start_with_sound_hint": "Irgendwo klicken, um mit Ton zu starten"
 }

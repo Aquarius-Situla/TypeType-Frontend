@@ -53,7 +53,8 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
   const [video, setVideo] = useState<HTMLVideoElement | null>(null);
   const sabr = source.kind === "sabr";
   const [root, setRoot] = useState<HTMLDivElement | null>(null);
-  const policyMuted = useRef(false);
+  const [sabrBlocked, setSabrBlocked] = useState(0);
+  const onSabrBlocked = useCallback(() => setSabrBlocked((count) => count + 1), []);
   const live = streamType === "live";
   const Player = live ? VideoJsLivePlayer : VideoPlayer;
   const Skin = live ? VideoJsLiveSkin : props.ownSkin ? VideoJsVodSkin : VideoSkin;
@@ -112,7 +113,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
               mediaRef={mediaRef}
               mediaProps={mediaProps}
             />
-            {!sabr && <VideoJsAutoplay enabled={autoplay} policyMuted={policyMuted} />}
+            <VideoJsAutoplay enabled={autoplay && !sabr} blocked={sabrBlocked} />
             <VideoJsRecoveryCover />
             <ServerStatusNotice variant="player" />
             <VideoJsPlayerMedia root={root}>
@@ -128,13 +129,12 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
           </Skin>
           <VideoJsPlaybackSpeedDefault speed={props.defaultPlaybackSpeed} />
           {sabr ? (
-            <VideoJsSabrEngine video={video} player={props} />
+            <VideoJsSabrEngine video={video} player={props} onAutoplayBlocked={onSabrBlocked} />
           ) : (
             <VideoJsPlayerBridge
               initialVolume={props.initialVolume ?? 1}
               initialMuted={props.initialMuted ?? false}
               settingsReady={props.settingsReady ?? false}
-              policyMuted={policyMuted}
               onVolumeChange={props.onVolumeChange}
               onSeekReady={props.onSeekReady}
             />

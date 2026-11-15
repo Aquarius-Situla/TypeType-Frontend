@@ -13,6 +13,7 @@ import { addPlaybackTraceHeader } from "../lib/playback-trace";
 import {
   confirmAutoplayOnPlaying,
   guardAutoplay,
+  isAutoplayPolicyError,
   SabrAutoplayAttempt,
   SabrAutoplayDeadline,
 } from "../lib/sabr-autoplay";
@@ -40,6 +41,7 @@ export function SabrMsePlayer({
   initialMuted,
   settingsReady,
   onVolumeChange,
+  onAutoplayBlocked,
   onError,
   onSeekStateChange,
   onModeSwitchChange,
@@ -66,6 +68,7 @@ export function SabrMsePlayer({
     onSeekReady,
     onPositionReaderChange,
     onVolumeChange,
+    onAutoplayBlocked,
   });
   const reportError = useSabrErrorReporter(errorReportedRef, onError, video, config);
   const { latestEngineHandlers, setQualityTransitioning } = useSabrEngineHandlers(
@@ -178,6 +181,7 @@ export function SabrMsePlayer({
             pendingPlayRef.current = false;
             video.autoplay = false;
           }
+          if (isAutoplayPolicyError(error)) latestHandlers().onAutoplayBlocked?.();
         });
     };
     video.addEventListener("canplay", startAutoplay);

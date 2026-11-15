@@ -12,6 +12,7 @@ export type SabrMsePlayerProps = {
   initialMuted: boolean;
   settingsReady: boolean;
   onVolumeChange?: (volume: number, muted: boolean) => void;
+  onAutoplayBlocked?: () => void;
   onError: (positionMs?: number) => void;
   onSeekStateChange: (seeking: boolean) => void;
   onModeSwitchChange?: (switching: boolean) => void;

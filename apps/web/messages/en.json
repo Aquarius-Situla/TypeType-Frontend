@@ -2086,7 +2086,6 @@
   "ui_twitch_status_disconnected_description": "Lives, VODs, clips and chat still work without an account.",
   "ui_twitch_sign_in_first": "Sign in to TypeType to connect Twitch",
   "watch_sponsorblock_unavailable": "SponsorBlock is not responding, segments are not loaded for this video",
-  "player_unmute_hint": "Click to unmute",
   "settings_focus_label": "Focus",
   "settings_focus_description": "Slowly fade a group of channels out.",
   "focus_intro": "Pick the group of channels that distracts you. Its videos slowly fade from your home and your subscription feed, and its channel pages only show recent videos. Search stays as it is.",
@@ -2124,5 +2123,6 @@
   "twitch_emotes_channel": "Channel",
   "twitch_emotes_empty": "No emote found",
   "twitch_emotes_show_all": "Show all ({count})",
-  "player_quality_source": "Source"
+  "player_quality_source": "Source",
+  "player_start_with_sound_hint": "Click anywhere to start with sound"
 }

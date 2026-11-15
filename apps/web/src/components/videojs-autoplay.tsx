@@ -1,42 +1,32 @@
-import { selectPlayback, selectVolume, usePlayer } from "@videojs/react";
-import { VolumeX } from "lucide-react";
-import { type RefObject, useEffect, useRef, useState } from "react";
+import { selectPlayback, usePlayer } from "@videojs/react";
+import { Play } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { isAutoplayPolicyError } from "../lib/sabr-autoplay";
 import { m } from "../paraglide/messages.js";
 
 type Props = {
   enabled: boolean;
-  policyMuted: RefObject<boolean>;
+  blocked: number;
 };
 
-export function VideoJsAutoplay({ enabled, policyMuted }: Props) {
+// Playback always starts with sound. When the browser refuses sound before any gesture on the page, the first
+// click or key press anywhere starts it, since only a user gesture lifts that rule.
+export function VideoJsAutoplay({ enabled, blocked }: Props) {
   const store = usePlayer();
-  const volume = usePlayer(selectVolume);
-  const volumeRef = useRef(volume);
-  volumeRef.current = volume;
   const playback = usePlayer(selectPlayback);
   const playbackRef = useRef(playback);
   playbackRef.current = playback;
   const attempted = useRef(false);
-  const [silenced, setSilenced] = useState(false);
+  const [waiting, setWaiting] = useState(false);
 
   useEffect(() => {
     if (!enabled || attempted.current) return;
     const start = () => {
-      const slice = volumeRef.current;
       const player = playbackRef.current;
-      if (!store.target || !slice || !player) return false;
+      if (!store.target || !player) return false;
       attempted.current = true;
       player.play().catch((error: unknown) => {
-        if (!isAutoplayPolicyError(error) || slice.muted) return;
-        policyMuted.current = true;
-        slice.setMuted(true);
-        setSilenced(true);
-        player.play().catch(() => {
-          policyMuted.current = false;
-          slice.setMuted(false);
-          setSilenced(false);
-        });
+        if (isAutoplayPolicyError(error)) setWaiting(true);
       });
       return true;
     };
@@ -45,36 +35,38 @@ export function VideoJsAutoplay({ enabled, policyMuted }: Props) {
       if (start()) unsubscribe();
     });
     return unsubscribe;
-  }, [enabled, store, policyMuted]);
+  }, [enabled, store]);
 
   useEffect(() => {
-    if (!silenced || volume?.muted !== false) return;
-    policyMuted.current = false;
-    setSilenced(false);
-  }, [silenced, volume?.muted, policyMuted]);
+    if (blocked > 0) setWaiting(true);
+  }, [blocked]);
 
   useEffect(() => {
-    if (!silenced) return;
-    const unmute = (event: MouseEvent) => {
-      const target = event.target;
-      const ownControl =
-        target instanceof Element &&
-        target.closest("[data-player-root] button, [data-player-root] [role=slider]");
-      if (!ownControl) volumeRef.current?.setMuted(false);
+    if (!waiting) return;
+    if (playback?.paused === false) {
+      setWaiting(false);
+      return;
+    }
+    const startOnGesture = () => {
+      setWaiting(false);
+      void playbackRef.current?.play().catch(() => undefined);
     };
-    document.addEventListener("click", unmute, true);
-    return () => document.removeEventListener("click", unmute, true);
-  }, [silenced]);
+    document.addEventListener("pointerdown", startOnGesture, { capture: true, once: true });
+    document.addEventListener("keydown", startOnGesture, { capture: true, once: true });
+    return () => {
+      document.removeEventListener("pointerdown", startOnGesture, { capture: true });
+      document.removeEventListener("keydown", startOnGesture, { capture: true });
+    };
+  }, [waiting, playback?.paused]);
 
-  if (!silenced) return null;
+  if (!waiting) return null;
   return (
-    <button
-      type="button"
-      onClick={() => volumeRef.current?.setMuted(false)}
-      className="absolute top-3 left-3 z-30 inline-flex h-9 cursor-pointer items-center gap-2 rounded-full bg-white px-3 text-sm font-medium text-black shadow-lg hover:bg-white/90"
+    <div
+      role="status"
+      className="pointer-events-none absolute top-3 left-3 z-30 inline-flex h-9 items-center gap-2 rounded-full bg-white px-3 text-sm font-medium text-black shadow-lg"
     >
-      <VolumeX className="size-4" aria-hidden="true" />
-      {m.player_unmute_hint()}
-    </button>
+      <Play className="size-4 fill-current" aria-hidden="true" />
+      {m.player_start_with_sound_hint()}
+    </div>
   );
 }

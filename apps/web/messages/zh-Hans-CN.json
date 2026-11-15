@@ -2086,7 +2086,6 @@
   "ui_twitch_status_disconnected_description": "无需账号也能观看直播、回放、剪辑和查看聊天。",
   "ui_twitch_sign_in_first": "登录 TypeType 后即可连接 Twitch",
   "watch_sponsorblock_unavailable": "SponsorBlock 无响应，此视频的片段未加载",
-  "player_unmute_hint": "点击取消静音",
   "settings_focus_label": "专注",
   "settings_focus_description": "逐步淡出一组频道。",
   "focus_intro": "选择让你分心的频道分组。它们的视频会从首页和订阅动态中逐渐淡出，频道页只显示最近的视频。搜索保持不变。",
@@ -2124,5 +2123,6 @@
   "twitch_emotes_channel": "频道",
   "twitch_emotes_empty": "未找到表情",
   "twitch_emotes_show_all": "显示全部（{count}）",
-  "player_quality_source": "原画"
+  "player_quality_source": "原画",
+  "player_start_with_sound_hint": "点击任意位置开始有声播放"
 }
