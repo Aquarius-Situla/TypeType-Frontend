@@ -23,6 +23,7 @@ import {
   Type,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useVideoJsTextTrackVersion } from "../hooks/use-videojs-text-track-version";
 import { isSourceRendition, qualityOptionsBestFirst } from "../lib/video-js-quality-order";
 import { BAR_BUTTON, BAR_MENU_ITEM, BAR_MENU_POPUP } from "../lib/videojs-menu-classes";
 import { m } from "../paraglide/messages.js";
@@ -211,6 +212,7 @@ function WatchSettingsRows({ danmaku, captionStyles, onCaptionStylesChange }: Pr
   const format = useFormatSection();
   const speed = useSpeedValue();
   const audio = useAudioSection();
+  useVideoJsTextTrackVersion();
   const captions = useCaptionsOptions();
   const loop = useLoop();
   const hasQuality = quality?.state.availability === "available";
