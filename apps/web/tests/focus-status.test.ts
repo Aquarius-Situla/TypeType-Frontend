@@ -9,6 +9,9 @@ function settings(patch: Partial<FocusSettings>): FocusSettings {
   return {
     enabled: true,
     entertainmentGroupId: "group",
+    studyGroupId: null,
+    schedule: "always",
+    timezone: null,
     transitionDays: 60,
     archiveDays: 7,
     startedAt: now,

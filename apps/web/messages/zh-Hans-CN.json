@@ -2105,5 +2105,11 @@
   "focus_status_leaving": "将在 {hours} 小时后关闭",
   "focus_exit_note": "关闭会在一天后生效，在此之前可以随时改变主意。",
   "focus_locked_note": "关闭专注后才能修改设置。",
-  "channel_focus_banner": "专注：仅显示最近 {days} 天的视频"
+  "channel_focus_banner": "专注：仅显示最近 {days} 天的视频",
+  "focus_study_group": "优先显示的频道",
+  "focus_study_hint": "它们的视频会在首页优先显示。",
+  "focus_study_none": "无",
+  "focus_schedule": "生效时间",
+  "focus_schedule_always": "每天",
+  "focus_schedule_weekdays": "工作日生效，周末不限"
 }

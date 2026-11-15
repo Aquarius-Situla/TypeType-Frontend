@@ -2105,5 +2105,11 @@
   "focus_status_leaving": "Turns off in {hours} h",
   "focus_exit_note": "Turning it off takes effect one day later, and you can change your mind until then.",
   "focus_locked_note": "The settings can change once focus is off.",
-  "channel_focus_banner": "Focus: only the videos from the last {days} days"
+  "channel_focus_banner": "Focus: only the videos from the last {days} days",
+  "focus_study_group": "Channels to keep first",
+  "focus_study_hint": "Their videos come first on the home.",
+  "focus_study_none": "None",
+  "focus_schedule": "When",
+  "focus_schedule_always": "Every day",
+  "focus_schedule_weekdays": "Weekdays, free on weekends"
 }

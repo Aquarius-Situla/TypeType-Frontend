@@ -1,9 +1,14 @@
 import { authedJson } from "./authed";
 import { API_BASE } from "./env";
 
+export type FocusSchedule = "always" | "weekdays";
+
 export type FocusSettings = {
   enabled: boolean;
   entertainmentGroupId: string | null;
+  studyGroupId: string | null;
+  schedule: FocusSchedule;
+  timezone: string | null;
   transitionDays: number;
   archiveDays: number;
   startedAt: number | null;
@@ -14,6 +19,9 @@ export type FocusSettings = {
 export type FocusSettingsRequest = {
   enabled: boolean;
   entertainmentGroupId?: string | null;
+  studyGroupId?: string;
+  schedule?: FocusSchedule;
+  timezone?: string;
   transitionDays?: number;
   archiveDays?: number;
 };

@@ -2105,5 +2105,11 @@
   "focus_status_leaving": "Schaltet sich in {hours} h aus",
   "focus_exit_note": "Das Ausschalten wirkt erst einen Tag später, bis dahin kannst du es dir anders überlegen.",
   "focus_locked_note": "Die Einstellungen lassen sich ändern, sobald der Fokus aus ist.",
-  "channel_focus_banner": "Fokus: nur die Videos der letzten {days} Tage"
+  "channel_focus_banner": "Fokus: nur die Videos der letzten {days} Tage",
+  "focus_study_group": "Bevorzugte Kanäle",
+  "focus_study_hint": "Ihre Videos stehen auf der Startseite zuerst.",
+  "focus_study_none": "Keine",
+  "focus_schedule": "Wann",
+  "focus_schedule_always": "Jeden Tag",
+  "focus_schedule_weekdays": "Werktags, am Wochenende frei"
 }

@@ -2105,5 +2105,11 @@
   "focus_status_leaving": "Se désactive dans {hours} h",
   "focus_exit_note": "La désactivation prend effet un jour plus tard, et vous pouvez changer d'avis d'ici là.",
   "focus_locked_note": "Les réglages se modifient une fois le focus désactivé.",
-  "channel_focus_banner": "Focus : seulement les vidéos des {days} derniers jours"
+  "channel_focus_banner": "Focus : seulement les vidéos des {days} derniers jours",
+  "focus_study_group": "Chaînes à mettre en avant",
+  "focus_study_hint": "Leurs vidéos passent en premier sur l'accueil.",
+  "focus_study_none": "Aucune",
+  "focus_schedule": "Quand",
+  "focus_schedule_always": "Tous les jours",
+  "focus_schedule_weekdays": "En semaine, libre le week-end"
 }
