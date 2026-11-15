@@ -5,6 +5,8 @@ type UiStore = {
   sidebarCollapsed: boolean;
   mobileSidebarOpen: boolean;
   notificationCenterOpen: boolean;
+  searchTwitch: boolean;
+  setSearchTwitch: (value: boolean) => void;
   setSidebarCollapsed: (value: boolean) => void;
   toggleSidebar: () => void;
   openMobileSidebar: () => void;
@@ -21,6 +23,8 @@ export const useUiStore = create<UiStore>()(
       sidebarCollapsed: false,
       mobileSidebarOpen: false,
       notificationCenterOpen: false,
+      searchTwitch: false,
+      setSearchTwitch: (value) => set({ searchTwitch: value }),
       setSidebarCollapsed: (value) => set({ sidebarCollapsed: value }),
       toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
       openMobileSidebar: () => set({ mobileSidebarOpen: true }),
@@ -33,7 +37,10 @@ export const useUiStore = create<UiStore>()(
     }),
     {
       name: "typed-ui",
-      partialize: (state) => ({ sidebarCollapsed: state.sidebarCollapsed }),
+      partialize: (state) => ({
+        sidebarCollapsed: state.sidebarCollapsed,
+        searchTwitch: state.searchTwitch,
+      }),
     },
   ),
 );

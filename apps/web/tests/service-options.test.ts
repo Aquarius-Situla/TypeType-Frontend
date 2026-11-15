@@ -1,5 +1,10 @@
 import { expect, test } from "bun:test";
-import { nextServiceRoute, SERVICE_OPTIONS, serviceAlternatives } from "../src/lib/service-options";
+import {
+  nextServiceRoute,
+  nextTwitchSearchRoute,
+  SERVICE_OPTIONS,
+  serviceAlternatives,
+} from "../src/lib/service-options";
 
 test("exposes YouTube, NicoNico and BiliBili in the navbar order", () => {
   expect(SERVICE_OPTIONS.map((service) => service.id)).toEqual([0, 6, 5]);
@@ -25,4 +30,16 @@ test("routes between the dedicated session pages", () => {
     to: "/youtube-session",
     search: { returnTo: undefined },
   });
+});
+
+test("moves a search between the services and Twitch", () => {
+  expect(nextTwitchSearchRoute("/search", "?q=lofi&service=0")).toEqual({
+    to: "/twitch/search",
+    search: { q: "lofi" },
+  });
+  expect(nextServiceRoute("/twitch/search", "?q=lofi", 0)).toEqual({
+    to: "/search",
+    search: { q: "lofi", service: 0 },
+  });
+  expect(nextTwitchSearchRoute("/", "")).toBeNull();
 });
