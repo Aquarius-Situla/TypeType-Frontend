@@ -2123,6 +2123,6 @@
   "twitch_emotes_channel": "频道",
   "twitch_emotes_empty": "未找到表情",
   "twitch_emotes_show_all": "显示全部（{count}）",
-  "player_quality_source": "原画",
+  "player_quality_source": "原画（原始画质）",
   "player_start_with_sound_hint": "点击任意位置开始有声播放"
 }

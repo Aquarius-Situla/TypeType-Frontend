@@ -2123,6 +2123,6 @@
   "twitch_emotes_channel": "Chaîne",
   "twitch_emotes_empty": "Aucune emote trouvée",
   "twitch_emotes_show_all": "Tout afficher ({count})",
-  "player_quality_source": "Source",
+  "player_quality_source": "Source (qualité d'origine)",
   "player_start_with_sound_hint": "Cliquez n'importe où pour lancer avec le son"
 }
