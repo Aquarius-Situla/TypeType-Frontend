@@ -1,5 +1,4 @@
 import {
-  BufferingIndicator,
   Container,
   FullscreenButton,
   MuteButton,
@@ -23,7 +22,7 @@ import {
 } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 import { BAR_BUTTON } from "../lib/videojs-menu-classes";
-import { ReactionGif } from "./reaction-gif";
+import { VideoJsLoadingMascot } from "./videojs-loading-mascot";
 
 export const SKIN_HIDDEN_WHEN_IDLE =
   "transition-opacity duration-200 motion-reduce:transition-none [&:not([data-visible]):not(:has(:focus-visible))]:pointer-events-none [&:not([data-visible]):not(:has(:focus-visible))]:opacity-0";
@@ -113,9 +112,7 @@ export function SkinFrame({ children, style }: { children: ReactNode; style?: CS
       className="relative block overflow-hidden rounded-(--media-border-radius) bg-black text-white outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-inset fullscreen:rounded-none"
     >
       {children}
-      <BufferingIndicator className="pointer-events-none absolute inset-0 z-10 hidden place-content-center data-[visible]:grid">
-        <ReactionGif kind="loading" size={96} className="loading-mascot size-24" />
-      </BufferingIndicator>
+      <VideoJsLoadingMascot />
       <Title
         className={`pointer-events-none absolute inset-x-0 top-0 z-10 truncate bg-linear-to-b from-black/70 to-transparent px-4 pt-3 pb-8 contrast-more:from-black/95 [@media(prefers-reduced-transparency:reduce)]:bg-black/90 text-sm font-medium text-white ${SKIN_HIDDEN_WHEN_IDLE}`}
       />
