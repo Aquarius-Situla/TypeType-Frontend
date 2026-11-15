@@ -51,14 +51,17 @@ export function VideoJsVodSkin({
             <Controls.Group className="flex min-w-0 items-center">
               <SkinPlayButton />
               <SkinVolume />
-              <Time.Group className="ml-1 flex items-center gap-1 text-xs tabular-nums text-white">
+              <Time.Group
+                data-skin-secondary=""
+                className="ml-1 flex items-center gap-1 text-xs tabular-nums text-white"
+              >
                 <Time.Value type="current" />
                 <Time.Separator />
                 <Time.Value type="duration" />
               </Time.Group>
             </Controls.Group>
             <div aria-hidden="true" className="flex-1" />
-            <Controls.Group className="flex items-center">
+            <Controls.Group data-skin-secondary="" className="flex items-center">
               <VideoJsSettingsMenu speed />
               <SkinPipButton />
               <SkinFullscreenButton />

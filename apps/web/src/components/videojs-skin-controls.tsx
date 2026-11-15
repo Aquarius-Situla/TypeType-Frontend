@@ -50,7 +50,7 @@ export function SkinPlayButton() {
 
 export function SkinVolume() {
   return (
-    <div className="flex items-center">
+    <div data-skin-secondary="" className="flex items-center">
       <MuteButton
         className={BAR_BUTTON}
         render={(props, state) => (
@@ -114,7 +114,7 @@ export function SkinFrame({ children, style }: { children: ReactNode; style?: CS
       {children}
       <VideoJsLoadingMascot />
       <Title
-        className={`pointer-events-none absolute inset-x-0 top-0 z-10 truncate bg-linear-to-b from-black/70 to-transparent px-4 pt-3 pb-8 contrast-more:from-black/95 [@media(prefers-reduced-transparency:reduce)]:bg-black/90 text-sm font-medium text-white ${SKIN_HIDDEN_WHEN_IDLE}`}
+        className={`media-title pointer-events-none absolute inset-x-0 top-0 z-10 truncate bg-linear-to-b from-black/70 to-transparent px-4 pt-3 pb-8 contrast-more:from-black/95 [@media(prefers-reduced-transparency:reduce)]:bg-black/90 text-sm font-medium text-white ${SKIN_HIDDEN_WHEN_IDLE}`}
       />
       <StatusAnnouncer />
     </Container>
