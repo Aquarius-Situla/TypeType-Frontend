@@ -2159,5 +2159,7 @@
   "player_caption_window_opacity": "Fensterdeckkraft",
   "player_color_black": "Schwarz",
   "player_color_magenta": "Magenta",
-  "player_feedback_seek": "{value} s"
+  "player_feedback_seek": "{value} s",
+  "player_cast": "Streamen",
+  "player_airplay": "AirPlay"
 }

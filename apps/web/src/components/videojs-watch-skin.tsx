@@ -6,6 +6,7 @@ import type { SponsorBlockSegmentItem } from "../types/api";
 import type { CaptionStyles } from "../types/user";
 import { VideoJsChapterMenu } from "./videojs-chapter-menu";
 import { VideoJsMiniControls } from "./videojs-mini-controls";
+import { SkinRemoteButtons } from "./videojs-remote-buttons";
 import {
   SKIN_HIDDEN_WHEN_IDLE,
   SkinFrame,
@@ -111,6 +112,7 @@ export function VideoJsWatchSkin({
               />
               {!options.audioOnly && <SkinCinemaButton />}
               {!options.audioOnly && <SkinWebFullscreenButton />}
+              <SkinRemoteButtons />
               {!options.audioOnly && <SkinPipButton />}
               {!options.audioOnly && <SkinFullscreenButton />}
             </Controls.Group>

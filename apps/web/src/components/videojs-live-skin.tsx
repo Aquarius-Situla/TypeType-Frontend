@@ -3,6 +3,7 @@ import { type CSSProperties, type ReactNode, useState } from "react";
 import { PlayerBarSlotContext } from "../hooks/use-player-bar-slot";
 import { m } from "../paraglide/messages.js";
 import { VideoJsMiniControls } from "./videojs-mini-controls";
+import { SkinRemoteButtons } from "./videojs-remote-buttons";
 import { VideoJsSettingsMenu } from "./videojs-settings-menu";
 import {
   SKIN_HIDDEN_WHEN_IDLE,
@@ -62,6 +63,7 @@ export function VideoJsLiveSkin({
             <VideoJsSettingsMenu speed={false} />
             <SkinCinemaButton />
             <SkinWebFullscreenButton />
+            <SkinRemoteButtons />
             <SkinPipButton />
             <SkinFullscreenButton />
           </Controls.Group>
