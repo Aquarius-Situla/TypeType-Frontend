@@ -109,6 +109,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
           <Skin style={SKIN_STYLE}>
             <VideoJsMedia
               source={source}
+              provider={props.provider}
               live={live}
               startTime={startTime}
               subtitles={props.subtitles}

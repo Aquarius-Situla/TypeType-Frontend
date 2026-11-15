@@ -26,10 +26,11 @@ import { ShortsPlayerLayout } from "./shorts-player-layout";
 import { UnifiedTimeSlider } from "./unified-time-slider";
 import { WebFullscreenControl } from "./web-fullscreen-control";
 
+const SMALL_LAYOUT_HEIGHT = 380;
+
 type Props = {
   audioOnly?: boolean;
   hideCinemaMode?: boolean;
-  smallLayoutHeight?: number;
   layoutMode?: "default" | "shorts";
   audioUsesVideoProvider?: boolean;
   sabr?: boolean;
@@ -44,7 +45,6 @@ type Props = {
 export function VideoPlayerLayout({
   audioOnly = false,
   hideCinemaMode = false,
-  smallLayoutHeight = 380,
   layoutMode = "default",
   audioUsesVideoProvider = false,
   sabr = false,
@@ -148,7 +148,7 @@ export function VideoPlayerLayout({
       icons={defaultLayoutIcons}
       playbackRates={PLAYBACK_RATES}
       thumbnails={thumbnailVtt}
-      smallLayoutWhen={({ height }) => height < smallLayoutHeight}
+      smallLayoutWhen={({ height }) => height < SMALL_LAYOUT_HEIGHT}
       translations={translations}
       slots={{
         currentTime: sabr ? (

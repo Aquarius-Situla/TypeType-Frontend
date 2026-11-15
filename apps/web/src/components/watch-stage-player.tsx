@@ -39,9 +39,7 @@ export type WatchStagePlayerProps = {
   chaptersVtt?: string;
   playerClassName?: string;
   mediaClassName?: string;
-  hideCinemaMode?: boolean;
   ownSkin?: boolean;
-  smallLayoutHeight?: number;
   onCaptionStylesChange: (styles: CaptionStyles) => void;
   onVolumeChange: (volume: number, muted: boolean) => void;
   onTimeUpdate: (positionMs: number) => void;
@@ -69,15 +67,17 @@ export function WatchStagePlayer(props: WatchStagePlayerProps) {
       playbackRatePreference.current?.setPreferredRate(settings.defaultPlaybackSpeed);
     }
   }, [settings.defaultPlaybackSpeed]);
+  // An own skin exists only in Video.js: Twitch plays there whatever the engine setting says.
+  const engine = props.ownSkin ? "videojs" : settings.playerEngine;
   const handoff = useEngineHandoff(
-    settings.playerEngine,
+    engine,
     props.playerKey,
     props.isLive ? 0 : props.startTime,
     props.onTimeUpdate,
   );
   const startTime = props.isLive ? props.startTime : handoff.startTime;
   const videoJs = videoJsSourceFor({
-    engine: settings.playerEngine,
+    engine,
     source: props.manifestSrc,
     sabr: Boolean(props.sabrConfig),
     audioOnly: props.audioOnly,
@@ -150,8 +150,6 @@ export function WatchStagePlayer(props: WatchStagePlayerProps) {
         onNextVideo={props.onNextVideo}
         onAudioPosterChange={setAudioPosterVisible}
         onSeekReady={(seek) => (props.seekRef.current = seek)}
-        hideCinemaMode={props.hideCinemaMode}
-        smallLayoutHeight={props.smallLayoutHeight}
         className={props.playerClassName}
         mediaClassName={props.mediaClassName}
       />

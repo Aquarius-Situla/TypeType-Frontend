@@ -6,7 +6,6 @@ import { proxyImage } from "../lib/proxy";
 import { type TwitchWatchTarget, twitchStreamId } from "../lib/twitch-stream-id";
 import type { WatchStagePlayerProps } from "./watch-stage-player";
 
-const TWITCH_SMALL_LAYOUT_HEIGHT = 300;
 const noop = () => undefined;
 
 type TwitchPlayerEvents = {
@@ -67,9 +66,7 @@ export function TwitchPlayer({
       originalLocale: null,
       overlay: null,
       seekRef,
-      hideCinemaMode: true,
       ownSkin: true,
-      smallLayoutHeight: TWITCH_SMALL_LAYOUT_HEIGHT,
       onCaptionStylesChange: (captionStyles) => update.mutate({ captionStyles }),
       onVolumeChange,
       onTimeUpdate: (positionMs) => eventsRef.current.onTimeUpdate?.(positionMs),
