@@ -1,3 +1,4 @@
+import { siTwitch } from "simple-icons";
 import { m } from "../paraglide/messages.js";
 
 type NavItem = {
@@ -7,6 +8,7 @@ type NavItem = {
   icon: React.ReactNode;
   adminOnly?: boolean;
   recommenderOnly?: boolean;
+  twitchOnly?: boolean;
 };
 
 export const NAV_ITEMS: NavItem[] = [
@@ -37,6 +39,13 @@ export const NAV_ITEMS: NavItem[] = [
         <path d="M13.73 21a2 2 0 0 1-3.46 0" />
       </>
     ),
+  },
+  {
+    label: m.nav_twitch,
+    to: "/twitch",
+    activePaths: ["/twitch/watch", "/twitch/search"],
+    twitchOnly: true,
+    icon: <path d={siTwitch.path} fill="currentColor" stroke="none" />,
   },
   {
     label: m.nav_history,
