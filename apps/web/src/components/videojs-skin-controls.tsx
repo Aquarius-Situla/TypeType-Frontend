@@ -11,7 +11,6 @@ import {
   VolumeSlider,
 } from "@videojs/react";
 import {
-  LoaderCircle,
   Maximize,
   Minimize,
   Pause,
@@ -24,6 +23,7 @@ import {
 } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 import { BAR_BUTTON } from "../lib/videojs-menu-classes";
+import { ReactionGif } from "./reaction-gif";
 
 export const SKIN_HIDDEN_WHEN_IDLE =
   "transition-opacity duration-200 motion-reduce:transition-none [&:not([data-visible]):not(:has(:focus-visible))]:pointer-events-none [&:not([data-visible]):not(:has(:focus-visible))]:opacity-0";
@@ -114,7 +114,7 @@ export function SkinFrame({ children, style }: { children: ReactNode; style?: CS
     >
       {children}
       <BufferingIndicator className="pointer-events-none absolute inset-0 z-10 hidden place-content-center data-[visible]:grid">
-        <LoaderCircle className="size-10 text-white motion-safe:animate-spin" aria-hidden="true" />
+        <ReactionGif kind="loading" size={96} className="loading-mascot size-24" />
       </BufferingIndicator>
       <Title
         className={`pointer-events-none absolute inset-x-0 top-0 z-10 truncate bg-linear-to-b from-black/70 to-transparent px-4 pt-3 pb-8 contrast-more:from-black/95 [@media(prefers-reduced-transparency:reduce)]:bg-black/90 text-sm font-medium text-white ${SKIN_HIDDEN_WHEN_IDLE}`}
