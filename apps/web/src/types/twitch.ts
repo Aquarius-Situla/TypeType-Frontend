@@ -143,6 +143,8 @@ export type TwitchChatEvent = {
   deleted?: boolean;
 };
 
+export type TwitchVideoChapter = { start: number; title: string; game?: TwitchGame };
+
 export type TwitchVideoComment = {
   id: string;
   offset: number;

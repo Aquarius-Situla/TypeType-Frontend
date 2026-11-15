@@ -29,6 +29,7 @@ type Props = TwitchPlayerEvents & {
   startTime?: number;
   retryKey?: number;
   enabled?: boolean;
+  chaptersVtt?: string;
 };
 
 export function TwitchPlayer({
@@ -41,6 +42,7 @@ export function TwitchPlayer({
   startTime = 0,
   retryKey = 0,
   enabled = true,
+  chaptersVtt,
   children,
   ...events
 }: Props) {
@@ -63,6 +65,7 @@ export function TwitchPlayer({
       sabrConfig: null,
       isLive: live,
       startTime,
+      chaptersVtt,
       settings,
       settingsReady,
       autoplay: settings.autoplayOnOpen,
@@ -89,6 +92,7 @@ export function TwitchPlayer({
       mp4,
       live,
       startTime,
+      chaptersVtt,
       retryKey,
       settings,
       settingsReady,
