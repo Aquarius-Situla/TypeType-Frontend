@@ -8,10 +8,13 @@ type Props = {
   play: () => Promise<unknown> | undefined;
 };
 
-// Playback always starts with sound. When the browser refuses sound before any gesture on the page, the first
-// click or key press anywhere starts it, since only a user gesture lifts that rule.
+// Playback always starts with sound. When the browser refuses sound before any gesture on the page, a play button
+// covers the video and the first click or key press anywhere starts playback, since only a user gesture lifts
+// that rule. The button sits above the player's own click layer: a click reaching that layer would toggle
+// playback a second time and pause it again.
 export function StartWithSound({ blocked, paused, play }: Props) {
   const [waiting, setWaiting] = useState(false);
+  const cover = useRef<HTMLButtonElement>(null);
   const playRef = useRef(play);
   playRef.current = play;
 
@@ -25,26 +28,38 @@ export function StartWithSound({ blocked, paused, play }: Props) {
       setWaiting(false);
       return;
     }
-    const startOnGesture = () => {
-      setWaiting(false);
-      void playRef.current()?.catch(() => undefined);
+    const video = cover.current?.closest("[data-player-root]")?.querySelector("video");
+    const startAfterGesture = (event: Event) => {
+      if (event.target instanceof Node && cover.current?.contains(event.target)) return;
+      window.setTimeout(() => {
+        setWaiting(false);
+        if (!video || video.paused) void playRef.current()?.catch(() => undefined);
+      }, 0);
     };
-    document.addEventListener("pointerdown", startOnGesture, { capture: true, once: true });
-    document.addEventListener("keydown", startOnGesture, { capture: true, once: true });
+    document.addEventListener("click", startAfterGesture, { capture: true });
+    document.addEventListener("keyup", startAfterGesture, { capture: true });
     return () => {
-      document.removeEventListener("pointerdown", startOnGesture, { capture: true });
-      document.removeEventListener("keydown", startOnGesture, { capture: true });
+      document.removeEventListener("click", startAfterGesture, { capture: true });
+      document.removeEventListener("keyup", startAfterGesture, { capture: true });
     };
   }, [waiting, paused]);
 
   if (!waiting) return null;
   return (
-    <div
-      role="status"
-      className="pointer-events-none absolute top-3 left-3 z-30 inline-flex h-9 items-center gap-2 rounded-full bg-white px-3 font-medium text-black text-sm shadow-lg"
+    <button
+      ref={cover}
+      type="button"
+      aria-label={m.player_start_with_sound_hint()}
+      onClick={(event) => {
+        event.stopPropagation();
+        setWaiting(false);
+        void playRef.current()?.catch(() => undefined);
+      }}
+      className="group absolute inset-0 z-30 flex cursor-pointer items-center justify-center"
     >
-      <Play className="size-4 fill-current" aria-hidden="true" />
-      {m.player_start_with_sound_hint()}
-    </div>
+      <span className="flex size-16 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm transition-colors group-hover:bg-black/75">
+        <Play className="ml-1 size-7 fill-current" aria-hidden="true" />
+      </span>
+    </button>
   );
 }
