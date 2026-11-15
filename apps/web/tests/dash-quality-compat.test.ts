@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import type * as dashjs from "dashjs";
-import { buildDashStreamingSettings } from "../src/components/video-player-core";
 import { installDashQualityCompat } from "../src/lib/dash-quality-compat";
+import { buildDashStreamingSettings } from "../src/lib/dash-streaming-settings";
 
 test("buildDashStreamingSettings raises forward buffer targets and enables stall recovery", () => {
   const settings = buildDashStreamingSettings();
