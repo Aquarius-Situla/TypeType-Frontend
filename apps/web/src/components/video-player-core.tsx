@@ -12,7 +12,7 @@ import { attachDashPlaybackDiagnostics } from "../lib/dash-playback-diagnostics"
 import { attachDashPlaybackStallRecovery } from "../lib/dash-playback-stall-recovery";
 import { notifyDashPlayer, setDashPlayer } from "../lib/dash-player-store";
 import { installDashQualityCompat } from "../lib/dash-quality-compat";
-import { HLS_OUTAGE_LOAD_POLICIES } from "../lib/hls-outage-policy";
+import { DASH_OUTAGE_RETRY, HLS_OUTAGE_LOAD_POLICIES } from "../lib/playback-outage-policy";
 import type { Provider } from "../lib/provider";
 import type { MediaProviderAdapter } from "../lib/vidstack";
 import { isDASHProvider, isHLSProvider, Track, useMediaState } from "../lib/vidstack";
@@ -79,6 +79,8 @@ export function buildDashStreamingSettings(sourceProvider?: Provider) {
   const dashSettings = createDashSettings(bufferPolicy);
   return {
     ...dashSettings,
+    retryAttempts: { ...dashSettings.retryAttempts, ...DASH_OUTAGE_RETRY.retryAttempts },
+    retryIntervals: { ...dashSettings.retryIntervals, ...DASH_OUTAGE_RETRY.retryIntervals },
     buffer: {
       ...dashSettings.buffer,
       ...(isBilibili
