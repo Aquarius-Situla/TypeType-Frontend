@@ -3,16 +3,16 @@ import { Heart } from "lucide-react";
 import { useTwitchFollow } from "../hooks/use-twitch-follow";
 import { m } from "../paraglide/messages.js";
 
-type Props = { login: string; returnTo: string; compact?: boolean };
+type Props = { login: string; compact?: boolean };
 
-export function TwitchFollowButton({ login, returnTo, compact = false }: Props) {
+export function TwitchFollowButton({ login, compact = false }: Props) {
   const follow = useTwitchFollow(login);
   const base = `inline-flex items-center gap-1.5 rounded-lg font-medium transition-colors ${compact ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm"}`;
   if (!follow.linked) {
     return (
       <Link
         to="/twitch-session"
-        search={{ returnTo }}
+        search={{ channel: login }}
         title={m.twitch_follow_link_account()}
         className={`${base} bg-[#9146ff] text-white hover:bg-[#772ce8]`}
       >

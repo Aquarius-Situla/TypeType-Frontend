@@ -2123,6 +2123,5 @@
   "twitch_emotes_show_all": "Alle anzeigen ({count})",
   "player_quality_source": "Quelle (Originalqualität)",
   "player_start_with_sound_hint": "Irgendwo klicken, um mit Ton zu starten",
-  "ui_device_login_expires_in": "Läuft in {time} ab",
-  "ui_twitch_sign_in_first": "Melde dich bei TypeType an, um Twitch zu verbinden"
+  "ui_device_login_expires_in": "Läuft in {time} ab"
 }

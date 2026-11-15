@@ -13,14 +13,14 @@ import { m } from "../paraglide/messages.js";
 
 const SIDE_LABEL = "font-mono text-fg-soft text-[11px] uppercase tracking-[0.22em]";
 
-function sanitizeReturnTo(value: unknown): string | undefined {
-  return typeof value === "string" && value.startsWith("/") && !value.startsWith("//")
-    ? value
-    : undefined;
+const TWITCH_LOGIN = /^[A-Za-z0-9_]{1,25}$/;
+
+function sanitizeChannel(value: unknown): string | undefined {
+  return typeof value === "string" && TWITCH_LOGIN.test(value) ? value : undefined;
 }
 
 function TwitchSessionPage() {
-  const { returnTo } = Route.useSearch();
+  const { channel } = Route.useSearch();
   const navigate = useNavigate();
   const enabled = useTwitchEnabled();
   const { authReady, isAuthed, isGuest } = useAuth();
@@ -32,8 +32,8 @@ function TwitchSessionPage() {
   const connected = useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: ["twitch"] });
     setToast(m.ui_twitch_session_connected());
-    if (returnTo) void navigate({ to: returnTo });
-  }, [navigate, queryClient, returnTo]);
+    if (channel) void navigate({ to: "/twitch/watch", search: { c: channel } });
+  }, [navigate, queryClient, channel]);
 
   async function disconnect() {
     setDisconnecting(true);
@@ -72,19 +72,11 @@ function TwitchSessionPage() {
               {m.ui_twitch_device_sign_in_description()}
             </p>
           </div>
-          {signedIn ? (
+          {signedIn && (
             <TwitchDeviceLoginPanel
               connected={account.data?.linked === true}
               onConnected={connected}
             />
-          ) : (
-            <Link
-              to="/login"
-              search={{ redirect: "/twitch-session" }}
-              className="w-fit border border-border-strong px-5 py-2.5 text-fg text-sm transition-colors hover:bg-surface-strong"
-            >
-              {m.ui_twitch_sign_in_first()}
-            </Link>
           )}
         </div>
         <TwitchSessionStatusPanel
@@ -102,7 +94,7 @@ function TwitchSessionPage() {
 
 export const Route = createFileRoute("/twitch-session")({
   validateSearch: (search: Record<string, unknown>) => ({
-    returnTo: sanitizeReturnTo(search.returnTo),
+    channel: sanitizeChannel(search.channel),
   }),
   component: TwitchSessionPage,
 });

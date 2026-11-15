@@ -68,7 +68,7 @@ function TwitchHome() {
           <TwitchSearchBox />
           <Link
             to="/twitch-session"
-            search={{ returnTo: "/twitch" }}
+            search={{ channel: undefined }}
             className="text-fg-muted text-sm hover:text-fg"
           >
             {account.data?.linked

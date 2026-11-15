@@ -55,7 +55,7 @@ export function SessionPlatformNav({ active }: Props) {
           {
             id: "twitch" as const,
             to: "/twitch-session" as const,
-            search: { returnTo: undefined },
+            search: { channel: undefined },
             label: "Twitch",
             icon: <TwitchIcon className="size-3.5 text-[#9146ff]" />,
           },

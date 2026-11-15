@@ -96,7 +96,7 @@ export function TwitchChat({ login }: { login: string }) {
       ) : (
         <Link
           to="/twitch-session"
-          search={{ returnTo: `/twitch/watch?c=${login}` }}
+          search={{ channel: login }}
           className="border-border border-t px-3 py-2 text-fg-muted text-xs hover:text-fg"
         >
           {m.twitch_chat_read_only()}
