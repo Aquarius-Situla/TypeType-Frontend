@@ -15,6 +15,19 @@ export function isEditableTarget(target: EventTarget | null): boolean {
   );
 }
 
+// A button of the player keeps the player shortcuts, as in Vidstack: closing the settings leaves the focus on its
+// button, and < or k must still work. Fields, controls outside the player, and the player menus and sliders keep
+// their keys.
+export function blocksPlayerShortcut(
+  target: EventTarget | null,
+  player: HTMLElement | null,
+): boolean {
+  if (!isInteractiveTarget(target)) return false;
+  if (isEditableTarget(target)) return true;
+  if (!(target instanceof Element) || !player?.contains(target)) return true;
+  return target.closest("[role='menu'], [role='menuitem'], [role='slider']") !== null;
+}
+
 export function isPlayerSeekShortcutTarget(
   target: EventTarget | null,
   player: HTMLElement | null,

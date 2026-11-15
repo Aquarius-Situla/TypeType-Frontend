@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
 import {
+  blocksPlayerShortcut,
   clampTime,
   consumeEvent,
   isEditableTarget,
-  isInteractiveTarget,
   isPlaybackToggleShortcut,
   isPlayerSeekShortcutTarget,
   type KeyboardSeekTarget,
@@ -79,7 +79,7 @@ export function usePlayerKeyboard(canSeek: boolean, playbackOnly = false) {
         keySignal?.current.onSeek?.(seekOffset);
         return;
       }
-      if (isInteractiveTarget(event.target)) return;
+      if (blocksPlayerShortcut(event.target, engine.element())) return;
       if (event.key === "w" || event.key === "W" || event.code === "KeyW") {
         consumeEvent(event);
         useWatchLayoutStore.getState().toggleWebFullscreen();
