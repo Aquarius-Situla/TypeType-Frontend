@@ -75,6 +75,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
     onCaptionStylesChange: props.onCaptionStylesChange,
     onPrevious: props.onPreviousVideo,
     onNext: props.onNextVideo,
+    audioOnly: Boolean(props.audioOnly),
     flat: Boolean(props.ownSkin),
   };
   const keySignal = useRef<PlayerKeySignal>({ key: "", at: Number.NEGATIVE_INFINITY });

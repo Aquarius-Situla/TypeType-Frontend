@@ -5,6 +5,7 @@ import {
   PiPButton,
   PlayButton,
   Poster,
+  SeekButton,
   StatusAnnouncer,
   Title,
   VolumeSlider,
@@ -23,7 +24,9 @@ import {
 import type { CSSProperties, ReactNode } from "react";
 import { useVideoJsWheelVolume } from "../hooks/use-videojs-wheel-volume";
 import { BAR_BUTTON, BAR_PILL } from "../lib/videojs-menu-classes";
+import { m } from "../paraglide/messages.js";
 import { usePlayerAccessibilityStore } from "../stores/player-accessibility-store";
+import { AudioSeekBackward10Icon, AudioSeekForward10Icon } from "./audio-control-icons";
 import { VideoJsLoadingMascot } from "./videojs-loading-mascot";
 
 export const SKIN_HIDDEN_WHEN_IDLE =
@@ -47,6 +50,16 @@ export function SkinPlayButton({ className = BAR_BUTTON }: { className?: string 
         </button>
       )}
     />
+  );
+}
+
+export function SkinSeekButton({ seconds }: { seconds: number }) {
+  const label = seconds < 0 ? m.player_seek_backward_10() : m.player_seek_forward_10();
+  const Icon = seconds < 0 ? AudioSeekBackward10Icon : AudioSeekForward10Icon;
+  return (
+    <SeekButton seconds={seconds} className={BAR_BUTTON} aria-label={label} title={label}>
+      <Icon size={20} />
+    </SeekButton>
   );
 }
 
@@ -133,7 +146,7 @@ export function SkinFrame({ children, style, autoplay = false }: SkinFrameProps)
   return (
     <Container
       style={style}
-      className="relative block overflow-hidden rounded-(--media-border-radius) bg-black text-white outline-none [&_img]:rounded-[inherit] [&_video]:rounded-[inherit] focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-inset fullscreen:rounded-none"
+      className="relative block overflow-hidden rounded-(--media-border-radius) bg-black text-white outline-none [&_video]:rounded-[inherit] focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-inset fullscreen:rounded-none"
     >
       {children}
       <VideoJsLoadingMascot autoplay={autoplay} />
@@ -147,8 +160,8 @@ export function SkinFrame({ children, style, autoplay = false }: SkinFrameProps)
 
 export function SkinPoster() {
   return (
-    <Poster.Root className="pointer-events-none absolute inset-0 transition-opacity duration-300 motion-reduce:transition-none [&:not([data-visible])]:opacity-0">
-      <Poster.Image className="h-full w-full object-cover" />
+    <Poster.Root className="pointer-events-none absolute inset-0 rounded-[inherit] transition-opacity duration-300 motion-reduce:transition-none [&:not([data-visible])]:opacity-0">
+      <Poster.Image className="h-full w-full rounded-[inherit] object-cover" />
     </Poster.Root>
   );
 }

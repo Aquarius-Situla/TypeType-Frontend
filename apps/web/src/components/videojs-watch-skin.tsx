@@ -13,6 +13,7 @@ import {
   SkinPipButton,
   SkinPlayButton,
   SkinPoster,
+  SkinSeekButton,
   SkinVolume,
 } from "./videojs-skin-controls";
 import {
@@ -34,6 +35,8 @@ export type WatchSkinOptions = {
   onNext?: () => void;
   // Twitch keeps a flat bar like its own player; the pills are the YouTube layout.
   flat?: boolean;
+  // Audio only drops the picture controls and puts 10 second seeks around play, like the Vidstack audio layout.
+  audioOnly?: boolean;
 };
 
 export const WatchSkinOptionsContext = createContext<WatchSkinOptions>({
@@ -75,7 +78,9 @@ export function VideoJsWatchSkin({
             <Controls.Group className={`flex min-w-0 items-center ${options.flat ? "" : "gap-2"}`}>
               <span data-skin-transport="" className={group}>
                 <SkinTrackButton direction="previous" onClick={options.onPrevious} />
+                {options.audioOnly && <SkinSeekButton seconds={-SEEK_JUMP} />}
                 <SkinPlayButton />
+                {options.audioOnly && <SkinSeekButton seconds={SEEK_JUMP} />}
                 <SkinTrackButton direction="next" onClick={options.onNext} />
               </span>
               <SkinVolume pill={!options.flat} />
@@ -104,10 +109,10 @@ export function VideoJsWatchSkin({
                 captionStyles={options.captionStyles}
                 onCaptionStylesChange={options.onCaptionStylesChange}
               />
-              <SkinCinemaButton />
-              <SkinWebFullscreenButton />
-              <SkinPipButton />
-              <SkinFullscreenButton />
+              {!options.audioOnly && <SkinCinemaButton />}
+              {!options.audioOnly && <SkinWebFullscreenButton />}
+              {!options.audioOnly && <SkinPipButton />}
+              {!options.audioOnly && <SkinFullscreenButton />}
             </Controls.Group>
           </div>
         </Controls.Content>
