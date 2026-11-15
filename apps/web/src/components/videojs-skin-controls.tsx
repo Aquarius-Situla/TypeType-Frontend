@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 import { useVideoJsWheelVolume } from "../hooks/use-videojs-wheel-volume";
-import { BAR_BUTTON } from "../lib/videojs-menu-classes";
+import { BAR_BUTTON, BAR_PILL } from "../lib/videojs-menu-classes";
 import { VideoJsLoadingMascot } from "./videojs-loading-mascot";
 
 export const SKIN_HIDDEN_WHEN_IDLE =
@@ -52,7 +52,10 @@ export function SkinPlayButton({ className = BAR_BUTTON }: { className?: string 
 export function SkinVolume() {
   const wheelVolume = useVideoJsWheelVolume();
   return (
-    <div ref={wheelVolume} className="flex items-center">
+    <div
+      ref={wheelVolume}
+      className={`group/volume ${BAR_PILL} transition-[padding] duration-200 ease-out focus-within:pr-3 hover:pr-3 motion-reduce:transition-none`}
+    >
       <MuteButton
         className={BAR_BUTTON}
         render={(props, state) => (
@@ -69,12 +72,14 @@ export function SkinVolume() {
       />
       <VolumeSlider.Root
         data-skin-volume-slider=""
-        className="relative mx-1 hidden h-9 w-20 cursor-pointer touch-none items-center outline-none sm:flex"
+        className="relative flex h-10 w-0 cursor-pointer touch-none items-center overflow-hidden opacity-0 outline-none transition-[width,opacity] duration-200 ease-out group-focus-within/volume:w-16 group-focus-within/volume:opacity-100 group-hover/volume:w-16 group-hover/volume:opacity-100 motion-reduce:transition-none"
       >
-        <VolumeSlider.Track className="relative h-1 w-full rounded-full bg-white/30">
-          <VolumeSlider.Fill className="absolute inset-y-0 left-0 w-(--media-slider-fill) rounded-full bg-white" />
-        </VolumeSlider.Track>
-        <VolumeSlider.Thumb className="absolute left-(--media-slider-fill) size-3 -translate-x-1/2 rounded-full bg-white outline-none focus-visible:ring-2 focus-visible:ring-white/70" />
+        <div className="relative mx-1.5 flex h-full flex-1 items-center">
+          <VolumeSlider.Track className="relative h-0.5 w-full rounded-full bg-white/25">
+            <VolumeSlider.Fill className="absolute inset-y-0 left-0 w-(--media-slider-fill) rounded-full bg-white" />
+          </VolumeSlider.Track>
+          <VolumeSlider.Thumb className="absolute left-(--media-slider-fill) size-3 -translate-x-1/2 rounded-full bg-white outline-none focus-visible:ring-2 focus-visible:ring-white/70" />
+        </div>
       </VolumeSlider.Root>
     </div>
   );

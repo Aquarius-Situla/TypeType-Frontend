@@ -1,6 +1,7 @@
 import { Controls, ErrorDialog, Gesture, Hotkey, Time } from "@videojs/react";
 import { type CSSProperties, createContext, type ReactNode, useContext, useState } from "react";
 import { PlayerBarSlotContext } from "../hooks/use-player-bar-slot";
+import { BAR_PILL } from "../lib/videojs-menu-classes";
 import type { SponsorBlockSegmentItem } from "../types/api";
 import type { CaptionStyles } from "../types/user";
 import { VideoJsMiniControls } from "./videojs-mini-controls";
@@ -63,22 +64,24 @@ export function VideoJsWatchSkin({
           <div className="px-2">
             <VideoJsWatchTimeline segments={options.segments} />
           </div>
-          <div className="flex items-center gap-0.5">
-            <Controls.Group className="flex min-w-0 items-center">
-              <span data-skin-transport="" className="flex items-center">
+          <div className="flex items-center gap-2 pt-1">
+            <Controls.Group className="flex min-w-0 items-center gap-2">
+              <span data-skin-transport="" className={BAR_PILL}>
                 <SkinTrackButton direction="previous" onClick={options.onPrevious} />
                 <SkinPlayButton />
                 <SkinTrackButton direction="next" onClick={options.onNext} />
               </span>
               <SkinVolume />
-              <Time.Group className="ml-1 flex items-center gap-1 text-xs tabular-nums text-white">
+              <Time.Group
+                className={`${BAR_PILL} gap-1 px-4 font-medium text-sm text-white tabular-nums`}
+              >
                 <Time.Value type="current" />
                 <Time.Separator />
                 <Time.Value type="duration" />
               </Time.Group>
             </Controls.Group>
             <div aria-hidden="true" className="flex-1" />
-            <Controls.Group data-skin-right="" className="flex items-center">
+            <Controls.Group data-skin-right="" className={`${BAR_PILL} px-1`}>
               <span ref={setBarSlot} className="flex items-center" />
               <SkinCaptionsButton />
               <VideoJsWatchSettings
