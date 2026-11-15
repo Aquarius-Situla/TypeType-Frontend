@@ -29,6 +29,7 @@ import { WebFullscreenControl } from "./web-fullscreen-control";
 type Props = {
   audioOnly?: boolean;
   hideCinemaMode?: boolean;
+  smallLayoutHeight?: number;
   layoutMode?: "default" | "shorts";
   audioUsesVideoProvider?: boolean;
   sabr?: boolean;
@@ -43,6 +44,7 @@ type Props = {
 export function VideoPlayerLayout({
   audioOnly = false,
   hideCinemaMode = false,
+  smallLayoutHeight = 380,
   layoutMode = "default",
   audioUsesVideoProvider = false,
   sabr = false,
@@ -146,7 +148,7 @@ export function VideoPlayerLayout({
       icons={defaultLayoutIcons}
       playbackRates={PLAYBACK_RATES}
       thumbnails={thumbnailVtt}
-      smallLayoutWhen={({ height }) => height < 380}
+      smallLayoutWhen={({ height }) => height < smallLayoutHeight}
       translations={translations}
       slots={{
         currentTime: sabr ? (
