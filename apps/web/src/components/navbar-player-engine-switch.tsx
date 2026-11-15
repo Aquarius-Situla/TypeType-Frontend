@@ -1,7 +1,7 @@
 import { useSettings } from "../hooks/use-settings";
 import { m } from "../paraglide/messages.js";
 
-export function NavbarPlayerEngineSwitch({ hidden }: { hidden: boolean }) {
+export function NavbarPlayerEngineSwitch() {
   const { settings, update } = useSettings();
   const on = settings.playerEngine === "videojs";
   return (
@@ -12,7 +12,7 @@ export function NavbarPlayerEngineSwitch({ hidden }: { hidden: boolean }) {
       aria-label={m.shell_try_videojs()}
       title={m.settings_player_engine_description()}
       onClick={() => update.mutate({ playerEngine: on ? "vidstack" : "videojs" })}
-      className={`${hidden ? "hidden" : "hidden sm:inline-flex"} h-8 shrink-0 items-center gap-2 rounded-full px-2 text-xs font-medium text-fg-muted transition-colors hover:text-fg`}
+      className="hidden h-8 shrink-0 items-center gap-2 rounded-full px-2 text-xs font-medium text-fg-muted transition-colors hover:text-fg sm:inline-flex"
     >
       <span
         aria-hidden="true"

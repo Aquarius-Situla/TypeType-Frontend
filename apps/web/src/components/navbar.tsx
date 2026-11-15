@@ -106,7 +106,7 @@ export function Navbar() {
             <ServiceIcon path={siLemmy.path} color="currentColor" label="Lemmy" />
             <span className="hidden sm:inline">Lemmy</span>
           </a>
-          <NavbarPlayerEngineSwitch hidden={watchPage} />
+          <NavbarPlayerEngineSwitch />
         </div>
 
         {canOpenSearch && isMobile && (
