@@ -26,3 +26,16 @@ test("ranks the higher frame rate first at the same size", () => {
   );
   expect(ordered.map((entry) => entry.value)).toEqual(["auto", "b", "a"]);
 });
+
+test("falls back to the bitrate when a rendition has no size, so the source stays on top", () => {
+  const source: MediaVideoRendition = { id: "s", bitrate: 8_000_000, selected: false };
+  const ordered = qualityOptionsBestFirst(
+    [option("auto"), option("low"), option("s"), option("mid")],
+    [
+      { ...rendition("low", 160), bitrate: 250_000 },
+      source,
+      { ...rendition("mid", 720), bitrate: 3_500_000 },
+    ],
+  );
+  expect(ordered.map((entry) => entry.value)).toEqual(["auto", "s", "mid", "low"]);
+});

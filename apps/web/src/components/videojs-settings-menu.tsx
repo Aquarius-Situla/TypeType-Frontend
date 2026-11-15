@@ -6,7 +6,7 @@ import {
   useQualityOptions,
 } from "@videojs/react";
 import { Check, Settings } from "lucide-react";
-import { qualityOptionsBestFirst } from "../lib/video-js-quality-order";
+import { isSourceRendition, qualityOptionsBestFirst } from "../lib/video-js-quality-order";
 import {
   BAR_BUTTON,
   BAR_MENU_ITEM,
@@ -48,7 +48,12 @@ function Section({ label, value, options, onChange }: SectionProps) {
 }
 
 export function VideoJsSettingsMenu({ speed }: { speed: boolean }) {
-  const quality = useQualityOptions();
+  const quality = useQualityOptions({
+    formatRendition: (rendition) =>
+      isSourceRendition(rendition)
+        ? m.player_quality_source()
+        : `${rendition.height ?? rendition.width}p`,
+  });
   const renditions = usePlayer(selectQuality)?.videoRenditionList;
   const rate = usePlaybackRateOptions();
   const hasQuality = quality?.state.availability === "available";

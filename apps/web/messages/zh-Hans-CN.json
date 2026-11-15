@@ -2123,5 +2123,6 @@
   "twitch_emotes_search": "搜索表情",
   "twitch_emotes_channel": "频道",
   "twitch_emotes_empty": "未找到表情",
-  "twitch_emotes_show_all": "显示全部（{count}）"
+  "twitch_emotes_show_all": "显示全部（{count}）",
+  "player_quality_source": "原画"
 }

@@ -2123,5 +2123,6 @@
   "twitch_emotes_search": "Rechercher une emote",
   "twitch_emotes_channel": "Chaîne",
   "twitch_emotes_empty": "Aucune emote trouvée",
-  "twitch_emotes_show_all": "Tout afficher ({count})"
+  "twitch_emotes_show_all": "Tout afficher ({count})",
+  "player_quality_source": "Source"
 }
