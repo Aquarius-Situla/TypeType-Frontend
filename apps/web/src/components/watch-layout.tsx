@@ -122,7 +122,7 @@ export function WatchLayout({
     settings.preferOriginalLanguage,
     audioOnly.active,
   );
-  const { toast, setToast } = useWatchToast(audioOnly.unavailable);
+  const { toast, setToast } = useWatchToast(audioOnly.unavailable, sponsor.unavailable);
   const { retryStartTime, handlePlayerError } = usePlayerErrorResume(
     stream.id,
     stream.duration,

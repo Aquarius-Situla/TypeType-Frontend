@@ -17,6 +17,7 @@ import { InterfaceLanguagePicker } from "./interface-language-picker";
 import { NavbarAccountControls } from "./navbar-account-controls";
 import { NavbarLeadingControl } from "./navbar-leading-control";
 import { NavbarNotifications } from "./navbar-notifications";
+import { NavbarPlayerEngineSwitch } from "./navbar-player-engine-switch";
 import { NavbarSearch } from "./navbar-search";
 import { NavbarServicePicker } from "./navbar-service-picker";
 import { ServiceIcon } from "./service-icon";
@@ -105,6 +106,7 @@ export function Navbar() {
             <ServiceIcon path={siLemmy.path} color="currentColor" label="Lemmy" />
             <span className="hidden sm:inline">Lemmy</span>
           </a>
+          <NavbarPlayerEngineSwitch />
         </div>
 
         {canOpenSearch && isMobile && (

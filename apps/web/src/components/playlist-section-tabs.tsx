@@ -46,7 +46,7 @@ export function PlaylistSectionTabs({
                   section.videoUrls.some((su) => toPublicWatchParam(su) === param)
                 );
               }).length
-            : section.videoUrls.length;
+            : (section.episodes?.length ?? section.videoUrls.length);
 
         return (
           <button

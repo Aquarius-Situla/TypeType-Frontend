@@ -8,6 +8,7 @@ export type InstanceCapabilities = {
   parentalControlsEnabled: boolean;
   rss: RssInstanceCapability;
   recommender: RecommenderCapability;
+  twitch: { enabled: boolean };
 };
 
 const RECOMMENDER_ABSENT: RecommenderCapability = {
@@ -42,11 +43,16 @@ function isRssCapability(value: unknown): value is RssInstanceCapability {
   );
 }
 
+function isEnabledCapability(value: unknown): boolean {
+  return !!value && typeof value === "object" && (value as { enabled?: unknown }).enabled === true;
+}
+
 function isInstanceCapabilities(value: unknown): value is {
   guestAllowed: boolean;
   parentalControlsEnabled?: unknown;
   rss?: unknown;
   recommender?: unknown;
+  twitch?: unknown;
 } {
   return (
     !!value &&
@@ -68,6 +74,7 @@ export function normalizeInstanceCapabilities(value: unknown): InstanceCapabilit
     recommender: isRecommenderCapability(value.recommender)
       ? { ...RECOMMENDER_ABSENT, ...value.recommender }
       : RECOMMENDER_ABSENT,
+    twitch: { enabled: isEnabledCapability(value.twitch) },
   };
 }
 

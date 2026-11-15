@@ -9,6 +9,7 @@ export type SettingsSection =
   | "api"
   | "privacy"
   | "blocked"
+  | "focus"
   | "rss"
   | "about";
 
@@ -26,6 +27,7 @@ export function isSettingsSection(value: unknown): value is SettingsSection {
     value === "api" ||
     value === "privacy" ||
     value === "blocked" ||
+    value === "focus" ||
     value === "rss" ||
     value === "about"
   );

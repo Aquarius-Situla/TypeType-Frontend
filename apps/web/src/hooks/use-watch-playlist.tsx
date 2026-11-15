@@ -78,6 +78,22 @@ export function useWatchPlaylist(
     : (publicPlaylist.data?.pages[0]?.playlist.title ??
       collection?.title ??
       (partVideos.length > 0 ? m.ui_video_parts() : ""));
+  const publicItems: WatchPlaylistItem[] = (
+    publicPlaylist.data?.pages.flatMap((page) => page.streams) ?? []
+  ).map((item, index) => ({
+    key: `${index}-${item.id}`,
+    url: item.id,
+    title: item.title,
+    thumbnail: item.thumbnail,
+    channelName: item.channelName,
+    channelUrl: item.channelUrl,
+  }));
+  const publicHasCurrent = publicItems.some(
+    (video) => toPublicWatchParam(video.url) === currentParam,
+  );
+  const collectionHasCurrent = collectionVideos.some(
+    (video) => toPublicWatchParam(video.url) === currentParam,
+  );
   const base: WatchPlaylistItem[] = isManaged
     ? (managedPlaylist.data?.videos ?? []).map((item) => ({
         key: item.id,
@@ -87,15 +103,8 @@ export function useWatchPlaylist(
         channelName: item.channelName,
         channelUrl: item.channelUrl,
       }))
-    : (publicPlaylist.data?.pages.flatMap((page) => page.streams) ?? []).length > 0
-      ? (publicPlaylist.data?.pages.flatMap((page) => page.streams) ?? []).map((item, index) => ({
-          key: `${index}-${item.id}`,
-          url: item.id,
-          title: item.title,
-          thumbnail: item.thumbnail,
-          channelName: item.channelName,
-          channelUrl: item.channelUrl,
-        }))
+    : publicItems.length > 0 && (publicHasCurrent || !collectionHasCurrent)
+      ? publicItems
       : collectionVideos.length > 0
         ? collectionVideos
         : partVideos;

@@ -1,5 +1,5 @@
-import { useRouterState } from "@tanstack/react-router";
-import { GripVertical, X } from "lucide-react";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
+import { GripVertical, Maximize2, X } from "lucide-react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CompactPlayerContext } from "../hooks/use-compact-player";
 import { useMobile } from "../hooks/use-mobile";
@@ -7,7 +7,9 @@ import {
   type PlayerPosition,
   usePersistentWatchPlayerStore,
 } from "../hooks/use-persistent-watch-player";
+import { useSettings } from "../hooks/use-settings";
 import { isPlayerOutsideViewport } from "../lib/compact-player-position";
+import { playerPagePath } from "../lib/persistent-player-navigation";
 import { useMediaRemote } from "../lib/vidstack";
 import { m } from "../paraglide/messages.js";
 import { useUiStore } from "../stores/ui-store";
@@ -89,7 +91,9 @@ export function PersistentWatchPlayerHost() {
   const [landscapeWatch, setLandscapeWatch] = useState(false);
   const [floatingDismissed, setFloatingDismissed] = useState(false);
   const remote = useMediaRemote();
-  const watchPage = pathname === "/watch";
+  const videoJs = useSettings().settings.playerEngine === "videojs";
+  const navigate = useNavigate();
+  const watchPage = entry ? pathname === playerPagePath(entry.href) : false;
   const hiddenPage =
     pathname === "/shorts" || pathname === "/hide-everything" || pathname.startsWith("/embed/");
 
@@ -340,9 +344,14 @@ export function PersistentWatchPlayerHost() {
       close(entry.owner);
       return;
     }
-    remote.setTarget(frameRef.current?.querySelector("[data-media-player]") ?? null);
-    // No trigger event: the remote would send the request from the close button, which sits outside the player.
-    remote.pause();
+    const vidstackPlayer = frameRef.current?.querySelector("[data-media-player]") ?? null;
+    if (vidstackPlayer) {
+      remote.setTarget(vidstackPlayer);
+      // No trigger event: the remote would send the request from the close button, which sits outside the player.
+      remote.pause();
+    } else {
+      frameRef.current?.querySelector("video")?.pause();
+    }
     setFloatingDismissed(true);
   };
 
@@ -369,7 +378,7 @@ export function PersistentWatchPlayerHost() {
           ? "fixed inset-0 z-[60] rounded-none shadow-none ring-0"
           : floating
             ? "fixed z-30 rounded-lg shadow-2xl ring-1 ring-black/30"
-            : "absolute z-10 rounded-none shadow-none ring-0"
+            : `absolute z-10 shadow-none ring-0 ${videoJs ? "rounded-xl" : "rounded-none"}`
       }${floating && floatingDismissed ? " invisible" : ""}`}
       data-web-fullscreen={webFullscreen && watchPage ? "" : undefined}
       data-floating={floating ? "" : undefined}
@@ -388,6 +397,17 @@ export function PersistentWatchPlayerHost() {
           >
             <GripVertical size={16} aria-hidden="true" />
           </button>
+          {!watchPage && (
+            <button
+              type="button"
+              aria-label={m.ui_return_to_player()}
+              title={m.ui_return_to_player()}
+              className="pointer-events-auto ml-auto flex h-10 w-10 items-center justify-center rounded text-white hover:opacity-80"
+              onClick={() => void navigate({ href: entry.href })}
+            >
+              <Maximize2 size={16} aria-hidden="true" />
+            </button>
+          )}
           <button
             type="button"
             aria-label={m.ui_close_player()}

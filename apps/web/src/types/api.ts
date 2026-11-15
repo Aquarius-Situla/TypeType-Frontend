@@ -81,6 +81,7 @@ export type StreamResponse = {
   audioStreams: AudioStreamItem[];
   videoOnlyStreams: VideoStreamItem[];
   sponsorBlockSegments: SponsorBlockSegmentItem[];
+  sponsorBlockAvailable?: boolean;
   subtitles: SubtitleItem[];
   previewFrames: PreviewFrameItem[];
   relatedStreams: VideoItem[];
@@ -233,6 +234,7 @@ export type ChannelResponse = {
   nextpage: string | null;
   verification?: ChannelVerification | null;
   hasCourses?: boolean;
+  focusArchiveDays?: number | null;
 };
 
 export type PodcastItem = {

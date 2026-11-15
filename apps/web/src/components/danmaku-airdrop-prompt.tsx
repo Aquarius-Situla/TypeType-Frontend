@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { useCompactPlayer } from "../hooks/use-compact-player";
 import { currentDanmakuAirdrop, type DanmakuAirdrop } from "../lib/danmaku-airdrop";
 import { formatDuration } from "../lib/format";
+import { usePlayerMedia } from "../lib/player-media";
 import { seekSponsorBlockSegment } from "../lib/sponsorblock-seek";
-import { useMediaRemote } from "../lib/vidstack";
 import { m } from "../paraglide/messages.js";
 import type { BulletCommentItem } from "../types/api";
 import { ParachuteIcon } from "./parachute-icon";
@@ -20,13 +20,13 @@ const ACTION =
 type Jump = { from: number; to: number };
 
 function playerVideo(root: HTMLElement | null): HTMLVideoElement | null {
-  return root?.closest("[data-media-player]")?.querySelector("video") ?? null;
+  return root?.closest("[data-player-root]")?.querySelector("video") ?? null;
 }
 
 export function DanmakuAirdropPrompt({ comments }: { comments: BulletCommentItem[] }) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const usedRef = useRef(new Set<string>());
-  const remote = useMediaRemote();
+  const media = usePlayerMedia();
   const compact = useCompactPlayer();
   const [offer, setOffer] = useState<DanmakuAirdrop | null>(null);
   const [jump, setJump] = useState<Jump | null>(null);
@@ -57,7 +57,7 @@ export function DanmakuAirdropPrompt({ comments }: { comments: BulletCommentItem
   }, [jump]);
 
   const seek = (seconds: number) =>
-    seekSponsorBlockSegment(playerVideo(rootRef.current), (target) => remote.seek(target), seconds);
+    seekSponsorBlockSegment(playerVideo(rootRef.current), (target) => media.seek(target), seconds);
 
   const airdrop = (target: DanmakuAirdrop) => {
     usedRef.current.add(target.key);

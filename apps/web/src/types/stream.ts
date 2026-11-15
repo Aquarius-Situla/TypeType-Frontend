@@ -49,6 +49,7 @@ export type VideoStream = {
   subtitles?: SubtitleItem[];
   previewFrames?: PreviewFrameItem[];
   sponsorBlockSegments?: SponsorBlockSegmentItem[];
+  sponsorBlockUnavailable?: boolean;
   collections?: StreamCollectionItem[];
   parts?: StreamPartItem[];
   endScreenElements?: EndScreenItem[];

@@ -5,7 +5,7 @@ import {
   N_LANES,
   REGULAR_DISPLAY_MS,
 } from "../lib/danmaku";
-import { useMediaPlayer, useMediaState } from "../lib/vidstack";
+import { usePlayerMedia } from "../lib/player-media";
 import { useDanmakuStore } from "../stores/danmaku-store";
 import type { BulletCommentItem } from "../types/api";
 import { DanmakuItem } from "./danmaku-item";
@@ -23,7 +23,8 @@ const PRE_MOUNT_MS = 1000;
 export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Props) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const player = useMediaPlayer();
+  const playerMedia = usePlayerMedia();
+  const playerRoot = playerMedia.root;
   const [visible, setVisible] = useState<IndexedComment[]>([]);
   const startMsMap = useRef(new Map<number, number>());
   const lastMsRef = useRef<number | null>(null);
@@ -38,10 +39,10 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
   const [videoRate, setVideoRate] = useState(1);
   const { speed, size } = useDanmakuStore();
 
-  const mediaPaused = useMediaState("paused");
-  const mediaWaiting = useMediaState("waiting");
-  const mediaSeeking = useMediaState("seeking");
-  const mediaPlaybackRate = useMediaState("playbackRate");
+  const mediaPaused = playerMedia.paused;
+  const mediaWaiting = playerMedia.waiting;
+  const mediaSeeking = playerMedia.seeking;
+  const mediaPlaybackRate = playerMedia.playbackRate;
 
   const paused = isDanmakuPlaybackPaused({
     pausedProp,
@@ -60,7 +61,7 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
 
     function attach(): boolean {
       if (cleanup) return true;
-      const root = player?.el || overlayRef.current?.closest(".vds-media-player") || document;
+      const root = playerRoot || overlayRef.current?.closest("[data-player-root]") || document;
       const video =
         root.querySelector<HTMLVideoElement>("video") ||
         document.querySelector<HTMLVideoElement>("video");
@@ -137,8 +138,8 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
       if (attach()) observer.disconnect();
     });
     const observeTarget =
-      player?.el ||
-      overlayRef.current?.closest(".vds-media-player") ||
+      playerRoot ||
+      overlayRef.current?.closest("[data-player-root]") ||
       (typeof document !== "undefined" ? document.body : null);
     if (observeTarget) {
       observer.observe(observeTarget, { childList: true, subtree: true });
@@ -148,7 +149,7 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
       observer.disconnect();
       cleanup?.();
     };
-  }, [player]);
+  }, [playerRoot]);
 
   const indexed = useMemo<IndexedComment[]>(
     () => comments.map((c, i) => ({ ...c, lane: i % N_LANES, id: i })),
@@ -171,7 +172,7 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
 
     function tick() {
       if (!videoRef.current) {
-        const root = player?.el || overlayRef.current?.closest(".vds-media-player") || document;
+        const root = playerRoot || overlayRef.current?.closest("[data-player-root]") || document;
         const v =
           root.querySelector<HTMLVideoElement>("video") ||
           document.querySelector<HTMLVideoElement>("video");
@@ -257,7 +258,7 @@ export function DanmakuOverlay({ comments, positionRef, paused: pausedProp }: Pr
 
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
-  }, [indexed, positionRef, player?.el]);
+  }, [indexed, positionRef, playerRoot]);
 
   const [containerWidth, setContainerWidth] = useState(0);
 

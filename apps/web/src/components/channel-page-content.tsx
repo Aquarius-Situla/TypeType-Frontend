@@ -122,6 +122,11 @@ export function ChannelPageContent({ sourceUrl, sort, searchQuery, tab, onNaviga
           onSubscribe={handleSubscribe}
         />
       )}
+      {meta?.focusArchiveDays && (
+        <p className="rounded-sm border border-border bg-surface px-3 py-2 text-sm text-fg-soft">
+          {m.channel_focus_banner({ days: meta.focusArchiveDays })}
+        </p>
+      )}
       {tab === "videos" && (
         <ChannelPodcastsSection channelUrl={sourceUrl} channelAvatar={meta?.avatarUrl} />
       )}

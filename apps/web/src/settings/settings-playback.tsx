@@ -16,6 +16,7 @@ import {
   PlaybackRangeRow,
   PlaybackToggleRow,
 } from "./settings-playback-row";
+import { SettingsPlayerEngine } from "./settings-player-engine";
 
 const SECTION_LABEL = "text-xs font-medium text-fg-soft uppercase tracking-wider px-1";
 const GROUP = "divide-y divide-border border-y border-border";
@@ -121,6 +122,7 @@ export function SettingsPlayback() {
     <section className="flex flex-col gap-3">
       <p className={SECTION_LABEL}>{m.settings_playback_label()}</p>
       <div className={GROUP}>
+        <SettingsPlayerEngine />
         <PlaybackToggleRow
           title={m.watch_autoplay()}
           description={m.ui_automatically_play_the_next_video()}

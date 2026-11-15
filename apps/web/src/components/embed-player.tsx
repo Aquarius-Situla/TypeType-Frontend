@@ -1,3 +1,7 @@
+import { Suspense } from "react";
+import { useSettings } from "../hooks/use-settings";
+import { videoJsSourceFor } from "../lib/video-js-source";
+import { LazyVideoJsVideoPlayer } from "./lazy-videojs-video-player";
 import { VideoPlayer } from "./video-player";
 import type { VideoPlayerProps } from "./video-player-types";
 
@@ -7,6 +11,13 @@ type Props = VideoPlayerProps & {
 };
 
 export function EmbedVideoPlayer({ playerKey, watchUrl, ...props }: Props) {
+  const { settings } = useSettings();
+  const videoJs = videoJsSourceFor({
+    engine: settings.playerEngine,
+    source: props.src,
+    sabr: Boolean(props.sabrConfig),
+    audioOnly: Boolean(props.audioOnly),
+  });
   const overlay =
     props.title && watchUrl ? (
       <a
@@ -24,7 +35,13 @@ export function EmbedVideoPlayer({ playerKey, watchUrl, ...props }: Props) {
 
   return (
     <div className="fixed inset-0 bg-black group">
-      <VideoPlayer key={playerKey} overlay={overlay} hideCinemaMode {...props} />
+      {videoJs ? (
+        <Suspense fallback={<div aria-hidden="true" className="h-full w-full bg-black" />}>
+          <LazyVideoJsVideoPlayer key={playerKey} overlay={overlay} {...props} source={videoJs} />
+        </Suspense>
+      ) : (
+        <VideoPlayer key={playerKey} overlay={overlay} hideCinemaMode {...props} />
+      )}
     </div>
   );
 }
