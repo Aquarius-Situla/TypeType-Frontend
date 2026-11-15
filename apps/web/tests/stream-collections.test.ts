@@ -400,3 +400,136 @@ test("ensureCollectionMetadata retries a streamCount mismatch only once per play
     localStorage.clear();
   }
 });
+
+test("ensureCollectionMetadata records attempt after fetch succeeds so cold-start mismatches don't refetch and transient errors recover", async () => {
+  localStorage.clear();
+  const coldPlaylistId =
+    "https://www.bilibili.com/medialist/play/546195?business=space_collection&business_id=202";
+  const transientPlaylistId =
+    "https://www.bilibili.com/medialist/play/546195?business=space_collection&business_id=203";
+
+  const originalFetch = globalThis.fetch;
+  let coldFetchCalls = 0;
+  let transientFetchCalls = 0;
+
+  globalThis.fetch = (async (input: string | URL | Request) => {
+    const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+    if (url.includes("BV202")) {
+      coldFetchCalls += 1;
+      return new Response(
+        JSON.stringify({
+          id: "BV202",
+          title: "Cold Video",
+          collections: [
+            {
+              id: "202",
+              title: "Cold Deleted Collection",
+              sections: [
+                {
+                  id: "sec1",
+                  title: "Section 1",
+                  episodes: [
+                    { videoId: "BV202", title: "Ep1", url: "https://www.bilibili.com/video/BV202" },
+                  ],
+                },
+              ],
+            },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
+    transientFetchCalls += 1;
+    if (transientFetchCalls === 1) {
+      return new Response("Upstream error", { status: 500 });
+    }
+    return new Response(
+      JSON.stringify({
+        id: "BV203",
+        title: "Transient Video",
+        collections: [
+          {
+            id: "203",
+            title: "Transient Collection",
+            sections: [
+              {
+                id: "sec1",
+                title: "Section 1",
+                episodes: [
+                  { videoId: "BV203", title: "Ep1", url: "https://www.bilibili.com/video/BV203" },
+                  { videoId: "BV204", title: "Ep2", url: "https://www.bilibili.com/video/BV204" },
+                ],
+              },
+            ],
+          },
+        ],
+      }),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  }) as unknown as typeof fetch;
+
+  try {
+    // Cold start with 1 deleted video (1 fetched vs 2 expected): revisit should NOT refetch
+    const cold1 = await ensureCollectionMetadata(
+      coldPlaylistId,
+      "Cold Deleted Collection",
+      [{ url: "https://www.bilibili.com/video/BV202" }],
+      2,
+    );
+    expect(coldFetchCalls).toBe(1);
+    expect(cold1?.sections?.[0].episodes).toHaveLength(1);
+
+    const cold2 = await ensureCollectionMetadata(
+      coldPlaylistId,
+      "Cold Deleted Collection",
+      [{ url: "https://www.bilibili.com/video/BV202" }],
+      2,
+    );
+    expect(coldFetchCalls).toBe(1);
+    expect(cold2?.sections?.[0].episodes).toHaveLength(1);
+
+    // Transient 500 failure on cached mismatch should NOT poison future visits
+    localStorage.setItem(
+      "typetype:subscribed-collections-meta",
+      JSON.stringify({
+        [transientPlaylistId]: {
+          id: transientPlaylistId,
+          title: "Transient Collection",
+          sourceCollectionId: "203",
+          sections: [
+            {
+              id: "sec1",
+              title: "Section 1",
+              videoUrls: ["https://www.bilibili.com/video/BV203"],
+              episodes: [
+                { videoId: "BV203", title: "Ep1", url: "https://www.bilibili.com/video/BV203" },
+              ],
+            },
+          ],
+        },
+      }),
+    );
+
+    const failedRetry = await ensureCollectionMetadata(
+      transientPlaylistId,
+      "Transient Collection",
+      [{ url: "https://www.bilibili.com/video/BV203" }],
+      2,
+    );
+    expect(transientFetchCalls).toBe(1);
+    expect(failedRetry?.sections?.[0].episodes).toHaveLength(1);
+
+    const recoveredRetry = await ensureCollectionMetadata(
+      transientPlaylistId,
+      "Transient Collection",
+      [{ url: "https://www.bilibili.com/video/BV203" }],
+      2,
+    );
+    expect(transientFetchCalls).toBe(2);
+    expect(recoveredRetry?.sections?.[0].episodes).toHaveLength(2);
+  } finally {
+    globalThis.fetch = originalFetch;
+    localStorage.clear();
+  }
+});

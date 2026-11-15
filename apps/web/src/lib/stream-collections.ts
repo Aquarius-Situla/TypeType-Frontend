@@ -197,14 +197,13 @@ export async function ensureCollectionMetadata(
   const firstUrl = (videos[0].url || videos[0].id || "").trim();
   if (!firstUrl) return existing;
 
-  if (hasCachedSections && !streamCountMatches && expectedStreamCount) {
-    attemptedCountRefreshByPlaylist.set(playlistId, expectedStreamCount);
-  }
-
   const request = (async () => {
     try {
       const { fetchStream } = await import("./api-stream");
       const stream = await fetchStream(firstUrl);
+      if (expectedStreamCount && expectedStreamCount > 0) {
+        attemptedCountRefreshByPlaylist.set(playlistId, expectedStreamCount);
+      }
       if (stream.collections && stream.collections.length > 0) {
         const normName = playlistName.trim().toLowerCase();
         const matchedCol =
