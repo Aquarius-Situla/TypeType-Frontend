@@ -21,6 +21,7 @@ import { VideoPlayerLayout } from "./video-player-layout";
 import { VideoPlayerPlaybackTools } from "./video-player-playback-tools";
 import { VideoPlayerTracks } from "./video-player-tracks";
 import type { VideoPlayerProps } from "./video-player-types";
+import { VidstackPlayerEngine } from "./vidstack-player-engine";
 import { VidstackPlayerMedia } from "./vidstack-player-media";
 import { VolumeRestorer } from "./volume-restorer";
 
@@ -202,17 +203,18 @@ export function VideoPlayer({
           onPreviousTrack={onPreviousVideo}
           onNextTrack={onNextVideo}
         />
-        <VideoPlayerPlaybackTools
-          canSeek={canSeek}
-          audioOnly={audioOnly}
-          sabrVideo={sabrState.video}
-          segments={sponsorBlockSegments}
-          autoSkipSegments={autoSkipSponsorBlockSegments}
-          manualSkipSegments={manualSkipSponsorBlockSegments}
-          autoSkip={autoSkipSponsorBlock}
-          mutedSkip={muteSponsorBlockInsteadOfSkip}
-          showCurrent={showCurrentSponsorBlockSegment}
-        />
+        <VidstackPlayerEngine sabrVideo={sabrConfig ? sabrState.video : null}>
+          <VideoPlayerPlaybackTools
+            canSeek={canSeek}
+            audioOnly={audioOnly}
+            segments={sponsorBlockSegments}
+            autoSkipSegments={autoSkipSponsorBlockSegments}
+            manualSkipSegments={manualSkipSponsorBlockSegments}
+            autoSkip={autoSkipSponsorBlock}
+            mutedSkip={muteSponsorBlockInsteadOfSkip}
+            showCurrent={showCurrentSponsorBlockSegment}
+          />
+        </VidstackPlayerEngine>
         {onSeekReady && <SeekBridge onSeekReady={onSeekReady} />}
       </VidstackPlayerMedia>
     </MediaPlayer>

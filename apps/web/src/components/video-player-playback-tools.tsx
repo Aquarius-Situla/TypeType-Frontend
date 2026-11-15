@@ -13,7 +13,6 @@ import { SponsorBlockSkipNotice } from "./sponsorblock-skip-notice";
 type Props = {
   canSeek: boolean;
   audioOnly: boolean;
-  sabrVideo: HTMLVideoElement | null;
   segments?: SponsorBlockSegmentItem[];
   autoSkipSegments?: SponsorBlockSegmentItem[];
   manualSkipSegments?: SponsorBlockSegmentItem[];
@@ -30,7 +29,7 @@ export function VideoPlayerPlaybackTools(props: Props) {
   const [adBreak] = useState(() => adIsDue(readAdVault()));
   return (
     <>
-      <PlayerHotkeys canSeek={props.canSeek} sabrVideo={props.sabrVideo} compact={compact} />
+      <PlayerHotkeys canSeek={props.canSeek} compact={compact} />
       {shouldRunSponsorBlockAutoSkip(props) && props.autoSkipSegments && (
         <SponsorBlockSkipper
           segments={props.autoSkipSegments}

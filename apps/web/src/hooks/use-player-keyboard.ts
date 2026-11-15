@@ -9,67 +9,42 @@ import {
   keyboardSeekOffset,
   nextKeyboardSeekTarget,
 } from "../components/player-hotkeys-utils";
-import { requestSabrSeek, requestSabrVidstackPlayback } from "../lib/sabr-vidstack-bridge";
-import { useMediaPlayer, useMediaRemote, useMediaState } from "../lib/vidstack";
+import { usePlayerEngine } from "../lib/player-engine";
 import { useDanmakuStore } from "../stores/danmaku-store";
 import { useWatchLayoutStore } from "../stores/watch-layout-store";
 import { useHoldFastForward } from "./use-hold-fast-forward";
 
 const FRAME_STEP_SECONDS = 1 / 30;
 
-export function usePlayerKeyboard(
-  canSeek: boolean,
-  sabrVideo: HTMLVideoElement | null = null,
-  playbackOnly = false,
-) {
-  const player = useMediaPlayer();
-  const remote = useMediaRemote();
-  const currentTime = useMediaState("currentTime");
-  const duration = useMediaState("duration");
-  const paused = useMediaState("paused");
+export function usePlayerKeyboard(canSeek: boolean, playbackOnly = false) {
+  const engine = usePlayerEngine();
   const { holding, isActive, start, restore } = useHoldFastForward();
-  const currentTimeRef = useRef(0);
-  const durationRef = useRef(0);
-  const pausedRef = useRef(true);
   const spaceStartedRef = useRef(false);
   const seekTargetRef = useRef<KeyboardSeekTarget>({
     position: 0,
     updatedAt: Number.NEGATIVE_INFINITY,
   });
 
-  currentTimeRef.current = Number.isFinite(currentTime) ? currentTime : 0;
-  durationRef.current = Number.isFinite(duration) ? duration : 0;
-  pausedRef.current = paused;
-
   useEffect(() => {
-    function togglePaused() {
-      if (sabrVideo) {
-        void requestSabrVidstackPlayback(sabrVideo, pausedRef.current, true).catch(() => {});
-        return;
-      }
-      if (pausedRef.current) void Promise.resolve(remote.play()).catch(() => {});
-      else void Promise.resolve(remote.pause()).catch(() => {});
-    }
+    const togglePaused = () => engine.togglePaused();
 
     function stepFrame(direction: -1 | 1) {
-      if (!canSeek || !pausedRef.current) return;
-      remote.seek(
-        clampTime(currentTimeRef.current + FRAME_STEP_SECONDS * direction, durationRef.current),
+      if (!canSeek || !engine.paused()) return;
+      engine.seek(
+        clampTime(engine.currentTime() + FRAME_STEP_SECONDS * direction, engine.duration()),
       );
     }
 
     function seekBy(seconds: number) {
       if (!canSeek) return;
       seekTargetRef.current = nextKeyboardSeekTarget(
-        currentTimeRef.current,
-        durationRef.current,
+        engine.currentTime(),
+        engine.duration(),
         seconds,
         seekTargetRef.current,
         performance.now(),
       );
-      currentTimeRef.current = seekTargetRef.current.position;
-      if (sabrVideo && requestSabrSeek(sabrVideo, seekTargetRef.current.position)) return;
-      remote.seek(seekTargetRef.current.position);
+      engine.seek(seekTargetRef.current.position);
     }
 
     function onKeyDown(event: KeyboardEvent) {
@@ -83,7 +58,7 @@ export function usePlayerKeyboard(
       }
       if (playbackOnly && !isPlaybackToggleShortcut(event.code)) return;
       const seekOffset = keyboardSeekOffset(event.code);
-      if (seekOffset !== null && isPlayerSeekShortcutTarget(event.target, player?.el ?? null)) {
+      if (seekOffset !== null && isPlayerSeekShortcutTarget(event.target, engine.element())) {
         consumeEvent(event);
         seekBy(seekOffset);
         return;
@@ -157,7 +132,7 @@ export function usePlayerKeyboard(
       window.removeEventListener("blur", onBlur);
       restore(false);
     };
-  }, [canSeek, player, remote, sabrVideo, start, restore, isActive, playbackOnly]);
+  }, [canSeek, engine, start, restore, isActive, playbackOnly]);
 
   return holding;
 }
