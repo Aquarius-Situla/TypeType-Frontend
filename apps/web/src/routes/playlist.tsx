@@ -15,7 +15,7 @@ import { useSavedPlaylists } from "../hooks/use-saved-playlists";
 import { useScopedValue } from "../hooks/use-scoped-value";
 import { isBilibiliCollectionUrl } from "../lib/api-bilibili-channel-collections";
 import { randomShuffleSeed, shuffleByKey } from "../lib/playlist-shuffle";
-import { playlistListId, youtubePlaylistId } from "../lib/playlist-url";
+import { niconicoPlaylistUrl, playlistListId, youtubePlaylistId } from "../lib/playlist-url";
 import {
   buildLoadedStreamParamSet,
   isPublicBilibiliCollection,
@@ -34,7 +34,7 @@ function PublicPlaylistPage() {
     (list
       ? list.startsWith("http") || isBilibiliCollectionUrl(list)
         ? list
-        : `https://www.youtube.com/playlist?list=${list}`
+        : (niconicoPlaylistUrl(list) ?? `https://www.youtube.com/playlist?list=${list}`)
       : "");
   const listId =
     list ||

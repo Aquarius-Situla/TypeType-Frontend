@@ -1,6 +1,6 @@
 import { toCanonicalChannelRoute } from "./channel-route-url";
 import { canonicalYoutubeEmbed, externalPagePath } from "./external-page-link";
-import { youtubePlaylistId } from "./playlist-url";
+import { niconicoPlaylistParam, youtubePlaylistId } from "./playlist-url";
 import { twitchUrlTarget } from "./twitch-url";
 import { toPublicWatchParam, watchServiceId } from "./watch-url";
 
@@ -54,6 +54,8 @@ export function resolveInternalLink(href: string, options: { twitch: boolean }):
   if (playlist && LIST_ID.test(playlist)) {
     return `/playlist?${new URLSearchParams({ list: playlist }).toString()}`;
   }
+  const niconicoList = niconicoPlaylistParam(url.href);
+  if (niconicoList) return `/playlist?${new URLSearchParams({ list: niconicoList }).toString()}`;
   const channel = toCanonicalChannelRoute(url.href);
   if (channel) return `/channel/${channel.provider}/${channel.id}`;
   const twitch = options.twitch ? twitchUrlTarget(url.href) : null;

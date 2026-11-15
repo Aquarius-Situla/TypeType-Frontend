@@ -23,6 +23,13 @@ test("reroutes playlists and channels", () => {
   );
   expect(open("https://www.youtube.com/@SomeChannel")).toBe("/channel/youtube/@SomeChannel");
   expect(open("https://space.bilibili.com/12345")).toBe("/channel/bilibili/12345");
+  expect(open("https://www.nicovideo.jp/mylist/20661414")).toBe(
+    "/playlist?list=nicomylist.20661414",
+  );
+  expect(open("https://www.nicovideo.jp/user/123/mylist/20661414")).toBe(
+    "/playlist?list=nicomylist.20661414",
+  );
+  expect(open("https://www.nicovideo.jp/series/213751")).toBe("/playlist?list=nicoseries.213751");
   expect(open("https://www.youtube.com/@UCrPseYLGpNygVi34QpGNqpA")).toBe(
     "/channel/youtube/UCrPseYLGpNygVi34QpGNqpA",
   );
