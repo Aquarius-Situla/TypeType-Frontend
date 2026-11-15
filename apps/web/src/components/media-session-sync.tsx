@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import { usePlayerMedia } from "../lib/player-media";
 import { requestSabrVidstackPlayback } from "../lib/sabr-vidstack-bridge";
-import { useMediaRemote, useMediaState } from "../lib/vidstack";
 import { MediaSessionPositionSync } from "./media-session-position-sync";
 
 type Props = {
@@ -34,8 +34,8 @@ export function MediaSessionSync({
   onPreviousTrack,
   onNextTrack,
 }: Props) {
-  const remote = useMediaRemote();
-  const paused = useMediaState("paused");
+  const { paused, play, pause, seek } = usePlayerMedia();
+  const remote = useMemo(() => ({ play, pause, seek }), [play, pause, seek]);
   const currentTimeRef = useRef(0);
   const durationRef = useRef(0);
 

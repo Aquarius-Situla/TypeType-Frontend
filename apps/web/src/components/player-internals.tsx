@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { isIosDevice } from "../lib/ios-device";
+import { usePlayerMedia } from "../lib/player-media";
 import { seekSponsorBlockSegment } from "../lib/sponsorblock-seek";
 import { getSponsorBlockEndTime, getSponsorBlockStartTime } from "../lib/sponsorblock-settings";
 import {
@@ -48,19 +49,22 @@ export function SponsorBlockSkipper({
   segments: SponsorBlockSegmentItem[];
   muteInsteadOfSkip: boolean;
 }) {
-  const player = useMediaPlayer();
-  const remote = useMediaRemote();
-  const canPlay = useMediaState("canPlay");
+  const playerMedia = usePlayerMedia();
+  const root = playerMedia.root;
+  const remoteRef = useRef(playerMedia);
+  remoteRef.current = playerMedia;
   const activeMuteRef = useRef<string | null>(null);
   const pendingSkipRef = useRef<{ key: string; startTime: number; endTime: number } | null>(null);
   const skippedSegmentsRef = useRef<Set<string>>(new Set());
   const restoreMutedRef = useRef(false);
   const previousTimeRef = useRef<number | null>(null);
   useEffect(() => {
-    if (!canPlay) return;
-    const root = player?.el;
     if (!root) return;
     const rootElement = root;
+    const remote = {
+      pause: () => remoteRef.current.pause(),
+      seek: (seconds: number) => remoteRef.current.seek(seconds),
+    };
     let cleanup: (() => void) | null = null;
 
     function setMuted(media: HTMLMediaElement, value: boolean) {
@@ -182,6 +186,6 @@ export function SponsorBlockSkipper({
       observer.disconnect();
       cleanup?.();
     };
-  }, [canPlay, muteInsteadOfSkip, player, segments, remote]);
+  }, [muteInsteadOfSkip, root, segments]);
   return null;
 }
