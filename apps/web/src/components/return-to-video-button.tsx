@@ -1,15 +1,13 @@
-import { useNavigate } from "@tanstack/react-router";
 import { ArrowUpLeft } from "lucide-react";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
-import { usePersistentWatchPlayerStore } from "../hooks/use-persistent-watch-player";
+import { useReturnToVideo } from "../hooks/use-return-to-video";
 import { m } from "../paraglide/messages.js";
 
 export function ReturnToVideoButton() {
-  const navigate = useNavigate();
-  const entry = usePersistentWatchPlayerStore((state) => state.entry);
+  const back = useReturnToVideo();
   const { locale } = useInterfaceLocale();
   const label = m.player_return_to_video({}, { locale });
-  if (!entry) return null;
+  if (!back) return null;
 
   return (
     <button
@@ -18,11 +16,7 @@ export function ReturnToVideoButton() {
       title={label}
       onClick={(event) => {
         event.stopPropagation();
-        if (entry.attached && entry.anchor) {
-          window.scrollTo({ top: 0, behavior: "instant" });
-        } else {
-          void navigate({ href: entry.href, resetScroll: true });
-        }
+        back();
       }}
     >
       <ArrowUpLeft size={20} aria-hidden="true" />
