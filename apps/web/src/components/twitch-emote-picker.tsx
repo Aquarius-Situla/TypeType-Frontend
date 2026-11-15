@@ -46,7 +46,7 @@ function EmoteSection({ group, onPick }: { group: EmoteGroup; onPick: (name: str
       <h3 className="sticky top-0 bg-surface px-1 py-1 font-medium text-fg-muted text-xs">
         {groupLabel(group.id)}
       </h3>
-      <div className="grid grid-cols-7 gap-0.5">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(2.5rem,1fr))] gap-0.5">
         {shown.map((emote) => (
           <EmoteButton key={emote.name} emote={emote} onPick={onPick} />
         ))}
@@ -90,7 +90,7 @@ export function TwitchEmotePicker({ login, emotes, onPick }: Props) {
   }, [open]);
 
   return (
-    <div ref={rootRef} className="relative">
+    <div ref={rootRef}>
       <button
         type="button"
         aria-label={m.twitch_emotes_open()}
@@ -105,7 +105,7 @@ export function TwitchEmotePicker({ login, emotes, onPick }: Props) {
         <div
           role="dialog"
           aria-label={m.twitch_emotes_open()}
-          className="absolute right-0 bottom-full z-30 mb-2 flex max-h-80 w-80 max-w-[calc(100vw-2rem)] flex-col gap-2 rounded-xl border border-border bg-surface p-2 shadow-xl"
+          className="absolute inset-x-2 bottom-full z-30 mb-1 flex max-h-80 flex-col gap-2 rounded-xl border border-border bg-surface p-2 shadow-xl"
         >
           <input
             value={query}

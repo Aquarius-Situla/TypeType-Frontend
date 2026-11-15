@@ -108,7 +108,7 @@ export function TwitchChatComposer({ login, room, emotes }: Props) {
           )}
         </div>
       )}
-      <form onSubmit={submit} className="flex gap-2 p-2">
+      <form onSubmit={submit} className="relative flex gap-2 p-2">
         <input
           ref={inputRef}
           value={draft}
