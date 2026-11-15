@@ -1,0 +1,10 @@
+/* The default Video.js skin blurs the video behind its surfaces. Recomputing that blur over every decoded frame
+   dropped about a quarter of the frames of a 1080p YouTube video without a GPU (372 of 1409, against 12 without
+   it). The surfaces keep their translucent colour; the menus become opaque, as the skin does for reduced
+   transparency, so they stay readable without the blur. */
+[data-player-root] .media-skin {
+  --media-backdrop-filter-surface: none;
+  --media-backdrop-filter-indicator: none;
+  --media-backdrop-filter-dialog: none;
+  --media-popover: var(--media-background);
+}
