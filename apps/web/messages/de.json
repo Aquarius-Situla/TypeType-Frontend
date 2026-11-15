@@ -1998,7 +1998,6 @@
   "ad_credits_voices": "Stimmen",
   "ad_credits_music": "Musik",
   "ad_credits_sounds": "Geräusche",
-  "nav_twitch": "Twitch",
   "twitch_viewers": "{count} Zuschauer",
   "twitch_load_error": "Twitch konnte gerade nicht geladen werden.",
   "twitch_disabled": "Twitch ist auf dieser Instanz nicht aktiviert.",
@@ -2123,5 +2122,6 @@
   "player_quality_source": "Quelle (Originalqualität)",
   "player_start_with_sound_hint": "Irgendwo klicken, um mit Ton zu starten",
   "ui_device_login_expires_in": "Läuft in {time} ab",
-  "ui_twitch_see_lives": "Ein paar Lives ansehen"
+  "ui_twitch_see_lives": "Ein paar Lives ansehen",
+  "nav_live": "Live"
 }

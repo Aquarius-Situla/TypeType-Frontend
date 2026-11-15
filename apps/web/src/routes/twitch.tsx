@@ -62,7 +62,7 @@ function TwitchHome() {
       <header className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="flex items-center gap-2 font-semibold text-fg text-xl">
           <TwitchIcon className="h-6 w-6 text-[#9146ff]" />
-          {m.nav_twitch()}
+          {m.nav_live()}
         </h1>
         <div className="flex items-center gap-3">
           <TwitchSearchBox />

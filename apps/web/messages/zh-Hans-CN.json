@@ -1998,7 +1998,6 @@
   "ad_credits_voices": "配音",
   "ad_credits_music": "音乐",
   "ad_credits_sounds": "音效",
-  "nav_twitch": "Twitch",
   "twitch_viewers": "{count} 人观看",
   "twitch_load_error": "暂时无法加载 Twitch。",
   "twitch_disabled": "此实例未启用 Twitch。",
@@ -2123,5 +2122,6 @@
   "player_quality_source": "原画（原始画质）",
   "player_start_with_sound_hint": "点击任意位置开始有声播放",
   "ui_device_login_expires_in": "{time} 后过期",
-  "ui_twitch_see_lives": "去看直播"
+  "ui_twitch_see_lives": "去看直播",
+  "nav_live": "直播"
 }

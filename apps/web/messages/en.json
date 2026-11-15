@@ -1998,7 +1998,6 @@
   "ad_credits_voices": "Voices",
   "ad_credits_music": "Music",
   "ad_credits_sounds": "Sound effects",
-  "nav_twitch": "Twitch",
   "twitch_viewers": "{count} watching",
   "twitch_load_error": "Twitch could not be loaded right now.",
   "twitch_disabled": "Twitch is not enabled on this instance.",
@@ -2123,5 +2122,6 @@
   "player_quality_source": "Source (original quality)",
   "player_start_with_sound_hint": "Click anywhere to start with sound",
   "ui_device_login_expires_in": "Expires in {time}",
-  "ui_twitch_see_lives": "Go see some lives"
+  "ui_twitch_see_lives": "Go see some lives",
+  "nav_live": "Live"
 }
