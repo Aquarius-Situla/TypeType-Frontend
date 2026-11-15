@@ -1,6 +1,7 @@
 import { useServerResumeRetry } from "../hooks/use-server-resume-retry";
 import { useTwitchVideoPlayback } from "../hooks/use-twitch";
 import { useTwitchVodProgress } from "../hooks/use-twitch-vod-progress";
+import { TWITCH_STAGE_SIZE } from "../lib/twitch-stage-size";
 import type { TwitchVideoPlayback } from "../types/twitch";
 import { TwitchPlayer } from "./twitch-player";
 import { TwitchWatchHeading } from "./twitch-watch-heading";
@@ -11,7 +12,7 @@ type ResumableProps = { id: string; data: TwitchVideoPlayback; onError: () => vo
 function ResumablePlayer({ id, data, onError }: ResumableProps) {
   const progress = useTwitchVodProgress(id, data.video.lengthSeconds);
   if (!progress.ready)
-    return <div className="aspect-video w-full animate-pulse rounded-xl bg-surface-strong" />;
+    return <div className={`animate-pulse rounded-xl bg-surface-strong ${TWITCH_STAGE_SIZE}`} />;
   return (
     <TwitchPlayer
       target={{ v: id }}

@@ -3,6 +3,7 @@ import { usePersistentWatchPlayer } from "../hooks/use-persistent-watch-player";
 import { useSettings } from "../hooks/use-settings";
 import { useVolumeSync } from "../hooks/use-volume-sync";
 import { proxyImage } from "../lib/proxy";
+import { TWITCH_STAGE_SIZE } from "../lib/twitch-stage-size";
 import { type TwitchWatchTarget, twitchStreamId } from "../lib/twitch-stream-id";
 import { TwitchFullscreenChat } from "./twitch-fullscreen-chat";
 import type { WatchStagePlayerProps } from "./watch-stage-player";
@@ -99,7 +100,7 @@ export function TwitchPlayer({
   return (
     <div
       ref={persistent.anchorRef}
-      className="relative aspect-video w-full overflow-hidden rounded-xl bg-black"
+      className={`relative overflow-hidden rounded-xl bg-black ${TWITCH_STAGE_SIZE}`}
     >
       {children}
     </div>

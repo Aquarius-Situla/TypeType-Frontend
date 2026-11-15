@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useTwitchChannel, useTwitchChannelVideos } from "../hooks/use-twitch";
 import { proxyImage } from "../lib/proxy";
+import { TWITCH_STAGE_SIZE } from "../lib/twitch-stage-size";
 import { m } from "../paraglide/messages.js";
 import { TwitchVideoCard } from "./twitch-cards";
 import { TwitchFollowButton } from "./twitch-follow-button";
@@ -12,7 +13,9 @@ export function TwitchOfflineChannel({ login }: { login: string }) {
   const videos = useTwitchChannelVideos(login).items.slice(0, RECENT_VIDEOS);
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-6">
-      <div className="relative flex aspect-video w-full flex-col items-center justify-center gap-4 overflow-hidden rounded-xl bg-surface-strong p-6 text-center">
+      <div
+        className={`relative flex flex-col items-center justify-center gap-4 overflow-hidden rounded-xl bg-surface-strong p-6 text-center ${TWITCH_STAGE_SIZE}`}
+      >
         {channel?.bannerUrl && (
           <img
             src={proxyImage(channel.bannerUrl, "card")}
