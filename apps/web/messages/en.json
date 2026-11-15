@@ -2128,5 +2128,8 @@
   "twitch_tag_link": "See the lives tagged {tag}",
   "shell_videojs_locked_twitch": "Twitch always plays in the Video.js player",
   "twitch_chat_hide": "Hide the chat",
-  "twitch_chat_show": "Show the chat"
+  "twitch_chat_show": "Show the chat",
+  "player_subtitles": "Subtitles",
+  "danmaku_speed_label": "Danmaku speed",
+  "danmaku_size_label": "Danmaku size"
 }

@@ -2128,5 +2128,8 @@
   "twitch_tag_link": "查看带有 {tag} 标签的直播",
   "shell_videojs_locked_twitch": "Twitch 始终使用 Video.js 播放器播放",
   "twitch_chat_hide": "隐藏聊天",
-  "twitch_chat_show": "显示聊天"
+  "twitch_chat_show": "显示聊天",
+  "player_subtitles": "字幕",
+  "danmaku_speed_label": "弹幕速度",
+  "danmaku_size_label": "弹幕大小"
 }
