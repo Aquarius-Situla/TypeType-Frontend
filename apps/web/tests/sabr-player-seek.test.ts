@@ -89,3 +89,79 @@ test("forwards repeated SABR seeks immediately and tracks only the latest", asyn
   expect(flag.current).toBe(false);
   expect(states).toEqual([true, false]);
 });
+
+test("keeps seeking active across async seek recovery until the seek settles", async () => {
+  let resolveRecovery: (() => void) | null = null;
+  const reportedErrors: unknown[] = [];
+  const states: boolean[] = [];
+  const flag = { current: false };
+  const player = {
+    seek: () =>
+      new Promise<void>((resolve) => {
+        resolveRecovery = resolve;
+      }),
+  } as TypeTypeMsePlayer;
+
+  runSabrSeek(
+    player,
+    86_399,
+    flag,
+    (error) => reportedErrors.push(error),
+    (state) => states.push(state),
+  );
+
+  expect(flag.current).toBe(true);
+  expect(states).toEqual([true]);
+
+  resolveRecovery?.();
+  await Promise.resolve();
+  await Promise.resolve();
+
+  expect(flag.current).toBe(false);
+  expect(states).toEqual([true, false]);
+  expect(reportedErrors).toEqual([]);
+});
+
+test("forwards the latest seek failure to onError and drops superseded failures", async () => {
+  const rejectSeeks: Array<(error: unknown) => void> = [];
+  const reportedErrors: unknown[] = [];
+  const states: boolean[] = [];
+  const flag = { current: false };
+  const player = {
+    seek: () =>
+      new Promise<void>((_resolve, reject) => {
+        rejectSeeks.push(reject);
+      }),
+  } as TypeTypeMsePlayer;
+
+  runSabrSeek(
+    player,
+    60_000,
+    flag,
+    (error) => reportedErrors.push(error),
+    (state) => states.push(state),
+  );
+  runSabrSeek(
+    player,
+    86_399,
+    flag,
+    (error) => reportedErrors.push(error),
+    (state) => states.push(state),
+  );
+
+  rejectSeeks.shift()?.(new Error("superseded seek failure"));
+  await Promise.resolve();
+  await Promise.resolve();
+
+  expect(reportedErrors).toEqual([]);
+  expect(flag.current).toBe(true);
+
+  const finalError = new Error("latest seek failure");
+  rejectSeeks.shift()?.(finalError);
+  await Promise.resolve();
+  await Promise.resolve();
+
+  expect(reportedErrors).toEqual([finalError]);
+  expect(flag.current).toBe(false);
+  expect(states).toEqual([true, false]);
+});
