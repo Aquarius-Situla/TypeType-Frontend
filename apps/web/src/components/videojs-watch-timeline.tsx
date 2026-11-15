@@ -1,12 +1,17 @@
 import { Slider, selectTime, TimeSlider, usePlayer } from "@videojs/react";
+import { useState } from "react";
+import { adIsDue, readAdVault } from "../lib/ad-vault";
 import {
   getSponsorBlockCategoryColor,
   getSponsorBlockEndTime,
   getSponsorBlockStartTime,
 } from "../lib/sponsorblock-settings";
 import type { SponsorBlockSegmentItem } from "../types/api";
+import { AD_BREAK_COLOR } from "./sponsorblock-bar";
 
-function SponsorBlockLayer({ segments }: { segments: readonly SponsorBlockSegmentItem[] }) {
+type LayerProps = { segments: readonly SponsorBlockSegmentItem[]; adBreak: boolean };
+
+function SponsorBlockLayer({ segments, adBreak }: LayerProps) {
   const duration = usePlayer(selectTime)?.duration ?? 0;
   if (!Number.isFinite(duration) || duration <= 0) return null;
   return (
@@ -14,6 +19,12 @@ function SponsorBlockLayer({ segments }: { segments: readonly SponsorBlockSegmen
       aria-hidden="true"
       className="pointer-events-none absolute inset-x-0 top-1/2 h-1 -translate-y-1/2"
     >
+      {adBreak && (
+        <span
+          className="absolute inset-y-0 left-0 w-[max(8px,1%)]"
+          style={{ backgroundColor: AD_BREAK_COLOR }}
+        />
+      )}
       {segments.map((segment) => {
         const color = getSponsorBlockCategoryColor(segment.category);
         if (!color) return null;
@@ -42,6 +53,8 @@ export function VideoJsWatchTimeline({
 }: {
   segments?: readonly SponsorBlockSegmentItem[];
 }) {
+  // Ad mode only reads local storage, like the Vidstack bar: the mark shows the ad that plays before the video.
+  const [adBreak] = useState(() => adIsDue(readAdVault()));
   return (
     <TimeSlider.Root className="group/slider relative flex h-5 w-full cursor-pointer touch-none items-center outline-none">
       <TimeSlider.Chapters
@@ -58,7 +71,9 @@ export function VideoJsWatchTimeline({
           </div>
         )}
       />
-      {segments && segments.length > 0 && <SponsorBlockLayer segments={segments} />}
+      {((segments && segments.length > 0) || adBreak) && (
+        <SponsorBlockLayer segments={segments ?? []} adBreak={adBreak} />
+      )}
       <TimeSlider.Thumb className="absolute left-(--media-slider-fill) size-3.5 -translate-x-1/2 scale-50 rounded-full bg-(--media-accent-color,#ef4444) opacity-0 outline-none transition-[opacity,scale] duration-150 ease-out motion-reduce:transition-none focus-visible:scale-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-white/70 group-data-[pointing]/slider:scale-100 group-data-[pointing]/slider:opacity-100 group-data-[dragging]/slider:scale-100 group-data-[dragging]/slider:opacity-100" />
       <TimeSlider.Preview className="pointer-events-none absolute bottom-full mb-3 flex flex-col items-center gap-1 opacity-0 transition-opacity duration-100 motion-reduce:transition-none group-data-[pointing]/slider:opacity-100">
         <Slider.Thumbnail.Root className="overflow-hidden rounded-md bg-black shadow-lg ring-1 ring-white/20 [&:not(:has(img[src]))]:hidden">
