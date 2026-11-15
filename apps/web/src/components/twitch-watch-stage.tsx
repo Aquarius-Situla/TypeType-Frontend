@@ -12,11 +12,12 @@ function errorText(error: unknown): string {
   return m.twitch_load_error();
 }
 
-type Props = { loading: boolean; error: unknown; children?: ReactNode };
+type Props = { loading: boolean; error: unknown; ready: boolean; children?: ReactNode };
 
-export function TwitchWatchStage({ loading, error, children }: Props) {
-  if (error) return <TwitchWatchMessage text={errorText(error)} />;
-  if (loading || !children)
+// A failed refetch keeps what is already on screen: the stream does not go through the API that failed.
+export function TwitchWatchStage({ loading, error, ready, children }: Props) {
+  if (error && !ready) return <TwitchWatchMessage text={errorText(error)} />;
+  if (loading || !ready)
     return <div className="aspect-video w-full animate-pulse rounded-xl bg-surface-strong" />;
   return <div className="flex min-w-0 flex-1 flex-col gap-3">{children}</div>;
 }

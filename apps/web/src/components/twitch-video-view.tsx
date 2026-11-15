@@ -33,7 +33,7 @@ export function TwitchVideoView({ id }: { id: string }) {
   const { data, isLoading, error } = useTwitchVideoPlayback(id);
   const resume = useServerResumeRetry();
   return (
-    <TwitchWatchStage loading={isLoading} error={error}>
+    <TwitchWatchStage loading={isLoading} error={error} ready={data !== undefined}>
       {data && (
         <>
           <ResumablePlayer key={resume.retryKey} id={id} data={data} onError={resume.onError} />

@@ -9,7 +9,7 @@ export function TwitchClipView({ slug }: { slug: string }) {
   const source = data?.qualities[0]?.url;
   const resume = useServerResumeRetry();
   return (
-    <TwitchWatchStage loading={isLoading} error={error}>
+    <TwitchWatchStage loading={isLoading} error={error} ready={data !== undefined}>
       {data && source && (
         <>
           <TwitchPlayer

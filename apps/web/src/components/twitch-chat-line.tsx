@@ -27,6 +27,9 @@ function Badges({ ids, assets }: { ids: string[]; assets: ChatAssets }) {
         alt={badge.title}
         title={badge.title}
         loading="lazy"
+        onError={(event) => {
+          event.currentTarget.hidden = true;
+        }}
         className="mr-1 inline-block size-[18px] align-[-3px]"
       />
     );

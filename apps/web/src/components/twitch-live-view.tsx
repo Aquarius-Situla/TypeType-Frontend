@@ -31,7 +31,11 @@ export function TwitchLiveView({ login }: { login: string }) {
       {offline ? (
         <TwitchOfflineChannel login={login} />
       ) : (
-        <TwitchWatchStage loading={playback.isLoading} error={playback.error}>
+        <TwitchWatchStage
+          loading={playback.isLoading}
+          error={playback.error}
+          ready={data !== undefined}
+        >
           {data && (
             <TwitchPlayer
               target={{ c: login }}
