@@ -13,9 +13,9 @@ import { TwitchExternalLinkDialog } from "./twitch-external-link-dialog";
 
 const PANEL =
   "relative flex h-[28rem] flex-col overflow-hidden rounded-xl border border-border bg-surface lg:h-full";
-// Over the video the chat keeps dark colors whatever the theme, so it stays readable on any frame.
+// Over the video the chat has no backdrop: light text with a shadow, whatever the theme, stays readable on any frame.
 const OVERLAY =
-  "relative flex h-full flex-col overflow-hidden bg-black/45 backdrop-blur-md [--color-border-strong:rgb(255_255_255/0.2)] [--color-border:rgb(255_255_255/0.12)] [--color-fg-muted:rgb(244_244_245/0.75)] [--color-fg-soft:rgb(244_244_245/0.6)] [--color-fg:#f4f4f5] [--color-surface-strong:rgb(255_255_255/0.12)] [--color-surface:transparent]";
+  "relative flex h-full flex-col overflow-hidden [text-shadow:0_1px_2px_rgb(0_0_0/0.95),0_0_6px_rgb(0_0_0/0.6)] [--color-border-strong:rgb(255_255_255/0.2)] [--color-border:rgb(255_255_255/0.12)] [--color-fg-muted:rgb(244_244_245/0.75)] [--color-fg-soft:rgb(244_244_245/0.6)] [--color-fg:#f4f4f5] [--color-surface-strong:rgb(255_255_255/0.12)] [--color-surface:transparent]";
 
 type Props = { login: string; overlay?: boolean };
 
@@ -49,7 +49,9 @@ export function TwitchChat({ login, overlay = false }: Props) {
 
   return (
     <section aria-label={m.twitch_chat()} className={overlay ? OVERLAY : PANEL}>
-      <h2 className="flex items-center gap-2 border-border border-b px-3 py-2 font-semibold text-fg text-sm">
+      <h2
+        className={`flex items-center gap-2 border-border border-b px-3 py-2 font-semibold text-fg text-sm ${overlay ? "sr-only" : ""}`}
+      >
         {m.twitch_chat()}
         {status === "reconnecting" && (
           <span role="status" className="font-normal text-fg-muted text-xs">
