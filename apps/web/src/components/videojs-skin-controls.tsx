@@ -110,7 +110,7 @@ export function SkinFrame({ children, style }: { children: ReactNode; style?: CS
   return (
     <Container
       style={style}
-      className="relative block overflow-hidden rounded-(--media-border-radius) bg-black text-white fullscreen:rounded-none"
+      className="relative block overflow-hidden rounded-(--media-border-radius) bg-black text-white outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-inset fullscreen:rounded-none"
     >
       {children}
       <BufferingIndicator className="pointer-events-none absolute inset-0 z-10 hidden place-content-center data-[visible]:grid">
