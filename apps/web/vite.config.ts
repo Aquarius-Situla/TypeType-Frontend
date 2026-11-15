@@ -7,6 +7,7 @@ import { defineConfig, loadEnv } from "vite";
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const apiTarget = env.VITE_DEV_PROXY_TARGET ?? "http://localhost:8080";
+  const liveTarget = env.VITE_DEV_LIVE_PROXY_TARGET ?? "http://localhost:8090";
 
   return {
     plugins: [
@@ -52,6 +53,10 @@ export default defineConfig(({ mode }) => {
         },
         "/proxy": {
           target: apiTarget,
+        },
+        "/live/hls": {
+          target: liveTarget,
+          rewrite: (path) => path.replace(/^\/live/, ""),
         },
         "/streams/hls-manifest": {
           target: apiTarget,
