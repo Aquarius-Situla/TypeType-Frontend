@@ -1,0 +1,10 @@
+/* Video.js leaves subtitles to the browser. The caption style a viewer picked (lib/caption-styles writes it as
+   --media-user-* variables on the player) is applied to those native cues. */
+[data-player-root] video::cue {
+  font-family: var(--media-user-font-family, inherit);
+  font-variant: var(--media-user-font-variant, normal);
+  font-size: calc(var(--media-user-font-size, 1) * 1em);
+  color: var(--media-user-text-color, rgb(255 255 255));
+  background-color: var(--media-user-text-bg, rgb(0 0 0 / 0.8));
+  text-shadow: var(--media-user-text-shadow, none);
+}

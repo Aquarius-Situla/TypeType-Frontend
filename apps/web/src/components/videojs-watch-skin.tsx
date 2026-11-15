@@ -1,6 +1,7 @@
 import { Controls, ErrorDialog, Gesture, Hotkey, Time } from "@videojs/react";
 import { type CSSProperties, createContext, type ReactNode, useContext } from "react";
 import type { SponsorBlockSegmentItem } from "../types/api";
+import type { CaptionStyles } from "../types/user";
 import {
   SKIN_HIDDEN_WHEN_IDLE,
   SkinFrame,
@@ -23,6 +24,8 @@ export type WatchSkinOptions = {
   segments?: readonly SponsorBlockSegmentItem[];
   danmaku: boolean;
   autoplay: boolean;
+  captionStyles?: CaptionStyles;
+  onCaptionStylesChange?: (styles: CaptionStyles) => void;
   onPrevious?: () => void;
   onNext?: () => void;
 };
@@ -74,7 +77,11 @@ export function VideoJsWatchSkin({
             <div aria-hidden="true" className="flex-1" />
             <Controls.Group data-skin-secondary="" className="flex items-center">
               <SkinCaptionsButton />
-              <VideoJsWatchSettings danmaku={options.danmaku} />
+              <VideoJsWatchSettings
+                danmaku={options.danmaku}
+                captionStyles={options.captionStyles}
+                onCaptionStylesChange={options.onCaptionStylesChange}
+              />
               <SkinCinemaButton />
               <SkinWebFullscreenButton />
               <SkinPipButton />

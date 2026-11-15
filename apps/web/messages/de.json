@@ -2131,5 +2131,10 @@
   "twitch_chat_show": "Chat einblenden",
   "player_subtitles": "Untertitel",
   "danmaku_speed_label": "Danmaku-Geschwindigkeit",
-  "danmaku_size_label": "Danmaku-Größe"
+  "danmaku_size_label": "Danmaku-Größe",
+  "player_caption_size": "Untertitelgröße",
+  "player_caption_color": "Untertitelfarbe",
+  "player_caption_background": "Untertitelhintergrund",
+  "player_color_yellow": "Gelb",
+  "player_color_cyan": "Cyan"
 }

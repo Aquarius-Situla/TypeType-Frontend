@@ -16,6 +16,7 @@ import { BAR_BUTTON, BAR_MENU_POPUP } from "../lib/videojs-menu-classes";
 import { m } from "../paraglide/messages.js";
 import { useDanmakuStore } from "../stores/danmaku-store";
 import { useSabrAudioStore } from "../stores/sabr-audio-store";
+import type { CaptionStyles } from "../types/user";
 import { type MenuOption, MenuSection } from "./videojs-menu-section";
 
 const ON = "on";
@@ -113,7 +114,51 @@ function DanmakuSections() {
   );
 }
 
-export function VideoJsWatchSettings({ danmaku }: { danmaku: boolean }) {
+const CAPTION_SIZES = ["50%", "75%", "100%", "150%", "200%"] as const;
+const CAPTION_BACKGROUNDS = ["0%", "50%", "75%", "100%"] as const;
+
+type CaptionStyleProps = { styles: CaptionStyles; onChange: (styles: CaptionStyles) => void };
+
+// The caption style picker of the Vidstack menu, reduced to what native cues can show: size, colour and background.
+function CaptionStyleSections({ styles, onChange }: CaptionStyleProps) {
+  const set = (key: keyof CaptionStyles) => (value: string) =>
+    onChange({ ...styles, [key]: value });
+  return (
+    <>
+      <MenuSection
+        label={m.player_caption_size()}
+        value={styles.fontSize || "100%"}
+        options={CAPTION_SIZES.map((size) => option(size, size))}
+        onChange={set("fontSize")}
+      />
+      <MenuSection
+        label={m.player_caption_color()}
+        value={styles.textColor || "#ffffff"}
+        options={[
+          option("#ffffff", m.player_color_white()),
+          option("#ffff00", m.player_color_yellow()),
+          option("#00ffff", m.player_color_cyan()),
+          option("#00ff00", m.player_color_green()),
+        ]}
+        onChange={set("textColor")}
+      />
+      <MenuSection
+        label={m.player_caption_background()}
+        value={styles.textBgOpacity || "100%"}
+        options={CAPTION_BACKGROUNDS.map((opacity) => option(opacity, opacity))}
+        onChange={set("textBgOpacity")}
+      />
+    </>
+  );
+}
+
+type Props = {
+  danmaku: boolean;
+  captionStyles?: CaptionStyles;
+  onCaptionStylesChange?: (styles: CaptionStyles) => void;
+};
+
+export function VideoJsWatchSettings({ danmaku, captionStyles, onCaptionStylesChange }: Props) {
   const quality = useQualityOptions({
     formatRendition: (rendition) =>
       isSourceRendition(rendition)
@@ -158,6 +203,13 @@ export function VideoJsWatchSettings({ danmaku }: { danmaku: boolean }) {
               onChange={captions.setValue}
             />
           )}
+          {captions &&
+            !captions.hidden &&
+            captions.options.length > 1 &&
+            captionStyles &&
+            onCaptionStylesChange && (
+              <CaptionStyleSections styles={captionStyles} onChange={onCaptionStylesChange} />
+            )}
           <MenuSection
             label={m.player_loop()}
             value={loop.value}

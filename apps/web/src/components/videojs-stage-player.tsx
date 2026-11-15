@@ -38,6 +38,8 @@ export function VideoJsStagePlayer(props: Props) {
         onPreviousVideo={props.onPreviousVideo}
         onNextVideo={props.onNextVideo}
         thumbnailVtt={props.thumbnailVtt}
+        captionStyles={props.settings.captionStyles}
+        onCaptionStylesChange={props.onCaptionStylesChange}
         chaptersVtt={props.chaptersVtt}
         initialVolume={props.settings.volume}
         initialMuted={props.settings.muted}

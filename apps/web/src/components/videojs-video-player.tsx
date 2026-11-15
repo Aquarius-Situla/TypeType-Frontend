@@ -3,6 +3,7 @@ import { VideoPlayer } from "@videojs/react/video";
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { usePolicyMutedSave } from "../hooks/use-policy-muted-save";
+import { applyCaptionStyles } from "../lib/caption-styles";
 import type { VideoJsSource } from "../lib/video-js-source";
 import { AudioCenterToggle } from "./audio-center-toggle";
 import { AudioOnlyPoster } from "./audio-only-poster";
@@ -58,11 +59,17 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
   const { policyMuted, saveVolume } = usePolicyMutedSave(props.onVolumeChange);
   const live = streamType === "live";
   const Player = live ? VideoJsLivePlayer : VideoPlayer;
+  const captionStyles = props.captionStyles;
+  useEffect(() => {
+    if (root && captionStyles) applyCaptionStyles(root, captionStyles);
+  }, [root, captionStyles]);
   const Skin = live ? VideoJsLiveSkin : props.ownSkin ? VideoJsVodSkin : VideoJsWatchSkin;
   const watchOptions = {
     segments: props.sponsorBlockSegments,
     danmaku: props.provider === "bilibili" || props.provider === "nicovideo",
     autoplay,
+    captionStyles: props.captionStyles,
+    onCaptionStylesChange: props.onCaptionStylesChange,
     onPrevious: props.onPreviousVideo,
     onNext: props.onNextVideo,
   };

@@ -2131,5 +2131,10 @@
   "twitch_chat_show": "显示聊天",
   "player_subtitles": "字幕",
   "danmaku_speed_label": "弹幕速度",
-  "danmaku_size_label": "弹幕大小"
+  "danmaku_size_label": "弹幕大小",
+  "player_caption_size": "字幕大小",
+  "player_caption_color": "字幕颜色",
+  "player_caption_background": "字幕背景",
+  "player_color_yellow": "黄色",
+  "player_color_cyan": "青色"
 }
