@@ -2120,8 +2120,8 @@
   "twitch_emotes_empty": "Aucune emote trouvée",
   "twitch_emotes_show_all": "Tout afficher ({count})",
   "player_quality_source": "Source (qualité d'origine)",
-  "player_start_with_sound_hint": "Cliquez n'importe où pour lancer avec le son",
   "ui_device_login_expires_in": "Expire dans {time}",
   "ui_twitch_see_lives": "Voir des lives",
-  "nav_live": "Live"
+  "nav_live": "Live",
+  "player_unmute_hint": "Cliquez pour activer le son"
 }

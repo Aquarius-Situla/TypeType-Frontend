@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePolicyMutedSave } from "../hooks/use-policy-muted-save";
 import { useSabrPlayerState } from "../hooks/use-sabr-player-state";
 import { BILIBILI_FLV_VIDEO_PROVIDER_LOADERS } from "../lib/bilibili-flv-loader";
 import { isIosDevice } from "../lib/ios-device";
@@ -98,6 +99,7 @@ export function VideoPlayer({
 
   const sabrState = useSabrPlayerState(Boolean(sabrConfig), handleProviderChange);
   const audioPosterVisible = audioOnly || sabrState.modeSwitching;
+  const { policyMuted, saveVolume } = usePolicyMutedSave(onVolumeChange);
   const [autoplayBlocked, setAutoplayBlocked] = useState(0);
   const onAutoplayBlocked = useCallback(() => setAutoplayBlocked((count) => count + 1), []);
   useEffect(
@@ -147,7 +149,7 @@ export function VideoPlayer({
             initialVolume={initialVolume}
             initialMuted={initialMuted}
             settingsReady={settingsReady}
-            onVolumeChange={onVolumeChange}
+            onVolumeChange={saveVolume}
             onAutoplayBlocked={onAutoplayBlocked}
             onError={onError ?? (() => undefined)}
             onSeekStateChange={sabrState.setSeeking}
@@ -170,7 +172,7 @@ export function VideoPlayer({
           onEnded={handleEnded}
           onPositionReaderChange={onPositionReaderChange}
         />
-        <VidstackStartWithSound blocked={autoplayBlocked} />
+        <VidstackStartWithSound blocked={autoplayBlocked} policyMuted={policyMuted} />
         {overlay}
         <VideoPlayerLayout
           audioOnly={audioOnly}
@@ -192,7 +194,7 @@ export function VideoPlayer({
           initialVolume={initialVolume}
           initialMuted={initialMuted}
           settingsReady={settingsReady}
-          onVolumeChange={onVolumeChange}
+          onVolumeChange={saveVolume}
         />
         {captionStyles && onCaptionStylesChange && (
           <CaptionStyleRestorer

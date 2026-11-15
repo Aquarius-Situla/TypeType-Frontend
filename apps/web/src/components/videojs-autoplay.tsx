@@ -1,16 +1,18 @@
-import { selectPlayback, usePlayer } from "@videojs/react";
-import { useEffect, useRef, useState } from "react";
+import { selectPlayback, selectVolume, usePlayer } from "@videojs/react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 import { isAutoplayPolicyError } from "../lib/sabr-autoplay";
 import { StartWithSound } from "./start-with-sound";
 
 type Props = {
   enabled: boolean;
   blocked: number;
+  policyMuted: RefObject<boolean>;
 };
 
-export function VideoJsAutoplay({ enabled, blocked }: Props) {
+export function VideoJsAutoplay({ enabled, blocked, policyMuted }: Props) {
   const store = usePlayer();
   const playback = usePlayer(selectPlayback);
+  const volume = usePlayer(selectVolume);
   const playbackRef = useRef(playback);
   playbackRef.current = playback;
   const attempted = useRef(false);
@@ -38,7 +40,10 @@ export function VideoJsAutoplay({ enabled, blocked }: Props) {
     <StartWithSound
       blocked={blocked + refused}
       paused={playback?.paused}
+      muted={volume?.muted}
+      policyMuted={policyMuted}
       play={() => playbackRef.current?.play()}
+      setMuted={(next) => volume?.setMuted(next)}
     />
   );
 }
