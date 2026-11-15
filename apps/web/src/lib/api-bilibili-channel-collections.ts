@@ -165,6 +165,30 @@ export function isBilibiliCollectionUrl(url: string): boolean {
   );
 }
 
+export function isBilibiliSeriesUrl(url: string): boolean {
+  if (!url) return false;
+  const parsed = parseBilibiliCollectionParams(url);
+  if (parsed) return parsed.kind === "series";
+  return (
+    url.startsWith("bilibili:series:") ||
+    url.startsWith("series:") ||
+    url.includes("business=space_series") ||
+    url.includes("/channel/seriesdetail")
+  );
+}
+
+export function isBilibiliSeasonUrl(url: string): boolean {
+  if (!url) return false;
+  const parsed = parseBilibiliCollectionParams(url);
+  if (parsed) return parsed.kind === "season";
+  return (
+    url.startsWith("bilibili:season:") ||
+    url.startsWith("season:") ||
+    url.includes("business=space_collection") ||
+    url.includes("/channel/collectiondetail")
+  );
+}
+
 export function parseBilibiliCollectionParams(url: string): {
   kind: "season" | "series";
   mid: string;

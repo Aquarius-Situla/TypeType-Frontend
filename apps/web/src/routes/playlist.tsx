@@ -16,6 +16,12 @@ import { useScopedValue } from "../hooks/use-scoped-value";
 import { isBilibiliCollectionUrl } from "../lib/api-bilibili-channel-collections";
 import { randomShuffleSeed, shuffleByKey } from "../lib/playlist-shuffle";
 import { playlistListId, youtubePlaylistId } from "../lib/playlist-url";
+import {
+  buildLoadedStreamParamSet,
+  isPublicBilibiliCollection,
+  resolvePublicPlaylistStreams,
+  shouldEnablePublicPlaylistPagination,
+} from "../lib/public-playlist-view";
 import { markWatchAutoplayIntent } from "../lib/watch-autoplay-intent";
 import { toPublicWatchParam } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
@@ -33,40 +39,59 @@ function PublicPlaylistPage() {
     list ||
     playlistListId(playlistUrl) ||
     (isBilibiliCollectionUrl(playlistUrl) ? playlistUrl : undefined);
-  const { data, isLoading, isError, isFetchingNextPage, hasNextPage, fetchNextPage } =
-    usePublicPlaylist(playlistUrl);
+  const {
+    data,
+    isLoading,
+    isError,
+    isFetchingNextPage,
+    isFetchNextPageError,
+    hasNextPage,
+    fetchNextPage,
+  } = usePublicPlaylist(playlistUrl);
   const savedPlaylists = useSavedPlaylists();
   const { filter } = useBlockedFilter();
   const navigate = useNavigate();
   const [toast, setToast] = useState<string | null>(null);
   const saved = savedPlaylists.findSaved(playlistUrl);
-  const streams = useMemo(
-    () => filter((data?.pages ?? []).flatMap((p) => p.streams)),
-    [filter, data],
-  );
+  const rawStreams = useMemo(() => (data?.pages ?? []).flatMap((p) => p.streams), [data]);
+  const streams = useMemo(() => filter(rawStreams), [filter, rawStreams]);
+  const loadedStreamParams = useMemo(() => buildLoadedStreamParamSet(rawStreams), [rawStreams]);
 
   const info = data?.pages[0]?.playlist;
-  const isCollection = isBilibiliCollectionUrl(playlistUrl) || info?.playlistType === "collection";
+  const isCollection = isPublicBilibiliCollection(playlistUrl, info?.playlistType);
 
   const [activeSectionId, setActiveSectionId] = useScopedValue<string | null>(playlistUrl, null);
   const collectionMeta = usePlaylistCollectionMeta(
     playlistUrl,
     isCollection,
     info?.title ?? "",
-    streams,
+    rawStreams,
+    info?.streamCount,
   );
   const sections =
     isCollection && collectionMeta?.sections && collectionMeta.sections.length > 1
       ? collectionMeta.sections
       : undefined;
   const activeSection = sections?.find((sec) => sec.id === activeSectionId);
-  const visibleStreams = useMemo(() => {
-    if (!activeSection) return streams;
-    const urlSet = new Set(activeSection.videoUrls.map((u) => toPublicWatchParam(u)));
-    return streams.filter(
-      (s) => urlSet.has(toPublicWatchParam(s.id)) || activeSection.videoUrls.includes(s.id),
-    );
-  }, [streams, activeSection]);
+
+  const visibleStreams = useMemo(
+    () =>
+      resolvePublicPlaylistStreams({
+        streams,
+        activeSection,
+        info,
+        filter,
+      }),
+    [streams, activeSection, info, filter],
+  );
+
+  const totalEpisodesCount = useMemo(() => {
+    if (info?.streamCount && info.streamCount > 0) return info.streamCount;
+    if (sections && sections.length > 0) {
+      return sections.reduce((acc, s) => acc + (s.episodes?.length ?? s.videoUrls.length), 0);
+    }
+    return streams.length;
+  }, [info?.streamCount, sections, streams.length]);
 
   const loadMore = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) fetchNextPage();
@@ -80,7 +105,7 @@ function PublicPlaylistPage() {
 
   if (!playlistUrl) return <p className="text-fg-muted text-sm">{m.ui_no_playlist_selected()}</p>;
   if (isLoading) return <VideoGridSkeleton idPrefix="public-playlist" />;
-  if (isError || !data) {
+  if ((isError && !data) || (!isLoading && !data)) {
     return (
       <div className="flex flex-col items-center justify-center py-32 gap-2 text-center">
         <p className="text-fg-muted text-sm">{m.ui_this_playlist_could_not_be_loaded()}</p>
@@ -155,8 +180,7 @@ function PublicPlaylistPage() {
           sections={sections}
           activeSectionId={activeSectionId}
           onSelectSection={setActiveSectionId}
-          totalCount={streams.length}
-          videoUrls={streams.map((s) => s.id)}
+          totalCount={totalEpisodesCount}
         />
       )}
 
@@ -166,7 +190,32 @@ function PublicPlaylistPage() {
         <VideoGrid streams={visibleStreams} listId={listId} />
       )}
       {isFetchingNextPage && <VideoGridSkeleton idPrefix="public-playlist-next" />}
-      <ScrollSentinel onIntersect={loadMore} enabled={!!hasNextPage && !isFetchingNextPage} />
+      {isFetchNextPageError && (
+        <div
+          role="alert"
+          className="flex flex-wrap items-center justify-center gap-3 py-4 text-fg-muted text-sm"
+        >
+          <p>{m.subscriptions_feed_next_page_error()}</p>
+          <button
+            type="button"
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+            className="min-h-9 rounded-lg border border-border-strong px-3 text-fg text-xs transition-colors hover:bg-surface-strong disabled:opacity-40"
+          >
+            {m.ui_retry()}
+          </button>
+        </div>
+      )}
+      <ScrollSentinel
+        onIntersect={loadMore}
+        enabled={shouldEnablePublicPlaylistPagination({
+          activeSection,
+          loadedStreamParams,
+          hasNextPage,
+          isFetchingNextPage,
+          isFetchNextPageError,
+        })}
+      />
       <Toast message={toast} />
     </div>
   );
