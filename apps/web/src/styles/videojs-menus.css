@@ -2,7 +2,7 @@
    --media-menu-height, every panel sits at the top of the popup, an opening submenu slides in from the side while the
    list slides out, and the popup resizes in the same 250 ms, so switching panels is one movement instead of a jump. */
 .typetype-settings-menu {
-  width: max(var(--media-menu-width, 15rem), 15rem);
+  width: max(var(--media-menu-width, 20rem), 20rem);
   height: var(--media-menu-height, auto);
   max-height: min(var(--media-menu-available-height, 24rem), 24rem);
   overflow: hidden;

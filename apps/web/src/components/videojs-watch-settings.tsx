@@ -12,7 +12,6 @@ import {
   ALargeSmall,
   AudioLines,
   Captions,
-  Check,
   Film,
   Gauge,
   MessageSquareText,
@@ -24,7 +23,6 @@ import {
   Type,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { DEFAULT_PLAYBACK_SPEED_OPTIONS, playbackSpeedLabel } from "../lib/playback-speed";
 import { isSourceRendition, qualityOptionsBestFirst } from "../lib/video-js-quality-order";
 import { BAR_BUTTON, BAR_MENU_ITEM, BAR_MENU_POPUP } from "../lib/videojs-menu-classes";
 import { m } from "../paraglide/messages.js";
@@ -32,7 +30,14 @@ import { useDanmakuStore } from "../stores/danmaku-store";
 import { useSabrAudioStore } from "../stores/sabr-audio-store";
 import type { CaptionStyles } from "../types/user";
 import { useFormatSection } from "./videojs-format-section";
-import { MenuGroupSubmenu, type MenuOption, MenuSubmenu, RowLabel } from "./videojs-menu-section";
+import {
+  MenuGroupSubmenu,
+  type MenuOption,
+  MenuSubmenu,
+  MenuSwitch,
+  RowLabel,
+} from "./videojs-menu-section";
+import { VideoJsSpeedPanel } from "./videojs-speed-panel";
 
 const ON = "on";
 const OFF = "off";
@@ -41,16 +46,10 @@ const DANMAKU_SIZES = ["0.8", "1", "1.25"] as const;
 
 const option = (value: string, label: string): MenuOption => ({ value, label, disabled: false });
 
-function useSpeedSection() {
+function useSpeedValue(): string | null {
   const rate = usePlayer(selectPlaybackRate);
   if (rate?.playbackRateAvailability !== "available") return null;
-  return {
-    value: String(rate.playbackRate),
-    options: DEFAULT_PLAYBACK_SPEED_OPTIONS.map((speed) =>
-      option(String(speed), playbackSpeedLabel(speed)),
-    ),
-    onChange: (value: string) => rate.setPlaybackRate(Number(value)),
-  };
+  return String(rate.playbackRate);
 }
 
 // YouTube audio languages come from the SABR stream, which Video.js does not see as audio tracks.
@@ -210,7 +209,7 @@ function WatchSettingsRows({ danmaku, captionStyles, onCaptionStylesChange }: Pr
   });
   const renditions = usePlayer(selectQuality)?.videoRenditionList;
   const format = useFormatSection();
-  const speed = useSpeedSection();
+  const speed = useSpeedValue();
   const audio = useAudioSection();
   const captions = useCaptionsOptions();
   const loop = useLoop();
@@ -227,7 +226,15 @@ function WatchSettingsRows({ danmaku, captionStyles, onCaptionStylesChange }: Pr
         />
       )}
       {format && <MenuSubmenu icon={Film} label={m.player_format()} {...format} />}
-      {speed && <MenuSubmenu icon={Gauge} label={m.player_speed()} {...speed} />}
+      {speed && (
+        <MenuGroupSubmenu
+          icon={Gauge}
+          label={m.player_speed()}
+          hint={speed === "1" ? m.player_normal() : `${speed}x`}
+        >
+          <VideoJsSpeedPanel />
+        </MenuGroupSubmenu>
+      )}
       {audio && <MenuSubmenu icon={AudioLines} label={m.player_audio()} {...audio} />}
       {captions && !captions.hidden && captions.options.length > 1 && (
         <MenuSubmenu
@@ -250,12 +257,10 @@ function WatchSettingsRows({ danmaku, captionStyles, onCaptionStylesChange }: Pr
       <Menu.CheckboxItem
         checked={loop.value === ON}
         onCheckedChange={(checked: boolean) => loop.onChange(checked ? ON : OFF)}
-        className={BAR_MENU_ITEM}
+        className={`${BAR_MENU_ITEM} min-h-12`}
       >
         <RowLabel icon={Repeat} label={m.player_loop()} />
-        <Menu.ItemIndicator checked={loop.value === ON}>
-          <Check className="size-4" aria-hidden="true" />
-        </Menu.ItemIndicator>
+        <MenuSwitch on={loop.value === ON} />
       </Menu.CheckboxItem>
       {danmaku && (
         <MenuGroupSubmenu icon={MessageSquareText} label={m.ui_danmaku()}>

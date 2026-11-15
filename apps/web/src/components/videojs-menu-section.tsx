@@ -16,9 +16,23 @@ type SubmenuProps = SectionProps & { icon: LucideIcon };
 
 export function RowLabel({ icon: Icon, label }: { icon: LucideIcon; label: string }) {
   return (
-    <span className="flex items-center gap-3">
-      <Icon className="size-[1.125rem] shrink-0 text-white/80" aria-hidden="true" />
+    <span className="flex items-center gap-4">
+      <Icon className="size-6 shrink-0" strokeWidth={1.75} aria-hidden="true" />
       <span>{label}</span>
+    </span>
+  );
+}
+
+// The on and off switch of a settings row, as in the YouTube settings.
+export function MenuSwitch({ on }: { on: boolean }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`relative h-5 w-9 shrink-0 rounded-full transition-colors duration-200 motion-reduce:transition-none ${on ? "bg-(--media-accent-color,#ef4444)" : "bg-white/25"}`}
+    >
+      <span
+        className={`absolute top-0.5 left-0.5 size-4 rounded-full bg-white shadow transition-transform duration-200 motion-reduce:transition-none ${on ? "translate-x-4" : ""}`}
+      />
     </span>
   );
 }
@@ -29,7 +43,7 @@ export function MenuSubmenu({ icon, label, value, options, onChange }: SubmenuPr
   const current = options.find((option) => option.value === value)?.label ?? "";
   return (
     <Menu.Root>
-      <Menu.Trigger className={BAR_MENU_ITEM}>
+      <Menu.Trigger className={`${BAR_MENU_ITEM} min-h-12`}>
         <RowLabel icon={icon} label={label} />
         <span className="ml-auto flex items-center gap-1 text-white/60">
           <span className="max-w-28 truncate">{current}</span>
@@ -68,7 +82,7 @@ type GroupProps = { icon: LucideIcon; label: string; hint?: string; children: Re
 export function MenuGroupSubmenu({ icon, label, hint, children }: GroupProps) {
   return (
     <Menu.Root>
-      <Menu.Trigger className={BAR_MENU_ITEM}>
+      <Menu.Trigger className={`${BAR_MENU_ITEM} min-h-12`}>
         <RowLabel icon={icon} label={label} />
         <span className="ml-auto flex items-center gap-1 text-white/60">
           {hint && <span className="max-w-28 truncate">{hint}</span>}
