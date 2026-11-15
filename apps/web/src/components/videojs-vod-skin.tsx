@@ -16,12 +16,12 @@ const SEEK_JUMP = 10;
 
 function Timeline() {
   return (
-    <TimeSlider.Root className="group/slider relative flex h-5 w-full cursor-pointer items-center outline-none">
-      <TimeSlider.Track className="relative h-1 w-full overflow-hidden rounded-full bg-white/25 transition-[height] group-data-[pointing]/slider:h-1.5">
+    <TimeSlider.Root className="group/slider relative flex h-5 w-full cursor-pointer touch-none items-center outline-none">
+      <TimeSlider.Track className="relative h-1 w-full overflow-hidden rounded-full bg-white/25 transition-[height] motion-reduce:transition-none group-data-[pointing]/slider:h-1.5">
         <TimeSlider.Buffer className="absolute inset-y-0 left-0 w-(--media-slider-buffer) bg-white/40" />
         <TimeSlider.Fill className="absolute inset-y-0 left-0 w-(--media-slider-fill) bg-(--media-accent-color,white)" />
       </TimeSlider.Track>
-      <TimeSlider.Thumb className="absolute left-(--media-slider-fill) size-3 -translate-x-1/2 rounded-full bg-white opacity-0 outline-none transition-opacity focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-white/70 group-data-[pointing]/slider:opacity-100 group-data-[dragging]/slider:opacity-100" />
+      <TimeSlider.Thumb className="absolute left-(--media-slider-fill) size-3 -translate-x-1/2 rounded-full bg-white opacity-0 outline-none transition-opacity motion-reduce:transition-none focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-white/70 group-data-[pointing]/slider:opacity-100 group-data-[dragging]/slider:opacity-100" />
       <TimeSlider.Preview className="pointer-events-none absolute bottom-full left-(--media-slider-pointer) mb-2 -translate-x-1/2 rounded bg-black/85 px-1.5 py-0.5 text-xs tabular-nums opacity-0 group-data-[pointing]/slider:opacity-100">
         <TimeSlider.Value type="pointer" />
       </TimeSlider.Preview>
@@ -42,7 +42,7 @@ export function VideoJsVodSkin({
       <SkinPoster />
       <Controls.Root>
         <Controls.Content
-          className={`absolute inset-x-0 bottom-0 z-20 flex flex-col bg-linear-to-t from-black/80 to-transparent px-2 pt-8 pb-2 ${SKIN_HIDDEN_WHEN_IDLE}`}
+          className={`absolute inset-x-0 bottom-0 z-20 flex flex-col bg-linear-to-t from-black/80 to-transparent px-2 pt-8 pb-2 contrast-more:from-black/95 [@media(prefers-reduced-transparency:reduce)]:bg-black/90 ${SKIN_HIDDEN_WHEN_IDLE}`}
         >
           <div className="px-2">
             <Timeline />

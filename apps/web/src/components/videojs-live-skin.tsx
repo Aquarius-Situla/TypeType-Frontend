@@ -42,7 +42,7 @@ export function VideoJsLiveSkin({
       <SkinPoster />
       <Controls.Root>
         <Controls.Content
-          className={`absolute inset-x-0 bottom-0 z-20 flex items-center gap-1 bg-linear-to-t from-black/80 to-transparent px-2 pt-8 pb-2 ${SKIN_HIDDEN_WHEN_IDLE}`}
+          className={`absolute inset-x-0 bottom-0 z-20 flex items-center gap-1 bg-linear-to-t from-black/80 to-transparent px-2 pt-8 pb-2 contrast-more:from-black/95 [@media(prefers-reduced-transparency:reduce)]:bg-black/90 ${SKIN_HIDDEN_WHEN_IDLE}`}
         >
           <Controls.Group className="flex min-w-0 items-center">
             <SkinPlayButton />

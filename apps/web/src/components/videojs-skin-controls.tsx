@@ -26,7 +26,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { BAR_BUTTON } from "../lib/videojs-menu-classes";
 
 export const SKIN_HIDDEN_WHEN_IDLE =
-  "transition-opacity duration-200 [&:not([data-visible]):not(:has(:focus-visible))]:pointer-events-none [&:not([data-visible]):not(:has(:focus-visible))]:opacity-0";
+  "transition-opacity duration-200 motion-reduce:transition-none [&:not([data-visible]):not(:has(:focus-visible))]:pointer-events-none [&:not([data-visible]):not(:has(:focus-visible))]:opacity-0";
 
 const ICON = "size-5";
 
@@ -66,7 +66,7 @@ export function SkinVolume() {
           </button>
         )}
       />
-      <VolumeSlider.Root className="relative mx-1 hidden h-9 w-20 cursor-pointer items-center outline-none sm:flex">
+      <VolumeSlider.Root className="relative mx-1 hidden h-9 w-20 cursor-pointer touch-none items-center outline-none sm:flex">
         <VolumeSlider.Track className="relative h-1 w-full rounded-full bg-white/30">
           <VolumeSlider.Fill className="absolute inset-y-0 left-0 w-(--media-slider-fill) rounded-full bg-white" />
         </VolumeSlider.Track>
@@ -114,10 +114,10 @@ export function SkinFrame({ children, style }: { children: ReactNode; style?: CS
     >
       {children}
       <BufferingIndicator className="pointer-events-none absolute inset-0 z-10 hidden place-content-center data-[visible]:grid">
-        <LoaderCircle className="size-10 animate-spin text-white" aria-hidden="true" />
+        <LoaderCircle className="size-10 text-white motion-safe:animate-spin" aria-hidden="true" />
       </BufferingIndicator>
       <Title
-        className={`pointer-events-none absolute inset-x-0 top-0 z-10 truncate bg-linear-to-b from-black/70 to-transparent px-4 pt-3 pb-8 text-sm font-medium text-white ${SKIN_HIDDEN_WHEN_IDLE}`}
+        className={`pointer-events-none absolute inset-x-0 top-0 z-10 truncate bg-linear-to-b from-black/70 to-transparent px-4 pt-3 pb-8 contrast-more:from-black/95 [@media(prefers-reduced-transparency:reduce)]:bg-black/90 text-sm font-medium text-white ${SKIN_HIDDEN_WHEN_IDLE}`}
       />
       <StatusAnnouncer />
     </Container>
@@ -126,7 +126,7 @@ export function SkinFrame({ children, style }: { children: ReactNode; style?: CS
 
 export function SkinPoster() {
   return (
-    <Poster.Root className="pointer-events-none absolute inset-0 transition-opacity duration-300 [&:not([data-visible])]:opacity-0">
+    <Poster.Root className="pointer-events-none absolute inset-0 transition-opacity duration-300 motion-reduce:transition-none [&:not([data-visible])]:opacity-0">
       <Poster.Image className="h-full w-full object-cover" />
     </Poster.Root>
   );
