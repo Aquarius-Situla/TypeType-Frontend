@@ -70,11 +70,11 @@ export function VideoJsLiveSkin({
       </Controls.Root>
       <Hotkey keys="Space" action="togglePaused" />
       <Hotkey keys="k" action="togglePaused" />
-      <Hotkey keys="m" action="toggleMuted" />
+      <Hotkey target="document" keys="m" action="toggleMuted" />
       <Hotkey keys="ArrowUp" action="volumeStep" />
       <Hotkey keys="ArrowDown" action="volumeStep" />
-      <Hotkey keys="f" action="toggleFullscreen" />
-      <Hotkey keys="i" action="togglePictureInPicture" />
+      <Hotkey target="document" keys="f" action="toggleFullscreen" />
+      <Hotkey target="document" keys="i" action="togglePictureInPicture" />
       <Gesture type="tap" action="togglePaused" pointer="mouse" region="center" />
       <Gesture type="tap" action="toggleControls" pointer="touch" />
       <Gesture type="doubletap" action="toggleFullscreen" region="center" />

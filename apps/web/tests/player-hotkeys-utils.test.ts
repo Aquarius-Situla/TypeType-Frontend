@@ -35,6 +35,8 @@ test("recognizes non-HTML descendants of interactive controls", () => {
 test("maps horizontal arrow keys to ten second seeks", () => {
   expect(keyboardSeekOffset("ArrowLeft")).toBe(-10);
   expect(keyboardSeekOffset("ArrowRight")).toBe(10);
+  expect(keyboardSeekOffset("KeyJ")).toBe(-10);
+  expect(keyboardSeekOffset("KeyL")).toBe(10);
   expect(keyboardSeekOffset("ArrowUp")).toBeNull();
 });
 

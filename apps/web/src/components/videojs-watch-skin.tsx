@@ -111,14 +111,20 @@ export function VideoJsWatchSkin({
         </Controls.Content>
         <VideoJsMiniControls />
       </Controls.Root>
-      <Hotkey keys="m" action="toggleMuted" />
+      <Hotkey target="document" keys="m" action="toggleMuted" />
       <Hotkey keys="ArrowUp" action="volumeStep" />
       <Hotkey keys="ArrowDown" action="volumeStep" />
-      <Hotkey keys="f" action="toggleFullscreen" />
-      <Hotkey keys="i" action="togglePictureInPicture" />
-      <Hotkey keys="c" action="toggleSubtitles" />
+      <Hotkey target="document" keys="f" action="toggleFullscreen" />
+      <Hotkey target="document" keys="i" action="togglePictureInPicture" />
+      <Hotkey target="document" keys="c" action="toggleSubtitles" />
       {PERCENT_KEYS.map((key) => (
-        <Hotkey key={key} keys={key} action="seekToPercent" value={Number(key) * 10} />
+        <Hotkey
+          key={key}
+          target="document"
+          keys={key}
+          action="seekToPercent"
+          value={Number(key) * 10}
+        />
       ))}
       <Gesture type="tap" action="togglePaused" pointer="mouse" region="center" />
       <Gesture type="tap" action="toggleControls" pointer="touch" />

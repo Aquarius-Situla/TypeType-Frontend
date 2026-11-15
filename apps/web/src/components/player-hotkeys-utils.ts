@@ -27,8 +27,8 @@ export function clampTime(value: number, duration: number): number {
 }
 
 export function keyboardSeekOffset(code: string): number | null {
-  if (code === "ArrowLeft") return -10;
-  if (code === "ArrowRight") return 10;
+  if (code === "ArrowLeft" || code === "KeyJ") return -10;
+  if (code === "ArrowRight" || code === "KeyL") return 10;
   return null;
 }
 
