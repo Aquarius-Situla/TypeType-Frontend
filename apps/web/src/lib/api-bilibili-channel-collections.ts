@@ -161,7 +161,8 @@ export function isBilibiliCollectionUrl(url: string): boolean {
     url.includes("business=space_collection") ||
     url.includes("business=space_series") ||
     url.includes("/channel/seriesdetail") ||
-    url.includes("/channel/collectiondetail")
+    url.includes("/channel/collectiondetail") ||
+    parseBilibiliCollectionParams(url) !== null
   );
 }
 
@@ -250,6 +251,22 @@ export function parseBilibiliCollectionParams(url: string): {
     }
     if (parsed.pathname.includes("seriesdetail") && sidParam) {
       return { kind: "series", mid, id: sidParam };
+    }
+
+    const listType = parsed.searchParams.get("type")?.toLowerCase();
+    if (
+      (parsed.hostname === "bilibili.com" || parsed.hostname.endsWith(".bilibili.com")) &&
+      segments.length >= 3 &&
+      /^\d+$/.test(segments[0]) &&
+      segments[1] === "lists" &&
+      /^\d+$/.test(segments[2])
+    ) {
+      if (listType === "season") {
+        return { kind: "season", mid: segments[0], id: segments[2] };
+      }
+      if (listType === "series") {
+        return { kind: "series", mid: segments[0], id: segments[2] };
+      }
     }
 
     return null;

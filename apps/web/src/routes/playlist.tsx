@@ -19,6 +19,7 @@ import { playlistListId, youtubePlaylistId } from "../lib/playlist-url";
 import {
   buildLoadedStreamParamSet,
   isPublicBilibiliCollection,
+  publicPlaylistCardListId,
   resolvePublicPlaylistStreams,
   shouldEnablePublicPlaylistPagination,
 } from "../lib/public-playlist-view";
@@ -59,6 +60,7 @@ function PublicPlaylistPage() {
 
   const info = data?.pages[0]?.playlist;
   const isCollection = isPublicBilibiliCollection(playlistUrl, info?.playlistType);
+  const cardListId = publicPlaylistCardListId(playlistUrl, listId, info?.playlistType);
 
   const [activeSectionId, setActiveSectionId] = useScopedValue<string | null>(playlistUrl, null);
   const collectionMeta = usePlaylistCollectionMeta(
@@ -187,7 +189,7 @@ function PublicPlaylistPage() {
       {visibleStreams.length === 0 ? (
         <p className="text-fg-muted text-sm">{m.ui_this_playlist_has_no_videos()}</p>
       ) : (
-        <VideoGrid streams={visibleStreams} listId={listId} />
+        <VideoGrid streams={visibleStreams} listId={cardListId} />
       )}
       {isFetchingNextPage && <VideoGridSkeleton idPrefix="public-playlist-next" />}
       {isFetchNextPageError && (
