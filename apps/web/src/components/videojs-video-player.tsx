@@ -16,13 +16,11 @@ import { VideoJsPlaybackSpeedDefault } from "./videojs-playback-speed-default";
 import { VideoJsPlaybackTools } from "./videojs-playback-tools";
 import { VideoJsPlayerBridge } from "./videojs-player-bridge";
 import { VideoJsPlayerMedia } from "./videojs-player-media";
-import { VideoJsQualityDefault } from "./videojs-quality-default";
 import { VideoJsRecoveryCover } from "./videojs-recovery-cover";
 import { VideoJsSabrEngine } from "./videojs-sabr-engine";
 
 export type VideoJsVideoPlayerProps = VideoPlayerProps & {
   source: VideoJsSource;
-  defaultQuality?: string;
   defaultPlaybackSpeed?: number;
 };
 
@@ -127,7 +125,6 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
             </VideoJsPlayerMedia>
           </Skin>
           <VideoJsPlaybackSpeedDefault speed={props.defaultPlaybackSpeed} />
-          <VideoJsQualityDefault quality={props.defaultQuality} />
           {sabr ? (
             <VideoJsSabrEngine video={video} player={props} />
           ) : (

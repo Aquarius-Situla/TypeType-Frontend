@@ -56,7 +56,7 @@ export function VideoJsMedia({
     () => ({
       src: source.src,
       type: source.type ?? "application/x-mpegurl",
-      engine: { hlsJs: { startPosition: live ? -1 : startRef.current / 1000 } },
+      engine: { hlsJs: { startPosition: live ? -1 : startRef.current / 1000, startLevel: 0 } },
     }),
     [source.src, source.type, live],
   );

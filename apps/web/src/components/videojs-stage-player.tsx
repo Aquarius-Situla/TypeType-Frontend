@@ -19,7 +19,6 @@ export function VideoJsStagePlayer(props: Props) {
         sabrConfig={props.sabrConfig}
         sabrRetryKey={props.sabrRetryKey}
         sabrPlaybackRatePreference={props.playbackRatePreference}
-        defaultQuality={props.overlay == null ? props.settings.defaultQuality : undefined}
         defaultPlaybackSpeed={props.settings.defaultPlaybackSpeed}
         overlay={props.overlay}
         src={props.manifestSrc}
