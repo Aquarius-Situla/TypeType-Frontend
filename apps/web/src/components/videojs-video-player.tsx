@@ -72,6 +72,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
     onCaptionStylesChange: props.onCaptionStylesChange,
     onPrevious: props.onPreviousVideo,
     onNext: props.onNextVideo,
+    flat: Boolean(props.ownSkin),
   };
   const { onPositionReaderChange } = props;
 

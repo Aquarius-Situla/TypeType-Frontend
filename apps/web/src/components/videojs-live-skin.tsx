@@ -1,7 +1,6 @@
 import { Controls, Gesture, Hotkey, LiveButton } from "@videojs/react";
 import { type CSSProperties, type ReactNode, useState } from "react";
 import { PlayerBarSlotContext } from "../hooks/use-player-bar-slot";
-import { BAR_PILL } from "../lib/videojs-menu-classes";
 import { m } from "../paraglide/messages.js";
 import { VideoJsMiniControls } from "./videojs-mini-controls";
 import { VideoJsSettingsMenu } from "./videojs-settings-menu";
@@ -50,15 +49,15 @@ export function VideoJsLiveSkin({
           data-skin-bottom=""
           className={`absolute inset-x-0 bottom-0 z-20 flex items-center gap-1 bg-linear-to-t from-black/80 to-transparent px-2 pt-8 pb-2 contrast-more:from-black/95 [@media(prefers-reduced-transparency:reduce)]:bg-black/90 ${SKIN_HIDDEN_WHEN_IDLE}`}
         >
-          <Controls.Group className="flex min-w-0 items-center gap-2">
-            <span data-skin-transport="" className={BAR_PILL}>
+          <Controls.Group className="flex min-w-0 items-center">
+            <span data-skin-transport="" className="flex items-center">
               <SkinPlayButton />
             </span>
-            <SkinVolume />
+            <SkinVolume pill={false} />
             <LiveBadge />
           </Controls.Group>
           <div aria-hidden="true" className="flex-1" />
-          <Controls.Group data-skin-right="" className={`${BAR_PILL} px-1`}>
+          <Controls.Group data-skin-right="" className="flex items-center">
             <span ref={setBarSlot} className="flex items-center" />
             <VideoJsSettingsMenu speed={false} />
             <SkinCinemaButton />

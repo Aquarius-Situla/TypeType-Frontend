@@ -31,6 +31,8 @@ export type WatchSkinOptions = {
   onCaptionStylesChange?: (styles: CaptionStyles) => void;
   onPrevious?: () => void;
   onNext?: () => void;
+  // Twitch keeps a flat bar like its own player; the pills are the YouTube layout.
+  flat?: boolean;
 };
 
 export const WatchSkinOptionsContext = createContext<WatchSkinOptions>({
@@ -39,6 +41,7 @@ export const WatchSkinOptionsContext = createContext<WatchSkinOptions>({
 });
 
 const SEEK_JUMP = 10;
+const FLAT_GROUP = "flex items-center";
 const PERCENT_KEYS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"] as const;
 
 // The skin of YouTube, BiliBili and NicoNico videos, built from Video.js primitives. Space, the arrows, j/l, t, w, d
@@ -52,6 +55,7 @@ export function VideoJsWatchSkin({
 }) {
   const options = useContext(WatchSkinOptionsContext);
   const [barSlot, setBarSlot] = useState<HTMLElement | null>(null);
+  const group = options.flat ? FLAT_GROUP : BAR_PILL;
   return (
     <SkinFrame style={style} autoplay={options.autoplay}>
       <PlayerBarSlotContext.Provider value={barSlot}>{children}</PlayerBarSlotContext.Provider>
@@ -64,16 +68,22 @@ export function VideoJsWatchSkin({
           <div className="px-2">
             <VideoJsWatchTimeline segments={options.segments} />
           </div>
-          <div className="flex items-center gap-2 pt-1">
-            <Controls.Group className="flex min-w-0 items-center gap-2">
-              <span data-skin-transport="" className={BAR_PILL}>
+          <div
+            className={options.flat ? "flex items-center gap-0.5" : "flex items-center gap-2 pt-1"}
+          >
+            <Controls.Group className={`flex min-w-0 items-center ${options.flat ? "" : "gap-2"}`}>
+              <span data-skin-transport="" className={group}>
                 <SkinTrackButton direction="previous" onClick={options.onPrevious} />
                 <SkinPlayButton />
                 <SkinTrackButton direction="next" onClick={options.onNext} />
               </span>
-              <SkinVolume />
+              <SkinVolume pill={!options.flat} />
               <Time.Group
-                className={`${BAR_PILL} gap-1 px-4 font-medium text-sm text-white tabular-nums`}
+                className={
+                  options.flat
+                    ? "ml-1 flex items-center gap-1 text-white text-xs tabular-nums"
+                    : `${BAR_PILL} gap-1 px-4 font-medium text-sm text-white tabular-nums`
+                }
               >
                 <Time.Value type="current" />
                 <Time.Separator />
@@ -81,7 +91,10 @@ export function VideoJsWatchSkin({
               </Time.Group>
             </Controls.Group>
             <div aria-hidden="true" className="flex-1" />
-            <Controls.Group data-skin-right="" className={`${BAR_PILL} px-1`}>
+            <Controls.Group
+              data-skin-right=""
+              className={options.flat ? group : `${BAR_PILL} px-1`}
+            >
               <span ref={setBarSlot} className="flex items-center" />
               <SkinCaptionsButton />
               <VideoJsWatchSettings
