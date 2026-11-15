@@ -1,6 +1,5 @@
-import "@videojs/react/video/skin.css";
 import { I18nProvider } from "@videojs/react/i18n";
-import { VideoPlayer, VideoSkin } from "@videojs/react/video";
+import { VideoPlayer } from "@videojs/react/video";
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { usePolicyMutedSave } from "../hooks/use-policy-muted-save";
@@ -12,7 +11,6 @@ import type { VideoPlayerProps } from "./video-player-types";
 import { VideoJsAutoplay } from "./videojs-autoplay";
 import { VideoJsLivePlayer } from "./videojs-live-player";
 import { VideoJsLiveSkin } from "./videojs-live-skin";
-import { VideoJsLoadingMascot } from "./videojs-loading-mascot";
 import { VideoJsMedia } from "./videojs-media";
 import { VideoJsPlaybackSpeedDefault } from "./videojs-playback-speed-default";
 import { VideoJsPlaybackTools } from "./videojs-playback-tools";
@@ -22,6 +20,7 @@ import { VideoJsPlayerMedia } from "./videojs-player-media";
 import { VideoJsRecoveryCover } from "./videojs-recovery-cover";
 import { VideoJsSabrEngine } from "./videojs-sabr-engine";
 import { VideoJsVodSkin } from "./videojs-vod-skin";
+import { VideoJsWatchSkin, WatchSkinOptionsContext } from "./videojs-watch-skin";
 
 export type VideoJsVideoPlayerProps = VideoPlayerProps & {
   source: VideoJsSource;
@@ -59,7 +58,14 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
   const { policyMuted, saveVolume } = usePolicyMutedSave(props.onVolumeChange);
   const live = streamType === "live";
   const Player = live ? VideoJsLivePlayer : VideoPlayer;
-  const Skin = live ? VideoJsLiveSkin : props.ownSkin ? VideoJsVodSkin : VideoSkin;
+  const Skin = live ? VideoJsLiveSkin : props.ownSkin ? VideoJsVodSkin : VideoJsWatchSkin;
+  const watchOptions = {
+    segments: props.sponsorBlockSegments,
+    danmaku: props.provider === "bilibili" || props.provider === "nicovideo",
+    autoplay,
+    onPrevious: props.onPreviousVideo,
+    onNext: props.onNextVideo,
+  };
   const { onPositionReaderChange } = props;
 
   useEffect(() => {
@@ -104,52 +110,54 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
       data-player-root=""
     >
       <I18nProvider locale={playerLocale(locale)}>
-        <Player title={title} poster={poster}>
-          <Skin style={SKIN_STYLE}>
-            <VideoJsMedia
-              source={source}
-              provider={props.provider}
-              live={live}
-              startTime={startTime}
-              subtitles={props.subtitles}
-              thumbnailVtt={props.thumbnailVtt}
-              mediaRef={mediaRef}
-              mediaProps={mediaProps}
-            />
-            <VideoJsAutoplay
-              enabled={autoplay && !sabr}
-              mutedFallback={Boolean(props.ownSkin)}
-              policyMuted={policyMuted}
-            />
-            {Skin === VideoSkin && <VideoJsLoadingMascot autoplay={autoplay} />}
-            <VideoJsRecoveryCover />
-            <ServerStatusNotice variant="player" />
-            <VideoJsPlayerMedia root={root}>
-              <VideoJsPlayerEngine root={root}>
-                {props.overlay}
-                <VideoJsPlaybackTools player={props} sabrVideo={sabr ? video : null} />
-                {props.audioOnly && (
-                  <>
-                    <AudioOnlyPoster poster={poster} title={title} media={video} />
-                    <AudioCenterToggle video={sabr ? video : null} />
-                  </>
-                )}
-              </VideoJsPlayerEngine>
-            </VideoJsPlayerMedia>
-          </Skin>
-          <VideoJsPlaybackSpeedDefault speed={props.defaultPlaybackSpeed} />
-          {sabr ? (
-            <VideoJsSabrEngine video={video} player={props} />
-          ) : (
-            <VideoJsPlayerBridge
-              initialVolume={props.initialVolume ?? 1}
-              initialMuted={props.initialMuted ?? false}
-              settingsReady={props.settingsReady ?? false}
-              onVolumeChange={saveVolume}
-              onSeekReady={props.onSeekReady}
-            />
-          )}
-        </Player>
+        <WatchSkinOptionsContext.Provider value={watchOptions}>
+          <Player title={title} poster={poster}>
+            <Skin style={SKIN_STYLE}>
+              <VideoJsMedia
+                source={source}
+                provider={props.provider}
+                live={live}
+                startTime={startTime}
+                subtitles={props.subtitles}
+                thumbnailVtt={props.thumbnailVtt}
+                chaptersVtt={props.chaptersVtt}
+                mediaRef={mediaRef}
+                mediaProps={mediaProps}
+              />
+              <VideoJsAutoplay
+                enabled={autoplay && !sabr}
+                mutedFallback={Boolean(props.ownSkin)}
+                policyMuted={policyMuted}
+              />
+              <VideoJsRecoveryCover />
+              <ServerStatusNotice variant="player" />
+              <VideoJsPlayerMedia root={root}>
+                <VideoJsPlayerEngine root={root}>
+                  {props.overlay}
+                  <VideoJsPlaybackTools player={props} sabrVideo={sabr ? video : null} />
+                  {props.audioOnly && (
+                    <>
+                      <AudioOnlyPoster poster={poster} title={title} media={video} />
+                      <AudioCenterToggle video={sabr ? video : null} />
+                    </>
+                  )}
+                </VideoJsPlayerEngine>
+              </VideoJsPlayerMedia>
+            </Skin>
+            <VideoJsPlaybackSpeedDefault speed={props.defaultPlaybackSpeed} />
+            {sabr ? (
+              <VideoJsSabrEngine video={video} player={props} />
+            ) : (
+              <VideoJsPlayerBridge
+                initialVolume={props.initialVolume ?? 1}
+                initialMuted={props.initialMuted ?? false}
+                settingsReady={props.settingsReady ?? false}
+                onVolumeChange={saveVolume}
+                onSeekReady={props.onSeekReady}
+              />
+            )}
+          </Player>
+        </WatchSkinOptionsContext.Provider>
       </I18nProvider>
     </div>
   );

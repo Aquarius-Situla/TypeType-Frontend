@@ -1,28 +1,6 @@
-/* The floating mini player has its own top bar (drag, back to the video, close): the Video.js title gives way to
-   it, and only play and the progress bar stay in a control bar sized for a small frame. */
+/* The floating mini player has its own top bar (drag, back to the video, close): the skin title gives way to it,
+   and only play and the progress bar stay in a control bar sized for a small frame. */
 .typetype-persistent-player-frame[data-floating] .media-title,
-.typetype-persistent-player-frame[data-floating] [data-skin-secondary],
-.typetype-persistent-player-frame[data-floating]
-  :is(
-    .media-time-value,
-    .media-time-toggle,
-    .video-controls-volume-button,
-    .video-controls-settings-button,
-    .media-pip-button,
-    .media-captions-button,
-    .media-cast-button,
-    .media-airplay-button,
-    .media-fullscreen-button
-  ) {
+.typetype-persistent-player-frame[data-floating] [data-skin-secondary] {
   display: none;
-}
-
-.typetype-persistent-player-frame[data-floating] .media-button {
-  width: 2rem;
-  height: 2rem;
-}
-
-.typetype-persistent-player-frame[data-floating] .video-controls {
-  padding: 0.25rem 0.5rem;
-  gap: 0.25rem;
 }

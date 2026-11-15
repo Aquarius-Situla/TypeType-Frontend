@@ -1,4 +1,0 @@
-/* The Video.js skin's own spinner gives way to the app's loading mascot (VideoJsLoadingMascot). */
-[data-player-root] .media-buffering-indicator {
-  display: none;
-}

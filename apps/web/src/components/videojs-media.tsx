@@ -23,12 +23,18 @@ type Props = {
   startTime: number;
   subtitles: VideoPlayerProps["subtitles"];
   thumbnailVtt?: string;
+  chaptersVtt?: string;
   mediaRef: (element: HTMLVideoElement | null) => void;
   mediaProps: MediaProps;
 };
 
-function Tracks({ subtitles, thumbnailVtt }: Pick<Props, "subtitles" | "thumbnailVtt">): ReactNode {
+function Tracks({
+  subtitles,
+  thumbnailVtt,
+  chaptersVtt,
+}: Pick<Props, "subtitles" | "thumbnailVtt" | "chaptersVtt">): ReactNode {
   const thumbnails = useWebVttUrl(thumbnailVtt);
+  const chapters = useWebVttUrl(chaptersVtt);
   return (
     <>
       {buildSafeSubtitleTracks(subtitles).map((track) => (
@@ -41,6 +47,7 @@ function Tracks({ subtitles, thumbnailVtt }: Pick<Props, "subtitles" | "thumbnai
         />
       ))}
       {thumbnails && <track kind="metadata" label="thumbnails" src={thumbnails} default />}
+      {chapters && <track kind="chapters" src={chapters} default />}
     </>
   );
 }
@@ -52,10 +59,13 @@ export function VideoJsMedia({
   startTime,
   subtitles,
   thumbnailVtt,
+  chaptersVtt,
   mediaRef,
   mediaProps,
 }: Props) {
-  const tracks = <Tracks subtitles={subtitles} thumbnailVtt={thumbnailVtt} />;
+  const tracks = (
+    <Tracks subtitles={subtitles} thumbnailVtt={thumbnailVtt} chaptersVtt={chaptersVtt} />
+  );
   const startRef = useRef(startTime);
   startRef.current = startTime;
   const hlsSource = useMemo(
