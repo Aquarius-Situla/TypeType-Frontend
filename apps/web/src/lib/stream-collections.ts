@@ -144,6 +144,8 @@ export function getSubscribedCollectionMeta(id: string): SubscribedCollectionMet
 
 const attemptedCountRefreshByPlaylist = new Map<string, number>();
 const inFlightCollectionMetadata = new Map<string, Promise<SubscribedCollectionMeta | undefined>>();
+const failedRefreshAtByPlaylist = new Map<string, number>();
+const RETRY_AFTER_FAILURE_MS = 5 * 60_000;
 
 export async function ensureCollectionMetadata(
   playlistId: string,
@@ -192,6 +194,11 @@ export async function ensureCollectionMetadata(
     return existing;
   }
 
+  const failedAt = failedRefreshAtByPlaylist.get(playlistId);
+  if (failedAt !== undefined && Date.now() - failedAt < RETRY_AFTER_FAILURE_MS) {
+    return existing;
+  }
+
   if (!videos || videos.length === 0) return existing;
 
   const firstUrl = (videos[0].url || videos[0].id || "").trim();
@@ -201,6 +208,7 @@ export async function ensureCollectionMetadata(
     try {
       const { fetchStream } = await import("./api-stream");
       const stream = await fetchStream(firstUrl);
+      failedRefreshAtByPlaylist.delete(playlistId);
       if (expectedStreamCount && expectedStreamCount > 0) {
         attemptedCountRefreshByPlaylist.set(playlistId, expectedStreamCount);
       }
@@ -244,6 +252,7 @@ export async function ensureCollectionMetadata(
         }
       }
     } catch (err) {
+      failedRefreshAtByPlaylist.set(playlistId, Date.now());
       console.warn("Failed to fetch stream collection metadata:", err);
     }
 

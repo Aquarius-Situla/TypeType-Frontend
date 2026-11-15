@@ -469,6 +469,7 @@ test("ensureCollectionMetadata records attempt after fetch succeeds so cold-star
     );
   }) as unknown as typeof fetch;
 
+  const realNow = Date.now;
   try {
     // Cold start with 1 deleted video (1 fetched vs 2 expected): revisit should NOT refetch
     const cold1 = await ensureCollectionMetadata(
@@ -520,6 +521,17 @@ test("ensureCollectionMetadata records attempt after fetch succeeds so cold-star
     expect(transientFetchCalls).toBe(1);
     expect(failedRetry?.sections?.[0].episodes).toHaveLength(1);
 
+    // A failed refresh waits a few minutes before the next visit asks again
+    const coolingRetry = await ensureCollectionMetadata(
+      transientPlaylistId,
+      "Transient Collection",
+      [{ url: "https://www.bilibili.com/video/BV203" }],
+      2,
+    );
+    expect(transientFetchCalls).toBe(1);
+    expect(coolingRetry?.sections?.[0].episodes).toHaveLength(1);
+
+    Date.now = () => realNow() + 6 * 60_000;
     const recoveredRetry = await ensureCollectionMetadata(
       transientPlaylistId,
       "Transient Collection",
@@ -529,6 +541,7 @@ test("ensureCollectionMetadata records attempt after fetch succeeds so cold-star
     expect(transientFetchCalls).toBe(2);
     expect(recoveredRetry?.sections?.[0].episodes).toHaveLength(2);
   } finally {
+    Date.now = realNow;
     globalThis.fetch = originalFetch;
     localStorage.clear();
   }
