@@ -1,9 +1,11 @@
+import type { DashAdapter } from "@videojs/react/media/dash-video";
 import { DashVideo } from "@videojs/react/media/dash-video";
 import { HlsJsVideo } from "@videojs/react/media/hlsjs-video";
 import { Video } from "@videojs/react/video";
-import { type ReactNode, useMemo, useRef, type VideoHTMLAttributes } from "react";
+import { type ReactNode, useCallback, useMemo, useRef, type VideoHTMLAttributes } from "react";
 import { useWebVttUrl } from "../hooks/use-web-vtt-url";
 import { attachBilibiliDash } from "../lib/dash-bilibili-behaviour";
+import { registerDashPlayer } from "../lib/dash-player-registration";
 import { buildDashStreamingSettings } from "../lib/dash-streaming-settings";
 import { HLS_OUTAGE_LOAD_POLICIES } from "../lib/playback-outage-policy";
 import type { Provider } from "../lib/provider";
@@ -89,6 +91,13 @@ export function VideoJsMedia({
     }),
     [source.src, provider],
   );
+  const onDashAdapter = useCallback(
+    (adapter: DashAdapter | null) => {
+      registerDashPlayer(adapter?.engine ?? null);
+      if (adapter && provider === "bilibili") attachBilibiliDash(adapter.engine);
+    },
+    [provider],
+  );
   switch (source.kind) {
     case "sabr":
       return (
@@ -104,14 +113,7 @@ export function VideoJsMedia({
       );
     case "dash":
       return (
-        <DashVideo
-          ref={mediaRef}
-          mediaRef={(adapter) => {
-            if (adapter && provider === "bilibili") attachBilibiliDash(adapter.engine);
-          }}
-          {...mediaProps}
-          source={dashSource}
-        >
+        <DashVideo ref={mediaRef} mediaRef={onDashAdapter} {...mediaProps} source={dashSource}>
           {tracks}
         </DashVideo>
       );

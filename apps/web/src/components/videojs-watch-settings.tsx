@@ -17,6 +17,7 @@ import { m } from "../paraglide/messages.js";
 import { useDanmakuStore } from "../stores/danmaku-store";
 import { useSabrAudioStore } from "../stores/sabr-audio-store";
 import type { CaptionStyles } from "../types/user";
+import { useFormatSection } from "./videojs-format-section";
 import { MenuGroupSubmenu, type MenuOption, MenuSubmenu } from "./videojs-menu-section";
 
 const ON = "on";
@@ -166,6 +167,7 @@ export function VideoJsWatchSettings({ danmaku, captionStyles, onCaptionStylesCh
         : `${rendition.height ?? rendition.width}p`,
   });
   const renditions = usePlayer(selectQuality)?.videoRenditionList;
+  const format = useFormatSection();
   const speed = useSpeedSection();
   const audio = useAudioSection();
   const captions = useCaptionsOptions();
@@ -193,6 +195,7 @@ export function VideoJsWatchSettings({ danmaku, captionStyles, onCaptionStylesCh
               onChange={quality.setValue}
             />
           )}
+          {format && <MenuSubmenu label={m.player_format()} {...format} />}
           {speed && <MenuSubmenu label={m.player_speed()} {...speed} />}
           {audio && <MenuSubmenu label={m.player_audio()} {...audio} />}
           {captions && !captions.hidden && captions.options.length > 1 && (
