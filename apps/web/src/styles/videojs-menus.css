@@ -16,7 +16,6 @@
   max-height: inherit;
   overflow: auto;
   overscroll-behavior: contain;
-  anchor-scope: --typetype-menu-highlight;
   transition-property: translate, filter;
   transition-duration: 250ms;
   transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
@@ -50,39 +49,11 @@
   pointer-events: none;
 }
 
-/* One highlight follows the pointer from row to row instead of each row fading its own background in and out, which
-   flickered while the pointer ran down the list. */
-@supports (top: anchor(top)) {
-  .typetype-settings-menu [data-highlighted] {
-    anchor-name: --typetype-menu-highlight;
-    background-color: transparent;
-  }
-
-  .typetype-settings-menu .typetype-menu-content::before {
-    content: "";
-    position: absolute;
-    position-anchor: --typetype-menu-highlight;
-    inset: anchor(inside);
-    border-radius: 0.5rem;
-    background-color: rgb(255 255 255 / 0.12);
-    pointer-events: none;
-    transition: inset 100ms ease-out;
-  }
-
-  .typetype-settings-menu
-    .typetype-menu-content:is(
-      [data-starting-style],
-      [data-ending-style],
-      [data-child-open]
-    )::before {
-    display: none;
-  }
-}
-
+/* A row lights up at once, with no colour fade: fading rows in and out flickered while the pointer ran down the list,
+   and a single highlight anchored to the row (CSS anchor positioning) cost a long task on each panel switch. */
 @media (prefers-reduced-motion: reduce) {
   .typetype-settings-menu,
-  .typetype-settings-menu .typetype-menu-content,
-  .typetype-settings-menu .typetype-menu-content::before {
+  .typetype-settings-menu .typetype-menu-content {
     transition-duration: 0s;
   }
 
