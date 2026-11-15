@@ -116,7 +116,6 @@ export function VideoJsWatchSkin({
       <Hotkey keys="ArrowDown" action="volumeStep" />
       <Hotkey target="document" keys="f" action="toggleFullscreen" />
       <Hotkey target="document" keys="i" action="togglePictureInPicture" />
-      <Hotkey target="document" keys="c" action="toggleSubtitles" />
       {PERCENT_KEYS.map((key) => (
         <Hotkey
           key={key}

@@ -4,12 +4,15 @@ import { type CSSProperties, useCallback, useEffect, useRef, useState } from "re
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { usePolicyMutedSave } from "../hooks/use-policy-muted-save";
 import { applyCaptionStyles } from "../lib/caption-styles";
+import { type PlayerKeySignal, PlayerKeySignalContext } from "../lib/player-key-signal";
 import type { VideoJsSource } from "../lib/video-js-source";
 import { AudioCenterToggle } from "./audio-center-toggle";
 import { AudioOnlyPoster } from "./audio-only-poster";
 import { ServerStatusNotice } from "./server-status-notice";
 import type { VideoPlayerProps } from "./video-player-types";
 import { VideoJsAutoplay } from "./videojs-autoplay";
+import { VideoJsCaptionsHotkey } from "./videojs-captions-hotkey";
+import { VideoJsKeyboardFeedback } from "./videojs-keyboard-feedback";
 import { VideoJsLivePlayer } from "./videojs-live-player";
 import { VideoJsLiveSkin } from "./videojs-live-skin";
 import { VideoJsLiveStallWatchdog } from "./videojs-live-stall-watchdog";
@@ -74,6 +77,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
     onNext: props.onNextVideo,
     flat: Boolean(props.ownSkin),
   };
+  const keySignal = useRef<PlayerKeySignal>({ key: "", at: Number.NEGATIVE_INFINITY });
   const { onPositionReaderChange } = props;
 
   useEffect(() => {
@@ -118,55 +122,59 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
       data-player-root=""
     >
       <I18nProvider locale={playerLocale(locale)}>
-        <WatchSkinOptionsContext.Provider value={watchOptions}>
-          <Player title={title} poster={poster}>
-            <Skin style={SKIN_STYLE}>
-              <VideoJsMedia
-                source={source}
-                provider={props.provider}
-                live={live}
-                startTime={startTime}
-                subtitles={props.subtitles}
-                thumbnailVtt={props.thumbnailVtt}
-                chaptersVtt={props.chaptersVtt}
-                mediaRef={mediaRef}
-                mediaProps={mediaProps}
-              />
-              <VideoJsAutoplay
-                enabled={autoplay && !sabr}
-                mutedFallback={Boolean(props.ownSkin)}
-                policyMuted={policyMuted}
-              />
-              <VideoJsRecoveryCover />
-              {live && <VideoJsLiveStallWatchdog onStall={() => props.onError?.(positionMs())} />}
-              <ServerStatusNotice variant="player" />
-              <VideoJsPlayerMedia root={root}>
-                <VideoJsPlayerEngine root={root}>
-                  {props.overlay}
-                  <VideoJsPlaybackTools player={props} sabrVideo={sabr ? video : null} />
-                  {props.audioOnly && (
-                    <>
-                      <AudioOnlyPoster poster={poster} title={title} media={video} />
-                      <AudioCenterToggle video={sabr ? video : null} />
-                    </>
-                  )}
-                </VideoJsPlayerEngine>
-              </VideoJsPlayerMedia>
-            </Skin>
-            <VideoJsPlaybackSpeedDefault speed={props.defaultPlaybackSpeed} />
-            {sabr ? (
-              <VideoJsSabrEngine video={video} player={props} />
-            ) : (
-              <VideoJsPlayerBridge
-                initialVolume={props.initialVolume ?? 1}
-                initialMuted={props.initialMuted ?? false}
-                settingsReady={props.settingsReady ?? false}
-                onVolumeChange={saveVolume}
-                onSeekReady={props.onSeekReady}
-              />
-            )}
-          </Player>
-        </WatchSkinOptionsContext.Provider>
+        <PlayerKeySignalContext.Provider value={keySignal}>
+          <WatchSkinOptionsContext.Provider value={watchOptions}>
+            <Player title={title} poster={poster}>
+              <Skin style={SKIN_STYLE}>
+                <VideoJsMedia
+                  source={source}
+                  provider={props.provider}
+                  live={live}
+                  startTime={startTime}
+                  subtitles={props.subtitles}
+                  thumbnailVtt={props.thumbnailVtt}
+                  chaptersVtt={props.chaptersVtt}
+                  mediaRef={mediaRef}
+                  mediaProps={mediaProps}
+                />
+                <VideoJsAutoplay
+                  enabled={autoplay && !sabr}
+                  mutedFallback={Boolean(props.ownSkin)}
+                  policyMuted={policyMuted}
+                />
+                <VideoJsRecoveryCover />
+                <VideoJsKeyboardFeedback video={video} />
+                <VideoJsCaptionsHotkey />
+                {live && <VideoJsLiveStallWatchdog onStall={() => props.onError?.(positionMs())} />}
+                <ServerStatusNotice variant="player" />
+                <VideoJsPlayerMedia root={root}>
+                  <VideoJsPlayerEngine root={root}>
+                    {props.overlay}
+                    <VideoJsPlaybackTools player={props} sabrVideo={sabr ? video : null} />
+                    {props.audioOnly && (
+                      <>
+                        <AudioOnlyPoster poster={poster} title={title} media={video} />
+                        <AudioCenterToggle video={sabr ? video : null} />
+                      </>
+                    )}
+                  </VideoJsPlayerEngine>
+                </VideoJsPlayerMedia>
+              </Skin>
+              <VideoJsPlaybackSpeedDefault speed={props.defaultPlaybackSpeed} />
+              {sabr ? (
+                <VideoJsSabrEngine video={video} player={props} />
+              ) : (
+                <VideoJsPlayerBridge
+                  initialVolume={props.initialVolume ?? 1}
+                  initialMuted={props.initialMuted ?? false}
+                  settingsReady={props.settingsReady ?? false}
+                  onVolumeChange={saveVolume}
+                  onSeekReady={props.onSeekReady}
+                />
+              )}
+            </Player>
+          </WatchSkinOptionsContext.Provider>
+        </PlayerKeySignalContext.Provider>
       </I18nProvider>
     </div>
   );

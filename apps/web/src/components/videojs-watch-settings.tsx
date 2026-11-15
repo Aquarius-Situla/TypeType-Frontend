@@ -27,6 +27,7 @@ import { m } from "../paraglide/messages.js";
 import { useDanmakuStore } from "../stores/danmaku-store";
 import { useSabrAudioStore } from "../stores/sabr-audio-store";
 import type { CaptionStyles } from "../types/user";
+import { VideoJsAccessibilitySubmenu } from "./videojs-accessibility-submenu";
 import { VideoJsCaptionStylePanel } from "./videojs-caption-style-panel";
 import { useFormatSection } from "./videojs-format-section";
 import {
@@ -213,6 +214,7 @@ function WatchSettingsRows({ danmaku, captionStyles, onCaptionStylesChange }: Pr
             <VideoJsCaptionStylePanel styles={captionStyles} onChange={onCaptionStylesChange} />
           </MenuGroupSubmenu>
         )}
+      <VideoJsAccessibilitySubmenu />
       <Menu.CheckboxItem
         checked={loop.value === ON}
         onCheckedChange={(checked: boolean) => loop.onChange(checked ? ON : OFF)}

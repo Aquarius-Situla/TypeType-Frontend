@@ -3,6 +3,7 @@ import {
   isInteractiveTarget,
   isPlaybackToggleShortcut,
   keyboardSeekOffset,
+  nextKeyboardRate,
   nextKeyboardSeekTarget,
 } from "../src/components/player-hotkeys-utils";
 
@@ -52,4 +53,11 @@ test("accumulates rapid arrow seeks from the last requested target", () => {
 
   expect([first.position, second.position, third.position]).toEqual([20, 30, 40]);
   expect(nextKeyboardSeekTarget(25, 120, 10, third, 4_000).position).toBe(35);
+});
+
+test("< and > step the speed by a quarter within the menu range", () => {
+  expect(nextKeyboardRate(1, 0.25)).toBe(1.25);
+  expect(nextKeyboardRate(1.1, -0.25)).toBe(0.85);
+  expect(nextKeyboardRate(4, 0.25)).toBe(4);
+  expect(nextKeyboardRate(0.25, -0.25)).toBe(0.25);
 });

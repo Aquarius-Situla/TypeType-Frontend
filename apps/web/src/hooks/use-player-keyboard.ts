@@ -2,22 +2,27 @@ import { useEffect, useRef } from "react";
 import {
   clampTime,
   consumeEvent,
+  isEditableTarget,
   isInteractiveTarget,
   isPlaybackToggleShortcut,
   isPlayerSeekShortcutTarget,
   type KeyboardSeekTarget,
   keyboardSeekOffset,
+  nextKeyboardRate,
   nextKeyboardSeekTarget,
 } from "../components/player-hotkeys-utils";
 import { usePlayerEngine } from "../lib/player-engine";
+import { usePlayerKeySignal } from "../lib/player-key-signal";
 import { useDanmakuStore } from "../stores/danmaku-store";
 import { useWatchLayoutStore } from "../stores/watch-layout-store";
 import { useHoldFastForward } from "./use-hold-fast-forward";
 
 const FRAME_STEP_SECONDS = 1 / 30;
+const RATE_STEP = 0.25;
 
 export function usePlayerKeyboard(canSeek: boolean, playbackOnly = false) {
   const engine = usePlayerEngine();
+  const keySignal = usePlayerKeySignal();
   const { holding, isActive, start, restore } = useHoldFastForward();
   const spaceStartedRef = useRef(false);
   const seekTargetRef = useRef<KeyboardSeekTarget>({
@@ -35,6 +40,11 @@ export function usePlayerKeyboard(canSeek: boolean, playbackOnly = false) {
       );
     }
 
+    function stepRate(delta: number) {
+      if (isActive()) return;
+      engine.setPlaybackRate(nextKeyboardRate(engine.playbackRate(), delta));
+    }
+
     function seekBy(seconds: number) {
       if (!canSeek) return;
       seekTargetRef.current = nextKeyboardSeekTarget(
@@ -49,6 +59,11 @@ export function usePlayerKeyboard(canSeek: boolean, playbackOnly = false) {
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+      if (keySignal && !isEditableTarget(event.target)) {
+        keySignal.current.key = event.key;
+        keySignal.current.at = performance.now();
+        keySignal.current.onKey?.(event.key);
+      }
       if (event.key === "Escape" || event.code === "Escape") {
         if (useWatchLayoutStore.getState().webFullscreen) {
           consumeEvent(event);
@@ -61,6 +76,7 @@ export function usePlayerKeyboard(canSeek: boolean, playbackOnly = false) {
       if (seekOffset !== null && isPlayerSeekShortcutTarget(event.target, engine.element())) {
         consumeEvent(event);
         seekBy(seekOffset);
+        keySignal?.current.onSeek?.(seekOffset);
         return;
       }
       if (isInteractiveTarget(event.target)) return;
@@ -94,6 +110,11 @@ export function usePlayerKeyboard(canSeek: boolean, playbackOnly = false) {
           spaceStartedRef.current = true;
           start();
         }
+        return;
+      }
+      if (event.key === ">" || event.key === "<") {
+        consumeEvent(event);
+        stepRate(event.key === ">" ? RATE_STEP : -RATE_STEP);
         return;
       }
       if (event.key === "," || event.code === "Comma") {
@@ -132,7 +153,7 @@ export function usePlayerKeyboard(canSeek: boolean, playbackOnly = false) {
       window.removeEventListener("blur", onBlur);
       restore(false);
     };
-  }, [canSeek, engine, start, restore, isActive, playbackOnly]);
+  }, [canSeek, engine, start, restore, isActive, playbackOnly, keySignal]);
 
   return holding;
 }

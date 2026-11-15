@@ -23,6 +23,7 @@ import {
 import type { CSSProperties, ReactNode } from "react";
 import { useVideoJsWheelVolume } from "../hooks/use-videojs-wheel-volume";
 import { BAR_BUTTON, BAR_PILL } from "../lib/videojs-menu-classes";
+import { usePlayerAccessibilityStore } from "../stores/player-accessibility-store";
 import { VideoJsLoadingMascot } from "./videojs-loading-mascot";
 
 export const SKIN_HIDDEN_WHEN_IDLE =
@@ -128,6 +129,7 @@ export function SkinFullscreenButton() {
 type SkinFrameProps = { children: ReactNode; style?: CSSProperties; autoplay?: boolean };
 
 export function SkinFrame({ children, style, autoplay = false }: SkinFrameProps) {
+  const announcements = usePlayerAccessibilityStore((state) => state.announcements);
   return (
     <Container
       style={style}
@@ -138,7 +140,7 @@ export function SkinFrame({ children, style, autoplay = false }: SkinFrameProps)
       <Title
         className={`media-title pointer-events-none absolute inset-x-0 top-0 z-10 truncate bg-linear-to-b from-black/70 to-transparent px-4 pt-3 pb-8 contrast-more:from-black/95 [@media(prefers-reduced-transparency:reduce)]:bg-black/90 text-sm font-medium text-white ${SKIN_HIDDEN_WHEN_IDLE}`}
       />
-      <StatusAnnouncer />
+      {announcements && <StatusAnnouncer />}
     </Container>
   );
 }

@@ -2158,5 +2158,6 @@
   "player_caption_window": "Fensterfarbe",
   "player_caption_window_opacity": "Fensterdeckkraft",
   "player_color_black": "Schwarz",
-  "player_color_magenta": "Magenta"
+  "player_color_magenta": "Magenta",
+  "player_feedback_seek": "{value} s"
 }

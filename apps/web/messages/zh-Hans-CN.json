@@ -2158,5 +2158,6 @@
   "player_caption_window": "窗口颜色",
   "player_caption_window_opacity": "窗口不透明度",
   "player_color_black": "黑色",
-  "player_color_magenta": "品红色"
+  "player_color_magenta": "品红色",
+  "player_feedback_seek": "{value} 秒"
 }
