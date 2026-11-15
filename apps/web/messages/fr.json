@@ -2010,6 +2010,8 @@
   "twitch_channel_sections": "Sections de la chaîne",
   "twitch_videos": "Rediffusions",
   "twitch_clips": "Clips",
+  "twitch_offline": "Cette chaîne est hors ligne ou cette vidéo n'existe plus.",
+  "twitch_restricted": "Ce contenu est restreint (réservé aux abonnés ou indisponible dans cette région).",
   "twitch_search_channels": "Chaînes",
   "twitch_search_lives": "Lives",
   "twitch_search_title": "Résultats Twitch pour « {query} »",

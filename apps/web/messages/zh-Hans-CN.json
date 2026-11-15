@@ -2010,6 +2010,8 @@
   "twitch_channel_sections": "频道分区",
   "twitch_videos": "回放",
   "twitch_clips": "剪辑",
+  "twitch_offline": "该频道已下线或该视频已不存在。",
+  "twitch_restricted": "此内容受限（仅限订阅者或在该地区不可用）。",
   "twitch_search_channels": "频道",
   "twitch_search_lives": "直播",
   "twitch_search_title": "“{query}”的 Twitch 搜索结果",

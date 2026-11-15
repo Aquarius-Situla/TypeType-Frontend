@@ -2010,6 +2010,8 @@
   "twitch_channel_sections": "Kanalbereiche",
   "twitch_videos": "Vergangene Übertragungen",
   "twitch_clips": "Clips",
+  "twitch_offline": "Dieser Kanal ist offline oder das Video existiert nicht mehr.",
+  "twitch_restricted": "Dieser Inhalt ist eingeschränkt (nur für Abonnenten oder in dieser Region nicht verfügbar).",
   "twitch_search_channels": "Kanäle",
   "twitch_search_lives": "Livestreams",
   "twitch_search_title": "Twitch-Ergebnisse für „{query}“",

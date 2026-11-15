@@ -2010,6 +2010,8 @@
   "twitch_channel_sections": "Channel sections",
   "twitch_videos": "Past broadcasts",
   "twitch_clips": "Clips",
+  "twitch_offline": "This channel is offline or this video no longer exists.",
+  "twitch_restricted": "This content is restricted (subscribers only or not available in this region).",
   "twitch_search_channels": "Channels",
   "twitch_search_lives": "Lives",
   "twitch_search_title": "Twitch results for “{query}”",
