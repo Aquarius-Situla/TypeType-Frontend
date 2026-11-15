@@ -234,6 +234,7 @@ export type ChannelResponse = {
   nextpage: string | null;
   verification?: ChannelVerification | null;
   hasCourses?: boolean;
+  focusArchiveDays?: number | null;
 };
 
 export type PodcastItem = {
