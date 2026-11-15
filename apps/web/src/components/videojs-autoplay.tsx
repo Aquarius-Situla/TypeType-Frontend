@@ -53,6 +53,19 @@ export function VideoJsAutoplay({ enabled, policyMuted }: Props) {
     setSilenced(false);
   }, [silenced, volume?.muted, policyMuted]);
 
+  useEffect(() => {
+    if (!silenced) return;
+    const unmute = (event: MouseEvent) => {
+      const target = event.target;
+      const ownControl =
+        target instanceof Element &&
+        target.closest("[data-player-root] button, [data-player-root] [role=slider]");
+      if (!ownControl) volumeRef.current?.setMuted(false);
+    };
+    document.addEventListener("click", unmute, true);
+    return () => document.removeEventListener("click", unmute, true);
+  }, [silenced]);
+
   if (!silenced) return null;
   return (
     <button
