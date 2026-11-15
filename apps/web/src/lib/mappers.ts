@@ -115,6 +115,7 @@ export function mapStreamResponse(response: StreamResponse, url: string): VideoS
     previewFrames: response.previewFrames.length > 0 ? response.previewFrames : undefined,
     sponsorBlockSegments:
       response.sponsorBlockSegments.length > 0 ? response.sponsorBlockSegments : undefined,
+    sponsorBlockUnavailable: response.sponsorBlockAvailable === false,
     collections: response.collections?.length ? response.collections : undefined,
     parts: response.parts?.length ? response.parts : undefined,
     endScreenElements: response.endScreenElements?.length

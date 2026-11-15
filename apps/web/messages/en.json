@@ -2084,5 +2084,6 @@
   "ui_twitch_status_connected_description": "Followed channels, subscriber lives and chat use this account.",
   "ui_twitch_status_disconnected": "Not connected",
   "ui_twitch_status_disconnected_description": "Lives, VODs, clips and chat still work without an account.",
-  "ui_twitch_sign_in_first": "Sign in to TypeType to connect Twitch"
+  "ui_twitch_sign_in_first": "Sign in to TypeType to connect Twitch",
+  "watch_sponsorblock_unavailable": "SponsorBlock is not responding, segments are not loaded for this video"
 }

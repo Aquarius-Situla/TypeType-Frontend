@@ -22,6 +22,8 @@ export function useWatchSponsorBlock(stream: VideoStream, settings: SettingsItem
   );
 
   return {
+    unavailable:
+      stream.sponsorBlockUnavailable === true && settings.sponsorBlockMode !== "disabled",
     segments,
     autoSkipSegments,
     manualSkipSegments,

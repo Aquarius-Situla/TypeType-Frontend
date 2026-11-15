@@ -81,6 +81,7 @@ export type StreamResponse = {
   audioStreams: AudioStreamItem[];
   videoOnlyStreams: VideoStreamItem[];
   sponsorBlockSegments: SponsorBlockSegmentItem[];
+  sponsorBlockAvailable?: boolean;
   subtitles: SubtitleItem[];
   previewFrames: PreviewFrameItem[];
   relatedStreams: VideoItem[];
