@@ -34,7 +34,8 @@ export type WatchSkinOptions = {
   onCaptionStylesChange?: (styles: CaptionStyles) => void;
   onPrevious?: () => void;
   onNext?: () => void;
-  // Twitch keeps a flat bar like its own player; the pills are the YouTube layout.
+  // Twitch keeps a flat bar like its own player, with the times at both ends of the timeline; the pills are the
+  // YouTube layout.
   flat?: boolean;
   // Audio only drops the picture controls and puts 10 second seeks around play, like the Vidstack audio layout.
   audioOnly?: boolean;
@@ -70,9 +71,19 @@ export function VideoJsWatchSkin({
           data-skin-bottom=""
           className={`absolute inset-x-0 bottom-0 z-20 flex flex-col bg-linear-to-t from-black/80 to-transparent px-2 pt-10 pb-1.5 contrast-more:from-black/95 [@media(prefers-reduced-transparency:reduce)]:bg-black/90 ${SKIN_HIDDEN_WHEN_IDLE}`}
         >
-          <div className="px-2">
-            <VideoJsWatchTimeline segments={options.segments} />
-          </div>
+          {options.flat ? (
+            <div className="flex items-center gap-3 px-2 text-white text-xs tabular-nums">
+              <Time.Value type="current" className="shrink-0" />
+              <div className="min-w-0 flex-1">
+                <VideoJsWatchTimeline segments={options.segments} />
+              </div>
+              <Time.Value type="duration" className="shrink-0" />
+            </div>
+          ) : (
+            <div className="px-2">
+              <VideoJsWatchTimeline segments={options.segments} />
+            </div>
+          )}
           <div
             className={options.flat ? "flex items-center gap-0.5" : "flex items-center gap-2 pt-1"}
           >
@@ -85,17 +96,15 @@ export function VideoJsWatchSkin({
                 <SkinTrackButton direction="next" onClick={options.onNext} />
               </span>
               <SkinVolume pill={!options.flat} />
-              <Time.Group
-                className={
-                  options.flat
-                    ? "ml-1 flex items-center gap-1 text-white text-xs tabular-nums"
-                    : `${BAR_PILL} gap-1 px-4 font-medium text-sm text-white tabular-nums`
-                }
-              >
-                <Time.Value type="current" />
-                <Time.Separator />
-                <Time.Value type="duration" />
-              </Time.Group>
+              {!options.flat && (
+                <Time.Group
+                  className={`${BAR_PILL} gap-1 px-4 font-medium text-sm text-white tabular-nums`}
+                >
+                  <Time.Value type="current" />
+                  <Time.Separator />
+                  <Time.Value type="duration" />
+                </Time.Group>
+              )}
               {!options.flat && <VideoJsChapterMenu />}
             </Controls.Group>
             <div aria-hidden="true" className="flex-1" />
