@@ -313,6 +313,9 @@ export function PersistentWatchPlayerHost() {
 
   if (!entry?.enabled || hiddenPage) return null;
 
+  // A Twitch page keeps its chat field at the bottom of the phone screen, so its player floats under the navbar
+  // instead; the top comes from CSS because the docked frame's direct styles clear an inline one.
+  const floatUnderNavbar = floating && !position && isMobile && Boolean(entry.props.ownSkin);
   const style: React.CSSProperties =
     webFullscreen && watchPage
       ? {}
@@ -330,10 +333,12 @@ export function PersistentWatchPlayerHost() {
             }
           : position
             ? { left: position.left, top: position.top }
-            : {
-                right: "1rem",
-                bottom: `calc(${isMobile ? "4.5rem" : "1rem"} + env(safe-area-inset-bottom, 0px))`,
-              };
+            : floatUnderNavbar
+              ? { right: "1rem" }
+              : {
+                  right: "1rem",
+                  bottom: `calc(${isMobile ? "4.5rem" : "1rem"} + env(safe-area-inset-bottom, 0px))`,
+                };
 
   // On the watch page the stage still owns the player: closing the floating copy only pauses and hides it, and
   // scrolling back up docks it again.
@@ -380,11 +385,12 @@ export function PersistentWatchPlayerHost() {
       }${floating && floatingDismissed ? " invisible" : ""}`}
       data-web-fullscreen={webFullscreen && watchPage ? "" : undefined}
       data-floating={floating ? "" : undefined}
+      data-float-top={floatUnderNavbar ? "" : undefined}
       data-dragging={dragging ? "" : undefined}
       style={style}
     >
       {floating && (
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex h-9 items-start justify-between bg-gradient-to-b from-black/70 to-transparent px-1 pt-1">
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex h-9 items-start justify-between bg-gradient-to-b from-black/70 to-transparent px-1 pt-1">
           <button
             type="button"
             aria-label={m.ui_move_player()}
