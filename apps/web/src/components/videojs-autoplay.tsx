@@ -5,11 +5,12 @@ import { StartWithSound } from "./start-with-sound";
 
 type Props = {
   enabled: boolean;
-  blocked: number;
+  // Only Twitch starts muted when the browser refuses sound; everything else stays paused until the viewer plays it.
+  mutedFallback: boolean;
   policyMuted: RefObject<boolean>;
 };
 
-export function VideoJsAutoplay({ enabled, blocked, policyMuted }: Props) {
+export function VideoJsAutoplay({ enabled, mutedFallback, policyMuted }: Props) {
   const store = usePlayer();
   const playback = usePlayer(selectPlayback);
   const volume = usePlayer(selectVolume);
@@ -36,9 +37,10 @@ export function VideoJsAutoplay({ enabled, blocked, policyMuted }: Props) {
     return unsubscribe;
   }, [enabled, store]);
 
+  if (!mutedFallback) return null;
   return (
     <StartWithSound
-      blocked={blocked + refused}
+      blocked={refused}
       paused={playback?.paused}
       muted={volume?.muted}
       policyMuted={policyMuted}

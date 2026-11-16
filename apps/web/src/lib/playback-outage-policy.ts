@@ -23,3 +23,23 @@ export const HLS_OUTAGE_LOAD_POLICIES: Pick<HlsConfig, "playlistLoadPolicy" | "f
   playlistLoadPolicy: { default: playlistPolicy },
   fragLoadPolicy: { default: fragmentPolicy },
 };
+
+// dash.js retries a failed request three times one second apart; the same minute of patience as hls.js above, at a
+// fixed interval because dash.js has no backoff.
+const DASH_OUTAGE_ATTEMPTS = 20;
+const DASH_OUTAGE_INTERVAL_MS = 3000;
+
+export const DASH_OUTAGE_RETRY = {
+  retryAttempts: {
+    MPD: DASH_OUTAGE_ATTEMPTS,
+    MediaSegment: DASH_OUTAGE_ATTEMPTS,
+    InitializationSegment: DASH_OUTAGE_ATTEMPTS,
+    IndexSegment: DASH_OUTAGE_ATTEMPTS,
+  },
+  retryIntervals: {
+    MPD: DASH_OUTAGE_INTERVAL_MS,
+    MediaSegment: DASH_OUTAGE_INTERVAL_MS,
+    InitializationSegment: DASH_OUTAGE_INTERVAL_MS,
+    IndexSegment: DASH_OUTAGE_INTERVAL_MS,
+  },
+};

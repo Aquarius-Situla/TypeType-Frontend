@@ -54,6 +54,7 @@ import { Route as AuthOidcCallbackRouteImport } from './routes/auth.oidc.callbac
 import { Route as ChannelProviderChannelIdRouteImport } from './routes/channel_.$provider.$channelId'
 import { Route as TwitchCategorySlugRouteImport } from './routes/twitch_.category.$slug'
 import { Route as TwitchChannelLoginRouteImport } from './routes/twitch_.channel.$login'
+import { Route as TwitchTagTagRouteImport } from './routes/twitch_.tag.$tag'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -282,6 +283,11 @@ const TwitchChannelLoginRoute = TwitchChannelLoginRouteImport.update({
   path: '/twitch/channel/$login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TwitchTagTagRoute = TwitchTagTagRouteImport.update({
+  id: '/twitch_/tag/$tag',
+  path: '/twitch/tag/$tag',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -329,6 +335,7 @@ export interface FileRoutesByFullPath {
   '/channel/$provider/$channelId': typeof ChannelProviderChannelIdRoute
   '/twitch/category/$slug': typeof TwitchCategorySlugRoute
   '/twitch/channel/$login': typeof TwitchChannelLoginRoute
+  '/twitch/tag/$tag': typeof TwitchTagTagRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -375,6 +382,7 @@ export interface FileRoutesByTo {
   '/channel/$provider/$channelId': typeof ChannelProviderChannelIdRoute
   '/twitch/category/$slug': typeof TwitchCategorySlugRoute
   '/twitch/channel/$login': typeof TwitchChannelLoginRoute
+  '/twitch/tag/$tag': typeof TwitchTagTagRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -423,6 +431,7 @@ export interface FileRoutesById {
   '/channel_/$provider/$channelId': typeof ChannelProviderChannelIdRoute
   '/twitch_/category/$slug': typeof TwitchCategorySlugRoute
   '/twitch_/channel/$login': typeof TwitchChannelLoginRoute
+  '/twitch_/tag/$tag': typeof TwitchTagTagRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -472,6 +481,7 @@ export interface FileRouteTypes {
     | '/channel/$provider/$channelId'
     | '/twitch/category/$slug'
     | '/twitch/channel/$login'
+    | '/twitch/tag/$tag'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -518,6 +528,7 @@ export interface FileRouteTypes {
     | '/channel/$provider/$channelId'
     | '/twitch/category/$slug'
     | '/twitch/channel/$login'
+    | '/twitch/tag/$tag'
   id:
     | '__root__'
     | '/'
@@ -565,6 +576,7 @@ export interface FileRouteTypes {
     | '/channel_/$provider/$channelId'
     | '/twitch_/category/$slug'
     | '/twitch_/channel/$login'
+    | '/twitch_/tag/$tag'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -610,6 +622,7 @@ export interface RootRouteChildren {
   ChannelProviderChannelIdRoute: typeof ChannelProviderChannelIdRoute
   TwitchCategorySlugRoute: typeof TwitchCategorySlugRoute
   TwitchChannelLoginRoute: typeof TwitchChannelLoginRoute
+  TwitchTagTagRoute: typeof TwitchTagTagRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -929,6 +942,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TwitchChannelLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/twitch_/tag/$tag': {
+      id: '/twitch_/tag/$tag'
+      path: '/twitch/tag/$tag'
+      fullPath: '/twitch/tag/$tag'
+      preLoaderRoute: typeof TwitchTagTagRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -990,6 +1010,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChannelProviderChannelIdRoute: ChannelProviderChannelIdRoute,
   TwitchCategorySlugRoute: TwitchCategorySlugRoute,
   TwitchChannelLoginRoute: TwitchChannelLoginRoute,
+  TwitchTagTagRoute: TwitchTagTagRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

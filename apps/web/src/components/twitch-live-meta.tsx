@@ -37,9 +37,15 @@ export function TwitchLiveMeta({ stream }: { stream: TwitchStream }) {
         </Link>
       )}
       {stream.tags?.slice(0, 6).map((tag) => (
-        <span key={tag} className="rounded-full bg-surface-strong px-2 py-0.5 text-fg-soft text-xs">
+        <Link
+          key={tag}
+          to="/twitch/tag/$tag"
+          params={{ tag }}
+          aria-label={m.twitch_tag_link({ tag })}
+          className="rounded-full bg-surface-strong px-2 py-0.5 text-fg-soft text-xs transition-colors hover:bg-border hover:text-fg"
+        >
           {tag}
-        </span>
+        </Link>
       ))}
     </div>
   );

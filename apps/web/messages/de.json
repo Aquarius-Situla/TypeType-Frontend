@@ -205,7 +205,7 @@
   "settings_player_color_description": "Farbe der Fortschrittsleiste und der Player-Steuerung",
   "settings_seekbar_icon_label": "Symbol der Fortschrittsleiste",
   "settings_player_engine_label": "Player-Engine",
-  "settings_player_engine_description": "TypeType wechselt zum Video.js-Player. Probiere ihn auf YouTube, NicoNico, BiliBili und Twitch aus und melde Fehler. Alte BiliBili-FLV-Streams öffnen sich weiterhin im klassischen Player.",
+  "settings_player_engine_description": "TypeType wechselt zum Video.js-Player. Probiere ihn auf YouTube, NicoNico und BiliBili aus und melde Fehler. Twitch läuft immer in Video.js. Alte BiliBili-FLV-Streams öffnen sich weiterhin im klassischen Player.",
   "settings_player_engine_vidstack": "Klassisch (Vidstack)",
   "settings_player_engine_videojs": "Video.js (Beta)",
   "settings_seekbar_icon_description": "Läuft auf der Fortschrittsleiste mit, auf allen Geräten, auf denen Sie angemeldet sind",
@@ -2123,5 +2123,10 @@
   "ui_device_login_expires_in": "Läuft in {time} ab",
   "ui_twitch_see_lives": "Ein paar Lives ansehen",
   "nav_live": "Live",
-  "player_unmute_hint": "Klicken, um den Ton einzuschalten"
+  "player_unmute_hint": "Klicken, um den Ton einzuschalten",
+  "twitch_tag_title": "{tag}-Lives",
+  "twitch_tag_link": "Lives mit dem Tag {tag} ansehen",
+  "shell_videojs_locked_twitch": "Twitch läuft immer im Video.js-Player",
+  "twitch_chat_hide": "Chat ausblenden",
+  "twitch_chat_show": "Chat einblenden"
 }

@@ -20,6 +20,9 @@
 @import "./styles/watch-mobile-landscape.css";
 @import "./styles/watch-web-fullscreen.css";
 @import "./styles/player-hotkeys.css";
+@import "./styles/videojs-loading.css";
+@import "./styles/videojs-compact.css";
+@import "./styles/videojs-performance.css";
 @import "./styles/autoplay-overlay.css";
 @import "./styles/algorithm-motion.css";
 @import "./styles/pixel-scene-enter.css";

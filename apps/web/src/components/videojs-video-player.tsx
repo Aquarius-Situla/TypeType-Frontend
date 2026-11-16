@@ -12,6 +12,7 @@ import type { VideoPlayerProps } from "./video-player-types";
 import { VideoJsAutoplay } from "./videojs-autoplay";
 import { VideoJsLivePlayer } from "./videojs-live-player";
 import { VideoJsLiveSkin } from "./videojs-live-skin";
+import { VideoJsLoadingMascot } from "./videojs-loading-mascot";
 import { VideoJsMedia } from "./videojs-media";
 import { VideoJsPlaybackSpeedDefault } from "./videojs-playback-speed-default";
 import { VideoJsPlaybackTools } from "./videojs-playback-tools";
@@ -55,8 +56,6 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
   const sabr = source.kind === "sabr";
   const [root, setRoot] = useState<HTMLDivElement | null>(null);
   const { policyMuted, saveVolume } = usePolicyMutedSave(props.onVolumeChange);
-  const [sabrBlocked, setSabrBlocked] = useState(0);
-  const onSabrBlocked = useCallback(() => setSabrBlocked((count) => count + 1), []);
   const live = streamType === "live";
   const Player = live ? VideoJsLivePlayer : VideoPlayer;
   const Skin = live ? VideoJsLiveSkin : props.ownSkin ? VideoJsVodSkin : VideoSkin;
@@ -108,6 +107,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
           <Skin style={SKIN_STYLE}>
             <VideoJsMedia
               source={source}
+              provider={props.provider}
               live={live}
               startTime={startTime}
               subtitles={props.subtitles}
@@ -117,9 +117,10 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
             />
             <VideoJsAutoplay
               enabled={autoplay && !sabr}
-              blocked={sabrBlocked}
+              mutedFallback={Boolean(props.ownSkin)}
               policyMuted={policyMuted}
             />
+            {Skin === VideoSkin && <VideoJsLoadingMascot autoplay={autoplay} />}
             <VideoJsRecoveryCover />
             <ServerStatusNotice variant="player" />
             <VideoJsPlayerMedia root={root}>
@@ -135,11 +136,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
           </Skin>
           <VideoJsPlaybackSpeedDefault speed={props.defaultPlaybackSpeed} />
           {sabr ? (
-            <VideoJsSabrEngine
-              video={video}
-              player={{ ...props, onVolumeChange: saveVolume }}
-              onAutoplayBlocked={onSabrBlocked}
-            />
+            <VideoJsSabrEngine video={video} player={props} />
           ) : (
             <VideoJsPlayerBridge
               initialVolume={props.initialVolume ?? 1}

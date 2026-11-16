@@ -1,23 +1,22 @@
-import { createDashSettings, createHlsConfig } from "@typetype/mse";
+import { createHlsConfig } from "@typetype/mse";
 import type * as dashjs from "dashjs";
 import type Hls from "hls.js";
-import {
-  BILIBILI_LIGHT_KBPS,
-  bilibiliBufferSeconds,
-  bilibiliBufferSettings,
-} from "../lib/bilibili-buffer";
 import { recordClientEvent } from "../lib/client-debug-log";
 import { attachBilibiliSeekBuffer } from "../lib/dash-bilibili-seek-buffer";
 import { attachDashPlaybackDiagnostics } from "../lib/dash-playback-diagnostics";
 import { attachDashPlaybackStallRecovery } from "../lib/dash-playback-stall-recovery";
 import { notifyDashPlayer, setDashPlayer } from "../lib/dash-player-store";
 import { installDashQualityCompat } from "../lib/dash-quality-compat";
-import { HLS_OUTAGE_LOAD_POLICIES } from "../lib/hls-outage-policy";
+import {
+  bilibiliSteadySeconds,
+  buildDashStreamingSettings,
+  STREAMING_BUFFER_POLICY,
+} from "../lib/dash-streaming-settings";
+import { HLS_OUTAGE_LOAD_POLICIES } from "../lib/playback-outage-policy";
 import type { Provider } from "../lib/provider";
 import type { MediaProviderAdapter } from "../lib/vidstack";
 import { isDASHProvider, isHLSProvider, Track, useMediaState } from "../lib/vidstack";
 import { useAuthStore } from "../stores/auth-store";
-import { useBilibiliBufferStore } from "../stores/bilibili-buffer-store";
 
 type DashRequestInterceptor = Parameters<dashjs.MediaPlayerClass["addRequestInterceptor"]>[0];
 
@@ -46,56 +45,6 @@ const loadHlsLibrary = (): Promise<HlsLibraryModule> => {
   }));
   return hlsLibraryPromise;
 };
-
-// The server already races mirrors for a slow Bilibili range; abandoning it restarts the segment from zero.
-// The start quality holds until playback starts: dash.js picks again on the start position seek, from
-// the speed of a first segment the server often answers from memory, and that switch can leave
-// Chrome seeking forever. attachBilibiliSeekBuffer lifts the cap.
-const BILIBILI_ABR = {
-  initialBitrate: { video: BILIBILI_LIGHT_KBPS },
-  maxBitrate: { video: BILIBILI_LIGHT_KBPS },
-  rules: { abandonRequestsRule: { active: false } },
-} as const;
-
-// dash.js retries at a fixed interval and then gives up on the segment for good: about 30 s of
-// retries, like hls.js, lets playback resume by itself after a network cut.
-const STREAMING_BUFFER_POLICY = {
-  steadyBufferMs: 36_000,
-  maxBufferMs: 60_000,
-  backBufferMs: 20_000,
-  mediaAttempts: 20,
-} as const;
-
-function bilibiliSteadySeconds(playbackRate = 1): number {
-  return bilibiliBufferSeconds(useBilibiliBufferStore.getState().level, playbackRate);
-}
-
-export function buildDashStreamingSettings(sourceProvider?: Provider) {
-  const isBilibili = sourceProvider === "bilibili";
-  const bilibiliSeconds = bilibiliSteadySeconds();
-  const bufferPolicy = isBilibili
-    ? { ...STREAMING_BUFFER_POLICY, steadyBufferMs: bilibiliSeconds * 1000 }
-    : STREAMING_BUFFER_POLICY;
-  const dashSettings = createDashSettings(bufferPolicy);
-  return {
-    ...dashSettings,
-    buffer: {
-      ...dashSettings.buffer,
-      ...(isBilibili
-        ? { ...bilibiliBufferSettings(bilibiliSeconds), fastSwitchEnabled: false }
-        : {
-            bufferTimeDefault: 24,
-            bufferTimeAtTopQuality: 36,
-            bufferTimeAtTopQualityLongForm: 60,
-          }),
-    },
-    ...(isBilibili ? { abr: BILIBILI_ABR } : {}),
-    gaps: {
-      enableStallFix: true,
-    },
-    cmcd: { enabled: false },
-  };
-}
 
 function configureDashPlayer(
   player: dashjs.MediaPlayerClass,
