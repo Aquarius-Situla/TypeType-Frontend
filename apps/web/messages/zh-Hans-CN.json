@@ -2172,5 +2172,11 @@
   "release_notice_videojs": "试试更流畅的新 Video.js 播放器，可随时在设置中切换回来。",
   "release_notice_videojs_action": "试用",
   "release_notice_videojs_active": "你已在使用新的 Video.js 播放器。",
-  "release_notice_confirm": "知道了"
+  "release_notice_confirm": "知道了",
+  "twitch_subscribed": "已订阅",
+  "twitch_subscribed_one_month": "已订阅 · 1 个月",
+  "twitch_subscribed_months": "已订阅 · {months} 个月",
+  "twitch_subscription_streak": "连续 {streak} 个月",
+  "twitch_subscription_tier": "{tier} 级",
+  "twitch_subscription_months_short": "{months} 个月"
 }
