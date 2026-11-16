@@ -32,6 +32,9 @@ const SearchOverlay = lazy(() =>
 
 const SPONSOR_URL = "https://github.com/sponsors/Priveetee";
 
+const COMMUNITY_LINK =
+  "inline-flex h-8 shrink-0 items-center gap-1.5 px-1 text-xs font-medium text-fg-muted hover:text-fg";
+
 export function Navbar() {
   useInterfaceLocale();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -44,7 +47,6 @@ export function Navbar() {
   const logoTarget = defaultLandingPath(settings.defaultLandingPage) ?? "/";
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const authPage = isAuthPage(pathname);
-  const watchPage = pathname === "/watch";
   const canOpenSearch = !authPage;
   const showBackButton = isMobile && canOpenSearch && pathname !== "/";
   const navClass = isMobile
@@ -91,7 +93,7 @@ export function Navbar() {
             rel="noreferrer"
             aria-label={m.shell_support_typetype()}
             title={m.shell_support_typetype()}
-            className={`${watchPage ? "hidden" : "hidden sm:inline-flex"} h-8 shrink-0 items-center gap-1.5 px-1 text-xs font-medium text-fg-muted hover:text-fg`}
+            className={COMMUNITY_LINK}
           >
             <DollarSign size={15} />
             <span className="hidden sm:inline">{m.shell_support()}</span>
@@ -102,7 +104,7 @@ export function Navbar() {
             rel="noreferrer"
             aria-label="Lemmy"
             title="Lemmy"
-            className={`${watchPage ? "hidden" : "hidden sm:inline-flex"} h-8 shrink-0 items-center gap-1.5 px-1 text-xs font-medium text-fg-muted hover:text-fg`}
+            className={COMMUNITY_LINK}
           >
             <ServiceIcon path={siLemmy.path} color="currentColor" label="Lemmy" />
             <span className="hidden sm:inline">Lemmy</span>
@@ -113,7 +115,7 @@ export function Navbar() {
             rel="noreferrer"
             aria-label="Discord"
             title="Discord"
-            className={`${watchPage ? "hidden" : "hidden sm:inline-flex"} h-8 shrink-0 items-center gap-1.5 px-1 text-xs font-medium text-fg-muted hover:text-fg`}
+            className={COMMUNITY_LINK}
           >
             <ServiceIcon path={siDiscord.path} color="currentColor" label="Discord" />
             <span className="hidden sm:inline">Discord</span>
