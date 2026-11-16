@@ -10,7 +10,6 @@ import type { SponsorBlockSegmentItem, SubtitleItem } from "../types/api";
 import type { CaptionStyles, SettingsItem } from "../types/user";
 import { PlayerPlaybackSpeedDefault } from "./player-defaults";
 import { VideoPlayer } from "./video-player";
-import { VideoJsInvite } from "./videojs-invite";
 import { VideoJsStagePlayer } from "./videojs-stage-player";
 import { WatchPlayerCrossfade } from "./watch-player-crossfade";
 
@@ -95,7 +94,6 @@ export function WatchStagePlayer(props: WatchStagePlayerProps) {
     );
   return (
     <>
-      {engine === "vidstack" && props.settingsReady && <VideoJsInvite />}
       <WatchPlayerCrossfade
         audioOnly={audioPosterVisible}
         poster={props.poster}

@@ -2164,10 +2164,13 @@
   "player_airplay": "AirPlay",
   "video_live_offline": "Offline",
   "video_live_not_started": "Dieser Livestream hat noch nicht begonnen. Schau wieder vorbei, wenn der Kanal live ist.",
-  "videojs_invite_title": "Probiere den neuen Video.js-Player aus",
-  "videojs_invite_body": "Er läuft flüssiger und wird der Player von TypeType. Du kannst jederzeit in den Einstellungen zurückwechseln.",
-  "videojs_invite_try": "Video.js ausprobieren",
-  "videojs_invite_later": "Nein danke",
-  "videojs_invite_close": "Schließen",
-  "videojs_invite_discord": "Fehler auf Discord melden"
+  "release_notice_title": "Neu in TypeType 1.18",
+  "release_notice_discord": "Tritt dem offiziellen Discord bei, um zu chatten und Fehler zu melden.",
+  "release_notice_discord_action": "Beitreten",
+  "release_notice_twitch": "Twitch ist da: Lives, vergangene Übertragungen, Clips und Chat im Bereich Live.",
+  "release_notice_twitch_action": "Live öffnen",
+  "release_notice_videojs": "Probiere den neuen, flüssigeren Video.js-Player aus. Zurückwechseln geht jederzeit in den Einstellungen.",
+  "release_notice_videojs_action": "Ausprobieren",
+  "release_notice_videojs_active": "Du nutzt bereits den neuen Video.js-Player.",
+  "release_notice_close": "Schließen"
 }

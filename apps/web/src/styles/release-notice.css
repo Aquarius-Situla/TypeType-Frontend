@@ -1,0 +1,62 @@
+/* Only transform and opacity move, so the compositor runs the animation without layout or paint. */
+.release-notice {
+  animation: release-notice-in 340ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.release-notice[data-closing] {
+  animation: release-notice-out 180ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+.release-notice-row {
+  animation: release-notice-row-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.release-notice-row:nth-child(1) {
+  animation-delay: 70ms;
+}
+
+.release-notice-row:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.release-notice-row:nth-child(3) {
+  animation-delay: 170ms;
+}
+
+@keyframes release-notice-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(0.96);
+  }
+}
+
+@keyframes release-notice-out {
+  to {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0) scale(0.98);
+  }
+}
+
+@keyframes release-notice-row-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .release-notice,
+  .release-notice-row {
+    animation: release-notice-fade 160ms linear both;
+  }
+
+  .release-notice[data-closing] {
+    animation: release-notice-fade 120ms linear reverse both;
+  }
+
+  @keyframes release-notice-fade {
+    from {
+      opacity: 0;
+    }
+  }
+}
