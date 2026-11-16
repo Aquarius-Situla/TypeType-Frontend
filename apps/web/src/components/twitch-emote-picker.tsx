@@ -105,6 +105,7 @@ export function TwitchEmotePicker({ login, emotes, onPick }: Props) {
         <div
           role="dialog"
           aria-label={m.twitch_emotes_open()}
+          data-floating-panel=""
           className="absolute inset-x-2 bottom-full z-30 mb-1 flex max-h-80 flex-col gap-2 rounded-xl border border-border bg-surface p-2 shadow-xl"
         >
           <input
