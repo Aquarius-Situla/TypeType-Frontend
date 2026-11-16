@@ -36,7 +36,7 @@ export type VideoJsVideoPlayerProps = VideoPlayerProps & {
 const SKIN_STYLE = {
   width: "100%",
   height: "100%",
-  "--media-accent-color": "var(--color-accent)",
+  "--media-accent-color": "var(--typetype-player-brand, #ff174d)",
   "--media-border-radius": "0.75rem",
   "--media-border-color": "transparent",
 } as CSSProperties;

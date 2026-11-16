@@ -74,7 +74,7 @@ export function VideoJsWatchTimeline({
       {((segments && segments.length > 0) || adBreak) && (
         <SponsorBlockLayer segments={segments ?? []} adBreak={adBreak} />
       )}
-      <TimeSlider.Thumb className="absolute left-(--media-slider-fill) size-3.5 -translate-x-1/2 scale-50 rounded-full bg-(--media-accent-color,#ef4444) opacity-0 outline-none transition-[opacity,scale] duration-150 ease-out motion-reduce:transition-none focus-visible:scale-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-white/70 group-data-[pointing]/slider:scale-100 group-data-[pointing]/slider:opacity-100 group-data-[dragging]/slider:scale-100 group-data-[dragging]/slider:opacity-100" />
+      <TimeSlider.Thumb className="typetype-time-thumb absolute left-(--media-slider-fill) size-3.5 -translate-x-1/2 scale-50 rounded-full bg-(--media-accent-color,#ef4444) opacity-0 outline-none transition-[opacity,scale] duration-150 ease-out motion-reduce:transition-none focus-visible:scale-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-white/70 group-data-[pointing]/slider:scale-100 group-data-[pointing]/slider:opacity-100 group-data-[dragging]/slider:scale-100 group-data-[dragging]/slider:opacity-100" />
       <TimeSlider.Preview className="pointer-events-none absolute bottom-full mb-3 flex flex-col items-center gap-1 opacity-0 transition-opacity duration-100 motion-reduce:transition-none group-data-[pointing]/slider:opacity-100">
         <Slider.Thumbnail.Root className="overflow-hidden rounded-md bg-black shadow-lg ring-1 ring-white/20 [&:not(:has(img[src]))]:hidden">
           <Slider.Thumbnail.Image className="block max-w-48" />
