@@ -7,8 +7,9 @@ import { BAR_BUTTON } from "../lib/videojs-menu-classes";
 import { m } from "../paraglide/messages.js";
 import { useTwitchFullscreenChatStore } from "../stores/twitch-fullscreen-chat-store";
 
-// In fullscreen the chat floats over the right of the video with no backdrop; a control bar button shows or
-// hides it, and the choice is kept for the next live or past broadcast.
+// In fullscreen the chat runs down the whole right side of the video with no backdrop, under the control bar so its
+// buttons stay reachable; a control bar button shows or hides it, and the choice is kept for the next live or past
+// broadcast.
 export function TwitchFullscreenChat({ children }: { children: ReactNode }) {
   const fullscreen = usePlayer(selectFullscreen)?.isFullscreen === true;
   const open = useTwitchFullscreenChatStore((state) => state.open);
@@ -37,9 +38,7 @@ export function TwitchFullscreenChat({ children }: { children: ReactNode }) {
           slot,
         )}
       {open && (
-        <div className="absolute top-0 right-0 bottom-16 z-30 w-[22rem] max-w-[45%]">
-          {children}
-        </div>
+        <div className="absolute inset-y-0 right-0 z-10 w-[22rem] max-w-[45%]">{children}</div>
       )}
     </>
   );
