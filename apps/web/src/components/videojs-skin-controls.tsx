@@ -21,6 +21,7 @@ import {
   VolumeX,
 } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
+import { useVideoJsWheelVolume } from "../hooks/use-videojs-wheel-volume";
 import { BAR_BUTTON } from "../lib/videojs-menu-classes";
 import { VideoJsLoadingMascot } from "./videojs-loading-mascot";
 
@@ -49,8 +50,9 @@ export function SkinPlayButton() {
 }
 
 export function SkinVolume() {
+  const wheelVolume = useVideoJsWheelVolume();
   return (
-    <div data-skin-secondary="" className="flex items-center">
+    <div ref={wheelVolume} data-skin-secondary="" className="flex items-center">
       <MuteButton
         className={BAR_BUTTON}
         render={(props, state) => (
@@ -105,14 +107,16 @@ export function SkinFullscreenButton() {
   );
 }
 
-export function SkinFrame({ children, style }: { children: ReactNode; style?: CSSProperties }) {
+type SkinFrameProps = { children: ReactNode; style?: CSSProperties; autoplay?: boolean };
+
+export function SkinFrame({ children, style, autoplay = false }: SkinFrameProps) {
   return (
     <Container
       style={style}
       className="relative block overflow-hidden rounded-(--media-border-radius) bg-black text-white outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-inset fullscreen:rounded-none"
     >
       {children}
-      <VideoJsLoadingMascot />
+      <VideoJsLoadingMascot autoplay={autoplay} />
       <Title
         className={`media-title pointer-events-none absolute inset-x-0 top-0 z-10 truncate bg-linear-to-b from-black/70 to-transparent px-4 pt-3 pb-8 contrast-more:from-black/95 [@media(prefers-reduced-transparency:reduce)]:bg-black/90 text-sm font-medium text-white ${SKIN_HIDDEN_WHEN_IDLE}`}
       />

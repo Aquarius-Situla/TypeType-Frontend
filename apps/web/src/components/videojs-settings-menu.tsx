@@ -5,47 +5,11 @@ import {
   usePlayer,
   useQualityOptions,
 } from "@videojs/react";
-import { Check, Settings } from "lucide-react";
+import { Settings } from "lucide-react";
 import { isSourceRendition, qualityOptionsBestFirst } from "../lib/video-js-quality-order";
-import {
-  BAR_BUTTON,
-  BAR_MENU_ITEM,
-  BAR_MENU_LABEL,
-  BAR_MENU_POPUP,
-} from "../lib/videojs-menu-classes";
+import { BAR_BUTTON, BAR_MENU_POPUP } from "../lib/videojs-menu-classes";
 import { m } from "../paraglide/messages.js";
-
-type Option = { value: string; label: string; disabled: boolean };
-
-type SectionProps = {
-  label: string;
-  value: string;
-  options: readonly Option[];
-  onChange: (value: string) => void;
-};
-
-function Section({ label, value, options, onChange }: SectionProps) {
-  return (
-    <>
-      <p className={BAR_MENU_LABEL}>{label}</p>
-      <Menu.RadioGroup aria-label={label} value={value} onValueChange={onChange}>
-        {options.map((option) => (
-          <Menu.RadioItem
-            key={option.value}
-            value={option.value}
-            disabled={option.disabled}
-            className={BAR_MENU_ITEM}
-          >
-            <span>{option.label}</span>
-            <Menu.ItemIndicator checked={option.value === value}>
-              <Check className="size-4" aria-hidden="true" />
-            </Menu.ItemIndicator>
-          </Menu.RadioItem>
-        ))}
-      </Menu.RadioGroup>
-    </>
-  );
-}
+import { MenuSection } from "./videojs-menu-section";
 
 export function VideoJsSettingsMenu({ speed }: { speed: boolean }) {
   const quality = useQualityOptions({
@@ -72,7 +36,7 @@ export function VideoJsSettingsMenu({ speed }: { speed: boolean }) {
       <Menu.Popup className={`${BAR_MENU_POPUP} max-h-72 overflow-y-auto`}>
         <Menu.Content>
           {hasQuality && quality && (
-            <Section
+            <MenuSection
               label={m.player_quality()}
               value={quality.value}
               options={qualityOptionsBestFirst(quality.options, renditions ?? [])}
@@ -80,7 +44,7 @@ export function VideoJsSettingsMenu({ speed }: { speed: boolean }) {
             />
           )}
           {hasSpeed && rate && (
-            <Section
+            <MenuSection
               label={m.player_speed()}
               value={rate.value}
               options={rate.options}

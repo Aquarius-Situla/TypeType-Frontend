@@ -15,6 +15,7 @@ export function VideoJsStagePlayer(props: Props) {
       <LazyVideoJsVideoPlayer
         key={props.playerKey}
         source={props.source}
+        provider={props.provider}
         audioOnly={props.audioOnly}
         sabrConfig={props.sabrConfig}
         sabrRetryKey={props.sabrRetryKey}
@@ -37,6 +38,9 @@ export function VideoJsStagePlayer(props: Props) {
         onPreviousVideo={props.onPreviousVideo}
         onNextVideo={props.onNextVideo}
         thumbnailVtt={props.thumbnailVtt}
+        captionStyles={props.settings.captionStyles}
+        onCaptionStylesChange={props.onCaptionStylesChange}
+        chaptersVtt={props.chaptersVtt}
         initialVolume={props.settings.volume}
         initialMuted={props.settings.muted}
         settingsReady={props.settingsReady}

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { ApiError } from "../lib/api";
+import { TWITCH_STAGE_SIZE } from "../lib/twitch-stage-size";
 import { m } from "../paraglide/messages.js";
 
 export function TwitchWatchMessage({ text }: { text: string }) {
@@ -18,6 +19,6 @@ type Props = { loading: boolean; error: unknown; ready: boolean; children?: Reac
 export function TwitchWatchStage({ loading, error, ready, children }: Props) {
   if (error && !ready) return <TwitchWatchMessage text={errorText(error)} />;
   if (loading || !ready)
-    return <div className="aspect-video w-full animate-pulse rounded-xl bg-surface-strong" />;
+    return <div className={`animate-pulse rounded-xl bg-surface-strong ${TWITCH_STAGE_SIZE}`} />;
   return <div className="flex min-w-0 flex-1 flex-col gap-3">{children}</div>;
 }

@@ -1,10 +1,13 @@
+import type { DashAdapter } from "@videojs/react/media/dash-video";
 import { DashVideo } from "@videojs/react/media/dash-video";
 import { HlsJsVideo } from "@videojs/react/media/hlsjs-video";
 import { Video } from "@videojs/react/video";
-import { type ReactNode, useMemo, useRef, type VideoHTMLAttributes } from "react";
+import { type ReactNode, useCallback, useMemo, useRef, type VideoHTMLAttributes } from "react";
 import { useWebVttUrl } from "../hooks/use-web-vtt-url";
 import { attachBilibiliDash } from "../lib/dash-bilibili-behaviour";
+import { registerDashPlayer } from "../lib/dash-player-registration";
 import { buildDashStreamingSettings } from "../lib/dash-streaming-settings";
+import { dedupeTrackOnLoad } from "../lib/dedupe-text-track";
 import { HLS_OUTAGE_LOAD_POLICIES } from "../lib/playback-outage-policy";
 import type { Provider } from "../lib/provider";
 import type { VideoJsSource } from "../lib/video-js-source";
@@ -23,17 +26,24 @@ type Props = {
   startTime: number;
   subtitles: VideoPlayerProps["subtitles"];
   thumbnailVtt?: string;
+  chaptersVtt?: string;
   mediaRef: (element: HTMLVideoElement | null) => void;
   mediaProps: MediaProps;
 };
 
-function Tracks({ subtitles, thumbnailVtt }: Pick<Props, "subtitles" | "thumbnailVtt">): ReactNode {
+function Tracks({
+  subtitles,
+  thumbnailVtt,
+  chaptersVtt,
+}: Pick<Props, "subtitles" | "thumbnailVtt" | "chaptersVtt">): ReactNode {
   const thumbnails = useWebVttUrl(thumbnailVtt);
+  const chapters = useWebVttUrl(chaptersVtt);
   return (
     <>
       {buildSafeSubtitleTracks(subtitles).map((track) => (
         <track
           key={track.key}
+          ref={dedupeTrackOnLoad}
           kind="subtitles"
           src={track.src}
           label={track.label}
@@ -41,6 +51,7 @@ function Tracks({ subtitles, thumbnailVtt }: Pick<Props, "subtitles" | "thumbnai
         />
       ))}
       {thumbnails && <track kind="metadata" label="thumbnails" src={thumbnails} default />}
+      {chapters && <track kind="chapters" src={chapters} default />}
     </>
   );
 }
@@ -52,10 +63,13 @@ export function VideoJsMedia({
   startTime,
   subtitles,
   thumbnailVtt,
+  chaptersVtt,
   mediaRef,
   mediaProps,
 }: Props) {
-  const tracks = <Tracks subtitles={subtitles} thumbnailVtt={thumbnailVtt} />;
+  const tracks = (
+    <Tracks subtitles={subtitles} thumbnailVtt={thumbnailVtt} chaptersVtt={chaptersVtt} />
+  );
   const startRef = useRef(startTime);
   startRef.current = startTime;
   const hlsSource = useMemo(
@@ -79,6 +93,13 @@ export function VideoJsMedia({
     }),
     [source.src, provider],
   );
+  const onDashAdapter = useCallback(
+    (adapter: DashAdapter | null) => {
+      registerDashPlayer(adapter?.engine ?? null);
+      if (adapter && provider === "bilibili") attachBilibiliDash(adapter.engine);
+    },
+    [provider],
+  );
   switch (source.kind) {
     case "sabr":
       return (
@@ -94,14 +115,7 @@ export function VideoJsMedia({
       );
     case "dash":
       return (
-        <DashVideo
-          ref={mediaRef}
-          mediaRef={(adapter) => {
-            if (adapter && provider === "bilibili") attachBilibiliDash(adapter.engine);
-          }}
-          {...mediaProps}
-          source={dashSource}
-        >
+        <DashVideo ref={mediaRef} mediaRef={onDashAdapter} {...mediaProps} source={dashSource}>
           {tracks}
         </DashVideo>
       );

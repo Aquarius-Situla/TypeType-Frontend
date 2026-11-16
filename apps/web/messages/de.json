@@ -2128,5 +2128,15 @@
   "twitch_tag_link": "Lives mit dem Tag {tag} ansehen",
   "shell_videojs_locked_twitch": "Twitch läuft immer im Video.js-Player",
   "twitch_chat_hide": "Chat ausblenden",
-  "twitch_chat_show": "Chat einblenden"
+  "twitch_chat_show": "Chat einblenden",
+  "player_subtitles": "Untertitel",
+  "danmaku_speed_label": "Danmaku-Geschwindigkeit",
+  "danmaku_size_label": "Danmaku-Größe",
+  "player_caption_size": "Untertitelgröße",
+  "player_caption_color": "Untertitelfarbe",
+  "player_caption_background": "Untertitelhintergrund",
+  "player_color_yellow": "Gelb",
+  "player_color_cyan": "Cyan",
+  "twitch_chat_replay": "Chat-Wiedergabe",
+  "twitch_chat_replay_empty": "An dieser Stelle des Videos gibt es keine Nachrichten."
 }
