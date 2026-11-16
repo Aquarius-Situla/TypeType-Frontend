@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { fetchTwitchVideoComments } from "../lib/api-twitch";
+import { trimPlayedComments } from "../lib/twitch-vod-chat-window";
 import type { TwitchVideoComment } from "../types/twitch";
 
 const VISIBLE = 150;
@@ -49,12 +50,15 @@ export function useTwitchVodChat(
             };
           }
           const known = new Set(previous.comments.map((comment) => comment.id));
+          const comments = trimPlayedComments(
+            [...previous.comments, ...page.items.filter((comment) => !known.has(comment.id))],
+            seconds,
+            VISIBLE,
+          );
           return {
             ...previous,
-            comments: [
-              ...previous.comments,
-              ...page.items.filter((comment) => !known.has(comment.id)),
-            ],
+            comments,
+            from: comments[0]?.offset ?? previous.from,
             cursor: page.cursor,
             hasMore: page.hasMore,
             until: last ?? previous.until,
