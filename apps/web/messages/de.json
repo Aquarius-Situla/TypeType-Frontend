@@ -2161,5 +2161,7 @@
   "player_color_magenta": "Magenta",
   "player_feedback_seek": "{value} s",
   "player_cast": "Streamen",
-  "player_airplay": "AirPlay"
+  "player_airplay": "AirPlay",
+  "video_live_offline": "Offline",
+  "video_live_not_started": "Dieser Livestream hat noch nicht begonnen. Schau wieder vorbei, wenn der Kanal live ist."
 }

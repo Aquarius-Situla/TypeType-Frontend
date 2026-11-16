@@ -2161,5 +2161,7 @@
   "player_color_magenta": "品红色",
   "player_feedback_seek": "{value} 秒",
   "player_cast": "投屏",
-  "player_airplay": "AirPlay"
+  "player_airplay": "AirPlay",
+  "video_live_offline": "未开播",
+  "video_live_not_started": "直播尚未开始，请在主播开播后再来。"
 }

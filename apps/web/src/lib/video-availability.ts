@@ -1,7 +1,11 @@
 import { m } from "../paraglide/messages.js";
 import { isMemberOnlyMessage } from "./member-only";
 
-export type VideoAvailability = "scheduled_premiere" | "paid_content" | "members_only";
+export type VideoAvailability =
+  | "scheduled_premiere"
+  | "live_not_started"
+  | "paid_content"
+  | "members_only";
 
 type AvailabilityCopy = {
   heading: string;
@@ -39,6 +43,12 @@ export function videoAvailabilityCopy(
       message: premiereMessage(sourceMessage),
     };
   }
+  if (availability === "live_not_started") {
+    return {
+      heading: m.video_live_offline(),
+      message: m.video_live_not_started(),
+    };
+  }
   if (availability === "paid_content") {
     return {
       heading: m.video_paid(),
@@ -52,7 +62,12 @@ export function videoAvailabilityCopy(
 }
 
 function isAvailabilityCode(code: string | null): code is VideoAvailability {
-  return code === "scheduled_premiere" || code === "paid_content" || code === "members_only";
+  return (
+    code === "scheduled_premiere" ||
+    code === "live_not_started" ||
+    code === "paid_content" ||
+    code === "members_only"
+  );
 }
 
 function premiereMessage(sourceMessage?: string): string {
