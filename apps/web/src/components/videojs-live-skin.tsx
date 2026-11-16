@@ -1,5 +1,5 @@
 import { Controls, Gesture, Hotkey, LiveButton } from "@videojs/react";
-import { type CSSProperties, type ReactNode, useState } from "react";
+import { type CSSProperties, type ReactNode, useContext, useState } from "react";
 import { PlayerBarSlotContext } from "../hooks/use-player-bar-slot";
 import { m } from "../paraglide/messages.js";
 import { VideoJsMiniControls } from "./videojs-mini-controls";
@@ -15,6 +15,7 @@ import {
   SkinVolume,
 } from "./videojs-skin-controls";
 import { SkinCinemaButton, SkinWebFullscreenButton } from "./videojs-watch-buttons";
+import { WatchSkinOptionsContext } from "./videojs-watch-skin";
 
 function LiveBadge() {
   return (
@@ -41,6 +42,7 @@ export function VideoJsLiveSkin({
   style?: CSSProperties;
 }) {
   const [barSlot, setBarSlot] = useState<HTMLElement | null>(null);
+  const { flat } = useContext(WatchSkinOptionsContext);
   return (
     <SkinFrame style={style}>
       <PlayerBarSlotContext.Provider value={barSlot}>{children}</PlayerBarSlotContext.Provider>
@@ -60,7 +62,7 @@ export function VideoJsLiveSkin({
           <div aria-hidden="true" className="flex-1" />
           <Controls.Group data-skin-right="" className="flex items-center">
             <span ref={setBarSlot} className="flex items-center" />
-            <VideoJsSettingsMenu speed={false} />
+            <VideoJsSettingsMenu speed={false} latency={flat} />
             <SkinCinemaButton />
             <SkinWebFullscreenButton />
             <SkinRemoteButtons />

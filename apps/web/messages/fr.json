@@ -2178,5 +2178,6 @@
   "twitch_subscribed_months": "Abonné · {months} mois",
   "twitch_subscription_streak": "série de {streak} mois",
   "twitch_subscription_tier": "Niveau {tier}",
-  "twitch_subscription_months_short": "{months} mois"
+  "twitch_subscription_months_short": "{months} mois",
+  "player_low_latency": "Faible latence"
 }

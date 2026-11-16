@@ -2178,5 +2178,6 @@
   "twitch_subscribed_months": "已订阅 · {months} 个月",
   "twitch_subscription_streak": "连续 {streak} 个月",
   "twitch_subscription_tier": "{tier} 级",
-  "twitch_subscription_months_short": "{months} 个月"
+  "twitch_subscription_months_short": "{months} 个月",
+  "player_low_latency": "低延迟"
 }

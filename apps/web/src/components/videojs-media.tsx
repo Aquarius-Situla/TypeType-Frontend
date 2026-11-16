@@ -7,10 +7,12 @@ import { useWebVttUrl } from "../hooks/use-web-vtt-url";
 import { attachBilibiliDash } from "../lib/dash-bilibili-behaviour";
 import { registerDashPlayer } from "../lib/dash-player-registration";
 import { buildDashStreamingSettings } from "../lib/dash-streaming-settings";
+import { liveLatencyConfig } from "../lib/live-latency";
 import { normalizeTrackOnLoad } from "../lib/normalize-text-track";
 import { HLS_OUTAGE_LOAD_POLICIES } from "../lib/playback-outage-policy";
 import type { Provider } from "../lib/provider";
 import type { VideoJsSource } from "../lib/video-js-source";
+import { useLiveLatencyStore } from "../stores/live-latency-store";
 import { buildSafeSubtitleTracks } from "./subtitle-track-utils";
 import type { VideoPlayerProps } from "./video-player-types";
 import { SabrVideo } from "./videojs-sabr-video";
@@ -23,6 +25,8 @@ type Props = {
   source: VideoJsSource;
   provider?: Provider;
   live: boolean;
+  // Only the Twitch player offers the latency switch; other lives keep the segment counts their own servers need.
+  liveLatency?: boolean;
   startTime: number;
   subtitles: VideoPlayerProps["subtitles"];
   thumbnailVtt?: string;
@@ -60,6 +64,7 @@ export function VideoJsMedia({
   source,
   provider,
   live,
+  liveLatency = false,
   startTime,
   subtitles,
   thumbnailVtt,
@@ -72,6 +77,7 @@ export function VideoJsMedia({
   );
   const startRef = useRef(startTime);
   startRef.current = startTime;
+  const lowLatency = useLiveLatencyStore((state) => state.lowLatency);
   const hlsSource = useMemo(
     () => ({
       src: source.src,
@@ -79,12 +85,13 @@ export function VideoJsMedia({
       engine: {
         hlsJs: {
           ...HLS_OUTAGE_LOAD_POLICIES,
+          ...(live && liveLatency ? liveLatencyConfig(lowLatency) : {}),
           startPosition: live ? -1 : startRef.current / 1000,
           startLevel: 0,
         },
       },
     }),
-    [source.src, source.type, live],
+    [source.src, source.type, live, liveLatency, lowLatency],
   );
   const dashSource = useMemo(
     () => ({

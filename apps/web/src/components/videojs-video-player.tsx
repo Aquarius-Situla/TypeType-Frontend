@@ -132,6 +132,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
                   source={source}
                   provider={props.provider}
                   live={live}
+                  liveLatency={Boolean(props.ownSkin)}
                   startTime={startTime}
                   subtitles={props.subtitles}
                   thumbnailVtt={props.thumbnailVtt}

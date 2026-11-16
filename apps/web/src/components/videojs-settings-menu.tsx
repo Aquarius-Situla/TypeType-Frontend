@@ -5,14 +5,21 @@ import {
   usePlayer,
   useQualityOptions,
 } from "@videojs/react";
-import { Gauge, Settings, SlidersHorizontal } from "lucide-react";
+import { Gauge, Settings, SlidersHorizontal, Zap } from "lucide-react";
 import { isSourceRendition, qualityOptionsBestFirst } from "../lib/video-js-quality-order";
-import { BAR_BUTTON, BAR_MENU_POPUP } from "../lib/videojs-menu-classes";
+import { BAR_BUTTON, BAR_MENU_ITEM, BAR_MENU_POPUP } from "../lib/videojs-menu-classes";
 import { m } from "../paraglide/messages.js";
+import { useLiveLatencyStore } from "../stores/live-latency-store";
 import { VideoJsAccessibilitySubmenu } from "./videojs-accessibility-submenu";
-import { MenuSubmenu } from "./videojs-menu-section";
+import { MenuSubmenu, MenuSwitch, RowLabel } from "./videojs-menu-section";
 
-export function VideoJsSettingsMenu({ speed }: { speed: boolean }) {
+export function VideoJsSettingsMenu({
+  speed,
+  latency = false,
+}: {
+  speed: boolean;
+  latency?: boolean;
+}) {
   const quality = useQualityOptions({
     formatRendition: (rendition) =>
       isSourceRendition(rendition)
@@ -23,7 +30,8 @@ export function VideoJsSettingsMenu({ speed }: { speed: boolean }) {
   const rate = usePlaybackRateOptions();
   const hasQuality = quality?.state.availability === "available";
   const hasSpeed = speed && rate?.state.availability === "available";
-  if (!hasQuality && !hasSpeed) return null;
+  const { lowLatency, setLowLatency } = useLiveLatencyStore();
+  if (!hasQuality && !hasSpeed && !latency) return null;
   return (
     <Menu.Root side="top" align="end">
       <Menu.Trigger
@@ -53,6 +61,16 @@ export function VideoJsSettingsMenu({ speed }: { speed: boolean }) {
               options={rate.options}
               onChange={rate.setValue}
             />
+          )}
+          {latency && (
+            <Menu.CheckboxItem
+              checked={lowLatency}
+              onCheckedChange={(checked: boolean) => setLowLatency(checked)}
+              className={`${BAR_MENU_ITEM} min-h-12`}
+            >
+              <RowLabel icon={Zap} label={m.player_low_latency()} />
+              <MenuSwitch on={lowLatency} />
+            </Menu.CheckboxItem>
           )}
           <VideoJsAccessibilitySubmenu />
         </Menu.Content>
