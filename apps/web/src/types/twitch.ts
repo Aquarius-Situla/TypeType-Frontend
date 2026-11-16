@@ -164,3 +164,29 @@ export type TwitchVideoComment = {
 };
 
 export type TwitchSearchType = "channels" | "games" | "streams";
+
+type TwitchPollChoice = { id: string; title: string; votes: number };
+
+export type TwitchPoll = {
+  id: string;
+  title: string;
+  status: string;
+  startedAt: string;
+  endedAt?: string;
+  durationSeconds: number;
+  remainingMs: number;
+  voters: number;
+  votes: number;
+  choices: TwitchPollChoice[];
+};
+
+export type TwitchPinnedMessage = {
+  id: string;
+  text: string;
+  login: string;
+  displayName: string;
+  pinnedBy?: string;
+  endsAt?: string;
+};
+
+export type TwitchChatHighlights = { poll: TwitchPoll | null; pinned: TwitchPinnedMessage | null };

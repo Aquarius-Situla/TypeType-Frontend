@@ -2179,5 +2179,12 @@
   "twitch_subscription_streak": "{streak}-month streak",
   "twitch_subscription_tier": "Tier {tier}",
   "twitch_subscription_months_short": "{months} mo",
-  "player_low_latency": "Low latency"
+  "player_low_latency": "Low latency",
+  "twitch_poll": "Poll",
+  "twitch_poll_ended": "Poll ended",
+  "twitch_poll_votes": "{votes} votes",
+  "twitch_poll_choice": "{title}: {percent}%, {votes} votes",
+  "twitch_pinned_message": "Pinned message",
+  "twitch_pinned_by": "Pinned by {name}",
+  "twitch_chat_highlight_hide": "Hide"
 }

@@ -11,6 +11,7 @@ import {
 import { m } from "../paraglide/messages.js";
 import { resolveEffectiveTheme, useThemeStore } from "../stores/theme-store";
 import { TwitchChatComposer } from "./twitch-chat-composer";
+import { TwitchChatHighlights } from "./twitch-chat-highlights";
 import { TwitchChatLine } from "./twitch-chat-line";
 import { TwitchChatModes } from "./twitch-chat-modes";
 import { TwitchExternalLinkDialog } from "./twitch-external-link-dialog";
@@ -57,6 +58,7 @@ export function TwitchChat({ login, overlay = false }: Props) {
           </span>
         )}
       </h2>
+      <TwitchChatHighlights login={login} />
       <ol
         ref={listRef}
         aria-live="polite"
