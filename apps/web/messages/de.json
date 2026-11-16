@@ -2172,5 +2172,5 @@
   "release_notice_videojs": "Probiere den neuen, flüssigeren Video.js-Player aus. Zurückwechseln geht jederzeit in den Einstellungen.",
   "release_notice_videojs_action": "Ausprobieren",
   "release_notice_videojs_active": "Du nutzt bereits den neuen Video.js-Player.",
-  "release_notice_close": "Schließen"
+  "release_notice_confirm": "Verstanden"
 }

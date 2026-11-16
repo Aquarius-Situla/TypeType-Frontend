@@ -2172,5 +2172,5 @@
   "release_notice_videojs": "试试更流畅的新 Video.js 播放器，可随时在设置中切换回来。",
   "release_notice_videojs_action": "试用",
   "release_notice_videojs_active": "你已在使用新的 Video.js 播放器。",
-  "release_notice_close": "关闭"
+  "release_notice_confirm": "知道了"
 }

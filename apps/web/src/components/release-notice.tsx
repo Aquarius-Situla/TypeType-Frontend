@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Play, Sparkles, X } from "lucide-react";
-import { type ReactNode, useCallback, useEffect, useState } from "react";
+import { Play, Sparkles } from "lucide-react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { siDiscord, siTwitch } from "simple-icons";
 import { useSettings } from "../hooks/use-settings";
@@ -16,7 +16,7 @@ const SHOW_DELAY_MS = 2500;
 const ACTION =
   "shrink-0 rounded-lg bg-surface-strong px-3 py-1.5 text-xs font-medium text-fg transition-colors hover:bg-surface-soft";
 const PRIMARY_ACTION =
-  "shrink-0 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent-strong";
+  "rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-strong";
 
 function noticeSeen(): boolean {
   try {
@@ -57,6 +57,7 @@ export function ReleaseNotice() {
   const twitchEnabled = useTwitchEnabled();
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
+  const confirmRef = useRef<HTMLButtonElement>(null);
   const close = useCallback(() => {
     markNoticeSeen();
     setClosing(true);
@@ -74,6 +75,7 @@ export function ReleaseNotice() {
       if (event.key === "Escape") close();
     };
     document.addEventListener("keydown", onKeyDown);
+    confirmRef.current?.focus({ preventScroll: true });
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [open, close]);
 
@@ -81,74 +83,77 @@ export function ReleaseNotice() {
   const classicPlayer = settings.playerEngine !== "videojs";
   return createPortal(
     <div
-      role="dialog"
-      aria-labelledby="release-notice-title"
+      role="none"
       data-closing={closing ? "" : undefined}
-      onAnimationEnd={(event) => {
-        if (closing && event.target === event.currentTarget) setOpen(false);
+      onClick={(event) => {
+        if (event.target === event.currentTarget) close();
       }}
-      className="release-notice fixed inset-x-4 bottom-4 z-50 flex flex-col gap-4 rounded-2xl border border-border-strong bg-surface p-4 shadow-2xl sm:left-auto sm:right-6 sm:bottom-6 sm:w-96"
+      className="release-notice-backdrop fixed inset-0 z-50 flex items-center justify-center overflow-y-auto overscroll-contain bg-black/60 p-4"
     >
-      <div className="flex items-center justify-between gap-3">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="release-notice-title"
+        data-closing={closing ? "" : undefined}
+        onAnimationEnd={(event) => {
+          if (closing && event.target === event.currentTarget) setOpen(false);
+        }}
+        className="release-notice flex w-full max-w-md flex-col gap-5 rounded-2xl border border-border-strong bg-surface p-5 shadow-2xl"
+      >
         <p
           id="release-notice-title"
-          className="flex items-center gap-2 text-sm font-semibold text-fg"
+          className="flex items-center gap-2 text-base font-semibold text-fg"
         >
-          <Sparkles className="size-4 text-accent" aria-hidden="true" />
+          <Sparkles className="size-5 text-accent" aria-hidden="true" />
           {m.release_notice_title()}
         </p>
-        <button
-          type="button"
-          onClick={close}
-          aria-label={m.release_notice_close()}
-          className="-mr-1 rounded-full p-1 text-fg-muted transition-colors hover:bg-surface-strong hover:text-fg"
-        >
-          <X className="size-4" aria-hidden="true" />
-        </button>
-      </div>
-      <ul className="flex flex-col gap-3">
-        <NoticeRow
-          icon={<ServiceIcon path={siDiscord.path} color="currentColor" label="Discord" />}
-          tint={`#${siDiscord.hex}`}
-          text={m.release_notice_discord()}
-          action={
-            <a href={DISCORD_INVITE_URL} target="_blank" rel="noreferrer" className={ACTION}>
-              {m.release_notice_discord_action()}
-            </a>
-          }
-        />
-        {twitchEnabled && (
+        <ul className="flex flex-col gap-4">
           <NoticeRow
-            icon={<ServiceIcon path={siTwitch.path} color="currentColor" label="Twitch" />}
-            tint={`#${siTwitch.hex}`}
-            text={m.release_notice_twitch()}
+            icon={<ServiceIcon path={siDiscord.path} color="currentColor" label="Discord" />}
+            tint={`#${siDiscord.hex}`}
+            text={m.release_notice_discord()}
             action={
-              <Link to="/twitch" onClick={close} className={ACTION}>
-                {m.release_notice_twitch_action()}
-              </Link>
+              <a href={DISCORD_INVITE_URL} target="_blank" rel="noreferrer" className={ACTION}>
+                {m.release_notice_discord_action()}
+              </a>
             }
           />
-        )}
-        <NoticeRow
-          icon={<Play className="size-4" aria-hidden="true" />}
-          tint="var(--color-accent)"
-          text={classicPlayer ? m.release_notice_videojs() : m.release_notice_videojs_active()}
-          action={
-            classicPlayer && (
-              <button
-                type="button"
-                onClick={() => {
-                  update.mutate({ playerEngine: "videojs" });
-                  close();
-                }}
-                className={PRIMARY_ACTION}
-              >
-                {m.release_notice_videojs_action()}
-              </button>
-            )
-          }
-        />
-      </ul>
+          {twitchEnabled && (
+            <NoticeRow
+              icon={<ServiceIcon path={siTwitch.path} color="currentColor" label="Twitch" />}
+              tint={`#${siTwitch.hex}`}
+              text={m.release_notice_twitch()}
+              action={
+                <Link to="/twitch" onClick={close} className={ACTION}>
+                  {m.release_notice_twitch_action()}
+                </Link>
+              }
+            />
+          )}
+          <NoticeRow
+            icon={<Play className="size-4" aria-hidden="true" />}
+            tint="var(--color-accent)"
+            text={classicPlayer ? m.release_notice_videojs() : m.release_notice_videojs_active()}
+            action={
+              classicPlayer && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    update.mutate({ playerEngine: "videojs" });
+                    close();
+                  }}
+                  className={ACTION}
+                >
+                  {m.release_notice_videojs_action()}
+                </button>
+              )
+            }
+          />
+        </ul>
+        <button ref={confirmRef} type="button" onClick={close} className={PRIMARY_ACTION}>
+          {m.release_notice_confirm()}
+        </button>
+      </div>
     </div>,
     document.body,
   );
