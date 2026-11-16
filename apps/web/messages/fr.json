@@ -2172,5 +2172,11 @@
   "release_notice_videojs": "Essayez le nouveau lecteur Video.js, plus fluide. Retour possible dans les paramètres.",
   "release_notice_videojs_action": "Essayer",
   "release_notice_videojs_active": "Vous utilisez déjà le nouveau lecteur Video.js.",
-  "release_notice_confirm": "J'ai compris"
+  "release_notice_confirm": "J'ai compris",
+  "twitch_subscribed": "Abonné",
+  "twitch_subscribed_one_month": "Abonné · 1 mois",
+  "twitch_subscribed_months": "Abonné · {months} mois",
+  "twitch_subscription_streak": "série de {streak} mois",
+  "twitch_subscription_tier": "Niveau {tier}",
+  "twitch_subscription_months_short": "{months} mois"
 }

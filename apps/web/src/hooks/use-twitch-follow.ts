@@ -35,6 +35,7 @@ export function useTwitchFollow(login: string) {
     loading: account.isLoading || (linked && state.isLoading),
     following: state.data?.following === true,
     followedAt: state.data?.followedAt,
+    subscription: state.data?.subscription,
     pending: mutation.isPending,
     failed: mutation.isError,
     toggle: () => mutation.mutate(!(state.data?.following === true)),

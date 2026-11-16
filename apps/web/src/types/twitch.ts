@@ -124,7 +124,14 @@ type TwitchUserEmote = { id: string; name: string; type: string; ownerId?: strin
 
 export type TwitchUserEmotes = { channelId: string; emotes: TwitchUserEmote[] };
 
-export type TwitchFollowState = { channelId: string; following: boolean; followedAt?: string };
+export type TwitchSubscription = { tier: string; prime: boolean; months: number; streak: number };
+
+export type TwitchFollowState = {
+  channelId: string;
+  following: boolean;
+  followedAt?: string;
+  subscription?: TwitchSubscription;
+};
 
 export type TwitchChatEvent = {
   type: "message" | "notice" | "delete" | "clear" | "room";

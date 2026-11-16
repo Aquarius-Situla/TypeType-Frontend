@@ -2172,5 +2172,11 @@
   "release_notice_videojs": "Probiere den neuen, flüssigeren Video.js-Player aus. Zurückwechseln geht jederzeit in den Einstellungen.",
   "release_notice_videojs_action": "Ausprobieren",
   "release_notice_videojs_active": "Du nutzt bereits den neuen Video.js-Player.",
-  "release_notice_confirm": "Verstanden"
+  "release_notice_confirm": "Verstanden",
+  "twitch_subscribed": "Abonniert",
+  "twitch_subscribed_one_month": "Abonniert · 1 Monat",
+  "twitch_subscribed_months": "Abonniert · {months} Monate",
+  "twitch_subscription_streak": "{streak} Monate in Folge",
+  "twitch_subscription_tier": "Stufe {tier}",
+  "twitch_subscription_months_short": "{months} Mon."
 }
