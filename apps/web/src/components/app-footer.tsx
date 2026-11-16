@@ -1,6 +1,7 @@
 import { DollarSign } from "lucide-react";
-import { siGithub, siLemmy } from "simple-icons";
+import { siDiscord, siGithub, siLemmy } from "simple-icons";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
+import { DISCORD_INVITE_URL } from "../lib/discord";
 import { LEMMY_COMMUNITY_URL } from "../lib/lemmy";
 import { m } from "../paraglide/messages.js";
 import { ServiceIcon } from "./service-icon";
@@ -29,6 +30,15 @@ export function AppFooter() {
       >
         <ServiceIcon path={siLemmy.path} color="currentColor" label="Lemmy" />
         Lemmy
+      </a>
+      <a
+        href={DISCORD_INVITE_URL}
+        target="_blank"
+        rel="noreferrer"
+        className="inline-flex items-center gap-1.5 text-fg-muted hover:text-fg"
+      >
+        <ServiceIcon path={siDiscord.path} color="currentColor" label="Discord" />
+        Discord
       </a>
       <a
         href={SPONSOR_URL}

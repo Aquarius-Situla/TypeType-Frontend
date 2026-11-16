@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { DollarSign, Search } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
-import { siLemmy } from "simple-icons";
+import { siDiscord, siLemmy } from "simple-icons";
 import { useAuth } from "../hooks/use-auth";
 import { useAuthToasts } from "../hooks/use-auth-toasts";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
@@ -10,6 +10,7 @@ import { useSearchShortcut } from "../hooks/use-search-shortcut";
 import { useSettings } from "../hooks/use-settings";
 import { isAuthPage } from "../lib/auth-routes";
 import { defaultLandingPath } from "../lib/default-landing";
+import { DISCORD_INVITE_URL } from "../lib/discord";
 import { LEMMY_COMMUNITY_URL } from "../lib/lemmy";
 import { m } from "../paraglide/messages.js";
 import { useUiStore } from "../stores/ui-store";
@@ -105,6 +106,17 @@ export function Navbar() {
           >
             <ServiceIcon path={siLemmy.path} color="currentColor" label="Lemmy" />
             <span className="hidden sm:inline">Lemmy</span>
+          </a>
+          <a
+            href={DISCORD_INVITE_URL}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Discord"
+            title="Discord"
+            className={`${watchPage ? "hidden" : "hidden sm:inline-flex"} h-8 shrink-0 items-center gap-1.5 px-1 text-xs font-medium text-fg-muted hover:text-fg`}
+          >
+            <ServiceIcon path={siDiscord.path} color="currentColor" label="Discord" />
+            <span className="hidden sm:inline">Discord</span>
           </a>
           <NavbarPlayerEngineSwitch />
         </div>
