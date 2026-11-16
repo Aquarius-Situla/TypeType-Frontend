@@ -204,10 +204,12 @@ export function usePlayerError(
   playerFailedRef.current = playerFailed;
   useEffect(() => {
     if (serverResumes === 0) return;
+    // A restarted server has lost its SABR sessions, but the buffer can carry playback past the restart: the 404
+    // then arrives after this point, so the automatic SABR retry is handed back here even when nothing failed yet.
+    resetAutomaticSabrRecovery(sabrRecoveryRef);
     const waiting = offlineRecoveryRef.current?.resumeIfOnline(navigator.onLine) ?? false;
     if (!waiting && !playerFailedRef.current) return;
     recordClientEvent("player.server_recovered", { video: debugVideo });
-    resetAutomaticSabrRecovery(sabrRecoveryRef);
     setPlayerFailed(false);
     setRetryKey((key) => key + 1);
   }, [serverResumes, debugVideo]);

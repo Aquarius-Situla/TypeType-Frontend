@@ -4,7 +4,35 @@
   font-family: var(--media-user-font-family, inherit);
   font-variant: var(--media-user-font-variant, normal);
   font-size: calc(var(--media-user-font-size, 1) * 1em);
-  color: var(--media-user-text-color, rgb(255 255 255));
-  background-color: var(--media-user-text-bg, rgb(0 0 0 / 0.8));
+  color: var(--media-user-text-color, rgb(255 255 255 / var(--media-user-text-opacity, 1)));
+  background-color: var(--media-user-text-bg, rgb(0 0 0 / var(--media-user-text-bg-opacity, 0.8)));
   text-shadow: var(--media-user-text-shadow, none);
+}
+
+/* The window behind the cue lines, a Chromium pseudo-element. Its opacity defaults to none, like the Vidstack styles,
+   so picking only a window colour does not paint an opaque box. */
+[data-player-root] {
+  --media-user-display-bg-opacity: 0;
+}
+
+[data-player-root] video::-webkit-media-text-track-display {
+  background-color: var(
+    --media-user-display-bg,
+    rgb(0 0 0 / var(--media-user-display-bg-opacity, 0))
+  );
+}
+
+/* While the control bar shows, the cues move up above it instead of running under it, as in the Vidstack layout. */
+[data-player-root] video::-webkit-media-text-track-container {
+  transition: transform 200ms ease-out;
+}
+
+[data-player-root]:has([data-skin-bottom][data-visible]) video::-webkit-media-text-track-container {
+  transform: translateY(-4.5rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-player-root] video::-webkit-media-text-track-container {
+    transition: none;
+  }
 }

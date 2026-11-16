@@ -9,6 +9,7 @@ import { Gauge, Settings, SlidersHorizontal } from "lucide-react";
 import { isSourceRendition, qualityOptionsBestFirst } from "../lib/video-js-quality-order";
 import { BAR_BUTTON, BAR_MENU_POPUP } from "../lib/videojs-menu-classes";
 import { m } from "../paraglide/messages.js";
+import { VideoJsAccessibilitySubmenu } from "./videojs-accessibility-submenu";
 import { MenuSubmenu } from "./videojs-menu-section";
 
 export function VideoJsSettingsMenu({ speed }: { speed: boolean }) {
@@ -53,6 +54,7 @@ export function VideoJsSettingsMenu({ speed }: { speed: boolean }) {
               onChange={rate.setValue}
             />
           )}
+          <VideoJsAccessibilitySubmenu />
         </Menu.Content>
       </Menu.Popup>
     </Menu.Root>

@@ -9,3 +9,14 @@
   filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.55));
   opacity: 1;
 }
+
+/* The Video.js timeline wears the same icon, shown all the time like the Vidstack thumb it replaces. */
+:root[data-seekbar-icon] [data-player-root] .typetype-time-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 0;
+  background: var(--typetype-seekbar-icon) center / contain no-repeat;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.55));
+  opacity: 1;
+  scale: 1;
+}

@@ -4,12 +4,15 @@ import { type CSSProperties, useCallback, useEffect, useRef, useState } from "re
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { usePolicyMutedSave } from "../hooks/use-policy-muted-save";
 import { applyCaptionStyles } from "../lib/caption-styles";
+import { type PlayerKeySignal, PlayerKeySignalContext } from "../lib/player-key-signal";
 import type { VideoJsSource } from "../lib/video-js-source";
 import { AudioCenterToggle } from "./audio-center-toggle";
 import { AudioOnlyPoster } from "./audio-only-poster";
 import { ServerStatusNotice } from "./server-status-notice";
 import type { VideoPlayerProps } from "./video-player-types";
 import { VideoJsAutoplay } from "./videojs-autoplay";
+import { VideoJsCaptionsHotkey } from "./videojs-captions-hotkey";
+import { VideoJsKeyboardFeedback } from "./videojs-keyboard-feedback";
 import { VideoJsLivePlayer } from "./videojs-live-player";
 import { VideoJsLiveSkin } from "./videojs-live-skin";
 import { VideoJsLiveStallWatchdog } from "./videojs-live-stall-watchdog";
@@ -21,6 +24,7 @@ import { VideoJsPlayerEngine } from "./videojs-player-engine";
 import { VideoJsPlayerMedia } from "./videojs-player-media";
 import { VideoJsRecoveryCover } from "./videojs-recovery-cover";
 import { VideoJsSabrEngine } from "./videojs-sabr-engine";
+import { VideoJsSingleSubtitle } from "./videojs-single-subtitle";
 import { VideoJsWatchSkin, WatchSkinOptionsContext } from "./videojs-watch-skin";
 
 export type VideoJsVideoPlayerProps = VideoPlayerProps & {
@@ -32,7 +36,7 @@ export type VideoJsVideoPlayerProps = VideoPlayerProps & {
 const SKIN_STYLE = {
   width: "100%",
   height: "100%",
-  "--media-accent-color": "var(--color-accent)",
+  "--media-accent-color": "var(--typetype-player-brand, #ff174d)",
   "--media-border-radius": "0.75rem",
   "--media-border-color": "transparent",
 } as CSSProperties;
@@ -72,8 +76,10 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
     onCaptionStylesChange: props.onCaptionStylesChange,
     onPrevious: props.onPreviousVideo,
     onNext: props.onNextVideo,
+    audioOnly: Boolean(props.audioOnly),
     flat: Boolean(props.ownSkin),
   };
+  const keySignal = useRef<PlayerKeySignal>({ key: "", at: Number.NEGATIVE_INFINITY });
   const { onPositionReaderChange } = props;
 
   useEffect(() => {
@@ -118,55 +124,60 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
       data-player-root=""
     >
       <I18nProvider locale={playerLocale(locale)}>
-        <WatchSkinOptionsContext.Provider value={watchOptions}>
-          <Player title={title} poster={poster}>
-            <Skin style={SKIN_STYLE}>
-              <VideoJsMedia
-                source={source}
-                provider={props.provider}
-                live={live}
-                startTime={startTime}
-                subtitles={props.subtitles}
-                thumbnailVtt={props.thumbnailVtt}
-                chaptersVtt={props.chaptersVtt}
-                mediaRef={mediaRef}
-                mediaProps={mediaProps}
-              />
-              <VideoJsAutoplay
-                enabled={autoplay && !sabr}
-                mutedFallback={Boolean(props.ownSkin)}
-                policyMuted={policyMuted}
-              />
-              <VideoJsRecoveryCover />
-              {live && <VideoJsLiveStallWatchdog onStall={() => props.onError?.(positionMs())} />}
-              <ServerStatusNotice variant="player" />
-              <VideoJsPlayerMedia root={root}>
-                <VideoJsPlayerEngine root={root}>
-                  {props.overlay}
-                  <VideoJsPlaybackTools player={props} sabrVideo={sabr ? video : null} />
-                  {props.audioOnly && (
-                    <>
-                      <AudioOnlyPoster poster={poster} title={title} media={video} />
-                      <AudioCenterToggle video={sabr ? video : null} />
-                    </>
-                  )}
-                </VideoJsPlayerEngine>
-              </VideoJsPlayerMedia>
-            </Skin>
-            <VideoJsPlaybackSpeedDefault speed={props.defaultPlaybackSpeed} />
-            {sabr ? (
-              <VideoJsSabrEngine video={video} player={props} />
-            ) : (
-              <VideoJsPlayerBridge
-                initialVolume={props.initialVolume ?? 1}
-                initialMuted={props.initialMuted ?? false}
-                settingsReady={props.settingsReady ?? false}
-                onVolumeChange={saveVolume}
-                onSeekReady={props.onSeekReady}
-              />
-            )}
-          </Player>
-        </WatchSkinOptionsContext.Provider>
+        <PlayerKeySignalContext.Provider value={keySignal}>
+          <WatchSkinOptionsContext.Provider value={watchOptions}>
+            <Player title={title} poster={poster}>
+              <Skin style={SKIN_STYLE}>
+                <VideoJsMedia
+                  source={source}
+                  provider={props.provider}
+                  live={live}
+                  startTime={startTime}
+                  subtitles={props.subtitles}
+                  thumbnailVtt={props.thumbnailVtt}
+                  chaptersVtt={props.chaptersVtt}
+                  mediaRef={mediaRef}
+                  mediaProps={mediaProps}
+                />
+                <VideoJsAutoplay
+                  enabled={autoplay && !sabr}
+                  mutedFallback={Boolean(props.ownSkin)}
+                  policyMuted={policyMuted}
+                />
+                <VideoJsRecoveryCover />
+                <VideoJsKeyboardFeedback video={video} />
+                <VideoJsCaptionsHotkey />
+                <VideoJsSingleSubtitle video={video} />
+                {live && <VideoJsLiveStallWatchdog onStall={() => props.onError?.(positionMs())} />}
+                <ServerStatusNotice variant="player" />
+                <VideoJsPlayerMedia root={root}>
+                  <VideoJsPlayerEngine root={root}>
+                    {props.overlay}
+                    <VideoJsPlaybackTools player={props} sabrVideo={sabr ? video : null} />
+                    {props.audioOnly && (
+                      <>
+                        <AudioOnlyPoster poster={poster} title={title} media={video} />
+                        <AudioCenterToggle video={sabr ? video : null} />
+                      </>
+                    )}
+                  </VideoJsPlayerEngine>
+                </VideoJsPlayerMedia>
+              </Skin>
+              <VideoJsPlaybackSpeedDefault speed={props.defaultPlaybackSpeed} />
+              {sabr ? (
+                <VideoJsSabrEngine video={video} player={props} />
+              ) : (
+                <VideoJsPlayerBridge
+                  initialVolume={props.initialVolume ?? 1}
+                  initialMuted={props.initialMuted ?? false}
+                  settingsReady={props.settingsReady ?? false}
+                  onVolumeChange={saveVolume}
+                  onSeekReady={props.onSeekReady}
+                />
+              )}
+            </Player>
+          </WatchSkinOptionsContext.Provider>
+        </PlayerKeySignalContext.Provider>
       </I18nProvider>
     </div>
   );

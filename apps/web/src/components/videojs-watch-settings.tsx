@@ -18,15 +18,20 @@ import {
   Settings,
   SlidersHorizontal,
   Type,
+  Volume2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useVideoJsTextTrackVersion } from "../hooks/use-videojs-text-track-version";
+import { canBoost } from "../lib/audio-boost";
 import { isSourceRendition, qualityOptionsBestFirst } from "../lib/video-js-quality-order";
 import { BAR_BUTTON, BAR_MENU_ITEM, BAR_MENU_POPUP } from "../lib/videojs-menu-classes";
 import { m } from "../paraglide/messages.js";
 import { useDanmakuStore } from "../stores/danmaku-store";
 import { useSabrAudioStore } from "../stores/sabr-audio-store";
 import type { CaptionStyles } from "../types/user";
+import { VideoJsAccessibilitySubmenu } from "./videojs-accessibility-submenu";
+import { useBoostTarget, VideoJsBoostPanel } from "./videojs-boost-panel";
+import { VideoJsCaptionStylePanel } from "./videojs-caption-style-panel";
 import { useFormatSection } from "./videojs-format-section";
 import {
   MenuGroupSubmenu,
@@ -129,44 +134,6 @@ function DanmakuSections() {
   );
 }
 
-const CAPTION_SIZES = ["50%", "75%", "100%", "150%", "200%"] as const;
-const CAPTION_BACKGROUNDS = ["0%", "50%", "75%", "100%"] as const;
-
-type CaptionStyleProps = { styles: CaptionStyles; onChange: (styles: CaptionStyles) => void };
-
-// The caption style picker of the Vidstack menu, reduced to what native cues can show: size, colour and background.
-function CaptionStyleSections({ styles, onChange }: CaptionStyleProps) {
-  const set = (key: keyof CaptionStyles) => (value: string) =>
-    onChange({ ...styles, [key]: value });
-  return (
-    <>
-      <MenuRadioSection
-        label={m.player_caption_size()}
-        value={styles.fontSize || "100%"}
-        options={CAPTION_SIZES.map((size) => option(size, size))}
-        onChange={set("fontSize")}
-      />
-      <MenuRadioSection
-        label={m.player_caption_color()}
-        value={styles.textColor || "#ffffff"}
-        options={[
-          option("#ffffff", m.player_color_white()),
-          option("#ffff00", m.player_color_yellow()),
-          option("#00ffff", m.player_color_cyan()),
-          option("#00ff00", m.player_color_green()),
-        ]}
-        onChange={set("textColor")}
-      />
-      <MenuRadioSection
-        label={m.player_caption_background()}
-        value={styles.textBgOpacity || "100%"}
-        options={CAPTION_BACKGROUNDS.map((opacity) => option(opacity, opacity))}
-        onChange={set("textBgOpacity")}
-      />
-    </>
-  );
-}
-
 type Props = {
   danmaku: boolean;
   captionStyles?: CaptionStyles;
@@ -208,6 +175,7 @@ function WatchSettingsRows({ danmaku, captionStyles, onCaptionStylesChange }: Pr
   const audio = useAudioSection();
   useVideoJsTextTrackVersion();
   const captions = useCaptionsOptions();
+  const boostTarget = useBoostTarget();
   const loop = useLoop();
   const hasQuality = quality?.state.availability === "available";
   return (
@@ -247,9 +215,15 @@ function WatchSettingsRows({ danmaku, captionStyles, onCaptionStylesChange }: Pr
         captionStyles &&
         onCaptionStylesChange && (
           <MenuGroupSubmenu icon={Type} label={m.player_caption_styles()}>
-            <CaptionStyleSections styles={captionStyles} onChange={onCaptionStylesChange} />
+            <VideoJsCaptionStylePanel styles={captionStyles} onChange={onCaptionStylesChange} />
           </MenuGroupSubmenu>
         )}
+      {boostTarget && canBoost(boostTarget) && (
+        <MenuGroupSubmenu icon={Volume2} label={m.player_boost()}>
+          <VideoJsBoostPanel video={boostTarget} />
+        </MenuGroupSubmenu>
+      )}
+      <VideoJsAccessibilitySubmenu />
       <Menu.CheckboxItem
         checked={loop.value === ON}
         onCheckedChange={(checked: boolean) => loop.onChange(checked ? ON : OFF)}
