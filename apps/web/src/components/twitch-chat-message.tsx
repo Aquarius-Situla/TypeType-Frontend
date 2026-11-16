@@ -1,10 +1,14 @@
+import { useRetryingImage } from "../hooks/use-retrying-image";
 import { proxyImage } from "../lib/proxy";
 import type { ChatEmoteImage, ChatPart } from "../lib/twitch-chat-parts";
 import { m } from "../paraglide/messages.js";
 
 function EmoteImage({ image, overlay = false }: { image: ChatEmoteImage; overlay?: boolean }) {
+  const { failed, onError } = useRetryingImage();
+  if (failed) return overlay ? null : <span>{image.name}</span>;
   return (
     <img
+      onError={onError}
       src={proxyImage(image.url, "card")}
       srcSet={image.url2x ? `${proxyImage(image.url2x, "card")} 2x` : undefined}
       alt={image.name}

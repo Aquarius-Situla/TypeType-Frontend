@@ -6,6 +6,7 @@ import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import type { VideoJsSource } from "../lib/video-js-source";
 import { AudioCenterToggle } from "./audio-center-toggle";
 import { AudioOnlyPoster } from "./audio-only-poster";
+import { ServerStatusNotice } from "./server-status-notice";
 import type { VideoPlayerProps } from "./video-player-types";
 import { VideoJsAutoplay } from "./videojs-autoplay";
 import { VideoJsLivePlayer } from "./videojs-live-player";
@@ -15,13 +16,14 @@ import { VideoJsPlaybackSpeedDefault } from "./videojs-playback-speed-default";
 import { VideoJsPlaybackTools } from "./videojs-playback-tools";
 import { VideoJsPlayerBridge } from "./videojs-player-bridge";
 import { VideoJsPlayerMedia } from "./videojs-player-media";
-import { VideoJsQualityDefault } from "./videojs-quality-default";
+import { VideoJsRecoveryCover } from "./videojs-recovery-cover";
 import { VideoJsSabrEngine } from "./videojs-sabr-engine";
+import { VideoJsVodSkin } from "./videojs-vod-skin";
 
 export type VideoJsVideoPlayerProps = VideoPlayerProps & {
   source: VideoJsSource;
-  defaultQuality?: string;
   defaultPlaybackSpeed?: number;
+  ownSkin?: boolean;
 };
 
 const SKIN_STYLE = {
@@ -54,7 +56,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
   const policyMuted = useRef(false);
   const live = streamType === "live";
   const Player = live ? VideoJsLivePlayer : VideoPlayer;
-  const Skin = live ? VideoJsLiveSkin : VideoSkin;
+  const Skin = live ? VideoJsLiveSkin : props.ownSkin ? VideoJsVodSkin : VideoSkin;
   const { onPositionReaderChange } = props;
 
   useEffect(() => {
@@ -111,6 +113,8 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
               mediaProps={mediaProps}
             />
             {!sabr && <VideoJsAutoplay enabled={autoplay} policyMuted={policyMuted} />}
+            <VideoJsRecoveryCover />
+            <ServerStatusNotice variant="player" />
             <VideoJsPlayerMedia root={root}>
               {props.overlay}
               <VideoJsPlaybackTools player={props} sabrVideo={sabr ? video : null} />
@@ -123,7 +127,6 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
             </VideoJsPlayerMedia>
           </Skin>
           <VideoJsPlaybackSpeedDefault speed={props.defaultPlaybackSpeed} />
-          <VideoJsQualityDefault quality={props.defaultQuality} />
           {sabr ? (
             <VideoJsSabrEngine video={video} player={props} />
           ) : (

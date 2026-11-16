@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useInternalLink } from "../hooks/use-internal-link";
 import { useTwitchAccount } from "../hooks/use-twitch";
 import { useTwitchChat } from "../hooks/use-twitch-chat";
 import { useTwitchChatAssets } from "../hooks/use-twitch-chat-assets";
@@ -19,7 +20,13 @@ export function TwitchChat({ login }: { login: string }) {
   const [paused, setPaused] = useState(false);
   const listRef = useRef<HTMLOListElement>(null);
   const selfLogin = account.data?.linked ? (account.data.login ?? "") : "";
-  const onLink = useCallback((href: string) => setLink(href), []);
+  const openInternal = useInternalLink();
+  const onLink = useCallback(
+    (href: string) => {
+      if (!openInternal(href)) setLink(href);
+    },
+    [openInternal],
+  );
 
   const scrollToEnd = useCallback(() => {
     const list = listRef.current;
@@ -85,7 +92,7 @@ export function TwitchChat({ login }: { login: string }) {
       )}
       <TwitchChatModes room={chat.room} />
       {account.data?.linked ? (
-        <TwitchChatComposer login={login} room={chat.room} />
+        <TwitchChatComposer login={login} room={chat.room} emotes={assets.emotes} />
       ) : (
         <Link
           to="/twitch-session"

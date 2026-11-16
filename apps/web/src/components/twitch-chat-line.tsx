@@ -1,10 +1,11 @@
 import { memo, useMemo } from "react";
+import { useRetryingImage } from "../hooks/use-retrying-image";
 import type { ChatAssets } from "../hooks/use-twitch-chat-assets";
 import { proxyImage } from "../lib/proxy";
 import { chatNameColor } from "../lib/twitch-chat-color";
 import { chatParts, mentions } from "../lib/twitch-chat-parts";
 import { m } from "../paraglide/messages.js";
-import type { TwitchChatEvent } from "../types/twitch";
+import type { TwitchChatBadge, TwitchChatEvent } from "../types/twitch";
 import { TwitchChatMessage } from "./twitch-chat-message";
 
 type Props = {
@@ -15,21 +16,26 @@ type Props = {
   onLink: (href: string) => void;
 };
 
+function BadgeImage({ badge }: { badge: TwitchChatBadge }) {
+  const { failed, onError } = useRetryingImage();
+  if (failed) return null;
+  return (
+    <img
+      src={proxyImage(badge.url, "card")}
+      srcSet={badge.url2x ? `${proxyImage(badge.url2x, "card")} 2x` : undefined}
+      alt={badge.title}
+      title={badge.title}
+      loading="lazy"
+      onError={onError}
+      className="mr-1 inline-block size-[18px] align-[-3px]"
+    />
+  );
+}
+
 function Badges({ ids, assets }: { ids: string[]; assets: ChatAssets }) {
   return ids.map((id) => {
     const badge = assets.badge(id);
-    if (!badge) return null;
-    return (
-      <img
-        key={id}
-        src={proxyImage(badge.url, "card")}
-        srcSet={badge.url2x ? `${proxyImage(badge.url2x, "card")} 2x` : undefined}
-        alt={badge.title}
-        title={badge.title}
-        loading="lazy"
-        className="mr-1 inline-block size-[18px] align-[-3px]"
-      />
-    );
+    return badge ? <BadgeImage key={id} badge={badge} /> : null;
   });
 }
 

@@ -14,7 +14,7 @@ const TWITCH_EMOTE_BASE = "https://static-cdn.jtvnw.net/emoticons/v2/";
 const LINK = /^(?:https?:\/\/)?(?:[a-z0-9-]+\.)+[a-z]{2,}(?::\d{2,5})?(?:[/?#]\S*)?$/i;
 const TRAILING = /[),.!?:;'"\]]+$/;
 
-function twitchEmote(id: string, name: string): ChatEmoteImage {
+export function twitchEmote(id: string, name: string): ChatEmoteImage {
   const base = `${TWITCH_EMOTE_BASE}${encodeURIComponent(id)}/default/dark/`;
   return { name, url: `${base}1.0`, url2x: `${base}2.0` };
 }

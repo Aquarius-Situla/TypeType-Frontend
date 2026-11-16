@@ -1,3 +1,4 @@
+import { useServerResumeRetry } from "../hooks/use-server-resume-retry";
 import { useTwitchVideoPlayback } from "../hooks/use-twitch";
 import { useTwitchVodProgress } from "../hooks/use-twitch-vod-progress";
 import type { TwitchVideoPlayback } from "../types/twitch";
@@ -5,7 +6,9 @@ import { TwitchPlayer } from "./twitch-player";
 import { TwitchWatchHeading } from "./twitch-watch-heading";
 import { TwitchWatchStage } from "./twitch-watch-stage";
 
-function ResumablePlayer({ id, data }: { id: string; data: TwitchVideoPlayback }) {
+type ResumableProps = { id: string; data: TwitchVideoPlayback; onError: () => void };
+
+function ResumablePlayer({ id, data, onError }: ResumableProps) {
   const progress = useTwitchVodProgress(id, data.video.lengthSeconds);
   if (!progress.ready)
     return <div className="aspect-video w-full animate-pulse rounded-xl bg-surface-strong" />;
@@ -21,17 +24,19 @@ function ResumablePlayer({ id, data }: { id: string; data: TwitchVideoPlayback }
       onPause={progress.onPause}
       onSeeked={progress.onSeeked}
       onEnded={progress.onEnded}
+      onError={onError}
     />
   );
 }
 
 export function TwitchVideoView({ id }: { id: string }) {
   const { data, isLoading, error } = useTwitchVideoPlayback(id);
+  const resume = useServerResumeRetry();
   return (
-    <TwitchWatchStage loading={isLoading} error={error}>
+    <TwitchWatchStage loading={isLoading} error={error} ready={data !== undefined}>
       {data && (
         <>
-          <ResumablePlayer id={id} data={data} />
+          <ResumablePlayer key={resume.retryKey} id={id} data={data} onError={resume.onError} />
           <TwitchWatchHeading title={data.video.title} user={data.video.owner} />
         </>
       )}

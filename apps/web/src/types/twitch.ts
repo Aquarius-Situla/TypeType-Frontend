@@ -120,6 +120,10 @@ export type TwitchChatAssets = {
   emotes: TwitchThirdPartyEmote[];
 };
 
+type TwitchUserEmote = { id: string; name: string; type: string; ownerId?: string };
+
+export type TwitchUserEmotes = { channelId: string; emotes: TwitchUserEmote[] };
+
 export type TwitchFollowState = { channelId: string; following: boolean; followedAt?: string };
 
 export type TwitchChatEvent = {
