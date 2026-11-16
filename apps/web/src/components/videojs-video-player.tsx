@@ -3,6 +3,7 @@ import { I18nProvider } from "@videojs/react/i18n";
 import { VideoPlayer, VideoSkin } from "@videojs/react/video";
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
+import { usePolicyMutedSave } from "../hooks/use-policy-muted-save";
 import type { VideoJsSource } from "../lib/video-js-source";
 import { AudioCenterToggle } from "./audio-center-toggle";
 import { AudioOnlyPoster } from "./audio-only-poster";
@@ -53,7 +54,9 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
   const [video, setVideo] = useState<HTMLVideoElement | null>(null);
   const sabr = source.kind === "sabr";
   const [root, setRoot] = useState<HTMLDivElement | null>(null);
-  const policyMuted = useRef(false);
+  const { policyMuted, saveVolume } = usePolicyMutedSave(props.onVolumeChange);
+  const [sabrBlocked, setSabrBlocked] = useState(0);
+  const onSabrBlocked = useCallback(() => setSabrBlocked((count) => count + 1), []);
   const live = streamType === "live";
   const Player = live ? VideoJsLivePlayer : VideoPlayer;
   const Skin = live ? VideoJsLiveSkin : props.ownSkin ? VideoJsVodSkin : VideoSkin;
@@ -112,7 +115,11 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
               mediaRef={mediaRef}
               mediaProps={mediaProps}
             />
-            {!sabr && <VideoJsAutoplay enabled={autoplay} policyMuted={policyMuted} />}
+            <VideoJsAutoplay
+              enabled={autoplay && !sabr}
+              blocked={sabrBlocked}
+              policyMuted={policyMuted}
+            />
             <VideoJsRecoveryCover />
             <ServerStatusNotice variant="player" />
             <VideoJsPlayerMedia root={root}>
@@ -128,14 +135,17 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
           </Skin>
           <VideoJsPlaybackSpeedDefault speed={props.defaultPlaybackSpeed} />
           {sabr ? (
-            <VideoJsSabrEngine video={video} player={props} />
+            <VideoJsSabrEngine
+              video={video}
+              player={{ ...props, onVolumeChange: saveVolume }}
+              onAutoplayBlocked={onSabrBlocked}
+            />
           ) : (
             <VideoJsPlayerBridge
               initialVolume={props.initialVolume ?? 1}
               initialMuted={props.initialMuted ?? false}
               settingsReady={props.settingsReady ?? false}
-              policyMuted={policyMuted}
-              onVolumeChange={props.onVolumeChange}
+              onVolumeChange={saveVolume}
               onSeekReady={props.onSeekReady}
             />
           )}

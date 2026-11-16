@@ -12,7 +12,7 @@ export function VideoJsRecoveryCover() {
       role="status"
       className="absolute inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-black px-6 text-center text-sm text-white"
     >
-      <LoaderCircle className="size-8 animate-spin" aria-hidden="true" />
+      <LoaderCircle className="size-8 motion-safe:animate-spin" aria-hidden="true" />
       <p>{m.player_resuming_after_outage()}</p>
     </div>
   );

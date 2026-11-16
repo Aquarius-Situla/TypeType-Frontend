@@ -70,7 +70,7 @@ function TwitchChannelPage() {
             <p className="line-clamp-2 text-fg-soft text-sm">{data.description}</p>
           )}
         </div>
-        <TwitchFollowButton login={login} returnTo={`/twitch/channel/${login}`} />
+        <TwitchFollowButton login={login} />
         {data?.live && (
           <Link
             to="/twitch/watch"

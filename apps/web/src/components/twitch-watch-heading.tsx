@@ -28,7 +28,7 @@ export function TwitchWatchHeading({ title, user, detail, meta }: Props) {
           </Link>
           {detail ? ` · ${detail}` : ""}
         </p>
-        <TwitchFollowButton login={user.login} returnTo={`/twitch/watch?c=${user.login}`} />
+        <TwitchFollowButton login={user.login} />
       </div>
       {meta}
     </div>

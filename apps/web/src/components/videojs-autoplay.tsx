@@ -1,42 +1,31 @@
 import { selectPlayback, selectVolume, usePlayer } from "@videojs/react";
-import { VolumeX } from "lucide-react";
 import { type RefObject, useEffect, useRef, useState } from "react";
 import { isAutoplayPolicyError } from "../lib/sabr-autoplay";
-import { m } from "../paraglide/messages.js";
+import { StartWithSound } from "./start-with-sound";
 
 type Props = {
   enabled: boolean;
+  blocked: number;
   policyMuted: RefObject<boolean>;
 };
 
-export function VideoJsAutoplay({ enabled, policyMuted }: Props) {
+export function VideoJsAutoplay({ enabled, blocked, policyMuted }: Props) {
   const store = usePlayer();
-  const volume = usePlayer(selectVolume);
-  const volumeRef = useRef(volume);
-  volumeRef.current = volume;
   const playback = usePlayer(selectPlayback);
+  const volume = usePlayer(selectVolume);
   const playbackRef = useRef(playback);
   playbackRef.current = playback;
   const attempted = useRef(false);
-  const [silenced, setSilenced] = useState(false);
+  const [refused, setRefused] = useState(0);
 
   useEffect(() => {
     if (!enabled || attempted.current) return;
     const start = () => {
-      const slice = volumeRef.current;
       const player = playbackRef.current;
-      if (!store.target || !slice || !player) return false;
+      if (!store.target || !player) return false;
       attempted.current = true;
       player.play().catch((error: unknown) => {
-        if (!isAutoplayPolicyError(error) || slice.muted) return;
-        policyMuted.current = true;
-        slice.setMuted(true);
-        setSilenced(true);
-        player.play().catch(() => {
-          policyMuted.current = false;
-          slice.setMuted(false);
-          setSilenced(false);
-        });
+        if (isAutoplayPolicyError(error)) setRefused((count) => count + 1);
       });
       return true;
     };
@@ -45,36 +34,16 @@ export function VideoJsAutoplay({ enabled, policyMuted }: Props) {
       if (start()) unsubscribe();
     });
     return unsubscribe;
-  }, [enabled, store, policyMuted]);
+  }, [enabled, store]);
 
-  useEffect(() => {
-    if (!silenced || volume?.muted !== false) return;
-    policyMuted.current = false;
-    setSilenced(false);
-  }, [silenced, volume?.muted, policyMuted]);
-
-  useEffect(() => {
-    if (!silenced) return;
-    const unmute = (event: MouseEvent) => {
-      const target = event.target;
-      const ownControl =
-        target instanceof Element &&
-        target.closest("[data-player-root] button, [data-player-root] [role=slider]");
-      if (!ownControl) volumeRef.current?.setMuted(false);
-    };
-    document.addEventListener("click", unmute, true);
-    return () => document.removeEventListener("click", unmute, true);
-  }, [silenced]);
-
-  if (!silenced) return null;
   return (
-    <button
-      type="button"
-      onClick={() => volumeRef.current?.setMuted(false)}
-      className="absolute top-3 left-3 z-30 inline-flex h-9 cursor-pointer items-center gap-2 rounded-full bg-white px-3 text-sm font-medium text-black shadow-lg hover:bg-white/90"
-    >
-      <VolumeX className="size-4" aria-hidden="true" />
-      {m.player_unmute_hint()}
-    </button>
+    <StartWithSound
+      blocked={blocked + refused}
+      paused={playback?.paused}
+      muted={volume?.muted}
+      policyMuted={policyMuted}
+      play={() => playbackRef.current?.play()}
+      setMuted={(next) => volume?.setMuted(next)}
+    />
   );
 }

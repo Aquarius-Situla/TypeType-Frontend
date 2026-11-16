@@ -32,7 +32,7 @@ export function TwitchOfflineChannel({ login }: { login: string }) {
           <p className="text-fg-muted text-sm">{m.twitch_channel_offline()}</p>
         </div>
         <div className="relative flex flex-wrap items-center justify-center gap-2">
-          <TwitchFollowButton login={login} returnTo={`/twitch/watch?c=${login}`} />
+          <TwitchFollowButton login={login} />
           <Link
             to="/twitch/channel/$login"
             params={{ login }}

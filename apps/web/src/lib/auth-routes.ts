@@ -10,12 +10,15 @@ export type RedirectTarget =
   | "/subscriptions"
   | "/subscriptions/groups"
   | "/youtube-session"
+  | "/twitch-session"
+  | `/twitch-session?channel=${string}`
   | `/youtube-session?returnTo=${string}`
   | `/shorts?v=${string}`
   | `/link?code=${string}`;
 
 const SHORTS_REDIRECT_PREFIX = "/shorts?v=";
 const DEVICE_LINK_REDIRECT = /^\/link\?code=[A-Za-z0-9-]{1,16}$/;
+const TWITCH_SESSION_REDIRECT = /^\/twitch-session\?channel=[A-Za-z0-9_]{1,25}$/;
 
 const PROTECTED_PREFIXES = [
   "/import",
@@ -27,6 +30,7 @@ const PROTECTED_PREFIXES = [
   "/subscriptions",
   "/youtube-session",
   "/bilibili-session",
+  "/twitch-session",
 ];
 const AUTH_PAGES = ["/login", "/register", "/reset-password", "/auth/oidc/callback"];
 const OIDC_CALLBACK_PAGE = "/auth/oidc/callback";
@@ -69,6 +73,8 @@ export function sanitizeRedirect(value: string | undefined): RedirectTarget {
   if (value === "/subscriptions") return "/subscriptions";
   if (value === "/subscriptions/groups") return "/subscriptions/groups";
   if (value === "/youtube-session") return "/youtube-session";
+  if (value === "/twitch-session") return "/twitch-session";
+  if (TWITCH_SESSION_REDIRECT.test(value)) return value as `/twitch-session?channel=${string}`;
   if (value === "/playlists" || value.startsWith("/playlists/")) return "/playlists";
   return "/";
 }

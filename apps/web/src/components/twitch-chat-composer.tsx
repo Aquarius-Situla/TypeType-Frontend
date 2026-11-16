@@ -103,9 +103,7 @@ export function TwitchChatComposer({ login, room, emotes }: Props) {
           <p className={`flex-1 text-xs ${refusal ? "text-danger-strong" : "text-fg-muted"}`}>
             {notice}
           </p>
-          {needsFollow && !follow.following && (
-            <TwitchFollowButton login={login} returnTo={`/twitch/watch?c=${login}`} compact />
-          )}
+          {needsFollow && !follow.following && <TwitchFollowButton login={login} compact />}
         </div>
       )}
       <form onSubmit={submit} className="relative flex gap-2 p-2">

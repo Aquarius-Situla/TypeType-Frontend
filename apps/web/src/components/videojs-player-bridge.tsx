@@ -1,11 +1,10 @@
 import { selectTime, selectVolume, usePlayer } from "@videojs/react";
-import { type RefObject, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 type Props = {
   initialVolume: number;
   initialMuted: boolean;
   settingsReady: boolean;
-  policyMuted: RefObject<boolean>;
   onVolumeChange?: (volume: number, muted: boolean) => void;
   onSeekReady?: (seek: (seconds: number) => void) => void;
 };
@@ -14,7 +13,6 @@ export function VideoJsPlayerBridge({
   initialVolume,
   initialMuted,
   settingsReady,
-  policyMuted,
   onVolumeChange,
   onSeekReady,
 }: Props) {
@@ -45,9 +43,8 @@ export function VideoJsPlayerBridge({
   }, [store, settingsReady, initialVolume, initialMuted]);
 
   useEffect(() => {
-    if (restored.current && volume && !policyMuted.current)
-      onVolumeChange?.(volume.volume, volume.muted);
-  }, [volume?.volume, volume?.muted, volume, onVolumeChange, policyMuted]);
+    if (restored.current && volume) onVolumeChange?.(volume.volume, volume.muted);
+  }, [volume?.volume, volume?.muted, volume, onVolumeChange]);
 
   useEffect(() => {
     onSeekReady?.((seconds) => {

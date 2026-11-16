@@ -46,7 +46,7 @@ export function ServerStatusNotice({ variant }: { variant: "page" | "player" }) 
         className="flex max-w-xl items-center gap-2 rounded-full bg-neutral-900 px-4 py-2 text-sm text-white shadow-xl ring-1 ring-white/15"
       >
         {waiting ? (
-          <LoaderCircle className="size-4 shrink-0 animate-spin" aria-hidden="true" />
+          <LoaderCircle className="size-4 shrink-0 motion-safe:animate-spin" aria-hidden="true" />
         ) : notice ? (
           <Wrench className="size-4 shrink-0" aria-hidden="true" />
         ) : (
