@@ -104,6 +104,9 @@ function usePlayback<T>(kind: string, id: string, fetcher: (id: string) => Promi
     enabled: useTwitchEnabled() && id.length > 0,
     staleTime: 5 * 60_000,
     retry: false,
+    // Every answer carries a freshly signed link, so a refetch on coming back to the tab after five minutes handed
+    // the player a new source and restarted the live. The recovery refetches on its own when playback fails.
+    refetchOnWindowFocus: false,
   });
 }
 
