@@ -1,6 +1,6 @@
 import { Menu } from "@videojs/react";
 import { Check, ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
-import { type ReactNode, useState } from "react";
+import type { ReactNode } from "react";
 import { BAR_MENU_ITEM } from "../lib/videojs-menu-classes";
 
 export type MenuOption = { value: string; label: string; disabled: boolean };
@@ -23,21 +23,6 @@ export function RowLabel({ icon: Icon, label }: { icon: LucideIcon; label: strin
   );
 }
 
-// A submenu builds its rows only while it is open: the settings hold a hundred hidden rows (caption styles, every
-// quality and language), and rendering them all on each change of the menu cost a long task per panel switch.
-function useLazyRows() {
-  const [mounted, setMounted] = useState(false);
-  return {
-    mounted,
-    onOpenChange: (open: boolean) => {
-      if (open) setMounted(true);
-    },
-    onOpenChangeComplete: (open: boolean) => {
-      if (!open) setMounted(false);
-    },
-  };
-}
-
 // The on and off switch of a settings row, as in the YouTube settings.
 export function MenuSwitch({ on }: { on: boolean }) {
   return (
@@ -56,9 +41,8 @@ export function MenuSwitch({ on }: { on: boolean }) {
 // choices, with a row back to the list.
 export function MenuSubmenu({ icon, label, value, options, onChange }: SubmenuProps) {
   const current = options.find((option) => option.value === value)?.label ?? "";
-  const lazy = useLazyRows();
   return (
-    <Menu.Root onOpenChange={lazy.onOpenChange} onOpenChangeComplete={lazy.onOpenChangeComplete}>
+    <Menu.Root>
       <Menu.Trigger className={`${BAR_MENU_ITEM} min-h-12`}>
         <RowLabel icon={icon} label={label} />
         <span className="ml-auto flex items-center gap-1 text-white/60">
@@ -72,23 +56,21 @@ export function MenuSubmenu({ icon, label, value, options, onChange }: SubmenuPr
           <span>{label}</span>
         </Menu.Item>
         <Menu.Separator className="my-1 h-px bg-white/10" />
-        {lazy.mounted && (
-          <Menu.RadioGroup aria-label={label} value={value} onValueChange={onChange}>
-            {options.map((option) => (
-              <Menu.RadioItem
-                key={option.value}
-                value={option.value}
-                disabled={option.disabled}
-                className={BAR_MENU_ITEM}
-              >
-                <span>{option.label}</span>
-                <Menu.ItemIndicator checked={option.value === value}>
-                  <Check className="size-4" aria-hidden="true" />
-                </Menu.ItemIndicator>
-              </Menu.RadioItem>
-            ))}
-          </Menu.RadioGroup>
-        )}
+        <Menu.RadioGroup aria-label={label} value={value} onValueChange={onChange}>
+          {options.map((option) => (
+            <Menu.RadioItem
+              key={option.value}
+              value={option.value}
+              disabled={option.disabled}
+              className={BAR_MENU_ITEM}
+            >
+              <span>{option.label}</span>
+              <Menu.ItemIndicator checked={option.value === value}>
+                <Check className="size-4" aria-hidden="true" />
+              </Menu.ItemIndicator>
+            </Menu.RadioItem>
+          ))}
+        </Menu.RadioGroup>
       </Menu.Content>
     </Menu.Root>
   );
@@ -123,9 +105,8 @@ export function MenuRadioSection({ label, value, options, onChange }: SectionPro
 type GroupProps = { icon: LucideIcon; label: string; hint?: string; children: ReactNode };
 
 export function MenuGroupSubmenu({ icon, label, hint, children }: GroupProps) {
-  const lazy = useLazyRows();
   return (
-    <Menu.Root onOpenChange={lazy.onOpenChange} onOpenChangeComplete={lazy.onOpenChangeComplete}>
+    <Menu.Root>
       <Menu.Trigger className={`${BAR_MENU_ITEM} min-h-12`}>
         <RowLabel icon={icon} label={label} />
         <span className="ml-auto flex items-center gap-1 text-white/60">
@@ -139,7 +120,7 @@ export function MenuGroupSubmenu({ icon, label, hint, children }: GroupProps) {
           <span>{label}</span>
         </Menu.Item>
         <Menu.Separator className="my-1 h-px bg-white/10" />
-        {lazy.mounted && children}
+        {children}
       </Menu.Content>
     </Menu.Root>
   );
