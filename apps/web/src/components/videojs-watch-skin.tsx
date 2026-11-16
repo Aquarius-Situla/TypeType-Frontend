@@ -1,7 +1,10 @@
 import { Controls, ErrorDialog, Gesture, Hotkey, Time } from "@videojs/react";
-import { type CSSProperties, createContext, type ReactNode, useContext } from "react";
+import { type CSSProperties, createContext, type ReactNode, useContext, useState } from "react";
+import { PlayerBarSlotContext } from "../hooks/use-player-bar-slot";
+import { BAR_PILL } from "../lib/videojs-menu-classes";
 import type { SponsorBlockSegmentItem } from "../types/api";
 import type { CaptionStyles } from "../types/user";
+import { VideoJsMiniControls } from "./videojs-mini-controls";
 import {
   SKIN_HIDDEN_WHEN_IDLE,
   SkinFrame,
@@ -28,6 +31,8 @@ export type WatchSkinOptions = {
   onCaptionStylesChange?: (styles: CaptionStyles) => void;
   onPrevious?: () => void;
   onNext?: () => void;
+  // Twitch keeps a flat bar like its own player; the pills are the YouTube layout.
+  flat?: boolean;
 };
 
 export const WatchSkinOptionsContext = createContext<WatchSkinOptions>({
@@ -36,6 +41,7 @@ export const WatchSkinOptionsContext = createContext<WatchSkinOptions>({
 });
 
 const SEEK_JUMP = 10;
+const FLAT_GROUP = "flex items-center";
 const PERCENT_KEYS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"] as const;
 
 // The skin of YouTube, BiliBili and NicoNico videos, built from Video.js primitives. Space, the arrows, j/l, t, w, d
@@ -48,26 +54,36 @@ export function VideoJsWatchSkin({
   style?: CSSProperties;
 }) {
   const options = useContext(WatchSkinOptionsContext);
+  const [barSlot, setBarSlot] = useState<HTMLElement | null>(null);
+  const group = options.flat ? FLAT_GROUP : BAR_PILL;
   return (
     <SkinFrame style={style} autoplay={options.autoplay}>
-      {children}
+      <PlayerBarSlotContext.Provider value={barSlot}>{children}</PlayerBarSlotContext.Provider>
       <SkinPoster />
       <Controls.Root>
         <Controls.Content
+          data-skin-bottom=""
           className={`absolute inset-x-0 bottom-0 z-20 flex flex-col bg-linear-to-t from-black/80 to-transparent px-2 pt-10 pb-1.5 contrast-more:from-black/95 [@media(prefers-reduced-transparency:reduce)]:bg-black/90 ${SKIN_HIDDEN_WHEN_IDLE}`}
         >
           <div className="px-2">
             <VideoJsWatchTimeline segments={options.segments} />
           </div>
-          <div className="flex items-center gap-0.5">
-            <Controls.Group className="flex min-w-0 items-center">
-              <SkinTrackButton direction="previous" onClick={options.onPrevious} />
-              <SkinPlayButton />
-              <SkinTrackButton direction="next" onClick={options.onNext} />
-              <SkinVolume />
+          <div
+            className={options.flat ? "flex items-center gap-0.5" : "flex items-center gap-2 pt-1"}
+          >
+            <Controls.Group className={`flex min-w-0 items-center ${options.flat ? "" : "gap-2"}`}>
+              <span data-skin-transport="" className={group}>
+                <SkinTrackButton direction="previous" onClick={options.onPrevious} />
+                <SkinPlayButton />
+                <SkinTrackButton direction="next" onClick={options.onNext} />
+              </span>
+              <SkinVolume pill={!options.flat} />
               <Time.Group
-                data-skin-secondary=""
-                className="ml-1 flex items-center gap-1 text-xs tabular-nums text-white"
+                className={
+                  options.flat
+                    ? "ml-1 flex items-center gap-1 text-white text-xs tabular-nums"
+                    : `${BAR_PILL} gap-1 px-4 font-medium text-sm text-white tabular-nums`
+                }
               >
                 <Time.Value type="current" />
                 <Time.Separator />
@@ -75,7 +91,11 @@ export function VideoJsWatchSkin({
               </Time.Group>
             </Controls.Group>
             <div aria-hidden="true" className="flex-1" />
-            <Controls.Group data-skin-secondary="" className="flex items-center">
+            <Controls.Group
+              data-skin-right=""
+              className={options.flat ? group : `${BAR_PILL} px-1`}
+            >
+              <span ref={setBarSlot} className="flex items-center" />
               <SkinCaptionsButton />
               <VideoJsWatchSettings
                 danmaku={options.danmaku}
@@ -89,15 +109,22 @@ export function VideoJsWatchSkin({
             </Controls.Group>
           </div>
         </Controls.Content>
+        <VideoJsMiniControls />
       </Controls.Root>
-      <Hotkey keys="m" action="toggleMuted" />
+      <Hotkey target="document" keys="m" action="toggleMuted" />
       <Hotkey keys="ArrowUp" action="volumeStep" />
       <Hotkey keys="ArrowDown" action="volumeStep" />
-      <Hotkey keys="f" action="toggleFullscreen" />
-      <Hotkey keys="i" action="togglePictureInPicture" />
-      <Hotkey keys="c" action="toggleSubtitles" />
+      <Hotkey target="document" keys="f" action="toggleFullscreen" />
+      <Hotkey target="document" keys="i" action="togglePictureInPicture" />
+      <Hotkey target="document" keys="c" action="toggleSubtitles" />
       {PERCENT_KEYS.map((key) => (
-        <Hotkey key={key} keys={key} action="seekToPercent" value={Number(key) * 10} />
+        <Hotkey
+          key={key}
+          target="document"
+          keys={key}
+          action="seekToPercent"
+          value={Number(key) * 10}
+        />
       ))}
       <Gesture type="tap" action="togglePaused" pointer="mouse" region="center" />
       <Gesture type="tap" action="toggleControls" pointer="touch" />

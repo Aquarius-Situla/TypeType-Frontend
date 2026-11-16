@@ -12,6 +12,7 @@ import type { VideoPlayerProps } from "./video-player-types";
 import { VideoJsAutoplay } from "./videojs-autoplay";
 import { VideoJsLivePlayer } from "./videojs-live-player";
 import { VideoJsLiveSkin } from "./videojs-live-skin";
+import { VideoJsLiveStallWatchdog } from "./videojs-live-stall-watchdog";
 import { VideoJsMedia } from "./videojs-media";
 import { VideoJsPlaybackSpeedDefault } from "./videojs-playback-speed-default";
 import { VideoJsPlaybackTools } from "./videojs-playback-tools";
@@ -71,6 +72,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
     onCaptionStylesChange: props.onCaptionStylesChange,
     onPrevious: props.onPreviousVideo,
     onNext: props.onNextVideo,
+    flat: Boolean(props.ownSkin),
   };
   const { onPositionReaderChange } = props;
 
@@ -136,6 +138,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
                 policyMuted={policyMuted}
               />
               <VideoJsRecoveryCover />
+              {live && <VideoJsLiveStallWatchdog onStall={() => props.onError?.(positionMs())} />}
               <ServerStatusNotice variant="player" />
               <VideoJsPlayerMedia root={root}>
                 <VideoJsPlayerEngine root={root}>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useServerResumeRetry } from "../hooks/use-server-resume-retry";
 import { useTwitchVideoPlayback } from "../hooks/use-twitch";
+import { useTwitchChaptersVtt } from "../hooks/use-twitch-chapters-vtt";
 import { useTwitchVodProgress } from "../hooks/use-twitch-vod-progress";
 import { TWITCH_STAGE_SIZE } from "../lib/twitch-stage-size";
 import type { TwitchVideoPlayback } from "../types/twitch";
@@ -19,6 +20,7 @@ type ResumableProps = {
 
 function ResumablePlayer({ id, data, onError, onSecond }: ResumableProps) {
   const progress = useTwitchVodProgress(id, data.video.lengthSeconds);
+  const chaptersVtt = useTwitchChaptersVtt(id, data.video.lengthSeconds);
   if (!progress.ready)
     return <div className={`animate-pulse rounded-xl bg-surface-strong ${TWITCH_STAGE_SIZE}`} />;
   return (
@@ -29,6 +31,8 @@ function ResumablePlayer({ id, data, onError, onSecond }: ResumableProps) {
       title={data.video.title}
       poster={data.video.previewUrl}
       startTime={progress.startTime}
+      chaptersVtt={chaptersVtt}
+      vodChatLogin={data.video.owner.login}
       onTimeUpdate={(positionMs) => {
         progress.onTimeUpdate(positionMs);
         onSecond(Math.floor(positionMs / 1000));

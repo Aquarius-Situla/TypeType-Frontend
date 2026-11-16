@@ -15,6 +15,7 @@ import type {
   TwitchStream,
   TwitchUserEmotes,
   TwitchVideo,
+  TwitchVideoChapter,
   TwitchVideoComment,
   TwitchVideoPlayback,
 } from "../types/twitch";
@@ -43,6 +44,9 @@ export const fetchTwitchGameStreams = (slug: string, after?: string) =>
 
 export const fetchTwitchTagStreams = (tag: string, after?: string) =>
   get<TwitchPage<TwitchStream>>(`/tags/${encodeURIComponent(tag)}/streams?${pageQuery(after)}`);
+
+export const fetchTwitchVideoChapters = (id: string) =>
+  get<TwitchVideoChapter[]>(`/videos/${encodeURIComponent(id)}/chapters`);
 
 export const fetchTwitchVideoComments = (id: string, at: { offset?: number; cursor?: string }) => {
   const params = new URLSearchParams();

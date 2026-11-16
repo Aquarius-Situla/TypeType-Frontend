@@ -232,7 +232,12 @@ export function useSettings({ forceAnonymous = false }: UseSettingsOptions = {})
 
   function queuePatch(patch: Partial<SettingsItem>): QueuedSettingsPatch {
     const normalizedPatch = { ...patch };
-    const base = { ...DEFAULTS, ...qc.getQueryData<SettingsItem>(queryKey) };
+    // Without an account the settings query never runs, so its cache is empty: the stored copy is the base, or a
+    // change would rewrite every other setting with its default.
+    const base = {
+      ...DEFAULTS,
+      ...(qc.getQueryData<SettingsItem>(queryKey) ?? readCachedSettings(userId)),
+    };
     const id = writeQueue.stage(normalizedPatch, base);
     return { id, base, patch: normalizedPatch };
   }

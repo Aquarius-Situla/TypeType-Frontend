@@ -1,6 +1,27 @@
-/* The floating mini player has its own top bar (drag, back to the video, close): the skin title gives way to it,
-   and only play and the progress bar stay in a control bar sized for a small frame. */
+/* The floating mini player has its own top bar (drag, back to the video, close): the skin title gives way to it.
+   The bottom bar keeps the progress, sound, time and fullscreen; play and the seeks move to the middle row. */
 .typetype-persistent-player-frame[data-floating] .media-title,
-.typetype-persistent-player-frame[data-floating] [data-skin-secondary] {
+.typetype-persistent-player-frame[data-floating] [data-skin-transport],
+.typetype-persistent-player-frame[data-floating] [data-skin-volume-slider],
+.typetype-persistent-player-frame[data-floating] [data-skin-right] > :not(:last-child) {
+  display: none;
+}
+
+.typetype-persistent-player-frame[data-floating] [data-skin-mini] {
+  display: flex;
+}
+
+.typetype-persistent-player-frame[data-floating] [data-skin-bottom] {
+  padding-top: 0.75rem;
+}
+
+/* Server notices show inside the Video.js player while it sits in the page, and at the bottom of the page while it
+   floats or is gone, so one notice is on screen at a time. */
+.typetype-persistent-player-frame[data-floating] [data-server-notice="player"] {
+  display: none;
+}
+
+body:has(.typetype-persistent-player-frame:not([data-floating]) [data-player-engine="videojs"])
+  [data-server-notice="page"] {
   display: none;
 }

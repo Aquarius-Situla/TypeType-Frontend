@@ -2,6 +2,7 @@ import { Controls, Gesture, Hotkey, LiveButton } from "@videojs/react";
 import { type CSSProperties, type ReactNode, useState } from "react";
 import { PlayerBarSlotContext } from "../hooks/use-player-bar-slot";
 import { m } from "../paraglide/messages.js";
+import { VideoJsMiniControls } from "./videojs-mini-controls";
 import { VideoJsSettingsMenu } from "./videojs-settings-menu";
 import {
   SKIN_HIDDEN_WHEN_IDLE,
@@ -45,15 +46,18 @@ export function VideoJsLiveSkin({
       <SkinPoster />
       <Controls.Root>
         <Controls.Content
+          data-skin-bottom=""
           className={`absolute inset-x-0 bottom-0 z-20 flex items-center gap-1 bg-linear-to-t from-black/80 to-transparent px-2 pt-8 pb-2 contrast-more:from-black/95 [@media(prefers-reduced-transparency:reduce)]:bg-black/90 ${SKIN_HIDDEN_WHEN_IDLE}`}
         >
           <Controls.Group className="flex min-w-0 items-center">
-            <SkinPlayButton />
-            <SkinVolume />
+            <span data-skin-transport="" className="flex items-center">
+              <SkinPlayButton />
+            </span>
+            <SkinVolume pill={false} />
             <LiveBadge />
           </Controls.Group>
           <div aria-hidden="true" className="flex-1" />
-          <Controls.Group data-skin-secondary="" className="flex items-center">
+          <Controls.Group data-skin-right="" className="flex items-center">
             <span ref={setBarSlot} className="flex items-center" />
             <VideoJsSettingsMenu speed={false} />
             <SkinCinemaButton />
@@ -62,14 +66,15 @@ export function VideoJsLiveSkin({
             <SkinFullscreenButton />
           </Controls.Group>
         </Controls.Content>
+        <VideoJsMiniControls live />
       </Controls.Root>
       <Hotkey keys="Space" action="togglePaused" />
       <Hotkey keys="k" action="togglePaused" />
-      <Hotkey keys="m" action="toggleMuted" />
+      <Hotkey target="document" keys="m" action="toggleMuted" />
       <Hotkey keys="ArrowUp" action="volumeStep" />
       <Hotkey keys="ArrowDown" action="volumeStep" />
-      <Hotkey keys="f" action="toggleFullscreen" />
-      <Hotkey keys="i" action="togglePictureInPicture" />
+      <Hotkey target="document" keys="f" action="toggleFullscreen" />
+      <Hotkey target="document" keys="i" action="togglePictureInPicture" />
       <Gesture type="tap" action="togglePaused" pointer="mouse" region="center" />
       <Gesture type="tap" action="toggleControls" pointer="touch" />
       <Gesture type="doubletap" action="toggleFullscreen" region="center" />

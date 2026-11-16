@@ -1,9 +1,9 @@
-import { useEffect, useRef } from "react";
 import { buildChaptersVtt, buildSponsorBlockChaptersVtt } from "../lib/chapters-vtt";
 import { proxyUrl } from "../lib/proxy";
 import { buildThumbnailVtt } from "../lib/thumbnail-vtt";
 import type { SponsorBlockSegmentItem } from "../types/api";
 import type { VideoStream } from "../types/stream";
+import { useKeyedObjectUrl } from "./use-keyed-object-url";
 
 function previewFramesKey(stream: VideoStream): string {
   return (stream.previewFrames ?? [])
@@ -26,19 +26,6 @@ function sponsorBlockSegmentsKey(segments: SponsorBlockSegmentItem[] | undefined
       (segment) => `${segment.startTime}:${segment.endTime}:${segment.category}:${segment.action}`,
     )
     .join("|");
-}
-
-function useKeyedObjectUrl(key: string, build: () => string | null): string | null {
-  const asset = useRef<{ key: string; url: string | null } | null>(null);
-  if (asset.current?.key !== key) asset.current = { key, url: build() };
-  const url = asset.current.url;
-  useEffect(
-    () => () => {
-      if (url) URL.revokeObjectURL(url);
-    },
-    [url],
-  );
-  return url;
 }
 
 export function useWatchVttAssets(

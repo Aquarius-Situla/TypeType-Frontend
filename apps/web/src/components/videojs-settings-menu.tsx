@@ -5,11 +5,11 @@ import {
   usePlayer,
   useQualityOptions,
 } from "@videojs/react";
-import { Settings } from "lucide-react";
+import { Gauge, Settings, SlidersHorizontal } from "lucide-react";
 import { isSourceRendition, qualityOptionsBestFirst } from "../lib/video-js-quality-order";
 import { BAR_BUTTON, BAR_MENU_POPUP } from "../lib/videojs-menu-classes";
 import { m } from "../paraglide/messages.js";
-import { MenuSection } from "./videojs-menu-section";
+import { MenuSubmenu } from "./videojs-menu-section";
 
 export function VideoJsSettingsMenu({ speed }: { speed: boolean }) {
   const quality = useQualityOptions({
@@ -33,10 +33,11 @@ export function VideoJsSettingsMenu({ speed }: { speed: boolean }) {
       >
         <Settings className="size-5" aria-hidden="true" />
       </Menu.Trigger>
-      <Menu.Popup className={`${BAR_MENU_POPUP} max-h-72 overflow-y-auto`}>
-        <Menu.Content>
+      <Menu.Popup keepMounted className={`typetype-settings-menu ${BAR_MENU_POPUP}`}>
+        <Menu.Content className="typetype-menu-content">
           {hasQuality && quality && (
-            <MenuSection
+            <MenuSubmenu
+              icon={SlidersHorizontal}
               label={m.player_quality()}
               value={quality.value}
               options={qualityOptionsBestFirst(quality.options, renditions ?? [])}
@@ -44,7 +45,8 @@ export function VideoJsSettingsMenu({ speed }: { speed: boolean }) {
             />
           )}
           {hasSpeed && rate && (
-            <MenuSection
+            <MenuSubmenu
+              icon={Gauge}
               label={m.player_speed()}
               value={rate.value}
               options={rate.options}

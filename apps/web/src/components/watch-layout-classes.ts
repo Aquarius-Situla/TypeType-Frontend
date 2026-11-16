@@ -25,13 +25,13 @@ export function getWatchLayoutClasses(
       cinemaMode ? "" : standardLayout
     } ${anim}`,
     playerWrapClass: cinemaMode
-      ? "watch-player-wrap overflow-hidden bg-black"
+      ? "watch-player-wrap"
       : `watch-player-wrap min-w-0 flex flex-col gap-3 ${
           hasSecondaryContent ? "flex-1 max-w-[1600px]" : "mx-auto w-full max-w-[1600px]"
         }`,
     playerBoxClass: cinemaMode
-      ? "watch-player-box relative mx-auto aspect-video w-[min(100%,calc((100svh-4.5rem)*16/9))]"
-      : "watch-player-box watch-player-anchor relative overflow-hidden rounded-none bg-black",
+      ? "watch-player-box relative mx-auto aspect-video w-[min(100%,calc((100svh-4.5rem)*16/9))] overflow-hidden rounded-xl bg-black"
+      : "watch-player-box watch-player-anchor relative overflow-hidden rounded-xl bg-black",
     playerClassName: cinemaMode
       ? "watch-player-surface w-full h-full dark [--video-aspect-ratio:16/9]"
       : "watch-player-surface",

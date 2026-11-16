@@ -51,7 +51,7 @@ export function VideoJsWatchTimeline({
             {...props}
             className="flex h-full w-(--media-slider-chapter-width) shrink-0 items-center pr-0.5 last:pr-0"
           >
-            <TimeSlider.Track className="relative h-1 w-full overflow-hidden rounded-full bg-white/25 transition-[height] motion-reduce:transition-none group-data-[pointing]/slider:h-1.5">
+            <TimeSlider.Track className="relative h-1 w-full origin-center overflow-hidden rounded-full bg-white/25 transition-transform duration-150 ease-out motion-reduce:transition-none group-data-[pointing]/slider:scale-y-150">
               <TimeSlider.Buffer className="absolute inset-y-0 left-0 w-(--media-slider-chapter-buffer) bg-white/40" />
               <TimeSlider.Fill className="absolute inset-y-0 left-0 w-(--media-slider-chapter-fill) bg-(--media-accent-color,#ef4444)" />
             </TimeSlider.Track>
@@ -59,8 +59,8 @@ export function VideoJsWatchTimeline({
         )}
       />
       {segments && segments.length > 0 && <SponsorBlockLayer segments={segments} />}
-      <TimeSlider.Thumb className="absolute left-(--media-slider-fill) size-3.5 -translate-x-1/2 rounded-full bg-(--media-accent-color,#ef4444) opacity-0 outline-none transition-opacity motion-reduce:transition-none focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-white/70 group-data-[pointing]/slider:opacity-100 group-data-[dragging]/slider:opacity-100" />
-      <TimeSlider.Preview className="pointer-events-none absolute bottom-full mb-3 flex flex-col items-center gap-1 opacity-0 group-data-[pointing]/slider:opacity-100">
+      <TimeSlider.Thumb className="absolute left-(--media-slider-fill) size-3.5 -translate-x-1/2 scale-50 rounded-full bg-(--media-accent-color,#ef4444) opacity-0 outline-none transition-[opacity,scale] duration-150 ease-out motion-reduce:transition-none focus-visible:scale-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-white/70 group-data-[pointing]/slider:scale-100 group-data-[pointing]/slider:opacity-100 group-data-[dragging]/slider:scale-100 group-data-[dragging]/slider:opacity-100" />
+      <TimeSlider.Preview className="pointer-events-none absolute bottom-full mb-3 flex flex-col items-center gap-1 opacity-0 transition-opacity duration-100 motion-reduce:transition-none group-data-[pointing]/slider:opacity-100">
         <Slider.Thumbnail.Root className="overflow-hidden rounded-md bg-black shadow-lg ring-1 ring-white/20 [&:not(:has(img[src]))]:hidden">
           <Slider.Thumbnail.Image className="block max-w-48" />
         </Slider.Thumbnail.Root>

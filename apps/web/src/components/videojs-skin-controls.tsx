@@ -22,18 +22,18 @@ import {
 } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 import { useVideoJsWheelVolume } from "../hooks/use-videojs-wheel-volume";
-import { BAR_BUTTON } from "../lib/videojs-menu-classes";
+import { BAR_BUTTON, BAR_PILL } from "../lib/videojs-menu-classes";
 import { VideoJsLoadingMascot } from "./videojs-loading-mascot";
 
 export const SKIN_HIDDEN_WHEN_IDLE =
-  "transition-opacity duration-200 motion-reduce:transition-none [&:not([data-visible]):not(:has(:focus-visible))]:pointer-events-none [&:not([data-visible]):not(:has(:focus-visible))]:opacity-0";
+  "transition-[opacity,translate] duration-100 ease-out will-change-[opacity,translate] motion-reduce:transition-none [&:not([data-visible]):not(:has(:focus-visible))]:pointer-events-none [&:not([data-visible]):not(:has(:focus-visible))]:translate-y-1 [&:not([data-visible]):not(:has(:focus-visible))]:opacity-0 [&:not([data-visible]):not(:has(:focus-visible))]:duration-300";
 
 const ICON = "size-5";
 
-export function SkinPlayButton() {
+export function SkinPlayButton({ className = BAR_BUTTON }: { className?: string }) {
   return (
     <PlayButton
-      className={BAR_BUTTON}
+      className={className}
       render={(props, state) => (
         <button {...props} type="button">
           {state.ended ? (
@@ -49,10 +49,17 @@ export function SkinPlayButton() {
   );
 }
 
-export function SkinVolume() {
+export function SkinVolume({ pill = true }: { pill?: boolean }) {
   const wheelVolume = useVideoJsWheelVolume();
   return (
-    <div ref={wheelVolume} data-skin-secondary="" className="flex items-center">
+    <div
+      ref={wheelVolume}
+      className={
+        pill
+          ? `group/volume ${BAR_PILL} transition-[padding] duration-200 ease-out focus-within:pr-3 hover:pr-3 motion-reduce:transition-none`
+          : "flex items-center"
+      }
+    >
       <MuteButton
         className={BAR_BUTTON}
         render={(props, state) => (
@@ -67,11 +74,22 @@ export function SkinVolume() {
           </button>
         )}
       />
-      <VolumeSlider.Root className="relative mx-1 hidden h-9 w-20 cursor-pointer touch-none items-center outline-none sm:flex">
-        <VolumeSlider.Track className="relative h-1 w-full rounded-full bg-white/30">
-          <VolumeSlider.Fill className="absolute inset-y-0 left-0 w-(--media-slider-fill) rounded-full bg-white" />
-        </VolumeSlider.Track>
-        <VolumeSlider.Thumb className="absolute left-(--media-slider-fill) size-3 -translate-x-1/2 rounded-full bg-white outline-none focus-visible:ring-2 focus-visible:ring-white/70" />
+      <VolumeSlider.Root
+        data-skin-volume-slider=""
+        className={
+          pill
+            ? "relative flex h-10 w-0 cursor-pointer touch-none items-center overflow-hidden opacity-0 outline-none transition-[width,opacity] duration-200 ease-out group-focus-within/volume:w-16 group-focus-within/volume:opacity-100 group-hover/volume:w-16 group-hover/volume:opacity-100 motion-reduce:transition-none"
+            : "relative mx-1 hidden h-9 w-20 cursor-pointer touch-none items-center outline-none sm:flex"
+        }
+      >
+        <div className="relative mx-1.5 flex h-full flex-1 items-center">
+          <VolumeSlider.Track
+            className={`relative w-full rounded-full ${pill ? "h-0.5 bg-white/25" : "h-1 bg-white/30"}`}
+          >
+            <VolumeSlider.Fill className="absolute inset-y-0 left-0 w-(--media-slider-fill) rounded-full bg-white" />
+          </VolumeSlider.Track>
+          <VolumeSlider.Thumb className="absolute left-(--media-slider-fill) size-3 -translate-x-1/2 rounded-full bg-white outline-none focus-visible:ring-2 focus-visible:ring-white/70" />
+        </div>
       </VolumeSlider.Root>
     </div>
   );
@@ -113,7 +131,7 @@ export function SkinFrame({ children, style, autoplay = false }: SkinFrameProps)
   return (
     <Container
       style={style}
-      className="relative block overflow-hidden rounded-(--media-border-radius) bg-black text-white outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-inset fullscreen:rounded-none"
+      className="relative block overflow-hidden rounded-(--media-border-radius) bg-black text-white outline-none [&_img]:rounded-[inherit] [&_video]:rounded-[inherit] focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-inset fullscreen:rounded-none"
     >
       {children}
       <VideoJsLoadingMascot autoplay={autoplay} />
