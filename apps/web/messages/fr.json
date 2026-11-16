@@ -2172,5 +2172,5 @@
   "release_notice_videojs": "Essayez le nouveau lecteur Video.js, plus fluide. Retour possible dans les paramètres.",
   "release_notice_videojs_action": "Essayer",
   "release_notice_videojs_active": "Vous utilisez déjà le nouveau lecteur Video.js.",
-  "release_notice_close": "Fermer"
+  "release_notice_confirm": "J'ai compris"
 }

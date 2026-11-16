@@ -2172,5 +2172,5 @@
   "release_notice_videojs": "Try the new Video.js player, smoother. Switch back any time in Settings.",
   "release_notice_videojs_action": "Try it",
   "release_notice_videojs_active": "You already use the new Video.js player.",
-  "release_notice_close": "Close"
+  "release_notice_confirm": "Got it"
 }
