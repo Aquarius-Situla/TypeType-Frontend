@@ -54,6 +54,10 @@
   aspect-ratio: 16 / 9;
 }
 
+.typetype-persistent-player-frame[data-float-top] {
+  top: calc(4rem + env(safe-area-inset-top, 0px));
+}
+
 .typetype-persistent-player-frame [data-media-player],
 .typetype-persistent-player-frame [data-media-provider] {
   height: 100%;

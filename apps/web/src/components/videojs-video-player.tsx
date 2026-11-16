@@ -148,7 +148,12 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
                 <VideoJsKeyboardFeedback video={video} />
                 <VideoJsCaptionsHotkey />
                 <VideoJsSingleSubtitle video={video} />
-                {live && <VideoJsLiveStallWatchdog onStall={() => props.onError?.(positionMs())} />}
+                {live && (
+                  <VideoJsLiveStallWatchdog
+                    video={videoRef}
+                    onStall={() => props.onError?.(positionMs())}
+                  />
+                )}
                 <ServerStatusNotice variant="player" />
                 <VideoJsPlayerMedia root={root}>
                   <VideoJsPlayerEngine root={root}>

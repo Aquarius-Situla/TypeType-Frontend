@@ -44,6 +44,15 @@ html[data-ambient-light] .typetype-shell > main {
     0 0 0.12rem color-mix(in srgb, var(--ambient-app) 90%, transparent);
 }
 
+/* A panel that floats over other content keeps solid shades: glass there would let the text below show through. */
+html[data-ambient-light] .typetype-shell [data-floating-panel] {
+  --color-zinc-950: var(--ambient-app);
+  --color-zinc-900: var(--ambient-surface);
+  --color-zinc-800: var(--ambient-surface-strong);
+  --color-zinc-700: var(--ambient-surface-soft);
+  text-shadow: none;
+}
+
 /* In cinema mode the player band is black around the picture; it lets the light through instead. */
 html[data-ambient-light] .watch-player-wrap {
   background-color: transparent;
