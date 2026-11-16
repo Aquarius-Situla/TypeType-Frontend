@@ -2,6 +2,7 @@ import type {
   TwitchAccountStatus,
   TwitchChannel,
   TwitchChatAssets,
+  TwitchChatHighlights,
   TwitchClip,
   TwitchClipPlayback,
   TwitchDeviceCode,
@@ -102,6 +103,9 @@ export const fetchTwitchGlobalChatAssets = () => get<TwitchChatAssets>("/chat/as
 
 export const fetchTwitchChannelChatAssets = (login: string) =>
   get<TwitchChatAssets>(`/chat/${encodeURIComponent(login)}/assets`);
+
+export const fetchTwitchChatHighlights = (login: string) =>
+  get<TwitchChatHighlights>(`/chat/${encodeURIComponent(login)}/highlights`);
 
 export const fetchTwitchUserEmotes = (login: string) =>
   authedJson<TwitchUserEmotes>(`${BASE}/twitch/me/emotes/${encodeURIComponent(login)}`);

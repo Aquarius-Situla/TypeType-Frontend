@@ -2178,5 +2178,13 @@
   "twitch_subscribed_months": "Abonniert · {months} Monate",
   "twitch_subscription_streak": "{streak} Monate in Folge",
   "twitch_subscription_tier": "Stufe {tier}",
-  "twitch_subscription_months_short": "{months} Mon."
+  "twitch_subscription_months_short": "{months} Mon.",
+  "player_low_latency": "Niedrige Latenz",
+  "twitch_poll": "Umfrage",
+  "twitch_poll_ended": "Umfrage beendet",
+  "twitch_poll_votes": "{votes} Stimmen",
+  "twitch_poll_choice": "{title}: {percent} %, {votes} Stimmen",
+  "twitch_pinned_message": "Angeheftete Nachricht",
+  "twitch_pinned_by": "Angeheftet von {name}",
+  "twitch_chat_highlight_hide": "Ausblenden"
 }

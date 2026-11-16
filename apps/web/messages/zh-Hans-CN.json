@@ -2178,5 +2178,13 @@
   "twitch_subscribed_months": "已订阅 · {months} 个月",
   "twitch_subscription_streak": "连续 {streak} 个月",
   "twitch_subscription_tier": "{tier} 级",
-  "twitch_subscription_months_short": "{months} 个月"
+  "twitch_subscription_months_short": "{months} 个月",
+  "player_low_latency": "低延迟",
+  "twitch_poll": "投票",
+  "twitch_poll_ended": "投票已结束",
+  "twitch_poll_votes": "{votes} 票",
+  "twitch_poll_choice": "{title}：{percent}%，{votes} 票",
+  "twitch_pinned_message": "置顶消息",
+  "twitch_pinned_by": "由 {name} 置顶",
+  "twitch_chat_highlight_hide": "隐藏"
 }
