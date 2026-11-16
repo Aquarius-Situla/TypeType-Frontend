@@ -55,7 +55,7 @@ export function AutoplayCountdownOverlay({
   }
 
   return (
-    <div className="absolute inset-0 z-20 overflow-hidden bg-black text-white">
+    <div className="absolute inset-0 z-30 overflow-hidden bg-black text-white">
       {thumbnail ? (
         <img
           src={thumbnail}
