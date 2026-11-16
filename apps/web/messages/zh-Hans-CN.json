@@ -2161,5 +2161,13 @@
   "player_color_magenta": "品红色",
   "player_feedback_seek": "{value} 秒",
   "player_cast": "投屏",
-  "player_airplay": "AirPlay"
+  "player_airplay": "AirPlay",
+  "video_live_offline": "未开播",
+  "video_live_not_started": "直播尚未开始，请在主播开播后再来。",
+  "videojs_invite_title": "试试新的 Video.js 播放器",
+  "videojs_invite_body": "它更流畅，并将成为 TypeType 的播放器。你可以随时在设置中切换回来。",
+  "videojs_invite_try": "试用 Video.js",
+  "videojs_invite_later": "不用了",
+  "videojs_invite_close": "关闭",
+  "videojs_invite_discord": "在 Discord 上反馈问题"
 }

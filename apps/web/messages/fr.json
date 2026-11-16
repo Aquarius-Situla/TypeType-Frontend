@@ -2161,5 +2161,13 @@
   "player_color_magenta": "Magenta",
   "player_feedback_seek": "{value} s",
   "player_cast": "Caster",
-  "player_airplay": "AirPlay"
+  "player_airplay": "AirPlay",
+  "video_live_offline": "Hors ligne",
+  "video_live_not_started": "Ce live n'a pas encore commencé. Revenez quand la chaîne sera en direct.",
+  "videojs_invite_title": "Essayez le nouveau lecteur Video.js",
+  "videojs_invite_body": "Il est plus fluide et deviendra le lecteur de TypeType. Vous pourrez revenir à l'ancien à tout moment dans les paramètres.",
+  "videojs_invite_try": "Essayer Video.js",
+  "videojs_invite_later": "Non merci",
+  "videojs_invite_close": "Fermer",
+  "videojs_invite_discord": "Signaler un bug sur Discord"
 }

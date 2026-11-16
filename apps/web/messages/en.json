@@ -2161,5 +2161,13 @@
   "player_color_magenta": "Magenta",
   "player_feedback_seek": "{value} s",
   "player_cast": "Cast",
-  "player_airplay": "AirPlay"
+  "player_airplay": "AirPlay",
+  "video_live_offline": "Offline",
+  "video_live_not_started": "This live has not started yet. Come back when the channel goes live.",
+  "videojs_invite_title": "Try the new Video.js player",
+  "videojs_invite_body": "It is smoother and will become the TypeType player. You can switch back at any time in Settings.",
+  "videojs_invite_try": "Try Video.js",
+  "videojs_invite_later": "No thanks",
+  "videojs_invite_close": "Close",
+  "videojs_invite_discord": "Report a bug on Discord"
 }
