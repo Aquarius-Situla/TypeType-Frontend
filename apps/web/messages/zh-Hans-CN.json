@@ -2141,6 +2141,7 @@
   "player_color_cyan": "青色",
   "twitch_chat_replay": "聊天回放",
   "twitch_chat_replay_empty": "视频此处没有消息。",
+  "twitch_chat_replay_unavailable": "此视频的聊天回放不可用。",
   "player_caption_font": "字体",
   "player_caption_font_mono_serif": "等宽衬线",
   "player_caption_font_pro_serif": "比例衬线",

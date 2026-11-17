@@ -2141,6 +2141,7 @@
   "player_color_cyan": "Cyan",
   "twitch_chat_replay": "Rediffusion du chat",
   "twitch_chat_replay_empty": "Aucun message à ce moment de la vidéo.",
+  "twitch_chat_replay_unavailable": "La rediffusion du chat de cette vidéo n'est pas disponible.",
   "player_caption_font": "Police",
   "player_caption_font_mono_serif": "Serif à chasse fixe",
   "player_caption_font_pro_serif": "Serif proportionnelle",

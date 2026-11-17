@@ -2141,6 +2141,7 @@
   "player_color_cyan": "Cyan",
   "twitch_chat_replay": "Chat-Wiedergabe",
   "twitch_chat_replay_empty": "An dieser Stelle des Videos gibt es keine Nachrichten.",
+  "twitch_chat_replay_unavailable": "Die Chat-Wiedergabe dieses Videos ist nicht verfügbar.",
   "player_caption_font": "Schriftart",
   "player_caption_font_mono_serif": "Serif, nichtproportional",
   "player_caption_font_pro_serif": "Serif, proportional",
