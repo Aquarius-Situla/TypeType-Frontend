@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { type FormEvent, useState } from "react";
 import { TwitchGameCard, TwitchStreamCard } from "../components/twitch-cards";
+import { TwitchFollowedChannels, TwitchFollowedVideos } from "../components/twitch-followed-rows";
 import { TwitchDisabled, TwitchGrid } from "../components/twitch-grid";
 import { TwitchIcon } from "../components/twitch-icon";
 import {
@@ -77,7 +78,13 @@ function TwitchHome() {
           </Link>
         </div>
       </header>
-      {account.data?.linked && <FollowedLive />}
+      {account.data?.linked && (
+        <>
+          <FollowedLive />
+          <TwitchFollowedVideos />
+          <TwitchFollowedChannels />
+        </>
+      )}
       {games.items.length > 0 && (
         <section className="flex flex-col gap-3">
           <h2 className="font-semibold text-fg text-lg">{m.twitch_categories()}</h2>
