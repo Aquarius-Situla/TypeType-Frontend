@@ -1,7 +1,7 @@
 import { Smile } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useEmoteImageSrc } from "../hooks/use-emote-image-src";
 import { useTwitchEmotePicker } from "../hooks/use-twitch-emote-picker";
-import { proxyImage } from "../lib/proxy";
 import type { ChatEmoteImage, ChatEmoteMap } from "../lib/twitch-chat-parts";
 import { type EmoteGroup, type EmoteGroupId, filterEmoteGroups } from "../lib/twitch-emote-picker";
 import { m } from "../paraglide/messages.js";
@@ -18,6 +18,7 @@ function groupLabel(id: EmoteGroupId): string {
 }
 
 function EmoteButton({ emote, onPick }: { emote: ChatEmoteImage; onPick: (name: string) => void }) {
+  const { src, srcSet } = useEmoteImageSrc(emote);
   return (
     <button
       type="button"
@@ -27,8 +28,8 @@ function EmoteButton({ emote, onPick }: { emote: ChatEmoteImage; onPick: (name: 
       className="flex size-10 cursor-pointer items-center justify-center rounded-md hover:bg-surface-strong focus-visible:outline-2 focus-visible:outline-accent"
     >
       <img
-        src={proxyImage(emote.url, "card")}
-        srcSet={emote.url2x ? `${proxyImage(emote.url2x, "card")} 2x` : undefined}
+        src={src}
+        srcSet={srcSet}
         alt=""
         loading="lazy"
         decoding="async"
