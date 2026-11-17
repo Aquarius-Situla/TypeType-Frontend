@@ -14,6 +14,7 @@ import { TwitchChatComposer } from "./twitch-chat-composer";
 import { TwitchChatHighlights } from "./twitch-chat-highlights";
 import { TwitchChatLine } from "./twitch-chat-line";
 import { TwitchChatModes } from "./twitch-chat-modes";
+import { TwitchEmoteAnimationToggle } from "./twitch-emote-animation-toggle";
 import { TwitchExternalLinkDialog } from "./twitch-external-link-dialog";
 
 type Props = { login: string; overlay?: boolean };
@@ -57,6 +58,7 @@ export function TwitchChat({ login, overlay = false }: Props) {
             {m.twitch_chat_reconnecting()}
           </span>
         )}
+        <TwitchEmoteAnimationToggle />
       </h2>
       <TwitchChatHighlights login={login} />
       <ol

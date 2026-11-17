@@ -2052,6 +2052,7 @@
   "twitch_chat_mode_subs": "Subscribers only",
   "twitch_chat_mode_unique": "Unique messages",
   "twitch_chat_reconnecting": "Reconnecting to the chat…",
+  "twitch_animated_emotes": "Animated emotes",
   "twitch_rewind": "Go back in the live",
   "twitch_rewind_behind": "{time} behind live",
   "twitch_back_to_live": "Back to live",

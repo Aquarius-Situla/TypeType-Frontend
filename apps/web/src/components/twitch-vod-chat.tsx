@@ -6,6 +6,7 @@ import { TWITCH_CHAT_OVERLAY, TWITCH_CHAT_PANEL } from "../lib/twitch-chat-class
 import { m } from "../paraglide/messages.js";
 import { resolveEffectiveTheme, useThemeStore } from "../stores/theme-store";
 import { TwitchChatLine } from "./twitch-chat-line";
+import { TwitchEmoteAnimationToggle } from "./twitch-emote-animation-toggle";
 import { TwitchExternalLinkDialog } from "./twitch-external-link-dialog";
 
 type Props = { videoId: string; login: string; seconds: number; overlay?: boolean };
@@ -33,9 +34,10 @@ export function TwitchVodChat({ videoId, login, seconds, overlay = false }: Prop
       className={overlay ? TWITCH_CHAT_OVERLAY : TWITCH_CHAT_PANEL}
     >
       <h2
-        className={`border-border border-b px-3 py-2 font-semibold text-fg text-sm ${overlay ? "sr-only" : ""}`}
+        className={`flex items-center gap-2 border-border border-b px-3 py-2 font-semibold text-fg text-sm ${overlay ? "sr-only" : ""}`}
       >
         {m.twitch_chat_replay()}
+        <TwitchEmoteAnimationToggle />
       </h2>
       <ol
         ref={listRef}

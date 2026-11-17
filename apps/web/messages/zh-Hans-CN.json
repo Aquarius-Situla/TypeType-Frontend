@@ -2052,6 +2052,7 @@
   "twitch_chat_mode_subs": "仅限订阅者",
   "twitch_chat_mode_unique": "禁止重复消息",
   "twitch_chat_reconnecting": "正在重新连接聊天室…",
+  "twitch_animated_emotes": "动态表情",
   "twitch_rewind": "回看直播",
   "twitch_rewind_behind": "落后直播 {time}",
   "twitch_back_to_live": "回到直播",
