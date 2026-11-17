@@ -2003,6 +2003,8 @@
   "twitch_disabled": "Twitch n'est pas activé sur cette instance.",
   "twitch_search_placeholder": "Rechercher sur Twitch",
   "twitch_followed_live": "En direct de vos chaînes suivies",
+  "twitch_followed_videos": "Rediffusions de vos chaînes suivies",
+  "twitch_followed_channels": "Vos chaînes suivies",
   "twitch_link_account": "Lier un compte Twitch",
   "twitch_categories": "Catégories",
   "twitch_top_lives": "Lives populaires",

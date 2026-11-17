@@ -2003,6 +2003,8 @@
   "twitch_disabled": "此实例未启用 Twitch。",
   "twitch_search_placeholder": "搜索 Twitch",
   "twitch_followed_live": "你关注的频道正在直播",
+  "twitch_followed_videos": "你关注的频道的往期直播",
+  "twitch_followed_channels": "你关注的频道",
   "twitch_link_account": "关联 Twitch 账号",
   "twitch_categories": "分类",
   "twitch_top_lives": "热门直播",

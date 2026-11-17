@@ -5,7 +5,9 @@ import {
   fetchTwitchChannelClips,
   fetchTwitchChannelVideos,
   fetchTwitchClip,
+  fetchTwitchFollowedChannels,
   fetchTwitchFollowedLive,
+  fetchTwitchFollowedVideos,
   fetchTwitchGameStreams,
   fetchTwitchGames,
   fetchTwitchLive,
@@ -128,4 +130,22 @@ export function useTwitchAccount() {
 export function useTwitchFollowedLive() {
   const account = useTwitchAccount();
   return usePagedTwitch(["followed-live"], fetchTwitchFollowedLive, account.data?.linked === true);
+}
+
+export function useTwitchFollowedVideos() {
+  const account = useTwitchAccount();
+  return usePagedTwitch(
+    ["followed-videos"],
+    fetchTwitchFollowedVideos,
+    account.data?.linked === true,
+  );
+}
+
+export function useTwitchFollowedChannels() {
+  const account = useTwitchAccount();
+  return usePagedTwitch(
+    ["followed-channels"],
+    fetchTwitchFollowedChannels,
+    account.data?.linked === true,
+  );
 }

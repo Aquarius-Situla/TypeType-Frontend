@@ -14,6 +14,7 @@ import type {
   TwitchPollResult,
   TwitchSearchType,
   TwitchStream,
+  TwitchUser,
   TwitchUserEmotes,
   TwitchVideo,
   TwitchVideoChapter,
@@ -98,6 +99,12 @@ export async function unlinkTwitchAccount(): Promise<void> {
 
 export const fetchTwitchFollowedLive = (after?: string) =>
   authedJson<TwitchPage<TwitchStream>>(`${BASE}/twitch/me/live?${pageQuery(after)}`);
+
+export const fetchTwitchFollowedVideos = (after?: string) =>
+  authedJson<TwitchPage<TwitchVideo>>(`${BASE}/twitch/me/videos?${pageQuery(after)}`);
+
+export const fetchTwitchFollowedChannels = (after?: string) =>
+  authedJson<TwitchPage<TwitchUser>>(`${BASE}/twitch/me/follows?${pageQuery(after)}`);
 
 export const fetchTwitchGlobalChatAssets = () => get<TwitchChatAssets>("/chat/assets");
 

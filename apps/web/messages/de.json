@@ -2003,6 +2003,8 @@
   "twitch_disabled": "Twitch ist auf dieser Instanz nicht aktiviert.",
   "twitch_search_placeholder": "Twitch durchsuchen",
   "twitch_followed_live": "Live von gefolgten Kanälen",
+  "twitch_followed_videos": "Vergangene Übertragungen gefolgter Kanäle",
+  "twitch_followed_channels": "Gefolgte Kanäle",
   "twitch_link_account": "Twitch-Konto verknüpfen",
   "twitch_categories": "Kategorien",
   "twitch_top_lives": "Beliebte Livestreams",
