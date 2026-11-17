@@ -9,6 +9,7 @@ import {
   serverLossConfirmed,
   serverLost,
   serverNoticeCleared,
+  serverReached,
 } from "../lib/server-status";
 
 type ServerStatusStore = ServerStatus & {
@@ -17,6 +18,7 @@ type ServerStatusStore = ServerStatus & {
   cleared: () => void;
   lost: () => void;
   lossConfirmed: () => void;
+  reached: () => void;
 };
 
 export const useServerStatusStore = create<ServerStatusStore>((set) => ({
@@ -26,4 +28,5 @@ export const useServerStatusStore = create<ServerStatusStore>((set) => ({
   cleared: () => set((state) => serverNoticeCleared(state)),
   lost: () => set((state) => serverLost(state)),
   lossConfirmed: () => set((state) => serverLossConfirmed(state)),
+  reached: () => set((state) => serverReached(state)),
 }));

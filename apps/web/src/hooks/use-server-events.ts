@@ -20,17 +20,20 @@ export function useServerEvents() {
   useEffect(() => {
     const store = useServerStatusStore;
     let grace: ReturnType<typeof setTimeout> | undefined;
+    // The server is back: stop waiting on the loss, and refresh what failed meanwhile when this counts as a resume.
+    const back = (apply: () => void) => {
+      if (grace) clearTimeout(grace);
+      grace = undefined;
+      const before = store.getState().resumes;
+      apply();
+      if (store.getState().resumes !== before)
+        void queryClient.invalidateQueries({
+          predicate: (query) => !isPlaybackSource(query.queryKey),
+        });
+    };
     const stop = watchServerEvents({
-      onHello: (hello) => {
-        if (grace) clearTimeout(grace);
-        grace = undefined;
-        const before = store.getState().resumes;
-        store.getState().greeted(hello);
-        if (store.getState().resumes !== before)
-          void queryClient.invalidateQueries({
-            predicate: (query) => !isPlaybackSource(query.queryKey),
-          });
-      },
+      onHello: (hello) => back(() => store.getState().greeted(hello)),
+      onReachable: () => back(() => store.getState().reached()),
       onNotice: (notice) => store.getState().announced(notice),
       onCleared: () => store.getState().cleared(),
       onLost: () => {

@@ -9,6 +9,7 @@ import {
   serverGreeted,
   serverLossConfirmed,
   serverLost,
+  serverReached,
 } from "../src/lib/server-status";
 
 const restart = { kind: "restart" as const, message: null, resumeInSeconds: 20, issuedAt: 1 };
@@ -63,4 +64,23 @@ test("an unannounced loss becomes unreachable after the grace, and a silent rest
   expect(quick.resumes).toBe(1);
   const sameProcess = serverGreeted(lost, { bootId: "a", notice: null });
   expect(sameProcess.resumes).toBe(0);
+});
+
+test("a stream that answers without a hello ends the loss once", () => {
+  const online = serverGreeted(INITIAL_SERVER_STATUS, { bootId: "a", notice: null });
+  const unreachable = serverLossConfirmed(serverLost(online));
+  const reached = serverReached(unreachable);
+  expect(reached.phase).toBe("online");
+  expect(isServerAvailable(reached)).toBe(true);
+  expect(reached.resumes).toBe(1);
+  expect(serverReached(reached)).toBe(reached);
+  expect(serverGreeted(reached, { bootId: "a", notice: null }).resumes).toBe(1);
+});
+
+test("an answer without a hello does not end an announced restart", () => {
+  const online = serverGreeted(INITIAL_SERVER_STATUS, { bootId: "a", notice: null });
+  const restarting = serverLost(serverAnnounced(online, restart));
+  const reached = serverReached(restarting);
+  expect(reached.phase).toBe("restarting");
+  expect(reached.resumes).toBe(0);
 });
