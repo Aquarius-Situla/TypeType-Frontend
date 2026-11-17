@@ -3,6 +3,7 @@ import { useTwitchChannel, useTwitchLive } from "../hooks/use-twitch";
 import { useTwitchLiveArchiveProgress } from "../hooks/use-twitch-live-archive-progress";
 import { useTwitchLiveRecovery } from "../hooks/use-twitch-live-recovery";
 import { ApiError } from "../lib/api";
+import { useTwitchRewindStore } from "../stores/twitch-rewind-store";
 import { TwitchChat } from "./twitch-chat";
 import { TwitchLiveEnded } from "./twitch-live-ended";
 import { TwitchLiveFailed } from "./twitch-live-failed";
@@ -23,6 +24,13 @@ export function TwitchLiveView({ login }: { login: string }) {
   const live = channel.data?.live ?? data?.channel.live;
   const ended = channel.data !== undefined && channel.data.live === undefined && data !== undefined;
   const watchArchive = useTwitchLiveArchiveProgress(live?.archive);
+  const archiveId = live?.archive?.id;
+  const archiveStart = live?.archive?.startedAt;
+  const setArchive = useTwitchRewindStore((state) => state.setArchive);
+  useEffect(() => {
+    setArchive(archiveId && archiveStart ? { id: archiveId, startedAt: archiveStart } : null);
+  }, [archiveId, archiveStart, setArchive]);
+  useEffect(() => () => setArchive(null), [setArchive]);
   const offline = playback.error instanceof ApiError && playback.error.status === 404;
   const wentLive = offline && channel.data?.live !== undefined;
   const { refetch } = playback;

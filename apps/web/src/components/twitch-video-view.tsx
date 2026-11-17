@@ -18,10 +18,20 @@ type ResumableProps = {
   onSecond: (seconds: number) => void;
   // After a server restart the player is rebuilt: it resumes where playback was, not where the page opened.
   resumeAtMs: number | null;
+  // A second asked by the link, as from the live rewind; it wins over the saved progress.
+  startAtMs: number | null;
   positionRef: RefObject<number | null>;
 };
 
-function ResumablePlayer({ id, data, onError, onSecond, resumeAtMs, positionRef }: ResumableProps) {
+function ResumablePlayer({
+  id,
+  data,
+  onError,
+  onSecond,
+  resumeAtMs,
+  startAtMs,
+  positionRef,
+}: ResumableProps) {
   const progress = useTwitchVodProgress(id, data.video.lengthSeconds, data.video.recording);
   const chaptersVtt = useTwitchChaptersVtt(id, data.video.lengthSeconds);
   if (!progress.ready)
@@ -34,7 +44,7 @@ function ResumablePlayer({ id, data, onError, onSecond, resumeAtMs, positionRef 
       live={false}
       title={data.video.title}
       poster={data.video.previewUrl}
-      startTime={resumeAtMs ?? progress.startTime}
+      startTime={resumeAtMs ?? startAtMs ?? progress.startTime}
       chaptersVtt={chaptersVtt}
       vodChatLogin={data.video.owner.login}
       onTimeUpdate={(positionMs) => {
@@ -50,7 +60,7 @@ function ResumablePlayer({ id, data, onError, onSecond, resumeAtMs, positionRef 
   );
 }
 
-export function TwitchVideoView({ id }: { id: string }) {
+export function TwitchVideoView({ id, startAtSeconds }: { id: string; startAtSeconds?: number }) {
   const { data, isLoading, error } = useTwitchVideoPlayback(id);
   const resume = useServerResumeRetry();
   const [seconds, setSeconds] = useState(0);
@@ -70,11 +80,13 @@ export function TwitchVideoView({ id }: { id: string }) {
               onSecond={setSeconds}
               positionRef={positionRef}
               resumeAtMs={resume.retryKey > 0 ? positionRef.current : null}
+              startAtMs={startAtSeconds === undefined ? null : startAtSeconds * 1000}
             />
             <TwitchWatchHeading
               title={data.video.title}
               user={data.video.owner}
               audioOnly={Boolean(data.audioUrl)}
+              liveLogin={data.video.recording ? data.video.owner.login : undefined}
             />
           </>
         )}
