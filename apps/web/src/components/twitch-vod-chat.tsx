@@ -12,7 +12,7 @@ type Props = { videoId: string; login: string; seconds: number; overlay?: boolea
 
 // The chat of a past broadcast as it scrolled at that moment of the video, drawn by the live chat line.
 export function TwitchVodChat({ videoId, login, seconds, overlay = false }: Props) {
-  const { comments, ready } = useTwitchVodChat(videoId, seconds);
+  const { comments, ready, unavailable } = useTwitchVodChat(videoId, seconds);
   const assets = useTwitchChatAssets(login);
   const pageTheme = resolveEffectiveTheme(useThemeStore((state) => state.theme));
   const theme = overlay ? "dark" : pageTheme;
@@ -57,7 +57,11 @@ export function TwitchVodChat({ videoId, login, seconds, overlay = false }: Prop
         ))}
         {comments.length === 0 && (
           <li className="px-3 py-6 text-center text-fg-muted text-sm">
-            {ready ? m.twitch_chat_replay_empty() : m.twitch_chat_connecting()}
+            {unavailable
+              ? m.twitch_chat_replay_unavailable()
+              : ready
+                ? m.twitch_chat_replay_empty()
+                : m.twitch_chat_connecting()}
           </li>
         )}
       </ol>

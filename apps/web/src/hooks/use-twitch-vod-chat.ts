@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { fetchTwitchVideoComments } from "../lib/api-twitch";
+import {
+  nextVodChatFailure,
+  type VodChatFailure,
+  vodChatBlocked,
+} from "../lib/twitch-vod-chat-failure";
 import { trimPlayedComments } from "../lib/twitch-vod-chat-window";
 import type { TwitchVideoComment } from "../types/twitch";
 
@@ -21,12 +26,13 @@ type Window = {
 export function useTwitchVodChat(
   videoId: string,
   seconds: number,
-): { comments: TwitchVideoComment[]; ready: boolean } {
+): { comments: TwitchVideoComment[]; ready: boolean; unavailable: boolean } {
   const [window, setWindow] = useState<Window | null>(null);
+  const [failure, setFailure] = useState<VodChatFailure | null>(null);
   const loading = useRef(false);
 
   useEffect(() => {
-    if (loading.current) return;
+    if (loading.current || vodChatBlocked(failure, videoId, Date.now())) return;
     const current = window?.videoId === videoId ? window : null;
     const outside =
       !current || seconds < current.from - 1 || seconds > current.until + SEEK_GAP_SECONDS;
@@ -37,6 +43,7 @@ export function useTwitchVodChat(
     const request = outside ? { offset: seconds } : { cursor: current?.cursor };
     fetchTwitchVideoComments(videoId, request)
       .then((page) => {
+        setFailure(null);
         const last = page.items.at(-1)?.offset;
         setWindow((previous) => {
           if (outside || !previous || previous.videoId !== videoId) {
@@ -65,15 +72,18 @@ export function useTwitchVodChat(
           };
         });
       })
-      .catch(() => undefined)
+      .catch((error: unknown) => {
+        setFailure((previous) => nextVodChatFailure(previous, videoId, error, Date.now()));
+      })
       .finally(() => {
         loading.current = false;
       });
-  }, [videoId, seconds, window]);
+  }, [videoId, seconds, window, failure]);
 
   const current = window?.videoId === videoId ? window : null;
   const visible = current
     ? current.comments.filter((comment) => comment.offset <= seconds).slice(-VISIBLE)
     : [];
-  return { comments: visible, ready: current !== null };
+  const unavailable = failure?.videoId === videoId && failure.missing && current === null;
+  return { comments: visible, ready: current !== null, unavailable };
 }

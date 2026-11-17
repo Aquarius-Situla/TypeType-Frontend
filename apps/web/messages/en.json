@@ -2141,6 +2141,7 @@
   "player_color_cyan": "Cyan",
   "twitch_chat_replay": "Chat replay",
   "twitch_chat_replay_empty": "No messages at this point of the video.",
+  "twitch_chat_replay_unavailable": "The chat replay of this video is not available.",
   "player_caption_font": "Font",
   "player_caption_font_mono_serif": "Monospaced serif",
   "player_caption_font_pro_serif": "Proportional serif",
