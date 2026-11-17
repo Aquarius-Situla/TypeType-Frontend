@@ -2184,6 +2184,9 @@
   "twitch_poll_ended": "Umfrage beendet",
   "twitch_poll_votes": "{votes} Stimmen",
   "twitch_poll_choice": "{title}: {percent} %, {votes} Stimmen",
+  "twitch_poll_vote": "Für {title} stimmen ({percent} %)",
+  "twitch_poll_vote_failed": "Twitch hat die Stimme nicht gezählt.",
+  "twitch_poll_your_vote": "deine Stimme",
   "twitch_pinned_message": "Angeheftete Nachricht",
   "twitch_pinned_by": "Angeheftet von {name}",
   "twitch_chat_highlight_hide": "Ausblenden"

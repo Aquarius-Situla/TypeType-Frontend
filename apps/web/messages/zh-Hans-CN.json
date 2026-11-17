@@ -2184,6 +2184,9 @@
   "twitch_poll_ended": "投票已结束",
   "twitch_poll_votes": "{votes} 票",
   "twitch_poll_choice": "{title}：{percent}%，{votes} 票",
+  "twitch_poll_vote": "投票给 {title}（{percent}%）",
+  "twitch_poll_vote_failed": "Twitch 未计入此投票。",
+  "twitch_poll_your_vote": "你的投票",
   "twitch_pinned_message": "置顶消息",
   "twitch_pinned_by": "由 {name} 置顶",
   "twitch_chat_highlight_hide": "隐藏"

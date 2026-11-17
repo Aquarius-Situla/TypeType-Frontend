@@ -137,5 +137,14 @@ export async function sendTwitchChatMessage(
   return { ok: false, rejected: body.error === "chat_rejected", reason: body.reason };
 }
 
+export async function voteTwitchPoll(pollId: string, choiceId: string): Promise<boolean> {
+  const res = await authed(`${BASE}/twitch/polls/vote`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pollId, choiceId }),
+  });
+  return res.ok;
+}
+
 export const twitchChatEventsUrl = (login: string) =>
   `${BASE}/twitch/chat/${encodeURIComponent(login)}/events`;
