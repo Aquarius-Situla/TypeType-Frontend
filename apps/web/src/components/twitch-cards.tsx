@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { formatDuration, formatPublishedDate, formatViews } from "../lib/format";
 import { proxyImage } from "../lib/proxy";
 import { m } from "../paraglide/messages.js";
@@ -95,6 +96,7 @@ export function TwitchStreamCard({ stream }: { stream: TwitchStream }) {
 }
 
 export function TwitchVideoCard({ video }: { video: TwitchVideo }) {
+  const { locale } = useInterfaceLocale();
   return (
     <Card
       search={{ v: video.id }}
@@ -109,7 +111,7 @@ export function TwitchVideoCard({ video }: { video: TwitchVideo }) {
       footer={
         <Owner
           user={video.owner}
-          detail={`${formatViews(video.views)} · ${formatPublishedDate(Date.parse(video.createdAt))}`}
+          detail={`${formatViews(video.views)} · ${formatPublishedDate(Date.parse(video.createdAt), undefined, locale)}`}
         />
       }
     />
