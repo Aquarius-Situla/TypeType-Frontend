@@ -3,13 +3,14 @@ import { useVersionInfo } from "../hooks/use-version-info";
 import type { ComponentVersion, VersionComponent } from "../lib/api-version";
 import { m } from "../paraglide/messages.js";
 
-const OPTIONAL: ReadonlySet<VersionComponent> = new Set(["recommender"]);
+const OPTIONAL: ReadonlySet<VersionComponent> = new Set(["live", "recommender"]);
 
 const components = (): { key: VersionComponent; label: string }[] => [
   { key: "frontend", label: "Frontend" },
   { key: "server", label: "Server" },
   { key: "token", label: "Token" },
   { key: "downloader", label: "Downloader" },
+  { key: "live", label: m.nav_live() },
   { key: "recommender", label: m.nav_algorithm() },
 ];
 
