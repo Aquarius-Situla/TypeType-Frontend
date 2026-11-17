@@ -7,12 +7,14 @@ import {
 } from "./server-status";
 
 const MAX_RETRY_MS = 5_000;
+const HELLO_WAIT_MS = 3_000;
 
 export type ServerEventHandlers = {
   onHello: (hello: ServerHello) => void;
   onNotice: (notice: ServerNotice) => void;
   onCleared: () => void;
   onLost: () => void;
+  onReachable: () => void;
 };
 
 export function parseServerEventBlock(block: string): { event: string; data: string } | null {
@@ -54,6 +56,16 @@ async function readServerEvents(handlers: ServerEventHandlers, signal: AbortSign
   });
   if (response.status === 404) return "unsupported";
   if (!response.ok || !response.body) throw new Error(`server events failed: ${response.status}`);
+  const silent = setTimeout(handlers.onReachable, HELLO_WAIT_MS);
+  signal.addEventListener("abort", () => clearTimeout(silent), { once: true });
+  const greet = handlers.onHello;
+  handlers = {
+    ...handlers,
+    onHello: (hello) => {
+      clearTimeout(silent);
+      greet(hello);
+    },
+  };
   const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
   let buffer = "";
   while (!signal.aborted) {
@@ -63,6 +75,7 @@ async function readServerEvents(handlers: ServerEventHandlers, signal: AbortSign
     buffer = blocks.pop() ?? "";
     for (const block of blocks) dispatch(block, handlers);
   }
+  clearTimeout(silent);
   return "closed";
 }
 

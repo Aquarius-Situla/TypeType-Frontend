@@ -86,3 +86,16 @@ export function serverLossConfirmed(status: ServerStatus): ServerStatus {
   if (status.connected || status.phase !== "online") return status;
   return { ...status, phase: "unreachable" };
 }
+
+// The event stream answered but no hello came through: a proxy that buffers the stream holds it back. Every other
+// request reaches the server, so the loss is over, and players that failed on it get their resume.
+export function serverReached(status: ServerStatus): ServerStatus {
+  if (status.connected) return status;
+  const wasUnreachable = status.phase === "unreachable";
+  return {
+    ...status,
+    connected: true,
+    phase: wasUnreachable ? "online" : status.phase,
+    resumes: wasUnreachable ? status.resumes + 1 : status.resumes,
+  };
+}
