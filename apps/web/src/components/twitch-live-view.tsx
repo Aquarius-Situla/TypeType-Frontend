@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useTwitchChannel, useTwitchLive } from "../hooks/use-twitch";
+import { useTwitchLiveArchiveProgress } from "../hooks/use-twitch-live-archive-progress";
 import { useTwitchLiveRecovery } from "../hooks/use-twitch-live-recovery";
 import { ApiError } from "../lib/api";
 import { TwitchChat } from "./twitch-chat";
@@ -21,6 +22,7 @@ export function TwitchLiveView({ login }: { login: string }) {
   const data = playback.data;
   const live = channel.data?.live ?? data?.channel.live;
   const ended = channel.data !== undefined && channel.data.live === undefined && data !== undefined;
+  const watchArchive = useTwitchLiveArchiveProgress(live?.archive);
   const offline = playback.error instanceof ApiError && playback.error.status === 404;
   const wentLive = offline && channel.data?.live !== undefined;
   const { refetch } = playback;
@@ -46,7 +48,10 @@ export function TwitchLiveView({ login }: { login: string }) {
               retryKey={recovery.retryKey}
               enabled={!ended}
               onError={recovery.onError}
-              onTimeUpdate={recovery.onPlaying}
+              onTimeUpdate={() => {
+                recovery.onPlaying();
+                watchArchive();
+              }}
             >
               {ended && <TwitchLiveEnded login={login} />}
               {!ended && recovery.failed && <TwitchLiveFailed onRetry={recovery.retry} />}
