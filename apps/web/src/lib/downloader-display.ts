@@ -56,13 +56,14 @@ export function downloaderStatusMessage(
   status: DownloaderJobStatus | null,
   stage: DownloaderJobStage | null,
   errorCode: string | null,
-  _errorText: string | null,
+  errorText: string | null,
   forceWaiting: boolean,
 ): string {
   if (forceWaiting) return m.ui_handing_file_to_browser();
   if (isCancelledDownloaderJob(status, stage, errorCode)) return m.ui_download_cancelled();
   if (isFailedDownloaderJob(status, stage, errorCode)) {
     if (errorCode === "insufficient_storage") return m.ui_downloader_insufficient_storage();
+    if (errorCode === "exact_selection_unavailable" && errorText) return errorText;
     return m.ui_download_could_not_be_completed();
   }
   if (stage === "cached") return m.ui_using_cached_file();
@@ -91,4 +92,17 @@ export function shouldShowDownloaderProgress(
   forceWaiting: boolean,
 ): boolean {
   return forceWaiting || status === "queued" || status === "running" || status === "done";
+}
+
+export function downloaderFailureDetail(
+  status: DownloaderJobStatus | null,
+  stage: DownloaderJobStage | null,
+  errorCode: string | null,
+  errorText: string | null,
+): string | null {
+  if (!isFailedDownloaderJob(status, stage, errorCode)) return null;
+  if (errorCode === "insufficient_storage" || errorCode === "exact_selection_unavailable")
+    return null;
+  const detail = errorText?.trim();
+  return detail ? detail : null;
 }
