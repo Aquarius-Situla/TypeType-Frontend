@@ -1,10 +1,17 @@
-import { BarChart3, X } from "lucide-react";
+import { BarChart3, Check, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { clockLabel, pollRemainingSeconds, pollRows, pollRunning } from "../lib/twitch-poll";
+import { useTwitchPollVote } from "../hooks/use-twitch-poll-vote";
+import {
+  clockLabel,
+  type PollRow,
+  pollRemainingSeconds,
+  pollRows,
+  pollRunning,
+} from "../lib/twitch-poll";
 import { m } from "../paraglide/messages.js";
 import type { TwitchPoll } from "../types/twitch";
 
-type Props = { poll: TwitchPoll; fetchedAt: number; onHide: () => void };
+type Props = { login: string; poll: TwitchPoll; fetchedAt: number; onHide: () => void };
 
 function useNow(active: boolean): number {
   const [now, setNow] = useState(() => Date.now());
@@ -16,11 +23,43 @@ function useNow(active: boolean): number {
   return now;
 }
 
-export function TwitchChatPoll({ poll, fetchedAt, onHide }: Props) {
+const ROW = "relative block overflow-hidden rounded-md border border-border px-2 py-1 text-xs";
+
+function choiceLabel(row: PollRow, mine: boolean): string {
+  const label = m.twitch_poll_choice({
+    title: row.title,
+    percent: String(row.percent),
+    votes: String(row.votes),
+  });
+  return mine ? `${label}, ${m.twitch_poll_your_vote()}` : label;
+}
+
+function PollRowBody({ row, running, mine }: { row: PollRow; running: boolean; mine: boolean }) {
+  return (
+    <>
+      <span
+        aria-hidden="true"
+        style={{ width: `${row.percent}%` }}
+        className={`absolute inset-y-0 left-0 transition-[width] duration-500 motion-reduce:transition-none ${(row.leading && !running) || mine ? "bg-[#9146ff]/45" : "bg-[#9146ff]/25"}`}
+      />
+      <span aria-hidden="true" className="relative flex items-center gap-2">
+        {mine && <Check className="size-3.5 shrink-0" />}
+        <span className={`min-w-0 flex-1 break-words ${row.leading ? "font-semibold" : ""}`}>
+          {row.title}
+        </span>
+        <span className="tabular-nums text-fg-muted">{row.percent}%</span>
+      </span>
+    </>
+  );
+}
+
+export function TwitchChatPoll({ login, poll, fetchedAt, onHide }: Props) {
   const running = pollRunning(poll);
   const now = useNow(running);
   const remaining = pollRemainingSeconds(poll, fetchedAt, now);
   const rows = pollRows(poll);
+  const vote = useTwitchPollVote(login, poll.id);
+  const votable = running && vote.canVote;
   return (
     <section
       aria-label={m.twitch_poll()}
@@ -49,27 +88,36 @@ export function TwitchChatPoll({ poll, fetchedAt, onHide }: Props) {
         {rows.map((row) => (
           <li
             key={row.id}
-            aria-label={m.twitch_poll_choice({
-              title: row.title,
-              percent: String(row.percent),
-              votes: String(row.votes),
-            })}
-            className="relative overflow-hidden rounded-md border border-border px-2 py-1 text-xs"
+            aria-label={votable ? undefined : choiceLabel(row, vote.choice === row.id)}
           >
-            <span
-              aria-hidden="true"
-              style={{ width: `${row.percent}%` }}
-              className={`absolute inset-y-0 left-0 transition-[width] duration-500 motion-reduce:transition-none ${row.leading && !running ? "bg-[#9146ff]/45" : "bg-[#9146ff]/25"}`}
-            />
-            <span aria-hidden="true" className="relative flex items-center gap-2">
-              <span className={`min-w-0 flex-1 break-words ${row.leading ? "font-semibold" : ""}`}>
-                {row.title}
-              </span>
-              <span className="tabular-nums text-fg-muted">{row.percent}%</span>
-            </span>
+            {votable ? (
+              <button
+                type="button"
+                disabled={vote.pending}
+                onClick={() => void vote.vote(row.id)}
+                aria-label={m.twitch_poll_vote({ title: row.title, percent: String(row.percent) })}
+                className={`${ROW} w-full cursor-pointer text-left hover:border-[#9146ff] focus-visible:border-[#9146ff] disabled:opacity-60`}
+              >
+                <PollRowBody row={row} running={running} mine={false} />
+              </button>
+            ) : (
+              <div className={ROW}>
+                <PollRowBody row={row} running={running} mine={vote.choice === row.id} />
+              </div>
+            )}
           </li>
         ))}
       </ul>
+      {vote.already && (
+        <p role="status" className="mt-1.5 text-[11px] text-fg-muted">
+          {m.twitch_poll_already_voted()}
+        </p>
+      )}
+      {vote.failed && (
+        <p role="alert" className="mt-1.5 text-[11px] text-red-400">
+          {m.twitch_poll_vote_failed()}
+        </p>
+      )}
       <p className="mt-1.5 text-[11px] text-fg-muted">
         {m.twitch_poll_votes({ votes: String(poll.votes) })}
       </p>

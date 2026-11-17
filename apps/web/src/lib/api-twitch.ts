@@ -137,5 +137,20 @@ export async function sendTwitchChatMessage(
   return { ok: false, rejected: body.error === "chat_rejected", reason: body.reason };
 }
 
+// Twitch answers TOKENS_REQUIRED once the free vote is spent: further votes cost channel points.
+export async function voteTwitchPoll(
+  pollId: string,
+  choiceId: string,
+): Promise<"counted" | "already" | "failed"> {
+  const res = await authed(`${BASE}/twitch/polls/vote`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pollId, choiceId }),
+  });
+  if (res.ok) return "counted";
+  const body = (await res.json().catch(() => ({}))) as { code?: string };
+  return body.code === "TOKENS_REQUIRED" ? "already" : "failed";
+}
+
 export const twitchChatEventsUrl = (login: string) =>
   `${BASE}/twitch/chat/${encodeURIComponent(login)}/events`;

@@ -15,7 +15,13 @@ export function TwitchChatHighlights({ login }: { login: string }) {
     <>
       {pinned && <TwitchChatPinned pinned={pinned} onHide={() => hide(pinned.id)} />}
       {poll && (
-        <TwitchChatPoll poll={poll} fetchedAt={dataUpdatedAt} onHide={() => hide(poll.id)} />
+        <TwitchChatPoll
+          key={poll.id}
+          login={login}
+          poll={poll}
+          fetchedAt={dataUpdatedAt}
+          onHide={() => hide(poll.id)}
+        />
       )}
     </>
   );
