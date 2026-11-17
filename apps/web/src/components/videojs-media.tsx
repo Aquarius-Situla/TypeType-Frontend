@@ -1,8 +1,9 @@
 import type { DashAdapter } from "@videojs/react/media/dash-video";
 import { DashVideo } from "@videojs/react/media/dash-video";
-import { HlsJsVideo } from "@videojs/react/media/hlsjs-video";
+import { type HlsJsAdapter, HlsJsVideo } from "@videojs/react/media/hlsjs-video";
 import { Video } from "@videojs/react/video";
 import { type ReactNode, useCallback, useMemo, useRef, type VideoHTMLAttributes } from "react";
+import { useLowLatencySettle } from "../hooks/use-low-latency-settle";
 import { useWebVttUrl } from "../hooks/use-web-vtt-url";
 import { attachBilibiliDash } from "../lib/dash-bilibili-behaviour";
 import { registerDashPlayer } from "../lib/dash-player-registration";
@@ -78,6 +79,24 @@ export function VideoJsMedia({
   const startRef = useRef(startTime);
   startRef.current = startTime;
   const lowLatency = useLiveLatencyStore((state) => state.lowLatency);
+  const videoElement = useRef<HTMLVideoElement | null>(null);
+  const hlsAdapter = useRef<HlsJsAdapter | null>(null);
+  const hlsVideoRef = useCallback(
+    (element: HTMLVideoElement | null) => {
+      videoElement.current = element;
+      mediaRef(element);
+    },
+    [mediaRef],
+  );
+  const onHlsAdapter = useCallback((adapter: HlsJsAdapter | null) => {
+    hlsAdapter.current = adapter;
+  }, []);
+  useLowLatencySettle(
+    source.kind === "hls" && live && liveLatency && lowLatency,
+    source.src,
+    videoElement,
+    hlsAdapter,
+  );
   const hlsSource = useMemo(
     () => ({
       src: source.src,
@@ -116,7 +135,7 @@ export function VideoJsMedia({
       );
     case "hls":
       return (
-        <HlsJsVideo ref={mediaRef} {...mediaProps} source={hlsSource}>
+        <HlsJsVideo ref={hlsVideoRef} mediaRef={onHlsAdapter} {...mediaProps} source={hlsSource}>
           {tracks}
         </HlsJsVideo>
       );
