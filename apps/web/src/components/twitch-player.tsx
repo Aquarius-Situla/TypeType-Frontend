@@ -1,10 +1,11 @@
-import { type ReactNode, useMemo, useRef } from "react";
+import { type ReactNode, useMemo, useRef, useState } from "react";
 import { usePersistentWatchPlayer } from "../hooks/use-persistent-watch-player";
 import { useSettings } from "../hooks/use-settings";
 import { useVolumeSync } from "../hooks/use-volume-sync";
 import { proxyImage } from "../lib/proxy";
 import { TWITCH_STAGE_SIZE } from "../lib/twitch-stage-size";
 import { type TwitchWatchTarget, twitchStreamId } from "../lib/twitch-stream-id";
+import { useTwitchAudioOnlyStore } from "../stores/twitch-audio-only-store";
 import { TwitchChat } from "./twitch-chat";
 import { TwitchFullscreenChat } from "./twitch-fullscreen-chat";
 import { TwitchVodChatOverlay } from "./twitch-vod-chat-overlay";
@@ -24,6 +25,8 @@ type TwitchPlayerEvents = {
 type Props = TwitchPlayerEvents & {
   target: TwitchWatchTarget;
   src: string;
+  // The audio rendition of the same broadcast, played instead of src when audio only is on.
+  audioSrc?: string;
   live: boolean;
   title: string;
   poster?: string;
@@ -38,7 +41,8 @@ type Props = TwitchPlayerEvents & {
 
 export function TwitchPlayer({
   target,
-  src,
+  src: videoSrc,
+  audioSrc,
   live,
   title,
   poster,
@@ -59,9 +63,17 @@ export function TwitchPlayer({
   const streamId = twitchStreamId(target);
   const chatLogin = live && "c" in target ? target.c : null;
   const vodId = target.v;
+  const audioChosen = useTwitchAudioOnlyStore((state) => state.audioOnly);
+  const audioOnly = audioChosen && Boolean(audioSrc) && !mp4;
+  const src = audioOnly && audioSrc ? audioSrc : videoSrc;
+  // Switching between audio and video mounts a new player: a past broadcast goes on where it was.
+  const positionMs = useRef<number | null>(null);
+  const [switched, setSwitched] = useState({ audioOnly, atMs: null as number | null });
+  if (switched.audioOnly !== audioOnly) setSwitched({ audioOnly, atMs: positionMs.current });
+  const resumeAt = live ? startTime : (switched.atMs ?? startTime);
   const playerProps = useMemo<WatchStagePlayerProps>(
     () => ({
-      audioOnly: false,
+      audioOnly,
       streamTitle: title,
       poster: poster ? proxyImage(poster, "card") : undefined,
       playerKey: `${src}#${retryKey}`,
@@ -70,7 +82,7 @@ export function TwitchPlayer({
       provider: "unknown",
       sabrConfig: null,
       isLive: live,
-      startTime,
+      startTime: resumeAt,
       chaptersVtt,
       settings,
       settingsReady,
@@ -89,7 +101,10 @@ export function TwitchPlayer({
       ownSkin: true,
       onCaptionStylesChange: (captionStyles) => update.mutate({ captionStyles }),
       onVolumeChange,
-      onTimeUpdate: (positionMs) => eventsRef.current.onTimeUpdate?.(positionMs),
+      onTimeUpdate: (at) => {
+        positionMs.current = at;
+        eventsRef.current.onTimeUpdate?.(at);
+      },
       onPlay: noop,
       onPause: () => eventsRef.current.onPause?.(),
       onSeeking: noop,
@@ -107,7 +122,8 @@ export function TwitchPlayer({
       src,
       mp4,
       live,
-      startTime,
+      audioOnly,
+      resumeAt,
       chaptersVtt,
       retryKey,
       settings,
