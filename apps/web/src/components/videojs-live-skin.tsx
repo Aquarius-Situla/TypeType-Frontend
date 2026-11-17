@@ -2,6 +2,7 @@ import { Controls, Gesture, Hotkey, LiveButton } from "@videojs/react";
 import { type CSSProperties, type ReactNode, useContext, useState } from "react";
 import { PlayerBarSlotContext } from "../hooks/use-player-bar-slot";
 import { m } from "../paraglide/messages.js";
+import { VideoJsLiveRewind } from "./videojs-live-rewind";
 import { VideoJsMiniControls } from "./videojs-mini-controls";
 import { SkinRemoteButtons } from "./videojs-remote-buttons";
 import { VideoJsSettingsMenu } from "./videojs-settings-menu";
@@ -59,7 +60,7 @@ export function VideoJsLiveSkin({
             <SkinVolume pill={false} />
             <LiveBadge />
           </Controls.Group>
-          <div aria-hidden="true" className="flex-1" />
+          <div className="flex min-w-0 flex-1 items-center">{flat && <VideoJsLiveRewind />}</div>
           <Controls.Group data-skin-right="" className="flex items-center">
             <span ref={setBarSlot} className="flex items-center" />
             <VideoJsSettingsMenu speed={false} latency={flat} />

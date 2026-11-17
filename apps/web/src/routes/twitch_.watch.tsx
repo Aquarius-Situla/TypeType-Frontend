@@ -7,7 +7,8 @@ import { TwitchWatchMessage } from "../components/twitch-watch-stage";
 import { useTwitchEnabled } from "../hooks/use-twitch";
 import { m } from "../paraglide/messages.js";
 
-type WatchSearch = { c?: string; v?: string; clip?: string };
+// t opens a past broadcast at that second, as the live rewind does.
+type WatchSearch = { c?: string; v?: string; clip?: string; t?: number };
 
 function validateSearch(search: Record<string, unknown>): WatchSearch {
   const pick = (key: string) => {
@@ -15,11 +16,17 @@ function validateSearch(search: Record<string, unknown>): WatchSearch {
     if (typeof value === "number" && Number.isFinite(value)) return String(value);
     return typeof value === "string" && value ? value : undefined;
   };
-  return { c: pick("c"), v: pick("v"), clip: pick("clip") };
+  const t = Number(search.t);
+  return {
+    c: pick("c"),
+    v: pick("v"),
+    clip: pick("clip"),
+    t: Number.isFinite(t) && t >= 0 ? Math.floor(t) : undefined,
+  };
 }
 
 function TwitchWatchPage() {
-  const { c, v, clip } = Route.useSearch();
+  const { c, v, clip, t } = Route.useSearch();
   const enabled = useTwitchEnabled();
   if (!enabled) return <TwitchDisabled />;
   return (
@@ -27,7 +34,7 @@ function TwitchWatchPage() {
       {c ? (
         <TwitchLiveView key={c} login={c} />
       ) : v ? (
-        <TwitchVideoView key={v} id={v} />
+        <TwitchVideoView key={v} id={v} startAtSeconds={t} />
       ) : clip ? (
         <TwitchClipView slug={clip} />
       ) : (
