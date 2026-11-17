@@ -59,7 +59,7 @@ function TwitchChannelPage() {
             className="h-16 w-16 rounded-full object-cover"
           />
         )}
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex min-w-48 flex-1 flex-col gap-1">
           <h1 className="font-semibold text-fg text-xl">{data?.displayName ?? login}</h1>
           {data && (
             <p className="text-fg-muted text-sm">
@@ -70,16 +70,18 @@ function TwitchChannelPage() {
             <p className="line-clamp-2 text-fg-soft text-sm">{data.description}</p>
           )}
         </div>
-        <TwitchFollowButton login={login} />
-        {data?.live && (
-          <Link
-            to="/twitch/watch"
-            search={{ c: login }}
-            className="rounded-lg bg-red-600 px-4 py-2 font-semibold text-sm text-white hover:bg-red-700"
-          >
-            {m.twitch_watch_live()}
-          </Link>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          <TwitchFollowButton login={login} />
+          {data?.live && (
+            <Link
+              to="/twitch/watch"
+              search={{ c: login }}
+              className="rounded-lg bg-red-600 px-4 py-2 font-semibold text-sm text-white hover:bg-red-700"
+            >
+              {m.twitch_watch_live()}
+            </Link>
+          )}
+        </div>
       </header>
       {channel.isError && <p className="text-fg-muted text-sm">{m.twitch_channel_not_found()}</p>}
       <div role="tablist" aria-label={m.twitch_channel_sections()} className="flex gap-2">
