@@ -20,12 +20,14 @@ export async function readEventStream(
   url: string,
   onData: (data: string) => void,
   signal: AbortSignal,
+  onOpen?: () => void,
 ): Promise<void> {
   const headers = new Headers({ Accept: "text/event-stream" });
   const token = useAuthStore.getState().token;
   if (token) headers.set("Authorization", `Bearer ${token}`);
   const response = await fetch(url, { headers, signal });
   if (!response.ok || !response.body) throw new Error(`event stream failed: ${response.status}`);
+  onOpen?.();
   const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
   let buffer = "";
   while (!signal.aborted) {

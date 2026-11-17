@@ -44,11 +44,17 @@ function open(login: string): Stream {
       return;
     }
   };
+  // A quiet channel can go minutes without an event: the stream being open again is what ends "reconnecting".
+  const onOpen = () => {
+    if (stream.snapshot.status !== "live") update(stream, { status: "live" });
+  };
   const run = async () => {
     let backoff = 1_000;
     while (!signal.aborted) {
       const started = Date.now();
-      await readEventStream(twitchChatEventsUrl(login), onData, signal).catch(() => undefined);
+      await readEventStream(twitchChatEventsUrl(login), onData, signal, onOpen).catch(
+        () => undefined,
+      );
       if (signal.aborted) return;
       update(stream, { status: "reconnecting" });
       if (Date.now() - started > 60_000) backoff = 1_000;
