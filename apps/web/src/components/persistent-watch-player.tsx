@@ -2,6 +2,7 @@ import { useRouterState } from "@tanstack/react-router";
 import { Suspense, useLayoutEffect } from "react";
 import { useLoadedComponent } from "../hooks/use-loaded-component";
 import { usePersistentWatchPlayerStore } from "../hooks/use-persistent-watch-player";
+import { useSettings } from "../hooks/use-settings";
 import { shouldKeepPersistentPlayerForRoute } from "../lib/persistent-player-navigation";
 import { LazyPersistentWatchPlayerHost } from "./lazy-persistent-watch-player-host";
 
@@ -16,7 +17,10 @@ function PersistentWatchPlayerRouteEntry() {
   const entry = usePersistentWatchPlayerStore((state) => state.entry);
   const close = usePersistentWatchPlayerStore((state) => state.close);
   const PersistentWatchPlayerHost = useLoadedComponent(LazyPersistentWatchPlayerHost);
-  const keepPlayer = entry ? shouldKeepPersistentPlayerForRoute(entry.streamId, href) : true;
+  const miniPlayerEnabled = useSettings().settings.miniPlayerEnabled;
+  const keepPlayer = entry
+    ? shouldKeepPersistentPlayerForRoute(entry.streamId, href, miniPlayerEnabled)
+    : true;
 
   useLayoutEffect(() => {
     if (entry && !keepPlayer) close(entry.owner);

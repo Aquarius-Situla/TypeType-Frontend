@@ -6,6 +6,7 @@ const TWITCH_WATCH_PATH = "/twitch/watch";
 export function shouldKeepPersistentPlayerForRoute(
   streamId: string,
   locationHref: string,
+  miniPlayerEnabled = true,
 ): boolean {
   const location = new URL(locationHref, "http://typetype.local");
   if (location.pathname === TWITCH_WATCH_PATH) {
@@ -13,7 +14,7 @@ export function shouldKeepPersistentPlayerForRoute(
       isTwitchStreamId(streamId) && twitchStreamIdFromSearch(location.searchParams) === streamId
     );
   }
-  if (location.pathname !== "/watch") return true;
+  if (location.pathname !== "/watch") return miniPlayerEnabled;
   if (isTwitchStreamId(streamId)) return false;
 
   const requestedVideo = location.searchParams.get("v")?.trim();
