@@ -29,6 +29,8 @@ export type TwitchStream = {
   previewUrl: string;
   startedAt: string;
   tags?: string[];
+  // The past broadcast Twitch records while the channel is live.
+  archive?: { id: string; startedAt: string };
 };
 
 export type TwitchChannel = TwitchUser & {
@@ -49,6 +51,7 @@ export type TwitchVideo = {
   previewUrl: string;
   createdAt: string;
   type: string;
+  recording?: boolean;
 };
 
 export type TwitchClip = {

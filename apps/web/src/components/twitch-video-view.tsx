@@ -22,7 +22,7 @@ type ResumableProps = {
 };
 
 function ResumablePlayer({ id, data, onError, onSecond, resumeAtMs, positionRef }: ResumableProps) {
-  const progress = useTwitchVodProgress(id, data.video.lengthSeconds);
+  const progress = useTwitchVodProgress(id, data.video.lengthSeconds, data.video.recording);
   const chaptersVtt = useTwitchChaptersVtt(id, data.video.lengthSeconds);
   if (!progress.ready)
     return <div className={`animate-pulse rounded-xl bg-surface-strong ${TWITCH_STAGE_SIZE}`} />;
