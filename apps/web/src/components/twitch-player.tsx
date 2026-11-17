@@ -6,6 +6,7 @@ import { proxyImage } from "../lib/proxy";
 import { TWITCH_STAGE_SIZE } from "../lib/twitch-stage-size";
 import { type TwitchWatchTarget, twitchStreamId } from "../lib/twitch-stream-id";
 import { useTwitchAudioOnlyStore } from "../stores/twitch-audio-only-store";
+import { TwitchAdBreak } from "./twitch-ad-break";
 import { TwitchChat } from "./twitch-chat";
 import { TwitchFullscreenChat } from "./twitch-fullscreen-chat";
 import { TwitchVodChatOverlay } from "./twitch-vod-chat-overlay";
@@ -89,9 +90,12 @@ export function TwitchPlayer({
       autoplay: settings.autoplayOnOpen,
       originalLocale: null,
       overlay: chatLogin ? (
-        <TwitchFullscreenChat>
-          <TwitchChat login={chatLogin} overlay />
-        </TwitchFullscreenChat>
+        <>
+          <TwitchAdBreak login={chatLogin} />
+          <TwitchFullscreenChat>
+            <TwitchChat login={chatLogin} overlay />
+          </TwitchFullscreenChat>
+        </>
       ) : vodChatLogin && vodId ? (
         <TwitchFullscreenChat>
           <TwitchVodChatOverlay videoId={vodId} login={vodChatLogin} />
