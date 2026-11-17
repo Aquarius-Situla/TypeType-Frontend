@@ -18,22 +18,24 @@ export function TwitchChatPinned({ pinned, onHide }: Props) {
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
-        className="min-w-0 flex-1 text-left text-xs"
+        className="flex min-w-0 flex-1 cursor-pointer items-start gap-2 text-left text-xs"
       >
-        {pinned.pinnedBy && (
-          <span className="block text-[11px] text-fg-muted">
-            {m.twitch_pinned_by({ name: pinned.pinnedBy })}
+        <span className="min-w-0 flex-1">
+          {pinned.pinnedBy && (
+            <span className="block text-[11px] text-fg-muted">
+              {m.twitch_pinned_by({ name: pinned.pinnedBy })}
+            </span>
+          )}
+          <span className={`break-words ${open ? "block" : "line-clamp-2"}`}>
+            {author && <span className="font-semibold">{author}: </span>}
+            {pinned.text}
           </span>
-        )}
-        <span className={`break-words ${open ? "block" : "line-clamp-2"}`}>
-          {author && <span className="font-semibold">{author}: </span>}
-          {pinned.text}
         </span>
+        <ChevronDown
+          aria-hidden="true"
+          className={`mt-0.5 size-3.5 shrink-0 text-fg-muted transition-transform motion-reduce:transition-none ${open ? "rotate-180" : ""}`}
+        />
       </button>
-      <ChevronDown
-        aria-hidden="true"
-        className={`mt-0.5 size-3.5 shrink-0 text-fg-muted transition-transform motion-reduce:transition-none ${open ? "rotate-180" : ""}`}
-      />
       <button
         type="button"
         onClick={onHide}
