@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { memo } from "react";
 import { useClientLocale } from "../hooks/use-client-locale";
 import { useDeArrowBranding } from "../hooks/use-dearrow";
+import { useWatchedThreshold } from "../hooks/use-watched-threshold";
 import { formatDuration, formatPublishedDate, formatViews } from "../lib/format";
 import { relatedVideoThumbnailClassName } from "../lib/layout-preferences";
 import { isVideoWatched } from "../lib/watch-progress";
@@ -26,6 +27,7 @@ type Props = {
 
 function RelatedCardComponent({ stream, relatedStreams, size = "default", progressMs = 0 }: Props) {
   const locale = useClientLocale();
+  const watchedThreshold = useWatchedThreshold();
   const thumbnailClassName = relatedVideoThumbnailClassName(size);
   const setNavigation = useWatchNavigationStore((state) => state.setNavigation);
   const { title, thumbnail } = useDeArrowBranding(
@@ -37,7 +39,8 @@ function RelatedCardComponent({ stream, relatedStreams, size = "default", progre
   const publishedText = formatPublishedDate(stream.publishedAt, undefined, locale);
   const metadata = [formatViews(stream.views), publishedText].filter(Boolean).join(" · ");
   const progressSeconds = Math.max(0, progressMs / 1_000);
-  const watched = !stream.isLive && isVideoWatched(progressSeconds, stream.duration);
+  const watched =
+    !stream.isLive && isVideoWatched(progressSeconds, stream.duration, watchedThreshold);
 
   return (
     <article className="flex gap-2 group">

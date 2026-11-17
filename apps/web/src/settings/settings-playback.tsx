@@ -17,6 +17,7 @@ import {
   PlaybackToggleRow,
 } from "./settings-playback-row";
 import { SettingsPlayerEngine } from "./settings-player-engine";
+import { SettingsWatchedThreshold } from "./settings-watched-threshold";
 
 const SECTION_LABEL = "text-xs font-medium text-fg-soft uppercase tracking-wider px-1";
 const GROUP = "divide-y divide-border border-y border-border";
@@ -229,6 +230,7 @@ export function SettingsPlayback() {
             onChange={(speed) => update.mutate({ holdPlaybackSpeed: speed })}
           />
         </div>
+        <SettingsWatchedThreshold />
         <SettingsBilibiliBuffer />
       </div>
     </section>

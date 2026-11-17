@@ -158,6 +158,9 @@ export type SettingsItem = {
   seekbarIcon: SeekbarIcon;
   seekbarIconUrl: string;
   playerEngine: PlayerEngine;
+  hideWatchedSubscriptionVideos: boolean;
+  watchedThresholdPercent: number;
+  miniPlayerEnabled: boolean;
 };
 
 export type SeekbarIcon = "typetype" | "custom" | "none";

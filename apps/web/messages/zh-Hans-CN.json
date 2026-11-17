@@ -2220,5 +2220,13 @@
   "twitch_poll_already_voted": "你已经在这个投票中投过票了。",
   "twitch_pinned_message": "置顶消息",
   "twitch_pinned_by": "由 {name} 置顶",
-  "twitch_chat_highlight_hide": "隐藏"
+  "twitch_chat_highlight_hide": "隐藏",
+  "settings_watched_threshold_title": "视为已看",
+  "settings_watched_threshold_description": "视频需要观看多少才会显示为已看。",
+  "settings_watched_threshold_default": "最后一分钟（默认）",
+  "settings_watched_threshold_percent": "{percent}%",
+  "settings_hide_watched_title": "已看视频",
+  "settings_hide_watched_description": "在订阅动态中隐藏已经看过的视频。",
+  "settings_mini_player_title": "迷你播放器",
+  "settings_mini_player_description": "离开播放页面时在小播放器中继续播放。"
 }

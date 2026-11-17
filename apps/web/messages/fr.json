@@ -2220,5 +2220,13 @@
   "twitch_poll_already_voted": "Vous avez déjà voté à ce sondage.",
   "twitch_pinned_message": "Message épinglé",
   "twitch_pinned_by": "Épinglé par {name}",
-  "twitch_chat_highlight_hide": "Masquer"
+  "twitch_chat_highlight_hide": "Masquer",
+  "settings_watched_threshold_title": "Compter comme vue",
+  "settings_watched_threshold_description": "La part d'une vidéo à regarder avant qu'elle soit marquée comme vue.",
+  "settings_watched_threshold_default": "Dernière minute (par défaut)",
+  "settings_watched_threshold_percent": "{percent} %",
+  "settings_hide_watched_title": "Vidéos vues",
+  "settings_hide_watched_description": "Masquer les vidéos déjà vues dans le fil des abonnements.",
+  "settings_mini_player_title": "Mini-lecteur",
+  "settings_mini_player_description": "Continuer la lecture dans un petit lecteur quand vous quittez la page de lecture."
 }

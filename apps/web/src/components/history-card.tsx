@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { useDeArrowBranding } from "../hooks/use-dearrow";
+import { useWatchedThreshold } from "../hooks/use-watched-threshold";
 import { formatDuration } from "../lib/format";
 import { proxyImage } from "../lib/proxy";
 import { isVideoWatched } from "../lib/watch-progress";
@@ -25,7 +26,8 @@ function formatWatchedAt(timestamp: number): string {
 }
 
 export function HistoryCard({ item, onRemove }: HistoryCardProps) {
-  const watched = isVideoWatched(item.progress, item.duration);
+  const watchedThreshold = useWatchedThreshold();
+  const watched = isVideoWatched(item.progress, item.duration, watchedThreshold);
   const branding = useDeArrowBranding(
     item.url,
     item.title,

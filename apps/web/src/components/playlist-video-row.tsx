@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { GripVertical, X } from "lucide-react";
 import type { DragEvent } from "react";
 import { useDeArrowBranding } from "../hooks/use-dearrow";
+import { useWatchedThreshold } from "../hooks/use-watched-threshold";
 import { formatDuration, formatViews } from "../lib/format";
 import { proxyImage } from "../lib/proxy";
 import { isVideoWatched } from "../lib/watch-progress";
@@ -27,7 +28,11 @@ export function PlaylistVideoRow({ video, onRemove, reorderable, listId, onDragS
   const fallbackThumbnail = rawThumbnail.length > 0 ? proxyImage(rawThumbnail) : "";
   const branding = useDeArrowBranding(video.url, video.title, fallbackThumbnail, video.duration);
   const thumbnail = branding.thumbnail || null;
-  const watched = video.watched || isVideoWatched(video.watchPosition, video.duration);
+  const watchedThreshold = useWatchedThreshold();
+  const watched =
+    watchedThreshold > 0
+      ? isVideoWatched(video.watchPosition, video.duration, watchedThreshold)
+      : video.watched || isVideoWatched(video.watchPosition, video.duration);
   const rawChannelName = video.channelName?.trim() ?? "";
   const rawChannelUrl = video.channelUrl?.trim() ?? "";
   const rawChannelAvatar = video.channelAvatar?.trim() ?? "";

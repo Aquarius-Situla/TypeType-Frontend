@@ -4,6 +4,7 @@ import { useClientLocale } from "../hooks/use-client-locale";
 import { useDeArrowBranding } from "../hooks/use-dearrow";
 import { useVideoCardPreview } from "../hooks/use-video-card-preview";
 import { useVideoCardPreflight } from "../hooks/use-video-card-sabr-preflight";
+import { useWatchedThreshold } from "../hooks/use-watched-threshold";
 import { formatDuration, formatPublishedDate, formatViews } from "../lib/format";
 import { isVideoWatched } from "../lib/watch-progress";
 import { watchListSearch } from "../lib/watch-url";
@@ -37,6 +38,7 @@ function VideoCardComponent({
   progressMs = 0,
 }: Props) {
   const locale = useClientLocale();
+  const watchedThreshold = useWatchedThreshold();
   const rootRef = useRef<HTMLElement | null>(null);
   const setNavigation = useWatchNavigationStore((state) => state.setNavigation);
   const preview = useVideoCardPreview(stream);
@@ -49,7 +51,8 @@ function VideoCardComponent({
   const publishedText = formatPublishedDate(stream.publishedAt, undefined, locale);
   const metadataText = [formatViews(stream.views), publishedText].filter(Boolean).join(" · ");
   const progressSeconds = Math.max(0, progressMs / 1_000);
-  const watched = !stream.isLive && isVideoWatched(progressSeconds, stream.duration);
+  const watched =
+    !stream.isLive && isVideoWatched(progressSeconds, stream.duration, watchedThreshold);
   const watchSearch = watchListSearch(stream.id, listId);
   const { schedule, cancel, focus, commit } = useVideoCardPreflight(stream, progressMs);
   const handleOpen = useCallback(() => {

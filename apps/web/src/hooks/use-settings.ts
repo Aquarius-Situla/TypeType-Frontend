@@ -121,6 +121,9 @@ const DEFAULTS: SettingsItem = {
   seekbarIcon: "typetype",
   seekbarIconUrl: "",
   playerEngine: "vidstack",
+  hideWatchedSubscriptionVideos: false,
+  watchedThresholdPercent: 0,
+  miniPlayerEnabled: true,
 };
 
 function readAudioOnlyPlayback(): boolean | null {

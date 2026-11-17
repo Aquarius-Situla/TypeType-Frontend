@@ -5,6 +5,7 @@ import { useBlockedFilter } from "../hooks/use-blocked-filter";
 import { usePlaybackQueueActions } from "../hooks/use-playback-queue-actions";
 import { useProgress, useSaveProgress } from "../hooks/use-progress";
 import { useWatchLaterPlaylist } from "../hooks/use-watch-later-playlist";
+import { useWatchedThreshold } from "../hooks/use-watched-threshold";
 import { goto } from "../lib/route-redirect";
 import { videoProgressUrl } from "../lib/video-progress";
 import { watchLaterResultLabel } from "../lib/watch-later-labels";
@@ -39,8 +40,13 @@ export function VideoCardFeedbackPanel({ stream, anchorEl, onClose, onSaved }: P
   const progressUrl = videoProgressUrl(stream);
   const progress = useProgress(progressUrl);
   const saveProgress = useSaveProgress(progressUrl);
+  const watchedThreshold = useWatchedThreshold();
   const canMarkWatched = !stream.isLive && stream.duration > 0;
-  const watched = isVideoWatched((progress.data?.position ?? 0) / 1_000, stream.duration);
+  const watched = isVideoWatched(
+    (progress.data?.position ?? 0) / 1_000,
+    stream.duration,
+    watchedThreshold,
+  );
 
   function requireAuth(): boolean {
     if (isAuthed) return false;
