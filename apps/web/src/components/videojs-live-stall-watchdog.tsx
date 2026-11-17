@@ -1,5 +1,6 @@
 import { type RefObject, useEffect, useRef } from "react";
 import { nextStallClock, type StallClock } from "../lib/live-stall-clock";
+import { useLiveBreakStore } from "../stores/live-break-store";
 
 const CHECK_MS = 2_000;
 
@@ -30,6 +31,12 @@ export function VideoJsLiveStallWatchdog({
       };
     };
     const check = setInterval(() => {
+      // An announced ad break has no picture on purpose: the clock only counts once the live is back.
+      if (useLiveBreakStore.getState().endsAt !== null) {
+        const now = sample();
+        state = { clock: now.clock, since: now.now };
+        return;
+      }
       const next = nextStallClock(state, sample());
       state = next.state;
       if (next.stalled) report.current();
