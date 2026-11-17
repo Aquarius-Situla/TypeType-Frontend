@@ -10,7 +10,7 @@ const components = (): { key: VersionComponent; label: string }[] => [
   { key: "server", label: "Server" },
   { key: "token", label: "Token" },
   { key: "downloader", label: "Downloader" },
-  { key: "live", label: "Live" },
+  { key: "live", label: m.nav_live() },
   { key: "recommender", label: m.nav_algorithm() },
 ];
 
