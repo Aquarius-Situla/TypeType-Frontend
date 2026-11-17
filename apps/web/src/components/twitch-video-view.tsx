@@ -30,6 +30,7 @@ function ResumablePlayer({ id, data, onError, onSecond, resumeAtMs, positionRef 
     <TwitchPlayer
       target={{ v: id }}
       src={data.hlsUrl}
+      audioSrc={data.audioUrl}
       live={false}
       title={data.video.title}
       poster={data.video.previewUrl}
@@ -70,7 +71,11 @@ export function TwitchVideoView({ id }: { id: string }) {
               positionRef={positionRef}
               resumeAtMs={resume.retryKey > 0 ? positionRef.current : null}
             />
-            <TwitchWatchHeading title={data.video.title} user={data.video.owner} />
+            <TwitchWatchHeading
+              title={data.video.title}
+              user={data.video.owner}
+              audioOnly={Boolean(data.audioUrl)}
+            />
           </>
         )}
       </TwitchWatchStage>

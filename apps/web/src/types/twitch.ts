@@ -68,8 +68,9 @@ type TwitchClipQuality = {
   url: string;
 };
 
-export type TwitchLive = { channel: TwitchChannel; hlsUrl: string };
-export type TwitchVideoPlayback = { video: TwitchVideo; hlsUrl: string };
+// audioUrl is the same master narrowed to its audio rendition; a Live service older than it leaves it out.
+export type TwitchLive = { channel: TwitchChannel; hlsUrl: string; audioUrl?: string };
+export type TwitchVideoPlayback = { video: TwitchVideo; hlsUrl: string; audioUrl?: string };
 export type TwitchClipPlayback = { clip: TwitchClip; qualities: TwitchClipQuality[] };
 export type TwitchGameStreams = { game: TwitchGame | null; streams: TwitchPage<TwitchStream> };
 

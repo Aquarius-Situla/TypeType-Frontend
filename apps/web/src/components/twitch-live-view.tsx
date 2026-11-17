@@ -41,6 +41,7 @@ export function TwitchLiveView({ login }: { login: string }) {
             <TwitchPlayer
               target={{ c: login }}
               src={data.hlsUrl}
+              audioSrc={data.audioUrl}
               live
               title={live?.title ?? login}
               retryKey={recovery.retryKey}
@@ -57,6 +58,7 @@ export function TwitchLiveView({ login }: { login: string }) {
               title={live?.title ?? login}
               user={data.channel}
               meta={live ? <TwitchLiveMeta stream={live} /> : undefined}
+              audioOnly={Boolean(data.audioUrl)}
             />
           )}
         </TwitchWatchStage>

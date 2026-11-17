@@ -2,11 +2,18 @@ import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { proxyImage } from "../lib/proxy";
 import type { TwitchUser } from "../types/twitch";
+import { TwitchAudioOnlyButton } from "./twitch-audio-only-button";
 import { TwitchFollowButton } from "./twitch-follow-button";
 
-type Props = { title: string; user: TwitchUser; detail?: string; meta?: ReactNode };
+type Props = {
+  title: string;
+  user: TwitchUser;
+  detail?: string;
+  meta?: ReactNode;
+  audioOnly?: boolean;
+};
 
-export function TwitchWatchHeading({ title, user, detail, meta }: Props) {
+export function TwitchWatchHeading({ title, user, detail, meta, audioOnly = false }: Props) {
   return (
     <div className="flex flex-col gap-2">
       <h1 className="font-semibold text-fg text-lg leading-snug">{title}</h1>
@@ -28,6 +35,7 @@ export function TwitchWatchHeading({ title, user, detail, meta }: Props) {
           </Link>
           {detail ? ` · ${detail}` : ""}
         </p>
+        {audioOnly && <TwitchAudioOnlyButton />}
         <TwitchFollowButton login={user.login} />
       </div>
       {meta}
