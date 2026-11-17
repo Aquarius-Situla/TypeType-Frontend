@@ -2187,6 +2187,7 @@
   "twitch_poll_vote": "Voter pour {title} ({percent} %)",
   "twitch_poll_vote_failed": "Twitch n'a pas compté le vote.",
   "twitch_poll_your_vote": "votre vote",
+  "twitch_poll_already_voted": "Vous avez déjà voté à ce sondage.",
   "twitch_pinned_message": "Message épinglé",
   "twitch_pinned_by": "Épinglé par {name}",
   "twitch_chat_highlight_hide": "Masquer"

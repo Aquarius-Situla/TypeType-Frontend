@@ -2187,6 +2187,7 @@
   "twitch_poll_vote": "投票给 {title}（{percent}%）",
   "twitch_poll_vote_failed": "Twitch 未计入此投票。",
   "twitch_poll_your_vote": "你的投票",
+  "twitch_poll_already_voted": "你已经在这个投票中投过票了。",
   "twitch_pinned_message": "置顶消息",
   "twitch_pinned_by": "由 {name} 置顶",
   "twitch_chat_highlight_hide": "隐藏"

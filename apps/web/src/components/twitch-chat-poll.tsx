@@ -108,6 +108,11 @@ export function TwitchChatPoll({ login, poll, fetchedAt, onHide }: Props) {
           </li>
         ))}
       </ul>
+      {vote.already && (
+        <p role="status" className="mt-1.5 text-[11px] text-fg-muted">
+          {m.twitch_poll_already_voted()}
+        </p>
+      )}
       {vote.failed && (
         <p role="alert" className="mt-1.5 text-[11px] text-red-400">
           {m.twitch_poll_vote_failed()}
