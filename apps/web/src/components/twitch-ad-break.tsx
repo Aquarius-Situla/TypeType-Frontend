@@ -3,10 +3,12 @@ import { formatDuration } from "../lib/format";
 import { m } from "../paraglide/messages.js";
 import { useLiveBreakStore } from "../stores/live-break-store";
 import { CatchGame } from "./twitch-break-games/catch-game";
+import { MemoryGame } from "./twitch-break-games/memory-game";
 import { type BreakGameProps, useBreakPieces } from "./twitch-break-games/pieces";
 import { ReflexGame } from "./twitch-break-games/reflex-game";
+import { SnakeGame } from "./twitch-break-games/snake-game";
 
-const GAMES: ComponentType<BreakGameProps>[] = [CatchGame, ReflexGame];
+const GAMES: ComponentType<BreakGameProps>[] = [CatchGame, SnakeGame, ReflexGame, MemoryGame];
 
 function useSecondsLeft(endsAt: number): number {
   const [now, setNow] = useState(() => Date.now());
