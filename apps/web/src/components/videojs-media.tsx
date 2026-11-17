@@ -4,6 +4,7 @@ import { type HlsJsAdapter, HlsJsVideo } from "@videojs/react/media/hlsjs-video"
 import { Video } from "@videojs/react/video";
 import { type ReactNode, useCallback, useMemo, useRef, type VideoHTMLAttributes } from "react";
 import { useLowLatencySettle } from "../hooks/use-low-latency-settle";
+import { usePassingDecodeError } from "../hooks/use-passing-decode-error";
 import { useWebVttUrl } from "../hooks/use-web-vtt-url";
 import { attachBilibiliDash } from "../lib/dash-bilibili-behaviour";
 import { registerDashPlayer } from "../lib/dash-player-registration";
@@ -91,6 +92,7 @@ export function VideoJsMedia({
   const onHlsAdapter = useCallback((adapter: HlsJsAdapter | null) => {
     hlsAdapter.current = adapter;
   }, []);
+  usePassingDecodeError(source.kind === "hls", videoElement, hlsAdapter);
   useLowLatencySettle(
     source.kind === "hls" && live && liveLatency && lowLatency,
     source.src,
