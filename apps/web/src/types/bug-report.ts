@@ -18,6 +18,7 @@ export type BugApiErrorItem = {
 };
 
 export type PlayerStateContext = {
+  engine?: string;
   currentTime?: number;
   quality?: string;
   audioTrack?: string;

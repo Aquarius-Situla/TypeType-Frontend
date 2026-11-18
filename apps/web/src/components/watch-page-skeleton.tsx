@@ -1,6 +1,6 @@
 import { useMobile } from "../hooks/use-mobile";
 import { useSettings } from "../hooks/use-settings";
-import { relatedVideoPanelClassName } from "../lib/layout-preferences";
+import { watchSecondaryPanelClassName } from "../lib/layout-preferences";
 import { activeStreamCollection, streamCollectionPlaylistItems } from "../lib/stream-collections";
 import { streamPartPlaylistItems } from "../lib/stream-parts";
 import { toPublicWatchParam } from "../lib/watch-url";
@@ -68,7 +68,7 @@ export function WatchPageSkeleton({
   const hasCinemaSecondaryContent = showRelated || (!isMobile && hasPlaylist);
 
   const classes = getWatchLayoutClasses(cinemaMode, layoutHasSecondaryContent);
-  const panelClassName = `w-full lg:flex-1 ${relatedVideoPanelClassName(settings.relatedVideoSize)} flex flex-col gap-6`;
+  const panelClassName = watchSecondaryPanelClassName(settings.relatedVideoSize, false);
 
   const meta = (
     <>
@@ -108,7 +108,11 @@ export function WatchPageSkeleton({
     relatedStreams.length > 0 ? (
       <RelatedVideos streams={relatedStreams} />
     ) : (
-      RELATED_KEYS.map((key) => <RelatedCardSkeleton key={key} />)
+      <div className="watch-related-list flex flex-col gap-3">
+        {RELATED_KEYS.map((key) => (
+          <RelatedCardSkeleton key={key} size={settings.relatedVideoSize} />
+        ))}
+      </div>
     )
   ) : null;
   const secondaryContent = (
@@ -128,7 +132,7 @@ export function WatchPageSkeleton({
             </div>
           </div>
         </div>
-        <div className="mx-auto flex w-full max-w-[1700px] flex-col gap-6 px-4 lg:flex-row lg:items-start">
+        <div className="watch-cinema-content mx-auto flex w-full max-w-[1700px] flex-col gap-6 px-4 lg:flex-row lg:items-start">
           <div className="min-w-0 flex-[2] max-w-[1200px] flex flex-col gap-4">{meta}</div>
           {hasCinemaSecondaryContent && (
             <aside className={panelClassName}>{secondaryContent}</aside>

@@ -1,17 +1,20 @@
 import { useEffect, useRef, useState } from "react";
+import { useSettings } from "../hooks/use-settings";
 import { SabrPlaybackRatePreference } from "../lib/sabr-playback-rate-preference";
 import type { SabrPlaybackConfig } from "../lib/sabr-source";
 import { sabrMediaSrc } from "../lib/sabr-vidstack-loader";
+import { videoJsSourceFor } from "../lib/video-js-source";
 import type { MediaSrc } from "../lib/vidstack";
 import { m } from "../paraglide/messages.js";
 import type { SubtitleItem } from "../types/api";
 import { PlayerDefaults, PlayerPlaybackSpeedDefault } from "./player-defaults";
 import { Toast } from "./toast";
 import { VideoPlayer } from "./video-player";
+import { VideoJsShortsPlayer } from "./videojs-shorts-player";
 
 type PlaybackProps = { config: SabrPlaybackConfig; src?: never } | { config?: null; src: MediaSrc };
 
-type Props = PlaybackProps & {
+export type ShortsVideoPlayerProps = PlaybackProps & {
   title?: string;
   poster?: string;
   subtitles?: SubtitleItem[];
@@ -53,8 +56,15 @@ export function ShortsVideoPlayer({
   onVolumeChange,
   onError,
   onEnded,
-}: Props) {
+}: ShortsVideoPlayerProps) {
   const [toast, setToast] = useState<string | null>(null);
+  const { settings } = useSettings();
+  const videoJs = videoJsSourceFor({
+    engine: settings.playerEngine,
+    source: src,
+    sabr: Boolean(config),
+    audioOnly: false,
+  });
   const playbackRate = useRef(new SabrPlaybackRatePreference(defaultPlaybackSpeed));
 
   useEffect(() => {
@@ -66,6 +76,37 @@ export function ShortsVideoPlayer({
     const timer = setTimeout(() => setToast(null), 2600);
     return () => clearTimeout(timer);
   }, [toast]);
+
+  if (videoJs) {
+    return (
+      <div className="absolute inset-0 bg-black">
+        <VideoJsShortsPlayer
+          {...(config ? { config } : { src: src as MediaSrc })}
+          source={videoJs}
+          playbackRate={playbackRate.current}
+          title={title}
+          poster={poster}
+          subtitles={subtitles}
+          initialVolume={initialVolume}
+          initialMuted={initialMuted}
+          settingsReady={settingsReady}
+          autoplay={autoplay}
+          defaultAudioLanguage={defaultAudioLanguage}
+          defaultPlaybackSpeed={defaultPlaybackSpeed}
+          originalAudioTrackId={originalAudioTrackId}
+          preferredDefaultAudioTrackId={preferredDefaultAudioTrackId}
+          originalAudioLocale={originalAudioLocale}
+          defaultSubtitleLanguage={defaultSubtitleLanguage}
+          subtitlesEnabled={subtitlesEnabled}
+          onVolumeChange={onVolumeChange}
+          onError={onError}
+          onEnded={onEnded}
+          onOriginalLanguageUnavailable={() => setToast(m.ui_original_audio_unavailable())}
+        />
+        <Toast message={toast} />
+      </div>
+    );
+  }
 
   return (
     <div className="absolute inset-0 bg-black">

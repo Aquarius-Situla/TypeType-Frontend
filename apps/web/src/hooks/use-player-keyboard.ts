@@ -1,79 +1,69 @@
 import { useEffect, useRef } from "react";
 import {
+  blocksPlayerShortcut,
   clampTime,
   consumeEvent,
-  isInteractiveTarget,
+  isEditableTarget,
   isPlaybackToggleShortcut,
   isPlayerSeekShortcutTarget,
   type KeyboardSeekTarget,
   keyboardSeekOffset,
+  nextKeyboardRate,
   nextKeyboardSeekTarget,
 } from "../components/player-hotkeys-utils";
-import { requestSabrSeek, requestSabrVidstackPlayback } from "../lib/sabr-vidstack-bridge";
-import { useMediaPlayer, useMediaRemote, useMediaState } from "../lib/vidstack";
+import { usePlayerEngine } from "../lib/player-engine";
+import { usePlayerKeySignal } from "../lib/player-key-signal";
 import { useDanmakuStore } from "../stores/danmaku-store";
 import { useWatchLayoutStore } from "../stores/watch-layout-store";
 import { useHoldFastForward } from "./use-hold-fast-forward";
 
 const FRAME_STEP_SECONDS = 1 / 30;
+const RATE_STEP = 0.25;
 
-export function usePlayerKeyboard(
-  canSeek: boolean,
-  sabrVideo: HTMLVideoElement | null = null,
-  playbackOnly = false,
-) {
-  const player = useMediaPlayer();
-  const remote = useMediaRemote();
-  const currentTime = useMediaState("currentTime");
-  const duration = useMediaState("duration");
-  const paused = useMediaState("paused");
+export function usePlayerKeyboard(canSeek: boolean, playbackOnly = false) {
+  const engine = usePlayerEngine();
+  const keySignal = usePlayerKeySignal();
   const { holding, isActive, start, restore } = useHoldFastForward();
-  const currentTimeRef = useRef(0);
-  const durationRef = useRef(0);
-  const pausedRef = useRef(true);
   const spaceStartedRef = useRef(false);
   const seekTargetRef = useRef<KeyboardSeekTarget>({
     position: 0,
     updatedAt: Number.NEGATIVE_INFINITY,
   });
 
-  currentTimeRef.current = Number.isFinite(currentTime) ? currentTime : 0;
-  durationRef.current = Number.isFinite(duration) ? duration : 0;
-  pausedRef.current = paused;
-
   useEffect(() => {
-    function togglePaused() {
-      if (sabrVideo) {
-        void requestSabrVidstackPlayback(sabrVideo, pausedRef.current, true).catch(() => {});
-        return;
-      }
-      if (pausedRef.current) void Promise.resolve(remote.play()).catch(() => {});
-      else void Promise.resolve(remote.pause()).catch(() => {});
-    }
+    const togglePaused = () => engine.togglePaused();
 
     function stepFrame(direction: -1 | 1) {
-      if (!canSeek || !pausedRef.current) return;
-      remote.seek(
-        clampTime(currentTimeRef.current + FRAME_STEP_SECONDS * direction, durationRef.current),
+      if (!canSeek || !engine.paused()) return;
+      engine.seek(
+        clampTime(engine.currentTime() + FRAME_STEP_SECONDS * direction, engine.duration()),
       );
+    }
+
+    function stepRate(delta: number) {
+      if (isActive()) return;
+      engine.setPlaybackRate(nextKeyboardRate(engine.playbackRate(), delta));
     }
 
     function seekBy(seconds: number) {
       if (!canSeek) return;
       seekTargetRef.current = nextKeyboardSeekTarget(
-        currentTimeRef.current,
-        durationRef.current,
+        engine.currentTime(),
+        engine.duration(),
         seconds,
         seekTargetRef.current,
         performance.now(),
       );
-      currentTimeRef.current = seekTargetRef.current.position;
-      if (sabrVideo && requestSabrSeek(sabrVideo, seekTargetRef.current.position)) return;
-      remote.seek(seekTargetRef.current.position);
+      engine.seek(seekTargetRef.current.position);
     }
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+      if (keySignal && !isEditableTarget(event.target)) {
+        keySignal.current.key = event.key;
+        keySignal.current.at = performance.now();
+        keySignal.current.onKey?.(event.key);
+      }
       if (event.key === "Escape" || event.code === "Escape") {
         if (useWatchLayoutStore.getState().webFullscreen) {
           consumeEvent(event);
@@ -83,12 +73,13 @@ export function usePlayerKeyboard(
       }
       if (playbackOnly && !isPlaybackToggleShortcut(event.code)) return;
       const seekOffset = keyboardSeekOffset(event.code);
-      if (seekOffset !== null && isPlayerSeekShortcutTarget(event.target, player?.el ?? null)) {
+      if (seekOffset !== null && isPlayerSeekShortcutTarget(event.target, engine.element())) {
         consumeEvent(event);
         seekBy(seekOffset);
+        keySignal?.current.onSeek?.(seekOffset);
         return;
       }
-      if (isInteractiveTarget(event.target)) return;
+      if (blocksPlayerShortcut(event.target, engine.element())) return;
       if (event.key === "w" || event.key === "W" || event.code === "KeyW") {
         consumeEvent(event);
         useWatchLayoutStore.getState().toggleWebFullscreen();
@@ -119,6 +110,11 @@ export function usePlayerKeyboard(
           spaceStartedRef.current = true;
           start();
         }
+        return;
+      }
+      if (event.key === ">" || event.key === "<") {
+        consumeEvent(event);
+        stepRate(event.key === ">" ? RATE_STEP : -RATE_STEP);
         return;
       }
       if (event.key === "," || event.code === "Comma") {
@@ -157,7 +153,7 @@ export function usePlayerKeyboard(
       window.removeEventListener("blur", onBlur);
       restore(false);
     };
-  }, [canSeek, player, remote, sabrVideo, start, restore, isActive, playbackOnly]);
+  }, [canSeek, engine, start, restore, isActive, playbackOnly, keySignal]);
 
   return holding;
 }

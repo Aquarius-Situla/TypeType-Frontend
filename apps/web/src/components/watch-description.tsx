@@ -19,7 +19,7 @@ export function WatchDescription({ description, videoUrl, uploadedAt, onSeekTime
   if (!expanded) {
     return (
       <div className="w-full rounded-xl bg-surface px-4 py-3 text-left transition-colors hover:bg-surface-strong">
-        <p className="text-sm text-fg leading-relaxed line-clamp-3 whitespace-pre-wrap">
+        <p className="max-w-[100ch] text-sm text-fg leading-relaxed line-clamp-3 whitespace-pre-wrap">
           <RichText text={description} videoUrl={videoUrl} onSeekTimestamp={onSeekTimestamp} />
         </p>
         <button
@@ -36,7 +36,7 @@ export function WatchDescription({ description, videoUrl, uploadedAt, onSeekTime
   return (
     <div className="bg-surface rounded-xl px-4 py-3">
       {exactDate && <p className="mb-2 text-xs font-medium text-fg-muted">{exactDate}</p>}
-      <p className="text-sm text-fg leading-relaxed whitespace-pre-wrap">
+      <p className="max-w-[100ch] text-sm text-fg leading-relaxed whitespace-pre-wrap">
         <RichText text={description} videoUrl={videoUrl} onSeekTimestamp={onSeekTimestamp} />
       </p>
       <button

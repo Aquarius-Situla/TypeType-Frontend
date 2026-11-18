@@ -4,6 +4,7 @@ import {
   Bell,
   CircleHelp,
   Download,
+  Focus,
   Gauge,
   House,
   KeyRound,
@@ -29,6 +30,7 @@ import { SettingsAbout } from "../settings/settings-about";
 import { SettingsApi } from "../settings/settings-api";
 import { SettingsBackup } from "../settings/settings-backup";
 import { SettingsBlocked } from "../settings/settings-blocked";
+import { SettingsFocus } from "../settings/settings-focus";
 import { SettingsLandingPage } from "../settings/settings-landing-page";
 import { SettingsLanguage } from "../settings/settings-language";
 import { SettingsNotifications } from "../settings/settings-notifications";
@@ -111,7 +113,7 @@ function baseItems(): Item[] {
   ];
 }
 
-function settingsItems(showRss: boolean): Item[] {
+function settingsItems(showRss: boolean, showFocus: boolean): Item[] {
   const base = baseItems();
   const items = [
     base[0],
@@ -125,6 +127,13 @@ function settingsItems(showRss: boolean): Item[] {
     } as Item,
     ...base.slice(3),
   ];
+  if (showFocus)
+    items.splice(items.findIndex((item) => item.key === "blocked") + 1, 0, {
+      key: "focus",
+      label: m.settings_focus_label(),
+      description: m.settings_focus_description(),
+      icon: Focus,
+    });
   if (showRss)
     items.splice(items.length - 1, 0, {
       key: "rss",
@@ -142,13 +151,16 @@ function SettingsPage() {
   const { section, rssChannel, compose } = Route.useSearch();
   const navigate = useNavigate({ from: "/settings" });
   const showRss = instance.data?.rss.enabled === true && isAuthed && !isGuest;
-  const items = settingsItems(showRss);
+  const items = settingsItems(showRss, isAuthed && !isGuest);
   const pendingRssDecision = section === "rss" && (!authReady || instance.isPending);
+  const pendingFocusDecision = section === "focus" && !authReady;
   const activeSection = pendingRssDecision
     ? "rss"
-    : items.some((item) => item.key === section)
-      ? section
-      : items[0].key;
+    : pendingFocusDecision
+      ? "focus"
+      : items.some((item) => item.key === section)
+        ? section
+        : items[0].key;
 
   useEffect(() => {
     if (section === activeSection) return;
@@ -177,6 +189,7 @@ function SettingsPage() {
       {activeSection === "api" && <SettingsApi />}
       {activeSection === "privacy" && <SettingsPrivacy />}
       {activeSection === "blocked" && <SettingsBlocked />}
+      {activeSection === "focus" && <SettingsFocus />}
       {activeSection === "rss" && showRss && (
         <SettingsRss initialChannel={rssChannel ?? null} openComposer={compose === true} />
       )}

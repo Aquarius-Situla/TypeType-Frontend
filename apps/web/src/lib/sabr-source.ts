@@ -90,7 +90,7 @@ export function defaultSabrItag(
 }
 
 export function automaticSabrQuality(
-  screenHeight: number,
+  screenShortSide: number,
   devicePixelRatio: number,
   saveData = false,
   effectiveType = "",
@@ -98,7 +98,7 @@ export function automaticSabrQuality(
   const constrained = saveData || effectiveType === "slow-2g" || effectiveType === "2g";
   if (constrained) return "360p";
   if (effectiveType === "3g") return "720p";
-  const physicalHeight = Math.max(360, screenHeight * Math.max(1, devicePixelRatio));
+  const physicalHeight = Math.max(360, screenShortSide * Math.max(1, devicePixelRatio));
   const height = [2160, 1440, 1080, 720, 480, 360].find((candidate) => candidate <= physicalHeight);
   return `${height ?? 360}p`;
 }

@@ -1,0 +1,92 @@
+/* The settings menu follows the Video.js default skin: Video.js measures the shown panel into --media-menu-width and
+   --media-menu-height, every panel sits at the top of the popup, an opening submenu slides in from the side while the
+   list slides out, and the popup resizes in the same 250 ms, so switching panels is one movement instead of a jump. */
+.typetype-settings-menu {
+  width: max(var(--media-menu-width, 20rem), 20rem);
+  height: var(--media-menu-height, auto);
+  max-height: min(var(--media-menu-available-height, 24rem), 24rem);
+  overflow: hidden;
+  transition-property: opacity, scale, width, height;
+  transition-duration: 150ms, 150ms, 250ms, 250ms;
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+.typetype-settings-menu .typetype-menu-content {
+  position: absolute;
+  max-height: inherit;
+  overflow: auto;
+  overscroll-behavior: contain;
+  anchor-scope: --typetype-menu-highlight;
+  transition-property: translate, filter;
+  transition-duration: 250ms;
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+.typetype-settings-menu .typetype-menu-content:not([data-submenu]) {
+  inset-inline: 0.25rem;
+  top: 0.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.typetype-settings-menu .typetype-menu-content:not([data-submenu])[data-child-open] {
+  translate: -100% 0;
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+.typetype-settings-menu .typetype-menu-content[data-submenu] {
+  z-index: 10;
+  inset-inline: 0;
+  top: 0;
+  padding: 0.25rem;
+}
+
+.typetype-settings-menu
+  .typetype-menu-content[data-submenu]:is([data-starting-style], [data-ending-style]) {
+  translate: 100% 0;
+  filter: blur(8px);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* One highlight follows the pointer from row to row instead of each row fading its own background in and out, which
+   flickered while the pointer ran down the list. */
+@supports (top: anchor(top)) {
+  .typetype-settings-menu [data-highlighted] {
+    anchor-name: --typetype-menu-highlight;
+    background-color: transparent;
+  }
+
+  .typetype-settings-menu .typetype-menu-content::before {
+    content: "";
+    position: absolute;
+    position-anchor: --typetype-menu-highlight;
+    inset: anchor(inside);
+    border-radius: 0.5rem;
+    background-color: rgb(255 255 255 / 0.12);
+    pointer-events: none;
+    transition: inset 100ms ease-out;
+  }
+
+  .typetype-settings-menu
+    .typetype-menu-content:is(
+      [data-starting-style],
+      [data-ending-style],
+      [data-child-open]
+    )::before {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typetype-settings-menu,
+  .typetype-settings-menu .typetype-menu-content,
+  .typetype-settings-menu .typetype-menu-content::before {
+    transition-duration: 0s;
+  }
+
+  .typetype-settings-menu .typetype-menu-content {
+    filter: none;
+  }
+}

@@ -1,0 +1,78 @@
+@media (min-width: 1024px) {
+  .watch-layout-container {
+    --watch-player-max-width: max(40rem, calc((100dvh - 9rem) * 16 / 9));
+    --watch-panel-width: clamp(18rem, 15rem + 10.5vw, 40rem);
+    --watch-panel-max-width: 70rem;
+  }
+
+  .watch-layout-side {
+    justify-content: center;
+  }
+
+  .watch-layout-side > .watch-player-wrap {
+    flex: 0 1 var(--watch-player-max-width);
+  }
+
+  .watch-player-wrap-solo {
+    max-width: var(--watch-player-max-width);
+  }
+
+  .watch-secondary-panel {
+    flex: 1 0 var(--watch-panel-width);
+    max-width: var(--watch-panel-max-width);
+  }
+
+  .watch-secondary-panel-large {
+    --watch-panel-width: clamp(20rem, 14rem + 14vw, 46rem);
+  }
+
+  .watch-secondary-panel-chat {
+    flex: 0 0 clamp(21rem, 34vw, 36.25rem);
+  }
+
+  .watch-cinema-content {
+    justify-content: center;
+    max-width: clamp(106.25rem, 70vw, 170rem);
+  }
+
+  .watch-related-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 28rem), 1fr));
+    gap: 0.75rem 1rem;
+    align-items: start;
+  }
+
+  .watch-related-list > .watch-related-header {
+    grid-column: 1 / -1;
+  }
+
+  .watch-related-card > a:first-child {
+    max-width: 20rem;
+  }
+
+  .watch-related-info > :not(.watch-related-title) {
+    padding-right: 1.75rem;
+  }
+
+  .watch-related-menu {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+  }
+
+  .watch-related-title {
+    font-size: clamp(0.875rem, 0.5rem + 0.3125vw, 1.25rem);
+  }
+
+  .watch-related-channel {
+    font-size: clamp(0.875rem, 0.55rem + 0.27vw, 1.125rem);
+  }
+
+  .watch-related-meta {
+    font-size: clamp(0.75rem, 0.5rem + 0.208vw, 1rem);
+  }
+
+  .watch-related-duration {
+    font-size: clamp(0.625rem, 0.375rem + 0.208vw, 0.875rem);
+  }
+}

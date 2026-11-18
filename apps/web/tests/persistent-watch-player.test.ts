@@ -91,3 +91,78 @@ test("another video starts at its own time", () => {
   expect(usePersistentWatchPlayerStore.getState().entry?.props.startTime).toBe(30_000);
   store.close(nextOwner);
 });
+
+test("reopening an ended persistent video from start resets startTime and increments replayKey", () => {
+  const firstOwner = Symbol("ended-page");
+  const replayOwner = Symbol("replay-page");
+  const store = usePersistentWatchPlayerStore.getState();
+
+  store.register(
+    firstOwner,
+    "stream-1",
+    { ...props, startTime: 42_000 },
+    true,
+    "/watch?v=stream-1",
+  );
+  store.setEnded(firstOwner, true);
+  store.detach(firstOwner);
+
+  const initialReplayKey = usePersistentWatchPlayerStore.getState().entry?.replayKey ?? 0;
+
+  store.register(replayOwner, "stream-1", { ...props, startTime: 0 }, true, "/watch?v=stream-1");
+
+  expect(usePersistentWatchPlayerStore.getState().entry).toMatchObject({
+    owner: replayOwner,
+    streamId: "stream-1",
+    ended: false,
+    replayKey: initialReplayKey + 1,
+    props: { startTime: 0 },
+  });
+
+  store.close(replayOwner);
+});
+
+test("reopening an ended persistent video with startTime > 0 uses the new startTime and increments replayKey", () => {
+  const firstOwner = Symbol("ended-page-timestamp");
+  const secondOwner = Symbol("timestamp-page");
+  const store = usePersistentWatchPlayerStore.getState();
+
+  store.register(firstOwner, "stream-1", { ...props, startTime: 12 }, true, "/watch?v=stream-1");
+  store.setEnded(firstOwner, true);
+  store.detach(firstOwner);
+
+  store.register(
+    secondOwner,
+    "stream-1",
+    { ...props, startTime: 30 },
+    false,
+    "/watch?v=stream-1&t=30",
+  );
+
+  expect(usePersistentWatchPlayerStore.getState().entry).toMatchObject({
+    owner: secondOwner,
+    props: { startTime: 30 },
+    ended: false,
+    replayKey: 1,
+  });
+
+  store.close(secondOwner);
+});
+
+test("same owner switching streamId resets ended state", () => {
+  const owner = Symbol("same-owner-switch");
+  const store = usePersistentWatchPlayerStore.getState();
+
+  store.register(owner, "stream-1", { ...props, startTime: 0 }, true, "/watch?v=stream-1");
+  store.setEnded(owner, true);
+
+  store.register(owner, "stream-2", { ...props, startTime: 0 }, true, "/watch?v=stream-2");
+
+  expect(usePersistentWatchPlayerStore.getState().entry).toMatchObject({
+    streamId: "stream-2",
+    ended: false,
+    replayKey: 0,
+  });
+
+  store.close(owner);
+});

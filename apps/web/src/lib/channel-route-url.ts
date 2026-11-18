@@ -44,6 +44,9 @@ function youtubeChannelParamFromUrl(value: string): string | null {
     if (kind === "channel" && valueSegment && YOUTUBE_CHANNEL_ID_PATTERN.test(valueSegment)) {
       return valueSegment;
     }
+    // Descriptions often write a channel id as if it were a handle: youtube.com/@UC...
+    const handleId = kind?.startsWith("@") ? kind.slice(1) : null;
+    if (handleId && YOUTUBE_CHANNEL_ID_PATTERN.test(handleId)) return handleId;
     if (kind && YOUTUBE_HANDLE_PATTERN.test(kind)) return kind;
     return null;
   } catch {

@@ -2,13 +2,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "../hooks/use-auth";
+import { useTwitchEnabled } from "../hooks/use-twitch";
 import { fetchBiliBiliSessionStatus } from "../lib/api-bilibili-session";
 import { fetchYoutubeSessionStatus } from "../lib/api-youtube-session";
 import { m } from "../paraglide/messages.js";
 import { BiliBiliIcon } from "./bilibili-icon";
+import { TwitchIcon } from "./twitch-icon";
 import { YoutubeIcon } from "./youtube-icon";
 
-type Platform = "youtube" | "bilibili";
+type Platform = "youtube" | "bilibili" | "twitch";
 
 type Props = {
   active: Platform;
@@ -17,6 +19,7 @@ type Props = {
 export function SessionPlatformNav({ active }: Props) {
   const qc = useQueryClient();
   const { authReady, isAuthed } = useAuth();
+  const twitchEnabled = useTwitchEnabled();
 
   useEffect(() => {
     if (!authReady || !isAuthed) return;
@@ -47,6 +50,17 @@ export function SessionPlatformNav({ active }: Props) {
       label: "BiliBili",
       icon: <BiliBiliIcon className="size-3.5 text-[#00a1d6]" />,
     },
+    ...(twitchEnabled
+      ? [
+          {
+            id: "twitch" as const,
+            to: "/twitch-session" as const,
+            search: { channel: undefined },
+            label: "Twitch",
+            icon: <TwitchIcon className="size-3.5 text-[#9146ff]" />,
+          },
+        ]
+      : []),
   ];
 
   return (

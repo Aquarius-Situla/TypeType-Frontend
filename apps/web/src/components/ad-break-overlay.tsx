@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Ad } from "../lib/ad-catalog";
 import type { AdProgress } from "../lib/ad-progress";
-import { useMediaRemote, useMediaState } from "../lib/vidstack";
+import { usePlayerMedia } from "../lib/player-media";
 import { AdClassic } from "./ad-classic";
 import { AdTrial } from "./ad-trial";
 
@@ -10,10 +10,7 @@ type Props = { ad: Ad; progress: AdProgress; resume: boolean; onFinish: () => vo
 // The ad that plays over the player before a video. It holds the video paused until the ad is
 // over, then starts it if the page would have autoplayed.
 export function AdBreakOverlay({ ad, progress, resume, onFinish }: Props) {
-  const remote = useMediaRemote();
-  const paused = useMediaState("paused");
-  const volume = useMediaState("volume");
-  const playerMuted = useMediaState("muted");
+  const { paused, volume, muted: playerMuted, play, pause, setVolume } = usePlayerMedia();
   const [muted, setMuted] = useState(playerMuted);
   const [soundBlocked, setSoundBlocked] = useState(false);
 
@@ -34,14 +31,14 @@ export function AdBreakOverlay({ ad, progress, resume, onFinish }: Props) {
   const finished = useRef(false);
 
   useEffect(() => {
-    if (!paused && !finished.current) remote.pause();
-  }, [paused, remote]);
+    if (!paused && !finished.current) pause();
+  }, [paused, pause]);
 
   useEffect(
     () => () => {
-      if (finished.current && resume) remote.play();
+      if (finished.current && resume) play();
     },
-    [remote, resume],
+    [play, resume],
   );
 
   function finish() {
@@ -57,7 +54,7 @@ export function AdBreakOverlay({ ad, progress, resume, onFinish }: Props) {
     muted,
     onToggleMute: () => setMuted((before) => !before),
     // The ad shares its volume with the player, so the video starts at the level the viewer set.
-    onVolume: (level: number) => remote.changeVolume(level),
+    onVolume: (level: number) => setVolume(level),
     soundBlocked,
     onSoundBlocked: () => {
       setMuted(true);

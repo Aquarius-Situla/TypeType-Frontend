@@ -8,6 +8,8 @@ import { MobileTabBar } from "../components/mobile-tab-bar";
 import { Navbar } from "../components/navbar";
 import { NotFoundPage } from "../components/not-found-page";
 import { PersistentWatchPlayer } from "../components/persistent-watch-player";
+import { ReleaseNotice } from "../components/release-notice";
+import { ServerStatusHost } from "../components/server-status-notice";
 import { Sidebar } from "../components/sidebar";
 import { useAuth } from "../hooks/use-auth";
 import { useEarlyWatchStream } from "../hooks/use-early-watch-stream";
@@ -283,6 +285,8 @@ function RootLayoutContent() {
       }`}
     >
       <PersistentWatchPlayer />
+      <ServerStatusHost />
+      {!watchWebFullscreenPage && <ReleaseNotice />}
       <AmbientLightHost disabled={watchWebFullscreenPage} />
       {!watchWebFullscreenPage && (
         <div className="watch-page-chrome">

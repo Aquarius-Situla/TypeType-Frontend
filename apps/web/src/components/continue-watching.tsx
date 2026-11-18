@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useAuth } from "../hooks/use-auth";
 import { useBlockedFilter } from "../hooks/use-blocked-filter";
 import { useHistory } from "../hooks/use-history";
+import { useWatchedThreshold } from "../hooks/use-watched-threshold";
 import { isVideoInProgress } from "../lib/watch-progress";
 import { m } from "../paraglide/messages.js";
 import { ContinueCard } from "./continue-card";
@@ -12,13 +13,14 @@ export function ContinueWatching() {
   const { items } = useHistory();
   const { isAuthed } = useAuth();
   const { filter } = useBlockedFilter();
+  const watchedThreshold = useWatchedThreshold();
   const displayed = useMemo(
     () =>
       filter(items)
-        .filter((h) => isVideoInProgress(h.progress, h.duration))
+        .filter((h) => isVideoInProgress(h.progress, h.duration, watchedThreshold))
         .sort((a, b) => b.watchedAt - a.watchedAt)
         .slice(0, MAX_ITEMS),
-    [filter, items],
+    [filter, items, watchedThreshold],
   );
   if (!isAuthed || displayed.length === 0) return null;
 

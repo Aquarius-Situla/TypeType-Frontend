@@ -22,6 +22,7 @@ const qualityIcon: DefaultLayoutIcon = (props) => <ClipIcon {...props} />;
 const MENU_ITEMS_CLASS =
   "vds-menu-items max-h-[44svh] overflow-y-auto overscroll-y-contain pr-0.5 md:max-h-72 [scrollbar-width:thin] [scrollbar-color:var(--color-zinc-500)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-surface-soft/80 [&::-webkit-scrollbar-thumb:hover]:bg-surface-soft [&::-webkit-scrollbar-track]:bg-transparent";
 const QUALITY_OPTIONS = { sort: "descending" } as const;
+const AUTO_VALUE = "auto";
 
 type QualityOption = ReturnType<typeof useVideoQualityOptions>[number];
 
@@ -56,7 +57,10 @@ export function QualitySelector() {
   const sabrStreamId = useSabrQualityStore((state) => state.streamId);
   const sabrOptions = useSabrQualityStore((state) => state.options);
   const sabrSelectedItag = useSabrQualityStore((state) => state.selectedItag);
+  const sabrAutomaticItag = useSabrQualityStore((state) => state.automaticItag);
+  const sabrManual = useSabrQualityStore((state) => state.manuallySelected);
   const selectSabrQuality = useSabrQualityStore((state) => state.selectQuality);
+  const restoreSabrQuality = useSabrQualityStore((state) => state.restoreQuality);
   const { connectHref, requiresConnection } = useBiliBiliSessionGate();
   const unlockLink = requiresConnection ? (
     <a
@@ -80,26 +84,34 @@ export function QualitySelector() {
       sabrOptions.find((option) => option.itag === sabrSelectedItag) ?? sabrOptions[0];
     const resolutionOptions = sabrResolutionOptions(sabrOptions, selected);
     if (resolutionOptions.length <= 1) return null;
+    const autoLabel = m.player_auto({}, { locale });
     function onSabrChange(value: string) {
+      menuRef.current?.close();
+      if (value === AUTO_VALUE) {
+        if (sabrAutomaticItag !== null) restoreSabrQuality(streamId, sabrAutomaticItag);
+        return;
+      }
       const itag = Number(value);
       if (!Number.isInteger(itag)) return;
       selectSabrQuality(streamId, itag);
-      menuRef.current?.close();
     }
     return (
       <Menu.Root ref={menuRef} className="typetype-quality-menu vds-quality-menu vds-menu">
         <DefaultMenuButton
           label={m.player_quality({}, { locale })}
-          hint={selected.label}
+          hint={sabrManual ? selected.label : `${autoLabel} (${selected.label})`}
           Icon={qualityIcon}
         />
         <Menu.Items className={MENU_ITEMS_CLASS}>
           <DefaultMenuRadioGroup
-            value={String(selected.itag)}
-            options={resolutionOptions.map((option) => ({
-              label: option.label,
-              value: String(option.itag),
-            }))}
+            value={sabrManual ? String(selected.itag) : AUTO_VALUE}
+            options={[
+              ...(sabrAutomaticItag === null ? [] : [{ label: autoLabel, value: AUTO_VALUE }]),
+              ...resolutionOptions.map((option) => ({
+                label: option.label,
+                value: String(option.itag),
+              })),
+            ]}
             onChange={onSabrChange}
           />
           {unlockLink}
@@ -149,17 +161,23 @@ export function QualitySelector() {
 
   const videoOptions = options.filter((o) => o.quality !== null);
   const filteredOptions = collectResolutionOptions(videoOptions);
+  const autoOption = options.find((o) => o.quality === null);
+  const autoSelected = autoOption?.selected === true;
   const selected = filteredOptions.find((o) => o.selected) ?? filteredOptions[0];
-  const radioOptions = filteredOptions.map((o) => ({ label: o.label, value: qualityValue(o) }));
+  const radioOptions = [
+    ...(autoOption ? [{ label: autoOption.label, value: AUTO_VALUE }] : []),
+    ...filteredOptions.map((o) => ({ label: o.label, value: qualityValue(o) })),
+  ];
 
   if (filteredOptions.length <= 1) return null;
   if (filteredOptions.every((o) => (qualityOptionHeight(o) ?? 0) === 0)) return null;
 
   if (!selected) return null;
-  const current = selected.label;
+  const current = autoSelected && autoOption ? autoOption.label : selected.label;
 
   function onChange(value: string) {
-    filteredOptions.find((o) => qualityValue(o) === value)?.select();
+    if (value === AUTO_VALUE) autoOption?.select();
+    else filteredOptions.find((o) => qualityValue(o) === value)?.select();
     menuRef.current?.close();
   }
 
@@ -172,7 +190,7 @@ export function QualitySelector() {
       />
       <Menu.Items className={MENU_ITEMS_CLASS}>
         <DefaultMenuRadioGroup
-          value={qualityValue(selected)}
+          value={autoSelected ? AUTO_VALUE : qualityValue(selected)}
           options={radioOptions}
           onChange={onChange}
         />

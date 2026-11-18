@@ -1,0 +1,27 @@
+.typetype-key-feedback {
+  animation: typetype-key-feedback 650ms ease-out forwards;
+}
+
+@keyframes typetype-key-feedback {
+  0% {
+    opacity: 0;
+    scale: 0.85;
+  }
+  15% {
+    opacity: 1;
+    scale: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    scale: 1.05;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typetype-key-feedback {
+    animation: none;
+  }
+}

@@ -1,6 +1,9 @@
 import { useRef } from "react";
 import { usePlayerError } from "../hooks/use-player-error";
-import { usePlayerErrorResume } from "../hooks/use-player-error-resume";
+import {
+  resolvePlayerRetryStartTime,
+  usePlayerErrorResume,
+} from "../hooks/use-player-error-resume";
 import { useSabrPlaybackConfig } from "../hooks/use-sabr-playback-config";
 import { useSettings } from "../hooks/use-settings";
 import { useVolumeSync } from "../hooks/use-volume-sync";
@@ -50,7 +53,7 @@ export function EmbedPlayerShell({
     player.handleError,
   );
 
-  const effectiveStartTime = retryStartTime > 0 ? retryStartTime : startTime;
+  const effectiveStartTime = resolvePlayerRetryStartTime(retryStartTime, startTime);
   const effectiveAutoplay = resolveEmbedAutoplay(
     player.retryKey,
     playbackIntentRef.current,

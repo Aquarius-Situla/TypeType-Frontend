@@ -6,6 +6,7 @@ import { useSabrErrorReporter } from "../hooks/use-sabr-error-reporter";
 import { useSabrMediaSettings } from "../hooks/use-sabr-media-settings";
 import { useSabrModeSwitch } from "../hooks/use-sabr-mode-switch";
 import { useSabrQualitySwitch } from "../hooks/use-sabr-quality-switch";
+import { extractBearerToken, resolveUnauthorizedRetryToken } from "../lib/authed";
 import { recordClientEvent } from "../lib/client-debug-log";
 import { toAbsoluteApiUrl } from "../lib/env";
 import { addPlaybackTraceHeader } from "../lib/playback-trace";
@@ -45,11 +46,6 @@ export function SabrMsePlayer({
   onSeekReady,
   onPositionReaderChange,
 }: SabrMsePlayerProps) {
-  const token = useAuthStore((state) => state.token);
-  const headersRef = useRef(new Headers());
-  token
-    ? headersRef.current.set("authorization", `Bearer ${token}`)
-    : headersRef.current.delete("authorization");
   const engineRef = useRef<TypeTypeMsePlayer | null>(null);
   const qualityRef = useRef<TypeTypeMseQuality | null>(null);
   const pendingPlayRef = useRef(false);
@@ -108,7 +104,22 @@ export function SabrMsePlayer({
       audioOnly: initialConfig.audioOnly,
       isLive: initialConfig.isLive,
       startTimeMs: initialStartTimeMs,
-      headers: addPlaybackTraceHeader(new Headers(headersRef.current)),
+      getHeaders: () => {
+        const headers = new Headers();
+        const currentToken = useAuthStore.getState().token;
+        if (currentToken) headers.set("authorization", `Bearer ${currentToken}`);
+        return addPlaybackTraceHeader(headers);
+      },
+      onUnauthorized: async (_status, requestHeaders) => {
+        const failedToken = extractBearerToken(requestHeaders.get("authorization"));
+        return Boolean(
+          await resolveUnauthorizedRetryToken(
+            failedToken,
+            "SABR",
+            `/sabr/playback/${config.videoId}`,
+          ),
+        );
+      },
     });
     const stopPlaybackTrace = observeSabrMsePlayback(video, config.videoId, engine, reportError);
     engineRef.current = engine;
@@ -125,6 +136,16 @@ export function SabrMsePlayer({
     const offPosition = registerPosition(video, videoHandoffRef.current, config.videoId);
     const offSeekTargets = followSabrEngineSeeks(video, engine);
     const playEngine = () => engine.play().then(settlePlaybackRate);
+    const seekEngine = (seconds: number) => {
+      const targetMs = Math.max(0, Math.round(seconds * 1000));
+      runSabrSeek(
+        engine,
+        targetMs,
+        seekingRef,
+        (error) => reportError(error, targetMs),
+        latestHandlers().onSeekStateChange,
+      );
+    };
     playbackRate.initialize(video);
     const unregisterNativePause = sabrNativePause.registerSabrNativePause(
       video,
@@ -175,10 +196,7 @@ export function SabrMsePlayer({
         video.autoplay = false;
         return engine.pause();
       },
-      seek: (seconds) => {
-        const targetMs = Math.max(0, Math.round(seconds * 1000));
-        runSabrSeek(engine, targetMs, seekingRef, reportError, latestHandlers().onSeekStateChange);
-      },
+      seek: seekEngine,
       isTransitioning: () => seekingRef.current,
       isApplyingTransientMediaState: () => engine.isApplyingTransientMediaState(),
     });
@@ -193,10 +211,7 @@ export function SabrMsePlayer({
       .catch((error: unknown) => {
         if (!isAbortError(error)) reportError(error);
       });
-    latestHandlers().onSeekReady((seconds) => {
-      const targetMs = Math.max(0, Math.round(seconds * 1000));
-      runSabrSeek(engine, targetMs, seekingRef, reportError, latestHandlers().onSeekStateChange);
-    });
+    latestHandlers().onSeekReady(seekEngine);
     latestHandlers().onPositionReaderChange(() => positionMs(video));
     return () => {
       offSeekTargets();

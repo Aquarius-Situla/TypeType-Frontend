@@ -8,9 +8,17 @@ test("lets the watch player fill available width beside recommendations", () => 
   const classes = getWatchLayoutClasses(false, true);
 
   expect(classes.containerClass).toContain("lg:flex-row");
+  expect(classes.containerClass).toContain("watch-layout-side");
   expect(classes.playerWrapClass).toContain("flex-1");
-  expect(classes.playerWrapClass).toContain("max-w-[1600px]");
-  expect(classes.playerWrapClass).not.toContain("vh]");
+  expect(classes.playerWrapClass).not.toContain("max-w-");
+});
+
+test("sizes a lone watch player from the viewport instead of a fixed width", () => {
+  const classes = getWatchLayoutClasses(false, false);
+
+  expect(classes.containerClass).not.toContain("watch-layout-side");
+  expect(classes.playerWrapClass).toContain("watch-player-wrap-solo");
+  expect(classes.playerWrapClass).not.toContain("max-w-");
 });
 
 test("exposes stable watch hooks without changing the player identity", () => {

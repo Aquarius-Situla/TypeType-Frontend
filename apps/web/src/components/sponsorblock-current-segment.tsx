@@ -1,5 +1,6 @@
 import { BadgeInfo, SkipForward } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { usePlayerMedia } from "../lib/player-media";
 import { seekSponsorBlockSegment } from "../lib/sponsorblock-seek";
 import {
   getSponsorBlockCategoryLabel,
@@ -12,7 +13,6 @@ import {
   isSponsorBlockEndSkip,
   sponsorBlockSkipTarget,
 } from "../lib/sponsorblock-skip";
-import { useMediaPlayer, useMediaRemote } from "../lib/vidstack";
 import { m } from "../paraglide/messages.js";
 import type { SponsorBlockSegmentItem } from "../types/api";
 
@@ -44,13 +44,12 @@ export function SponsorBlockCurrentSegment({
   manualSkipSegments,
   muteInsteadOfSkip,
 }: Props) {
-  const remote = useMediaRemote();
-  const player = useMediaPlayer();
+  const { root: playerRoot, seek, pause } = usePlayerMedia();
   const [active, setActive] = useState<ActiveSegment | null>(null);
   const activeKeyRef = useRef("");
 
   useEffect(() => {
-    const root = player?.el;
+    const root = playerRoot;
     if (!root) return;
     const rootElement = root;
     let cleanup: (() => void) | null = null;
@@ -97,7 +96,7 @@ export function SponsorBlockCurrentSegment({
       observer.disconnect();
       cleanup?.();
     };
-  }, [player, segments]);
+  }, [playerRoot, segments]);
 
   if (!active) return null;
   const { segment: current, duration, media } = active;
@@ -115,12 +114,12 @@ export function SponsorBlockCurrentSegment({
       toEnd: isEndSkip,
     });
     if (isEndSkip) {
-      finishSponsorBlockEnd(media, remote, duration);
+      finishSponsorBlockEnd(media, { pause, seek }, duration);
       return;
     }
     seekSponsorBlockSegment(
       media instanceof HTMLVideoElement ? media : null,
-      (seconds) => remote.seek(seconds),
+      (seconds) => seek(seconds),
       sponsorBlockSkipTarget(endTime, duration),
     );
   }

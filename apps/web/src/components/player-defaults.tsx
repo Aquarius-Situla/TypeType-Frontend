@@ -3,6 +3,7 @@ import { normalizeDefaultPlaybackSpeed } from "../lib/playback-speed";
 import { qualityLabelHeight, qualityOptionHeight } from "../lib/player-quality";
 import type { SabrPlaybackRatePreference } from "../lib/sabr-playback-rate-preference";
 import {
+  isHLSProvider,
   useAudioOptions,
   useMediaPlayer,
   useMediaState,
@@ -50,6 +51,7 @@ export function PlayerDefaults({
   defaultSubtitleLanguage,
 }: PlayerDefaultsProps) {
   const canPlay = useMediaState("canPlay");
+  const started = useMediaState("started");
   const player = useMediaPlayer();
   const qualityOptions = useVideoQualityOptions(QUALITY_OPTIONS);
   const audioOptions = useAudioOptions();
@@ -64,6 +66,9 @@ export function PlayerDefaults({
 
   useEffect(() => {
     if (!canPlay || qualityApplied.current || !defaultQuality) return;
+    // Vidstack reports canPlay for HLS once the playlist is parsed, while the first segment is still loading: a
+    // quality switch there makes hls.js abort that segment and a live stream never starts.
+    if (!started && isHLSProvider(player?.provider ?? null)) return;
     const media = player?.el?.querySelector<HTMLMediaElement>("video,audio");
     const currentTime = media && Number.isFinite(media.currentTime) ? media.currentTime : 0;
     if (currentTime > 1.5) {
@@ -79,7 +84,7 @@ export function PlayerDefaults({
     if (!match) return;
     match.select();
     qualityApplied.current = true;
-  }, [canPlay, qualityOptions, defaultQuality, player]);
+  }, [canPlay, started, qualityOptions, defaultQuality, player]);
 
   useEffect(() => {
     const forceOriginal = requireOriginalLanguage || preferOriginalLanguage;

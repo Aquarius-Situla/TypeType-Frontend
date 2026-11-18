@@ -1,6 +1,11 @@
 import { expect, test } from "bun:test";
 import { ApiError } from "../src/lib/api";
-import { apiRetryDelay, isTemporaryApiError, shouldRetryApiError } from "../src/lib/api-retry";
+import {
+  apiRetryDelay,
+  isTemporaryApiError,
+  retryApiCall,
+  shouldRetryApiError,
+} from "../src/lib/api-retry";
 import { parseRetryAfterMs } from "../src/lib/retry-after";
 
 function apiError(status: number, retryAfterMs: number | null = null, code: string | null = null) {
@@ -46,4 +51,25 @@ test("keeps the exponential delay without Retry-After", () => {
   expect(apiRetryDelay(3, apiError(500))).toBe(1500);
   expect(shouldRetryApiError(2, apiError(500))).toBe(true);
   expect(shouldRetryApiError(3, apiError(500))).toBe(false);
+});
+
+test("a call cut by a network drop is sent again once the server answers", async () => {
+  let calls = 0;
+  const saved = await retryApiCall(async () => {
+    calls += 1;
+    if (calls < 3) throw new TypeError("Failed to fetch");
+    return "saved";
+  });
+  expect(saved).toBe("saved");
+  expect(calls).toBe(3);
+});
+
+test("a refused call is not sent again", async () => {
+  let calls = 0;
+  const refused = retryApiCall(async () => {
+    calls += 1;
+    throw apiError(400);
+  });
+  await expect(refused).rejects.toBeInstanceOf(ApiError);
+  expect(calls).toBe(1);
 });
