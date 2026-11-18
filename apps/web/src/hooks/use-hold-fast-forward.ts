@@ -9,7 +9,7 @@ const HOLD_DELAY_MS = 180;
 type HoldFastForward = {
   holding: boolean;
   isActive: () => boolean;
-  start: () => void;
+  start: (delayMs?: number) => void;
   restore: (updateIndicator?: boolean) => void;
 };
 
@@ -31,19 +31,22 @@ export function useHoldFastForward(): HoldFastForward {
     timerRef.current = null;
   }, []);
 
-  const start = useCallback(() => {
-    if (timerRef.current !== null || activeRef.current) return;
-    timerRef.current = window.setTimeout(() => {
-      timerRef.current = null;
-      activeRef.current = true;
-      setHolding(true);
-      engine.element()?.toggleAttribute(HOLD_FAST_FORWARD_ATTRIBUTE, true);
-      startedPausedRef.current = engine.paused();
-      restoreRateRef.current = engine.playbackRate();
-      engine.setPlaybackRate(holdSpeedRef.current);
-      if (startedPausedRef.current) engine.play();
-    }, HOLD_DELAY_MS);
-  }, [engine]);
+  const start = useCallback(
+    (delayMs = HOLD_DELAY_MS) => {
+      if (timerRef.current !== null || activeRef.current) return;
+      timerRef.current = window.setTimeout(() => {
+        timerRef.current = null;
+        activeRef.current = true;
+        setHolding(true);
+        engine.element()?.toggleAttribute(HOLD_FAST_FORWARD_ATTRIBUTE, true);
+        startedPausedRef.current = engine.paused();
+        restoreRateRef.current = engine.playbackRate();
+        engine.setPlaybackRate(holdSpeedRef.current);
+        if (startedPausedRef.current) engine.play();
+      }, delayMs);
+    },
+    [engine],
+  );
 
   const restore = useCallback(
     (updateIndicator = true) => {

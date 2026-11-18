@@ -8,6 +8,9 @@ import {
 import { type ReactNode, useMemo, useRef } from "react";
 import { type PlayerEngine, PlayerEngineContext } from "../lib/player-engine";
 
+// Video.js drops a tap held longer than this, and does not export the value.
+const VIDEOJS_TAP_MAX_MS = 250;
+
 type Props = { root: HTMLElement | null; children: ReactNode };
 
 export function VideoJsPlayerEngine({ root, children }: Props) {
@@ -38,6 +41,7 @@ export function VideoJsPlayerEngine({ root, children }: Props) {
       canSetVolume: () => latest.current.slices.volume?.volumeAvailability === "available",
       play,
       pause,
+      mouseTapMaxMs: VIDEOJS_TAP_MAX_MS,
       togglePaused: () => {
         if (latest.current.slices.playback?.paused) play();
         else pause();
