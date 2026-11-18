@@ -1,5 +1,9 @@
 import { expect, test } from "bun:test";
-import { bilibiliShortCode, resolveInternalLink } from "../src/lib/internal-link";
+import {
+  bilibiliShortCode,
+  resolveInternalLink,
+  unwrapRedirectLink,
+} from "../src/lib/internal-link";
 
 const open = (href: string, twitch = true) => resolveInternalLink(href, { twitch });
 
@@ -32,6 +36,71 @@ test("reroutes playlists and channels", () => {
   expect(open("https://www.nicovideo.jp/series/213751")).toBe("/playlist?list=nicoseries.213751");
   expect(open("https://www.youtube.com/@UCrPseYLGpNygVi34QpGNqpA")).toBe(
     "/channel/youtube/UCrPseYLGpNygVi34QpGNqpA",
+  );
+});
+
+test("reroutes channel addresses that have no stable id", () => {
+  const channel = (url: string) => `/channel?${new URLSearchParams({ url }).toString()}`;
+  expect(open("https://www.youtube.com/c/wankilfr")).toBe(
+    channel("https://www.youtube.com/c/wankilfr"),
+  );
+  expect(open("https://m.youtube.com/user/SomeName/")).toBe(
+    channel("https://www.youtube.com/user/SomeName"),
+  );
+  expect(open("http://youtube.com/wankilfr?si=abc")).toBe(
+    channel("https://www.youtube.com/wankilfr"),
+  );
+  expect(open("https://www.youtube.com/c/wankilfr/playlists")).toBe(
+    `${channel("https://www.youtube.com/c/wankilfr")}&tab=playlists`,
+  );
+  expect(open("https://ch.nicovideo.jp/some-channel")).toBe(
+    channel("https://ch.nicovideo.jp/some-channel"),
+  );
+  expect(open("https://ch.nicovideo.jp/channel/ch2526")).toBe(
+    channel("https://ch.nicovideo.jp/channel/ch2526"),
+  );
+});
+
+test("keeps the channel tab of a link", () => {
+  expect(open("https://www.youtube.com/@SomeChannel/streams")).toBe(
+    "/channel/youtube/@SomeChannel?tab=live",
+  );
+  expect(open("https://www.youtube.com/channel/UCrPseYLGpNygVi34QpGNqpA/community")).toBe(
+    "/channel/youtube/UCrPseYLGpNygVi34QpGNqpA?tab=posts",
+  );
+  expect(open("https://www.youtube.com/@SomeChannel/videos")).toBe("/channel/youtube/@SomeChannel");
+});
+
+test("does not take YouTube pages for channels", () => {
+  for (const path of ["about", "feed/trending", "premium", "robots.txt", "post/UgkxAbc", "c"]) {
+    expect(open(`https://www.youtube.com/${path}`)).toBeNull();
+  }
+  expect(open("https://www.youtube.com/c/name/unknown")).toBeNull();
+  expect(open("https://www.youtube.com/c/na%2Fme")).toBeNull();
+  expect(open("https://music.youtube.com/c/name")).toBeNull();
+  expect(open("https://ch.nicovideo.jp/portal/anime")).toBeNull();
+});
+
+test("follows YouTube redirect links", () => {
+  const redirect = "https://www.youtube.com/redirect?event=video&q=";
+  expect(open(`${redirect}${encodeURIComponent("https://youtu.be/dQw4w9WgXcQ")}`)).toBe(
+    "/watch?v=dQw4w9WgXcQ",
+  );
+  expect(unwrapRedirectLink(`${redirect}${encodeURIComponent("https://example.com/a")}`)).toBe(
+    "https://example.com/a",
+  );
+  expect(open(`${redirect}${encodeURIComponent("https://example.com/a")}`)).toBeNull();
+  expect(unwrapRedirectLink(`${redirect}${encodeURIComponent("javascript:alert(1)")}`)).toBe(
+    `${redirect}javascript%3Aalert(1)`,
+  );
+  expect(
+    open("https://www.youtube.com/attribution_link?u=%2Fwatch%3Fv%3DdQw4w9WgXcQ%26feature%3Dshare"),
+  ).toBe("/watch?v=dQw4w9WgXcQ");
+  expect(unwrapRedirectLink("https://www.youtube.com/attribution_link?u=//evil.example/a")).toBe(
+    "https://www.youtube.com/attribution_link?u=//evil.example/a",
+  );
+  expect(unwrapRedirectLink("https://example.com/redirect?q=https://a.example")).toBe(
+    "https://example.com/redirect?q=https://a.example",
   );
 });
 

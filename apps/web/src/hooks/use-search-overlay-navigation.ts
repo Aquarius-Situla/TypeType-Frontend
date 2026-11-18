@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
-import { toCanonicalChannelRoute } from "../lib/channel-route-url";
+import { channelAliasLink } from "../lib/channel-alias-url";
+import { channelLegacySearch, toCanonicalChannelRoute } from "../lib/channel-route-url";
 import { toDirectWatchUrl } from "../lib/direct-watch-url";
 import { twitchUrlTarget } from "../lib/twitch-url";
 import { useUiStore } from "../stores/ui-store";
@@ -32,6 +33,15 @@ export function useSearchOverlayNavigation({ onClose }: Params) {
     if (searchTwitch) {
       add.mutate(trimmed);
       navigate({ to: "/twitch/search", search: { q: trimmed } });
+      onClose();
+      return;
+    }
+    const channelAlias = channelAliasLink(trimmed);
+    if (channelAlias) {
+      navigate({
+        to: "/channel",
+        search: channelLegacySearch(channelAlias.url, "latest", "", channelAlias.tab),
+      });
       onClose();
       return;
     }

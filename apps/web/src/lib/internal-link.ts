@@ -1,4 +1,5 @@
-import { toCanonicalChannelRoute } from "./channel-route-url";
+import { channelAliasLink, youtubeChannelLinkTab } from "./channel-alias-url";
+import { type ChannelTab, channelRoutePath, toCanonicalChannelRoute } from "./channel-route-url";
 import { canonicalYoutubeEmbed, externalPagePath } from "./external-page-link";
 import { niconicoPlaylistParam, youtubePlaylistId } from "./playlist-url";
 import { twitchUrlTarget } from "./twitch-url";
@@ -35,6 +36,27 @@ function watchPath(url: URL): string | null {
   return `/watch?${search.toString()}`;
 }
 
+function withChannelTab(path: string, tab: ChannelTab): string {
+  if (tab === "videos") return path;
+  return `${path}${path.includes("?") ? "&" : "?"}tab=${tab}`;
+}
+
+// YouTube wraps links in descriptions in redirects that would report the click and hide the destination.
+export function unwrapRedirectLink(href: string): string {
+  const url = webUrl(href);
+  const host = url?.hostname.toLowerCase();
+  if (!url || (host !== "youtube.com" && !host?.endsWith(".youtube.com"))) return href;
+  if (url.pathname === "/redirect") {
+    const target = webUrl(url.searchParams.get("q") ?? "");
+    return target ? target.href : href;
+  }
+  if (url.pathname === "/attribution_link") {
+    const path = url.searchParams.get("u") ?? "";
+    if (path.startsWith("/") && !path.startsWith("//")) return `https://www.youtube.com${path}`;
+  }
+  return href;
+}
+
 // b23.tv share links hide their video behind a redirect that only the server follows.
 export function bilibiliShortCode(href: string): string | null {
   const url = webUrl(href);
@@ -45,7 +67,7 @@ export function bilibiliShortCode(href: string): string | null {
 
 // Only identifiers that passed a strict pattern reach the internal route, never the link itself.
 export function resolveInternalLink(href: string, options: { twitch: boolean }): string | null {
-  const parsed = webUrl(href);
+  const parsed = webUrl(unwrapRedirectLink(href));
   if (!parsed) return null;
   const url = canonicalYoutubeEmbed(niconicoShortLink(parsed));
   const watch = watchPath(url);
@@ -57,7 +79,14 @@ export function resolveInternalLink(href: string, options: { twitch: boolean }):
   const niconicoList = niconicoPlaylistParam(url.href);
   if (niconicoList) return `/playlist?${new URLSearchParams({ list: niconicoList }).toString()}`;
   const channel = toCanonicalChannelRoute(url.href);
-  if (channel) return `/channel/${channel.provider}/${channel.id}`;
+  if (channel) {
+    return withChannelTab(
+      `/channel/${channel.provider}/${channel.id}`,
+      youtubeChannelLinkTab(url.href),
+    );
+  }
+  const alias = channelAliasLink(url.href);
+  if (alias) return withChannelTab(channelRoutePath(alias.url), alias.tab);
   const twitch = options.twitch ? twitchUrlTarget(url.href) : null;
   if (twitch) return `/twitch/watch?${new URLSearchParams(twitch).toString()}`;
   return externalPagePath(url, options);

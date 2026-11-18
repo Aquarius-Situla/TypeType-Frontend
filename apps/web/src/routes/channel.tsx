@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { ChannelAliasPage } from "../components/channel-alias-page";
 import { ChannelPageContent } from "../components/channel-page-content";
 import { PageSpinner } from "../components/page-spinner";
 import type { ChannelSort } from "../lib/api-discovery";
+import { channelAliasLink } from "../lib/channel-alias-url";
 import {
   channelLegacySearch,
   channelPathSearch,
@@ -50,8 +52,9 @@ function LegacyChannelPage() {
 
   if (canonicalRoute) return <PageSpinner />;
 
+  const Page = channelAliasLink(sourceUrl) ? ChannelAliasPage : ChannelPageContent;
   return (
-    <ChannelPageContent
+    <Page
       sourceUrl={sourceUrl}
       sort={sort}
       searchQuery={searchQuery}

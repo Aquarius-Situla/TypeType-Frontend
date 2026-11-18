@@ -3,7 +3,7 @@ import { useRouter } from "@tanstack/react-router";
 import { useCallback, useContext } from "react";
 import type { fetchInstanceCapabilities } from "../lib/api-instance";
 import { resolveBilibiliShortLink } from "../lib/api-short-link";
-import { bilibiliShortCode, resolveInternalLink } from "../lib/internal-link";
+import { bilibiliShortCode, resolveInternalLink, unwrapRedirectLink } from "../lib/internal-link";
 import { INSTANCE_KEY } from "./use-instance";
 
 type Instance = Awaited<ReturnType<typeof fetchInstanceCapabilities>>;
@@ -15,7 +15,8 @@ export function useInternalLink(): (href: string, onExternal: (href: string) => 
   const router = useRouter({ warn: false });
   const queryClient = useContext(QueryClientContext);
   return useCallback(
-    (href: string, onExternal: (href: string) => void) => {
+    (link: string, onExternal: (href: string) => void) => {
+      const href = unwrapRedirectLink(link);
       const instance = queryClient?.getQueryData<Instance>(INSTANCE_KEY);
       const options = { twitch: instance?.twitch.enabled === true };
       const path = resolveInternalLink(href, options);
