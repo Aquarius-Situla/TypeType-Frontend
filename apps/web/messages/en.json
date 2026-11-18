@@ -2227,6 +2227,8 @@
   "settings_watched_threshold_percent": "{percent}%",
   "settings_hide_watched_title": "Watched videos",
   "settings_hide_watched_description": "Hide videos you already watched from the subscriptions feed.",
+  "settings_hide_search_shorts_title": "Shorts in search",
+  "settings_hide_search_shorts_description": "Hide Shorts from search results. The Shorts page stays available.",
   "settings_mini_player_title": "Mini player",
   "settings_mini_player_description": "Keep playing in a small player when you leave the watch page."
 }

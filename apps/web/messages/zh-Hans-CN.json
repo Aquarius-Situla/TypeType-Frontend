@@ -2227,6 +2227,8 @@
   "settings_watched_threshold_percent": "{percent}%",
   "settings_hide_watched_title": "已看视频",
   "settings_hide_watched_description": "在订阅动态中隐藏已经看过的视频。",
+  "settings_hide_search_shorts_title": "搜索结果中的短视频",
+  "settings_hide_search_shorts_description": "在搜索结果中隐藏短视频，短视频页面仍可使用。",
   "settings_mini_player_title": "迷你播放器",
   "settings_mini_player_description": "离开播放页面时在小播放器中继续播放。"
 }

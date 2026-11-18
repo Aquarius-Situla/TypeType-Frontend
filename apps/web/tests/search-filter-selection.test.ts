@@ -5,6 +5,7 @@ import {
   sanitizeSearchFilters,
   searchFilterGroups,
   searchFilterLabel,
+  searchHasNoResults,
   toggleSearchFilter,
   updateLiveSearchCategory,
 } from "../src/lib/search-filter-selection";
@@ -142,5 +143,17 @@ describe("search filter selection", () => {
     expect(
       updateLiveSearchCategory(filters, enabled?.contentFilter, enabled?.filters ?? [], false),
     ).toEqual({ contentFilter: "videos", filters: ["hdr"] });
+  });
+});
+
+describe("search empty state", () => {
+  test("waits for later pages when hidden results emptied this one", () => {
+    expect(searchHasNoResults(0, true, false)).toBe(false);
+    expect(searchHasNoResults(0, false, true)).toBe(false);
+  });
+
+  test("appears only once nothing is left to load", () => {
+    expect(searchHasNoResults(0, false, false)).toBe(true);
+    expect(searchHasNoResults(3, false, false)).toBe(false);
   });
 });

@@ -124,6 +124,7 @@ const DEFAULTS: SettingsItem = {
   hideWatchedSubscriptionVideos: false,
   watchedThresholdPercent: 0,
   miniPlayerEnabled: true,
+  hideSearchShorts: true,
 };
 
 function readAudioOnlyPlayback(): boolean | null {

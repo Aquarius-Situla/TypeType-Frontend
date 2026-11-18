@@ -9,7 +9,8 @@ import { useBlockedFilter } from "../hooks/use-blocked-filter";
 import { useSearch } from "../hooks/use-search";
 import { useSearchFilters } from "../hooks/use-search-filters";
 import { useSettings } from "../hooks/use-settings";
-import { updateLiveSearchCategory } from "../lib/search-filter-selection";
+import { searchHasNoResults, updateLiveSearchCategory } from "../lib/search-filter-selection";
+import { filterShortFormContent } from "../lib/video-visibility";
 import { m } from "../paraglide/messages.js";
 
 function SearchPage() {
@@ -57,7 +58,7 @@ function SearchPage() {
       seen.add(playlist.url);
       items.push({ kind: "playlist", playlist });
     }
-    for (const stream of filter(page.streams)) {
+    for (const stream of filterShortFormContent(filter(page.streams), settings.hideSearchShorts)) {
       if (seen.has(stream.id)) continue;
       seen.add(stream.id);
       items.push({ kind: "video", stream });
@@ -144,7 +145,7 @@ function SearchPage() {
           ?
         </p>
       )}
-      {items.length === 0 ? (
+      {searchHasNoResults(items.length, Boolean(hasNextPage), isFetchingNextPage) ? (
         settings.accessMode === "allow_list" ? (
           <FamilyListEmptyState
             title={m.ui_no_family_list_results()}

@@ -161,6 +161,7 @@ export type SettingsItem = {
   hideWatchedSubscriptionVideos: boolean;
   watchedThresholdPercent: number;
   miniPlayerEnabled: boolean;
+  hideSearchShorts: boolean;
 };
 
 export type SeekbarIcon = "typetype" | "custom" | "none";

@@ -45,6 +45,7 @@ type ToggleKey = Extract<
   | "hideEndScreens"
   | "hideComments"
   | "hideShorts"
+  | "hideSearchShorts"
   | "hideSubscriptionLiveStreams"
   | "hideWatchedSubscriptionVideos"
   | "hideMembersOnlyContent"
@@ -120,6 +121,12 @@ function discoveryOptions(): ToggleOption[] {
       label: m.ui_shorts_surface(),
       description: m.ui_hide_shorts_navigation_and_block_the_shorts_page(),
       area: m.nav_shorts(),
+    },
+    {
+      key: "hideSearchShorts",
+      label: m.settings_hide_search_shorts_title(),
+      description: m.settings_hide_search_shorts_description(),
+      area: m.shell_search(),
     },
     {
       key: "hideSubscriptionLiveStreams",
