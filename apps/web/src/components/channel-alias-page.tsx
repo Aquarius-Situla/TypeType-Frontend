@@ -5,7 +5,6 @@ import type { ChannelSort } from "../lib/api-discovery";
 import { channelRouteFromVideos } from "../lib/channel-alias-url";
 import { type ChannelTab, channelPathSearch } from "../lib/channel-route-url";
 import { ChannelPageContent } from "./channel-page-content";
-import { PageSpinner } from "./page-spinner";
 
 type Props = {
   sourceUrl: string;
@@ -18,7 +17,7 @@ type Props = {
 // Subscriptions and blocks are keyed by channel address, so an alias moves to the channel's stable page once known.
 export function ChannelAliasPage({ sourceUrl, sort, searchQuery, tab, onNavigate }: Props) {
   const navigate = useNavigate();
-  const { meta, videos, isLoading } = useChannel(sourceUrl, sort, searchQuery, tab === "live");
+  const { meta, videos } = useChannel(sourceUrl, sort, searchQuery, tab === "live");
   const route = channelRouteFromVideos(meta?.name, videos);
 
   useEffect(() => {
@@ -31,7 +30,6 @@ export function ChannelAliasPage({ sourceUrl, sort, searchQuery, tab, onNavigate
     });
   }, [navigate, route, searchQuery, sort, tab]);
 
-  if (isLoading || route) return <PageSpinner />;
   return (
     <ChannelPageContent
       sourceUrl={sourceUrl}
