@@ -32,8 +32,10 @@ export function RelatedVideos({ streams, isLoading = false }: Props) {
   const visible = useMemo(() => uniqueStreams(filter(streams)), [filter, streams]);
   const progressByUrl = useVideoProgressMap(visible);
   return (
-    <div className="flex flex-col gap-3">
-      <AutoplayToggle />
+    <div className="watch-related-list flex flex-col gap-3">
+      <div className="watch-related-header">
+        <AutoplayToggle />
+      </div>
       {isLoading
         ? SKELETON_KEYS.map((k) => <RelatedCardSkeleton key={k} size={settings.relatedVideoSize} />)
         : visible.map((stream, index) => (

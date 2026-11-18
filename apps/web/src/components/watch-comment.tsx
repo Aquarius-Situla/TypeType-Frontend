@@ -71,7 +71,7 @@ export function WatchComment({ comment, videoUrl, onSeekTimestamp }: Props) {
         </div>
         <p
           ref={textRef}
-          className={`text-base text-fg leading-relaxed whitespace-pre-wrap${expanded ? "" : " line-clamp-5"}`}
+          className={`max-w-[100ch] text-base text-fg leading-relaxed whitespace-pre-wrap${expanded ? "" : " line-clamp-5"}`}
         >
           <RichText text={comment.text} videoUrl={videoUrl} onSeekTimestamp={onSeekTimestamp} />
         </p>

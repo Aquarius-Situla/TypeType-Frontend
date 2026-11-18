@@ -12,11 +12,7 @@ export function videoGridClassName(columns: VideoGridColumns): string {
 }
 
 export function relatedVideoThumbnailClassName(size: RelatedVideoSize): string {
-  return size === "large" ? "w-48 sm:w-56" : "w-40 sm:w-48";
-}
-
-export function relatedVideoPanelClassName(size: RelatedVideoSize): string {
-  return size === "large" ? "lg:min-w-96" : "lg:min-w-72";
+  return size === "large" ? "w-48 sm:w-56 lg:w-[44%]" : "w-40 sm:w-48 lg:w-[37%]";
 }
 
 export function watchSecondaryPanelClassName(
@@ -24,9 +20,9 @@ export function watchSecondaryPanelClassName(
   liveChatOpen: boolean,
 ): string {
   const width = liveChatOpen
-    ? "lg:w-[clamp(21rem,34vw,36.25rem)]"
+    ? "watch-secondary-panel-chat"
     : size === "large"
-      ? "lg:w-80 xl:w-96"
-      : "lg:w-72 xl:w-80";
-  return `w-full lg:flex-none ${width} flex flex-col ${liveChatOpen ? "gap-4" : "gap-6"}`;
+      ? "watch-secondary-panel watch-secondary-panel-large"
+      : "watch-secondary-panel";
+  return `w-full min-w-0 ${width} flex flex-col ${liveChatOpen ? "gap-4" : "gap-6"}`;
 }

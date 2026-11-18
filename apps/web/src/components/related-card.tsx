@@ -43,7 +43,7 @@ function RelatedCardComponent({ stream, relatedStreams, size = "default", progre
     !stream.isLive && isVideoWatched(progressSeconds, stream.duration, watchedThreshold);
 
   return (
-    <article className="flex gap-2 group">
+    <article className="watch-related-card relative flex gap-2 group">
       <Link
         to="/watch"
         search={watchRouteSearch(stream.id)}
@@ -74,7 +74,7 @@ function RelatedCardComponent({ stream, relatedStreams, size = "default", progre
           </span>
         )}
         {!stream.isLive && stream.duration > 0 && (
-          <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] px-1 rounded">
+          <span className="absolute bottom-1 right-1 watch-related-duration bg-black/80 text-white text-[10px] px-1 rounded">
             {formatDuration(stream.duration)}
           </span>
         )}
@@ -82,12 +82,12 @@ function RelatedCardComponent({ stream, relatedStreams, size = "default", progre
           <VideoProgressBar progress={progressSeconds} duration={stream.duration} />
         )}
       </Link>
-      <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+      <div className="watch-related-info flex flex-col gap-0.5 min-w-0 flex-1">
         <Link
           to="/watch"
           search={watchRouteSearch(stream.id)}
           preload="intent"
-          className="text-sm font-medium text-fg line-clamp-2 leading-snug hover:text-fg-strong"
+          className="watch-related-title text-sm font-medium text-fg line-clamp-2 leading-snug [overflow-wrap:anywhere] hover:text-fg-strong"
           onClick={() => setNavigation(stream, relatedStreams)}
         >
           {title}
@@ -102,7 +102,7 @@ function RelatedCardComponent({ stream, relatedStreams, size = "default", progre
               name={stream.channelName}
               className="w-4 h-4"
             />
-            <span className="min-w-0 text-sm text-fg-muted group-hover/channel:text-fg truncate flex items-center gap-1">
+            <span className="watch-related-channel min-w-0 text-sm text-fg-muted group-hover/channel:text-fg truncate flex items-center gap-1">
               {stream.channelName}
               {stream.uploaderVerified && <VerifiedBadgeIcon />}
             </span>
@@ -114,15 +114,17 @@ function RelatedCardComponent({ stream, relatedStreams, size = "default", progre
               name={stream.channelName}
               className="w-4 h-4"
             />
-            <span className="min-w-0 text-sm text-fg-muted truncate flex items-center gap-1">
+            <span className="watch-related-channel min-w-0 text-sm text-fg-muted truncate flex items-center gap-1">
               {stream.channelName}
               {stream.uploaderVerified && <VerifiedBadgeIcon />}
             </span>
           </div>
         )}
-        <p className="text-xs text-fg-soft">{metadata}</p>
+        <p className="watch-related-meta text-xs text-fg-soft">{metadata}</p>
       </div>
-      <VideoCardFeedbackMenu stream={stream} />
+      <div className="watch-related-menu shrink-0">
+        <VideoCardFeedbackMenu stream={stream} />
+      </div>
     </article>
   );
 }

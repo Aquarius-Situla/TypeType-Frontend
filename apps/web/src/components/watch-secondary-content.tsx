@@ -83,7 +83,7 @@ export function WatchSecondaryContent({
 
   return (
     <>
-      <div className="mx-auto flex w-full max-w-[1700px] flex-col gap-6 px-4 lg:flex-row lg:items-start">
+      <div className="watch-cinema-content mx-auto flex w-full max-w-[1700px] flex-col gap-6 px-4 lg:flex-row lg:items-start">
         <div className={metaContainerClassName}>
           <WatchMeta
             stream={stream}
