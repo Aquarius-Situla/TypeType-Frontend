@@ -441,7 +441,7 @@
   "profile_username_taken": "用户名已存在",
   "profile_username_too_long": "用户名最多包含 32 个字符",
   "profile_username_too_short": "用户名必须至少包含 3 个字符",
-  "search_filter_anime": "动画",
+  "search_filter_anime": "番剧",
   "search_filter_channels": "频道",
   "search_filter_creative_commons": "知识共享许可 (CC)",
   "search_filter_live": "直播",
