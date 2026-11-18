@@ -6,6 +6,7 @@ import { isIosDevice } from "../lib/ios-device";
 import { OfflinePlayerRecovery } from "../lib/offline-player-recovery";
 import { detectProvider } from "../lib/provider";
 import { claimAutomaticSabrRecovery, resetAutomaticSabrRecovery } from "../lib/sabr-error-recovery";
+import { isServerAvailable } from "../lib/server-status";
 import {
   directProgressiveStreams,
   hasDirectDashPair,
@@ -18,6 +19,7 @@ import {
 } from "../lib/stream-refresh";
 import { resolveManifestSrc, shouldUseHls } from "../lib/stream-src";
 import type { MediaSrc } from "../lib/vidstack";
+import { useServerStatusStore } from "../stores/server-status-store";
 import type { VideoStream } from "../types/stream";
 import { useInstance } from "./use-instance";
 
@@ -115,7 +117,9 @@ export function usePlayerError(
   const handleError = useCallback(() => {
     if (
       typeof navigator !== "undefined" &&
-      offlineRecoveryRef.current?.deferErrorUntilOnline(navigator.onLine)
+      offlineRecoveryRef.current?.deferErrorUntilOnline(
+        navigator.onLine && isServerAvailable(useServerStatusStore.getState()),
+      )
     ) {
       recordClientEvent("player.network_retry_waiting", { video: debugVideo });
       return;
@@ -194,6 +198,21 @@ export function usePlayerError(
     window.addEventListener("online", handleOnline);
     return () => window.removeEventListener("online", handleOnline);
   }, [debugVideo]);
+
+  const serverResumes = useServerStatusStore((state) => state.resumes);
+  const playerFailedRef = useRef(playerFailed);
+  playerFailedRef.current = playerFailed;
+  useEffect(() => {
+    if (serverResumes === 0) return;
+    // A restarted server has lost its SABR sessions, but the buffer can carry playback past the restart: the 404
+    // then arrives after this point, so the automatic SABR retry is handed back here even when nothing failed yet.
+    resetAutomaticSabrRecovery(sabrRecoveryRef);
+    const waiting = offlineRecoveryRef.current?.resumeIfOnline(navigator.onLine) ?? false;
+    if (!waiting && !playerFailedRef.current) return;
+    recordClientEvent("player.server_recovered", { video: debugVideo });
+    setPlayerFailed(false);
+    setRetryKey((key) => key + 1);
+  }, [serverResumes, debugVideo]);
 
   const reset = useCallback(() => {
     offlineRecoveryRef.current?.reset();

@@ -2,6 +2,7 @@ export const allowedText = new Set([
   "TYPETYPE",
   "TypeType",
   "Lemmy",
+  "Discord",
   "OpenMoji",
   "takeout.google.com",
   "2x",
@@ -12,6 +13,7 @@ export const allowedText = new Set([
   "YouTube",
   "NicoNico",
   "BiliBili",
+  "Twitch",
   "RSS",
   "HDR",
   "3D",
@@ -24,6 +26,7 @@ export const allowedText = new Set([
   "light",
   "members_only",
   "delete",
+  "thumbnails",
 ]);
 
 export const allowedFiles = new Set([

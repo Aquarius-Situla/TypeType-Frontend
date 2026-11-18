@@ -1,0 +1,228 @@
+/* The skip button of an ad: it hops away, grows limbs, runs, then bolts off the frame.
+   components/ad-skip.tsx sets data-move, data-face and data-limbs on the button body. */
+.typetype-ad-skip {
+  --ad-lean: 9deg;
+  transform-origin: 50% 100%;
+}
+
+.typetype-ad-skip[data-face="left"] {
+  --ad-lean: -9deg;
+}
+
+.typetype-ad-limbs {
+  filter: drop-shadow(0 0 1px rgb(0 0 0 / 0.9));
+}
+
+/* The shoes point where the button is heading. */
+.typetype-ad-shoe {
+  left: -1px;
+}
+
+[data-face="left"] .typetype-ad-shoe {
+  left: -7px;
+}
+
+/* Viewers who ask for reduced motion get a button that moves away without the cartoon. */
+@media (prefers-reduced-motion: no-preference) {
+  .typetype-ad-skip[data-move="hop"] {
+    animation: typetype-ad-hop 0.24s ease-out;
+  }
+
+  .typetype-ad-skip[data-move="idle"][data-limbs] {
+    animation: typetype-ad-pant 0.4s ease-in-out infinite alternate;
+  }
+
+  .typetype-ad-skip[data-move="run"] {
+    animation: typetype-ad-run 0.15s linear infinite alternate;
+  }
+
+  .typetype-ad-skip[data-move="escape"] {
+    animation:
+      typetype-ad-windup 0.35s ease-out,
+      typetype-ad-run 0.11s linear 0.35s infinite alternate;
+  }
+
+  .typetype-ad-limbs {
+    animation: typetype-ad-pop 0.3s cubic-bezier(0.3, 1.7, 0.5, 1) backwards;
+  }
+
+  [data-move="run"] .typetype-ad-leg,
+  [data-move="escape"] .typetype-ad-leg {
+    animation: typetype-ad-leg 0.15s ease-in-out infinite alternate;
+  }
+
+  [data-move="run"] .typetype-ad-arm,
+  [data-move="escape"] .typetype-ad-arm {
+    animation: typetype-ad-arm 0.15s ease-in-out infinite alternate;
+  }
+
+  /* With an alternating animation, a delay of one duration puts the second limb out of step. */
+  [data-move] .typetype-ad-limb[data-side="right"] {
+    animation-delay: -0.15s;
+  }
+
+  .typetype-ad-dust span {
+    position: absolute;
+    bottom: 0.9rem;
+    left: 50%;
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 9999px;
+    background: rgb(255 255 255 / 0.75);
+    opacity: 0;
+    animation: typetype-ad-dust 0.6s ease-out 0.35s forwards;
+  }
+
+  .typetype-ad-dust span:nth-child(2) {
+    --ad-drift: -1.4rem;
+    animation-delay: 0.42s;
+  }
+
+  .typetype-ad-dust span:nth-child(3) {
+    --ad-drift: 1.4rem;
+    animation-delay: 0.48s;
+  }
+}
+
+@keyframes typetype-ad-hop {
+  0% {
+    transform: scale(1.14, 0.78);
+  }
+  45% {
+    transform: translateY(-7px) scale(0.92, 1.12);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes typetype-ad-pant {
+  from {
+    transform: scale(1, 1);
+  }
+  to {
+    transform: scale(1.02, 0.94);
+  }
+}
+
+@keyframes typetype-ad-run {
+  from {
+    transform: rotate(var(--ad-lean));
+  }
+  to {
+    transform: translateY(-4px) rotate(var(--ad-lean));
+  }
+}
+
+@keyframes typetype-ad-windup {
+  0% {
+    transform: none;
+  }
+  70% {
+    transform: scale(1.1, 0.82) rotate(calc(var(--ad-lean) * -1.6));
+  }
+  100% {
+    transform: rotate(var(--ad-lean));
+  }
+}
+
+@keyframes typetype-ad-pop {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes typetype-ad-leg {
+  from {
+    transform: rotate(-38deg);
+  }
+  to {
+    transform: rotate(38deg);
+  }
+}
+
+@keyframes typetype-ad-arm {
+  from {
+    transform: rotate(-55deg);
+  }
+  to {
+    transform: rotate(40deg);
+  }
+}
+
+@keyframes typetype-ad-dust {
+  0% {
+    opacity: 0.8;
+    transform: translate(-50%, 0) scale(0.4);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--ad-drift, 0rem)), -1.1rem) scale(2.2);
+  }
+}
+
+/* The other acts of the skip button (lib/ad-skip-acts.ts): the button is moved by hand inside a
+   stage with perspective, and its shadow spreads as it lifts off the picture. */
+.typetype-ad-act-stage {
+  perspective: 650px;
+}
+
+.typetype-ad-act {
+  backface-visibility: hidden;
+  filter: drop-shadow(
+    var(--ad-sx, 0) var(--ad-sy, 4px) var(--ad-sb, 5px) rgb(0 0 0 / var(--ad-so, 0.55))
+  );
+  will-change: transform, left, top;
+}
+
+.typetype-ad-kao {
+  font-size: 13px;
+  letter-spacing: -0.5px;
+}
+
+.typetype-ad-balloon {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  width: 70px;
+  height: 118px;
+  margin-left: -35px;
+  overflow: visible;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+}
+
+/* The credits of the trial roll up from under the frame until their last line has left the top. */
+.typetype-ad-credits {
+  animation: typetype-ad-credits linear forwards;
+}
+
+@keyframes typetype-ad-credits {
+  to {
+    transform: translateY(calc(-100% - 100cqh));
+  }
+}
+
+/* The note that something was unlocked slides in under the top edge, then leaves. */
+.typetype-ad-unlock {
+  animation: typetype-ad-unlock 2.8s ease-in-out forwards;
+}
+
+@keyframes typetype-ad-unlock {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -140%);
+  }
+  12%,
+  82% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -140%);
+  }
+}

@@ -14,6 +14,8 @@ const {
   extractBilibiliChannelMid,
   fetchBilibiliChannelMeta,
   isBilibiliCollectionUrl,
+  isBilibiliSeasonUrl,
+  isBilibiliSeriesUrl,
   parseBilibiliCollectionParams,
   toCanonicalBilibiliCollectionUrl,
 } = await import("../src/lib/api-bilibili-channel-collections");
@@ -57,7 +59,46 @@ describe("bilibili channel and collection url parser", () => {
     expect(
       isBilibiliCollectionUrl("https://space.bilibili.com/546195/channel/seriesdetail?sid=456"),
     ).toBe(true);
+    expect(isBilibiliCollectionUrl("https://space.bilibili.com/546195/lists/123?type=season")).toBe(
+      true,
+    );
+    expect(isBilibiliCollectionUrl("https://space.bilibili.com/546195/lists/456?type=series")).toBe(
+      true,
+    );
+    expect(isBilibiliCollectionUrl("https://space.bilibili.com/546195/lists/456")).toBe(false);
     expect(isBilibiliCollectionUrl("https://www.youtube.com/playlist?list=PL123")).toBe(false);
+  });
+
+  test("distinguishes Bilibili series vs season collection URLs", () => {
+    expect(isBilibiliSeriesUrl("bilibili:series:546195:200")).toBe(true);
+    expect(isBilibiliSeriesUrl("series:546195:200")).toBe(true);
+    expect(
+      isBilibiliSeriesUrl("https://space.bilibili.com/546195/channel/seriesdetail?sid=456"),
+    ).toBe(true);
+    expect(
+      isBilibiliSeriesUrl(
+        "https://www.bilibili.com/medialist/play/546195?business=space_series&business_id=456",
+      ),
+    ).toBe(true);
+    expect(isBilibiliSeriesUrl("bilibili:season:546195:100")).toBe(false);
+    expect(
+      isBilibiliSeriesUrl("https://space.bilibili.com/546195/channel/collectiondetail?sid=123"),
+    ).toBe(false);
+
+    expect(isBilibiliSeasonUrl("bilibili:season:546195:100")).toBe(true);
+    expect(isBilibiliSeasonUrl("season:546195:100")).toBe(true);
+    expect(
+      isBilibiliSeasonUrl("https://space.bilibili.com/546195/channel/collectiondetail?sid=123"),
+    ).toBe(true);
+    expect(
+      isBilibiliSeasonUrl(
+        "https://www.bilibili.com/medialist/play/546195?business=space_collection&business_id=123",
+      ),
+    ).toBe(true);
+    expect(isBilibiliSeasonUrl("bilibili:series:546195:200")).toBe(false);
+    expect(
+      isBilibiliSeasonUrl("https://space.bilibili.com/546195/channel/seriesdetail?sid=456"),
+    ).toBe(false);
   });
 
   test("parses season and series collection parameters correctly", () => {
@@ -92,6 +133,23 @@ describe("bilibili channel and collection url parser", () => {
       mid: "546195",
       id: "456",
     });
+
+    // Space web URLs with /lists/<id>?type=season|series
+    expect(
+      parseBilibiliCollectionParams("https://space.bilibili.com/546195/lists/123?type=season"),
+    ).toEqual({
+      kind: "season",
+      mid: "546195",
+      id: "123",
+    });
+    expect(
+      parseBilibiliCollectionParams("https://space.bilibili.com/546195/lists/456?type=series"),
+    ).toEqual({
+      kind: "series",
+      mid: "546195",
+      id: "456",
+    });
+    expect(parseBilibiliCollectionParams("https://space.bilibili.com/546195/lists/456")).toBeNull();
 
     // Medialist play URLs with query params
     expect(

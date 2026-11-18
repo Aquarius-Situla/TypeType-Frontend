@@ -7,6 +7,7 @@ type NavItem = {
   icon: React.ReactNode;
   adminOnly?: boolean;
   recommenderOnly?: boolean;
+  twitchOnly?: boolean;
 };
 
 export const NAV_ITEMS: NavItem[] = [
@@ -35,6 +36,21 @@ export const NAV_ITEMS: NavItem[] = [
       <>
         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
         <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+      </>
+    ),
+  },
+  {
+    label: m.nav_live,
+    to: "/twitch",
+    activePaths: ["/twitch/watch", "/twitch/search"],
+    twitchOnly: true,
+    icon: (
+      <>
+        <circle cx="12" cy="12" r="2" />
+        <path d="M8.5 8.5a5 5 0 0 0 0 7" />
+        <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+        <path d="M5.6 5.6a9 9 0 0 0 0 12.8" />
+        <path d="M18.4 5.6a9 9 0 0 1 0 12.8" />
       </>
     ),
   },

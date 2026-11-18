@@ -4,14 +4,12 @@ import { PlayerFastForwardIndicator } from "./player-fast-forward-indicator";
 
 export function PlayerHotkeys({
   canSeek,
-  sabrVideo,
   compact = false,
 }: {
   canSeek: boolean;
-  sabrVideo: HTMLVideoElement | null;
   compact?: boolean;
 }) {
   const touchHolding = usePlayerGestures(canSeek, !compact);
-  const keyboardHolding = usePlayerKeyboard(canSeek, sabrVideo, compact);
+  const keyboardHolding = usePlayerKeyboard(canSeek, compact);
   return touchHolding || keyboardHolding ? <PlayerFastForwardIndicator /> : null;
 }

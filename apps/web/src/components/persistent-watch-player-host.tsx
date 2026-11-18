@@ -1,5 +1,5 @@
-import { useRouterState } from "@tanstack/react-router";
-import { GripVertical, X } from "lucide-react";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
+import { GripVertical, Maximize2, X } from "lucide-react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CompactPlayerContext } from "../hooks/use-compact-player";
 import { useMobile } from "../hooks/use-mobile";
@@ -8,6 +8,7 @@ import {
   usePersistentWatchPlayerStore,
 } from "../hooks/use-persistent-watch-player";
 import { isPlayerOutsideViewport } from "../lib/compact-player-position";
+import { playerPagePath } from "../lib/persistent-player-navigation";
 import { useMediaRemote } from "../lib/vidstack";
 import { m } from "../paraglide/messages.js";
 import { useUiStore } from "../stores/ui-store";
@@ -89,7 +90,8 @@ export function PersistentWatchPlayerHost() {
   const [landscapeWatch, setLandscapeWatch] = useState(false);
   const [floatingDismissed, setFloatingDismissed] = useState(false);
   const remote = useMediaRemote();
-  const watchPage = pathname === "/watch";
+  const navigate = useNavigate();
+  const watchPage = entry ? pathname === playerPagePath(entry.href) : false;
   const hiddenPage =
     pathname === "/shorts" || pathname === "/hide-everything" || pathname.startsWith("/embed/");
 
@@ -311,6 +313,9 @@ export function PersistentWatchPlayerHost() {
 
   if (!entry?.enabled || hiddenPage) return null;
 
+  // A Twitch page keeps its chat field at the bottom of the phone screen, so its player floats under the navbar
+  // instead; the top comes from CSS because the docked frame's direct styles clear an inline one.
+  const floatUnderNavbar = floating && !position && isMobile && Boolean(entry.props.ownSkin);
   const style: React.CSSProperties =
     webFullscreen && watchPage
       ? {}
@@ -328,10 +333,12 @@ export function PersistentWatchPlayerHost() {
             }
           : position
             ? { left: position.left, top: position.top }
-            : {
-                right: "1rem",
-                bottom: `calc(${isMobile ? "4.5rem" : "1rem"} + env(safe-area-inset-bottom, 0px))`,
-              };
+            : floatUnderNavbar
+              ? { right: "1rem" }
+              : {
+                  right: "1rem",
+                  bottom: `calc(${isMobile ? "4.5rem" : "1rem"} + env(safe-area-inset-bottom, 0px))`,
+                };
 
   // On the watch page the stage still owns the player: closing the floating copy only pauses and hides it, and
   // scrolling back up docks it again.
@@ -340,9 +347,14 @@ export function PersistentWatchPlayerHost() {
       close(entry.owner);
       return;
     }
-    remote.setTarget(frameRef.current?.querySelector("[data-media-player]") ?? null);
-    // No trigger event: the remote would send the request from the close button, which sits outside the player.
-    remote.pause();
+    const vidstackPlayer = frameRef.current?.querySelector("[data-media-player]") ?? null;
+    if (vidstackPlayer) {
+      remote.setTarget(vidstackPlayer);
+      // No trigger event: the remote would send the request from the close button, which sits outside the player.
+      remote.pause();
+    } else {
+      frameRef.current?.querySelector("video")?.pause();
+    }
     setFloatingDismissed(true);
   };
 
@@ -368,16 +380,17 @@ export function PersistentWatchPlayerHost() {
         webFullscreen && watchPage
           ? "fixed inset-0 z-[60] rounded-none shadow-none ring-0"
           : floating
-            ? "fixed z-30 rounded-lg shadow-2xl ring-1 ring-black/30"
-            : "absolute z-10 rounded-none shadow-none ring-0"
+            ? "fixed z-30 rounded-xl shadow-2xl ring-1 ring-black/30"
+            : "absolute z-10 rounded-xl shadow-none ring-0"
       }${floating && floatingDismissed ? " invisible" : ""}`}
       data-web-fullscreen={webFullscreen && watchPage ? "" : undefined}
       data-floating={floating ? "" : undefined}
+      data-float-top={floatUnderNavbar ? "" : undefined}
       data-dragging={dragging ? "" : undefined}
       style={style}
     >
       {floating && (
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex h-9 items-start justify-between bg-gradient-to-b from-black/70 to-transparent px-1 pt-1">
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex h-9 items-start justify-between bg-gradient-to-b from-black/70 to-transparent px-1 pt-1">
           <button
             type="button"
             aria-label={m.ui_move_player()}
@@ -388,6 +401,17 @@ export function PersistentWatchPlayerHost() {
           >
             <GripVertical size={16} aria-hidden="true" />
           </button>
+          {!watchPage && (
+            <button
+              type="button"
+              aria-label={m.ui_return_to_player()}
+              title={m.ui_return_to_player()}
+              className="pointer-events-auto ml-auto flex h-10 w-10 items-center justify-center rounded text-white hover:opacity-80"
+              onClick={() => void navigate({ href: entry.href })}
+            >
+              <Maximize2 size={16} aria-hidden="true" />
+            </button>
+          )}
           <button
             type="button"
             aria-label={m.ui_close_player()}
@@ -400,7 +424,7 @@ export function PersistentWatchPlayerHost() {
         </div>
       )}
       <CompactPlayerContext.Provider value={floating}>
-        <WatchStagePlayer {...entry.props} />
+        <WatchStagePlayer key={entry.replayKey} {...entry.props} />
       </CompactPlayerContext.Provider>
     </div>
   );

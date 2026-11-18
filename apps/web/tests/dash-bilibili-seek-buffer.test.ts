@@ -1,8 +1,8 @@
 import { expect, test } from "bun:test";
 import type * as dashjs from "dashjs";
-import { buildDashStreamingSettings } from "../src/components/video-player-core";
 import { bilibiliBufferSeconds } from "../src/lib/bilibili-buffer";
 import { attachBilibiliSeekBuffer } from "../src/lib/dash-bilibili-seek-buffer";
+import { buildDashStreamingSettings } from "../src/lib/dash-streaming-settings";
 
 const buffer = (seconds: number, maxVideoKbps = -1) => ({
   streaming: {

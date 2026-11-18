@@ -70,7 +70,7 @@ export function resolvePreferredSabrQuality(
   }
   const connection = (navigator as Navigator & { connection?: NetworkInformation }).connection;
   return automaticSabrQuality(
-    window.screen.height,
+    Math.min(window.screen.width, window.screen.height),
     window.devicePixelRatio,
     connection?.saveData,
     connection?.effectiveType,

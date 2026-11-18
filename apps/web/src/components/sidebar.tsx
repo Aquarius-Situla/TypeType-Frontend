@@ -4,6 +4,7 @@ import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { useMobile } from "../hooks/use-mobile";
 import { useRecommenderAvailable } from "../hooks/use-recommender";
 import { useSettings } from "../hooks/use-settings";
+import { useTwitchEnabled } from "../hooks/use-twitch";
 import { getStoredAdminSection } from "../lib/admin-console-section";
 import { logoutSession } from "../lib/auth-session";
 import { shouldHideHomeNavigation } from "../lib/default-landing";
@@ -50,6 +51,7 @@ export function Sidebar({ overlay = false }: Props) {
   const { isAdmin, isAuthed, me, signOut } = useAuth();
   const { settings } = useSettings();
   const recommenderAvailable = useRecommenderAvailable();
+  const twitchEnabled = useTwitchEnabled();
   const loc = useRouterState({ select: (s) => s.location });
 
   const adminSearch = { section: getStoredAdminSection() };
@@ -61,6 +63,7 @@ export function Sidebar({ overlay = false }: Props) {
   const navItems = NAV_ITEMS.filter((item) => {
     if (item.adminOnly && !isAdmin) return false;
     if (item.recommenderOnly && !recommenderAvailable) return false;
+    if (item.twitchOnly && !twitchEnabled) return false;
     if (item.to === "/shorts" && settings.hideShorts) return false;
     if (item.to === "/" && hideHome) return false;
     return true;

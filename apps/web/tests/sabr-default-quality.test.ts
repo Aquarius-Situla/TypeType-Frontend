@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+import { resolvePreferredSabrQuality } from "../src/hooks/use-sabr-playback-config";
 import { automaticSabrQuality, defaultSabrItag } from "../src/lib/sabr-source";
 import { type SabrQualityOption, useSabrQualityStore } from "../src/stores/sabr-quality-store";
 
@@ -38,6 +39,30 @@ test("chooses automatic quality from display and network constraints", () => {
   expect(automaticSabrQuality(1440, 2)).toBe("2160p");
   expect(automaticSabrQuality(2160, 1, true, "4g")).toBe("360p");
   expect(automaticSabrQuality(2160, 1, false, "3g")).toBe("720p");
+});
+
+test("automatic quality on a phone follows the short side of the screen", () => {
+  const screen = globalThis.window?.screen;
+  const restore = {
+    width: screen?.width,
+    height: screen?.height,
+    dpr: globalThis.window?.devicePixelRatio,
+  };
+  Object.defineProperty(window, "screen", {
+    configurable: true,
+    value: { width: 390, height: 844 },
+  });
+  Object.defineProperty(window, "devicePixelRatio", { configurable: true, value: 3 });
+  try {
+    expect(resolvePreferredSabrQuality("auto")).toBe("1080p");
+    expect(resolvePreferredSabrQuality("720p")).toBe("720p");
+  } finally {
+    Object.defineProperty(window, "screen", {
+      configurable: true,
+      value: { width: restore.width, height: restore.height },
+    });
+    Object.defineProperty(window, "devicePixelRatio", { configurable: true, value: restore.dpr });
+  }
 });
 
 test("upgrades an automatic startup selection to the preferred resolution", () => {

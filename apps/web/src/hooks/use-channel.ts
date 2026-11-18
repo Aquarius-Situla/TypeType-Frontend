@@ -22,6 +22,7 @@ type ChannelMeta = {
   isVerified: boolean;
   verification: ChannelVerification | null;
   hasCourses?: boolean;
+  focusArchiveDays?: number | null;
 };
 
 type ChannelPage = {
@@ -78,6 +79,7 @@ export function useChannel(
               isVerified: res.isVerified,
               verification: res.verification ?? null,
               hasCourses: res.hasCourses === true,
+              focusArchiveDays: res.focusArchiveDays ?? null,
             }
           : null,
         videos: res.videos.map(mapVideoItem),

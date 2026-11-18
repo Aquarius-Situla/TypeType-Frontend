@@ -27,6 +27,7 @@ describe("RSS instance capability", () => {
         rateLimitPerMinute: 0,
       },
       recommender,
+      twitch: { enabled: false },
     });
   });
 
@@ -49,6 +50,20 @@ describe("RSS instance capability", () => {
       parentalControlsEnabled: true,
       rss,
       recommender,
+      twitch: { enabled: false },
+    });
+  });
+
+  test("reads the Twitch capability and keeps it off when absent or malformed", () => {
+    expect(
+      normalizeInstanceCapabilities({ guestAllowed: true, twitch: { enabled: true } })?.twitch,
+    ).toEqual({
+      enabled: true,
+    });
+    expect(
+      normalizeInstanceCapabilities({ guestAllowed: true, twitch: { enabled: "yes" } })?.twitch,
+    ).toEqual({
+      enabled: false,
     });
   });
 

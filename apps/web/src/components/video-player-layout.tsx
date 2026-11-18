@@ -26,6 +26,8 @@ import { ShortsPlayerLayout } from "./shorts-player-layout";
 import { UnifiedTimeSlider } from "./unified-time-slider";
 import { WebFullscreenControl } from "./web-fullscreen-control";
 
+const SMALL_LAYOUT_HEIGHT = 380;
+
 type Props = {
   audioOnly?: boolean;
   hideCinemaMode?: boolean;
@@ -146,7 +148,7 @@ export function VideoPlayerLayout({
       icons={defaultLayoutIcons}
       playbackRates={PLAYBACK_RATES}
       thumbnails={thumbnailVtt}
-      smallLayoutWhen={({ height }) => height < 380}
+      smallLayoutWhen={({ height }) => height < SMALL_LAYOUT_HEIGHT}
       translations={translations}
       slots={{
         currentTime: sabr ? (

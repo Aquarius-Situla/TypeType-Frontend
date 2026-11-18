@@ -7,6 +7,7 @@ import { defineConfig, loadEnv } from "vite";
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const apiTarget = env.VITE_DEV_PROXY_TARGET ?? "http://localhost:8080";
+  const liveTarget = env.VITE_DEV_LIVE_PROXY_TARGET ?? "http://localhost:8090";
 
   return {
     plugins: [
@@ -20,6 +21,16 @@ export default defineConfig(({ mode }) => {
       react(),
       tailwindcss(),
     ],
+    build: {
+      rolldownOptions: {
+        output: {
+          // Content blockers drop files whose name starts like an advertisement's.
+          chunkFileNames: (chunk) => `assets/${chunk.name.replace(/^ad-/, "interlude-")}-[hash].js`,
+          assetFileNames: (asset) =>
+            `assets/${(asset.names[0] ?? "asset").replace(/^ad-/, "interlude-").replace(/\.[^.]+$/, "")}-[hash][extname]`,
+        },
+      },
+    },
     server: {
       allowedHosts: true,
       proxy: {
@@ -42,6 +53,10 @@ export default defineConfig(({ mode }) => {
         },
         "/proxy": {
           target: apiTarget,
+        },
+        "/live/hls": {
+          target: liveTarget,
+          rewrite: (path) => path.replace(/^\/live/, ""),
         },
         "/streams/hls-manifest": {
           target: apiTarget,

@@ -47,4 +47,20 @@ test("does not delay guests and rejects positions too close to the end", () => {
       durationSeconds: 600,
     }),
   ).toBe(0);
+  expect(
+    resolveWatchStartTime({
+      authenticated: true,
+      progressPending: false,
+      savedPositionMs: 600_000,
+      durationSeconds: 600,
+    }),
+  ).toBe(0);
+  expect(
+    resolveWatchStartTime({
+      authenticated: true,
+      progressPending: false,
+      savedPositionMs: 550_000,
+      durationSeconds: 600,
+    }),
+  ).toBe(550_000);
 });

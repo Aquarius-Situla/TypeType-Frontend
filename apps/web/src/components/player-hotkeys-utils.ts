@@ -8,6 +8,26 @@ export function isInteractiveTarget(target: EventTarget | null): boolean {
   );
 }
 
+export function isEditableTarget(target: EventTarget | null): boolean {
+  return (
+    target instanceof Element &&
+    target.closest("input, textarea, select, [contenteditable='true']") !== null
+  );
+}
+
+// A button of the player keeps the player shortcuts, as in Vidstack: closing the settings leaves the focus on its
+// button, and < or k must still work. Fields, controls outside the player, and the player menus and sliders keep
+// their keys.
+export function blocksPlayerShortcut(
+  target: EventTarget | null,
+  player: HTMLElement | null,
+): boolean {
+  if (!isInteractiveTarget(target)) return false;
+  if (isEditableTarget(target)) return true;
+  if (!(target instanceof Element) || !player?.contains(target)) return true;
+  return target.closest("[role='menu'], [role='menuitem'], [role='slider']") !== null;
+}
+
 export function isPlayerSeekShortcutTarget(
   target: EventTarget | null,
   player: HTMLElement | null,
@@ -27,9 +47,18 @@ export function clampTime(value: number, duration: number): number {
 }
 
 export function keyboardSeekOffset(code: string): number | null {
-  if (code === "ArrowLeft") return -10;
-  if (code === "ArrowRight") return 10;
+  if (code === "ArrowLeft" || code === "KeyJ") return -10;
+  if (code === "ArrowRight" || code === "KeyL") return 10;
   return null;
+}
+
+const MIN_KEYBOARD_RATE = 0.25;
+const MAX_KEYBOARD_RATE = 4;
+
+// < and > step the speed like the Vidstack shortcuts, within the speeds the menus offer.
+export function nextKeyboardRate(current: number, delta: number): number {
+  const next = Math.round((current + delta) * 100) / 100;
+  return Math.min(MAX_KEYBOARD_RATE, Math.max(MIN_KEYBOARD_RATE, next));
 }
 
 export function isPlaybackToggleShortcut(code: string): boolean {

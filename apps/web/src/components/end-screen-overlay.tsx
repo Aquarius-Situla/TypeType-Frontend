@@ -68,7 +68,7 @@ export function EndScreenOverlay({ elements }: { elements: EndScreenItem[] }) {
     // The player can mount or replace its video element after this overlay, so it is looked up
     // on every check instead of once.
     const update = () => {
-      const video = rootRef.current?.closest("[data-media-player]")?.querySelector("video");
+      const video = rootRef.current?.closest("[data-player-root]")?.querySelector("video");
       const next = video ? visibleEndScreenElements(elements, video.currentTime * 1000) : [];
       const nextKey = next.map((element) => element.id).join(",");
       if (nextKey === key) return;

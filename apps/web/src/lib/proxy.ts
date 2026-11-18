@@ -88,6 +88,12 @@ function normalizeBilibiliImageUrl(url: string, size: ImageSize): string {
   return normalized;
 }
 
+const TWITCH_CHAT_IMAGE_HOSTS = new Set([
+  "cdn.7tv.app",
+  "cdn.betterttv.net",
+  "cdn.frankerfacez.com",
+]);
+
 function needsProxy(url: string): boolean {
   try {
     const parsed = new URL(url);
@@ -99,7 +105,9 @@ function needsProxy(url: string): boolean {
       host.endsWith("hdslb.com") ||
       host.endsWith("biliimg.com") ||
       host.endsWith("nimg.jp") ||
-      host.endsWith("ytimg.com")
+      host.endsWith("ytimg.com") ||
+      host === "static-cdn.jtvnw.net" ||
+      TWITCH_CHAT_IMAGE_HOSTS.has(host)
     );
   } catch {
     return false;

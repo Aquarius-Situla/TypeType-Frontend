@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect } from "react";
 import { BiliBiliIcon } from "../components/bilibili-icon";
+import { DeviceLoginCountdown } from "../components/device-login-countdown";
 import { SessionPlatformNav } from "../components/session-platform-nav";
 import { Toast } from "../components/toast";
 import { useAuth } from "../hooks/use-auth";
@@ -83,6 +84,12 @@ function BiliBiliSessionPage() {
                     aria-label={m.ui_bilibili_session_scan_qr()}
                   />
                 </div>
+                {session.qrExpiresAt !== null && (
+                  <DeviceLoginCountdown
+                    expiresAt={session.qrExpiresAt}
+                    barClassName="bg-[#00a1d6]"
+                  />
+                )}
                 <div className="flex flex-wrap items-center gap-3">
                   <button
                     type="button"

@@ -2,8 +2,16 @@ import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useSettings } from "../hooks/use-settings";
-import { nextServiceRoute, SERVICE_OPTIONS, serviceAlternatives } from "../lib/service-options";
+import { useTwitchEnabled } from "../hooks/use-twitch";
+import {
+  nextServiceRoute,
+  nextTwitchSearchRoute,
+  SERVICE_OPTIONS,
+  serviceAlternatives,
+  TWITCH_SEARCH_OPTION,
+} from "../lib/service-options";
 import { m } from "../paraglide/messages.js";
+import { useUiStore } from "../stores/ui-store";
 import type { ServiceId } from "../types/user";
 import { ServiceIcon } from "./service-icon";
 
@@ -17,8 +25,15 @@ export function NavbarServicePicker({ compact = false }: Props) {
   const navigate = useNavigate();
   const location = useRouterState({ select: (state) => state.location });
   const { settings, update } = useSettings();
-  const active =
-    SERVICE_OPTIONS.find((service) => service.id === settings.defaultService) ?? SERVICE_OPTIONS[0];
+  const twitchEnabled = useTwitchEnabled();
+  const searchTwitch = useUiStore((state) => state.searchTwitch) && twitchEnabled;
+  const setSearchTwitch = useUiStore((state) => state.setSearchTwitch);
+  const service =
+    SERVICE_OPTIONS.find((option) => option.id === settings.defaultService) ?? SERVICE_OPTIONS[0];
+  const active = searchTwitch ? TWITCH_SEARCH_OPTION : service;
+  const alternatives = searchTwitch
+    ? SERVICE_OPTIONS
+    : serviceAlternatives(settings.defaultService);
 
   useEffect(() => {
     if (!open) return;
@@ -37,9 +52,17 @@ export function NavbarServicePicker({ compact = false }: Props) {
   }, [open]);
 
   function selectService(service: ServiceId) {
-    update.mutate({ defaultService: service });
+    setSearchTwitch(false);
+    if (service !== settings.defaultService) update.mutate({ defaultService: service });
     setOpen(false);
     const target = nextServiceRoute(location.pathname, location.searchStr, service);
+    if (target) navigate(target);
+  }
+
+  function selectTwitch() {
+    setSearchTwitch(true);
+    setOpen(false);
+    const target = nextTwitchSearchRoute(location.pathname, location.searchStr);
     if (target) navigate(target);
   }
 
@@ -74,7 +97,7 @@ export function NavbarServicePicker({ compact = false }: Props) {
             : "pointer-events-none -translate-y-1 opacity-0"
         }`}
       >
-        {serviceAlternatives(settings.defaultService).map((service) => (
+        {alternatives.map((service) => (
           <button
             key={service.id}
             type="button"
@@ -87,6 +110,22 @@ export function NavbarServicePicker({ compact = false }: Props) {
             <span className="flex-1">{service.label}</span>
           </button>
         ))}
+        {twitchEnabled && !searchTwitch && (
+          <button
+            type="button"
+            role="option"
+            aria-selected={false}
+            onClick={selectTwitch}
+            className="flex min-h-10 w-full items-center gap-2 rounded-sm px-2 text-left text-xs text-fg-muted transition-colors hover:bg-surface hover:text-fg"
+          >
+            <ServiceIcon
+              path={TWITCH_SEARCH_OPTION.path}
+              color={TWITCH_SEARCH_OPTION.color}
+              label={TWITCH_SEARCH_OPTION.label}
+            />
+            <span className="flex-1">{TWITCH_SEARCH_OPTION.label}</span>
+          </button>
+        )}
       </div>
     </div>
   );

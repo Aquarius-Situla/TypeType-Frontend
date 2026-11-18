@@ -7,6 +7,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
+import { retryApiCall } from "../lib/api-retry";
 import { fetchSettings, updateSettings } from "../lib/api-user";
 import { EMPTY_CAPTION_STYLES } from "../lib/caption-styles";
 import { readStoredLandingSettings, syncStoredLandingSettings } from "../lib/default-landing";
@@ -119,6 +120,10 @@ const DEFAULTS: SettingsItem = {
   captionStyles: EMPTY_CAPTION_STYLES,
   seekbarIcon: "typetype",
   seekbarIconUrl: "",
+  playerEngine: "vidstack",
+  hideWatchedSubscriptionVideos: false,
+  watchedThresholdPercent: 0,
+  miniPlayerEnabled: true,
 };
 
 function readAudioOnlyPlayback(): boolean | null {
@@ -188,7 +193,10 @@ export function useSettings({ forceAnonymous = false }: UseSettingsOptions = {})
     mutationFn: ({ id, base }) =>
       writeQueue.execute(
         id,
-        (settings) => (useAccountSettings ? updateSettings(settings) : Promise.resolve(settings)),
+        (settings) =>
+          useAccountSettings
+            ? retryApiCall(() => updateSettings(settings))
+            : Promise.resolve(settings),
         () => base,
         (settings) => {
           writeCachedSettings(settings, userId);
@@ -227,7 +235,12 @@ export function useSettings({ forceAnonymous = false }: UseSettingsOptions = {})
 
   function queuePatch(patch: Partial<SettingsItem>): QueuedSettingsPatch {
     const normalizedPatch = { ...patch };
-    const base = { ...DEFAULTS, ...qc.getQueryData<SettingsItem>(queryKey) };
+    // Without an account the settings query never runs, so its cache is empty: the stored copy is the base, or a
+    // change would rewrite every other setting with its default.
+    const base = {
+      ...DEFAULTS,
+      ...(qc.getQueryData<SettingsItem>(queryKey) ?? readCachedSettings(userId)),
+    };
     const id = writeQueue.stage(normalizedPatch, base);
     return { id, base, patch: normalizedPatch };
   }

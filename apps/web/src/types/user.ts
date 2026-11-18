@@ -1,3 +1,5 @@
+export type PlayerEngine = "vidstack" | "videojs";
+
 export type ServiceId = 0 | 5 | 6;
 export type SponsorBlockMode = "auto_skip" | "mark_only" | "disabled";
 export type SponsorBlockCategoryAction = "auto_skip" | "mark_only" | "disabled";
@@ -155,6 +157,10 @@ export type SettingsItem = {
   captionStyles: CaptionStyles;
   seekbarIcon: SeekbarIcon;
   seekbarIconUrl: string;
+  playerEngine: PlayerEngine;
+  hideWatchedSubscriptionVideos: boolean;
+  watchedThresholdPercent: number;
+  miniPlayerEnabled: boolean;
 };
 
 export type SeekbarIcon = "typetype" | "custom" | "none";

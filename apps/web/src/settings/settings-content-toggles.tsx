@@ -37,6 +37,7 @@ type ToggleKey = Extract<
   keyof SettingsItem,
   | "autoplay"
   | "autoplayOnOpen"
+  | "miniPlayerEnabled"
   | "deArrowEnabled"
   | "hideContinueWatching"
   | "hideHomeRecommendations"
@@ -45,6 +46,7 @@ type ToggleKey = Extract<
   | "hideComments"
   | "hideShorts"
   | "hideSubscriptionLiveStreams"
+  | "hideWatchedSubscriptionVideos"
   | "hideMembersOnlyContent"
 >;
 
@@ -66,6 +68,11 @@ function watchOptions(): ToggleOption[] {
       key: "autoplayOnOpen",
       label: m.ui_autoplay_on_open(),
       description: m.ui_automatically_start_playback_when_a_video_is_opened(),
+    },
+    {
+      key: "miniPlayerEnabled",
+      label: m.settings_mini_player_title(),
+      description: m.settings_mini_player_description(),
     },
   ];
 }
@@ -118,6 +125,12 @@ function discoveryOptions(): ToggleOption[] {
       key: "hideSubscriptionLiveStreams",
       label: m.ui_live_streams(),
       description: m.ui_hide_active_and_scheduled_live_streams_from_the_subscriptions_feed(),
+      area: m.nav_subscriptions(),
+    },
+    {
+      key: "hideWatchedSubscriptionVideos",
+      label: m.settings_hide_watched_title(),
+      description: m.settings_hide_watched_description(),
       area: m.nav_subscriptions(),
     },
     {

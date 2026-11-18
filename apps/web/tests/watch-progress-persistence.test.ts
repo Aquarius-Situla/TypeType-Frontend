@@ -84,6 +84,28 @@ describe("evaluateProgressPersistence", () => {
       });
     }
   });
+
+  it("persists full duration with keepalive when playback ends", () => {
+    expect(evalAt(599_500, 565_000, 599_500, "ended")).toEqual({
+      shouldSave: true,
+      positionMs: durationMs,
+      keepalive: true,
+      isReset: false,
+      isBackwardJump: false,
+    });
+    expect(evalAt(durationMs, durationMs, durationMs, "ended")).toEqual({
+      shouldSave: false,
+    });
+    expect(
+      evaluateProgressPersistence({
+        positionMs: 10_000,
+        lastSavedPositionMs: 0,
+        maxPositionSeenMs: 10_000,
+        durationMs: 0,
+        reason: "ended",
+      }),
+    ).toEqual({ shouldSave: false });
+  });
 });
 
 describe("reconcileProgressItem", () => {

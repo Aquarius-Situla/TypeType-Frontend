@@ -14,6 +14,7 @@ import { canMarkWatched, useMarkVideosWatched } from "../hooks/use-mark-videos-w
 import { streamQueryOptions } from "../hooks/use-stream";
 import { useSubscriptionFeed } from "../hooks/use-subscription-feed";
 import { useSubscriptions } from "../hooks/use-subscriptions";
+import { useUnwatchedStreams } from "../hooks/use-unwatched-streams";
 import { ApiError } from "../lib/api";
 import {
   subscriptionFeedQueryOptions,
@@ -43,7 +44,8 @@ function SubscriptionsPage() {
     error: feedError,
   } = useSubscriptionFeed(group, order);
   const { filter } = useBlockedFilter();
-  const visible = useMemo(() => filter(streams), [filter, streams]);
+  const unblocked = useMemo(() => filter(streams), [filter, streams]);
+  const visible = useUnwatchedStreams(unblocked);
   const [selecting, setSelecting] = useState(false);
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
   const [toast, setToast] = useState<string | null>(null);

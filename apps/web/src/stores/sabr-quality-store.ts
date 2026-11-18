@@ -13,20 +13,22 @@ export type SabrQualityOption = {
   bitrate: number;
 };
 
-type SabrQualityStore = {
+export type SabrQualityState = {
   streamId: string | null;
   options: SabrQualityOption[];
   selectedItag: number | null;
+  automaticItag: number | null;
   manuallySelected: boolean;
   setOptions: (streamId: string, options: SabrQualityOption[], fallbackItag: number | null) => void;
   selectQuality: (streamId: string, itag: number) => void;
   restoreQuality: (streamId: string, itag: number) => void;
 };
 
-export const useSabrQualityStore = create<SabrQualityStore>((set) => ({
+export const useSabrQualityStore = create<SabrQualityState>((set) => ({
   streamId: null,
   options: [],
   selectedItag: null,
+  automaticItag: null,
   manuallySelected: false,
   setOptions: (streamId, options, fallbackItag) =>
     set((state) => {
@@ -37,6 +39,7 @@ export const useSabrQualityStore = create<SabrQualityStore>((set) => ({
         streamId,
         options,
         selectedItag: preserveSelection ? selectedItag : fallbackItag,
+        automaticItag: fallbackItag,
         manuallySelected: preserveSelection,
       };
     }),

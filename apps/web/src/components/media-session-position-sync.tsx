@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useMediaPlayer } from "../lib/vidstack";
+import { usePlayerMedia } from "../lib/player-media";
 
 type Props = {
   currentTimeRef: { current: number };
@@ -7,10 +7,10 @@ type Props = {
 };
 
 export function MediaSessionPositionSync({ currentTimeRef, durationRef }: Props) {
-  const player = useMediaPlayer();
+  const { root } = usePlayerMedia();
 
   useEffect(() => {
-    const rootElement = player?.el;
+    const rootElement = root;
     if (rootElement == null) return;
     const mediaRoot = rootElement;
     let cleanup: (() => void) | null = null;
@@ -60,7 +60,7 @@ export function MediaSessionPositionSync({ currentTimeRef, durationRef }: Props)
       observer.disconnect();
       cleanup?.();
     };
-  }, [currentTimeRef, durationRef, player]);
+  }, [currentTimeRef, durationRef, root]);
 
   return null;
 }

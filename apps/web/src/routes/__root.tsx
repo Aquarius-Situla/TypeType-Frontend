@@ -8,6 +8,8 @@ import { MobileTabBar } from "../components/mobile-tab-bar";
 import { Navbar } from "../components/navbar";
 import { NotFoundPage } from "../components/not-found-page";
 import { PersistentWatchPlayer } from "../components/persistent-watch-player";
+import { ReleaseNotice } from "../components/release-notice";
+import { ServerStatusHost } from "../components/server-status-notice";
 import { Sidebar } from "../components/sidebar";
 import { useAuth } from "../hooks/use-auth";
 import { useEarlyWatchStream } from "../hooks/use-early-watch-stream";
@@ -16,6 +18,7 @@ import { useMobile } from "../hooks/use-mobile";
 import { useRegisterStatus } from "../hooks/use-register-status";
 import { useSeekbarIcon } from "../hooks/use-seekbar-icon";
 import { useSessionActivityReporting } from "../hooks/use-session-activity-reporting";
+import { releaseAppLoader } from "../lib/app-loader";
 import {
   isAdminRoute,
   isAuthPage,
@@ -101,9 +104,7 @@ function RootLayoutContent() {
   }, [theme]);
 
   useEffect(() => {
-    const loader = document.getElementById("app-loader");
-    if (!loader) return;
-    loader.remove();
+    releaseAppLoader();
   }, []);
 
   useEffect(() => {
@@ -284,6 +285,8 @@ function RootLayoutContent() {
       }`}
     >
       <PersistentWatchPlayer />
+      <ServerStatusHost />
+      {!watchWebFullscreenPage && <ReleaseNotice />}
       <AmbientLightHost disabled={watchWebFullscreenPage} />
       {!watchWebFullscreenPage && (
         <div className="watch-page-chrome">

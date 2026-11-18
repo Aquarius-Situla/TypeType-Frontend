@@ -1,4 +1,5 @@
 import {
+  downloaderFailureDetail,
   downloaderProgressValue,
   downloaderStageIndex,
   downloaderStatusLabel,
@@ -93,6 +94,7 @@ export function DownloaderJobFeedback({
   const failed = isFailedDownloaderJob(status, stage, errorCode);
   const label = downloaderStatusLabel(status, stage, errorCode, forceWaiting);
   const message = downloaderStatusMessage(status, stage, errorCode, visibleError, forceWaiting);
+  const failureDetail = downloaderFailureDetail(status, stage, errorCode, visibleError);
   const insufficientStorage = errorCode === DOWNLOADER_INSUFFICIENT_STORAGE_CODE;
   const progress = downloaderProgressValue(status, stage, progressPercent, forceWaiting);
   const activeStep = downloaderStageIndex(status, stage);
@@ -128,6 +130,9 @@ export function DownloaderJobFeedback({
           <p className={`mt-1 text-xs ${failed ? "text-danger-strong" : "text-fg-muted"}`}>
             {message}
           </p>
+          {failureDetail && (
+            <p className="mt-1 break-words font-mono text-[11px] text-fg-soft">{failureDetail}</p>
+          )}
         </div>
         <div className="flex shrink-0 items-center gap-2">
           {showPercent && (

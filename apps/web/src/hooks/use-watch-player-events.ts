@@ -26,18 +26,28 @@ export function useWatchPlayerEvents({
     streamIdRef.current = stream.id;
     playbackIntentRef.current = null;
   }
-  const { positionRef, handleTimeUpdate, handlePause, handleSeeked } = useWatchProgressPersistence({
+  const {
+    positionRef,
+    handleTimeUpdate,
+    handlePause,
+    handleSeeked,
+    handleEnded: persistEnded,
+  } = useWatchProgressPersistence({
     durationSec: stream.duration,
     isLive,
     mutate,
   });
+  const handleEndedWithPersistence = useCallback(() => {
+    persistEnded();
+    onEnded();
+  }, [onEnded, persistEnded]);
   const sessionReporting = useWatchSessionReporting({
     stream,
     isLive,
     onTimeUpdate: handleTimeUpdate,
     onPause: handlePause,
     onSeeked: handleSeeked,
-    onEnded,
+    onEnded: handleEndedWithPersistence,
   });
   const handlePlay = useCallback(() => {
     playbackIntentRef.current = true;

@@ -65,6 +65,24 @@ export async function updateProgress(
   });
 }
 
+export type ProgressWrite = { url: string; position: number };
+
+export async function updateProgressMany(writes: ProgressWrite[]): Promise<void> {
+  const positions = new Map(writes.map((write) => [write.url, Math.round(write.position)]));
+  const videoUrls = [...positions.keys()];
+  await Promise.all(videoUrls.map((videoUrl) => progressWriteQueue.settle(videoUrl)));
+  for (const batch of progressBatches(videoUrls)) {
+    const res = await authed(`${BASE}/progress/batch`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        items: batch.map((videoUrl) => ({ videoUrl, position: positions.get(videoUrl) ?? 0 })),
+      }),
+    });
+    await throwIfFailed(res, "progress update failed");
+  }
+}
+
 export function fetchBlockedChannels(): Promise<BlockedItem[]> {
   return authedJson(`${BASE}/blocked/channels`);
 }

@@ -10,7 +10,9 @@ if (!("localStorage" in globalThis)) {
   });
 }
 
-const { authed } = await import("../src/lib/authed");
+const { authed, extractBearerToken, resolveUnauthorizedRetryToken } = await import(
+  "../src/lib/authed"
+);
 const { fetchChannel } = await import("../src/lib/api-discovery");
 const { bootstrapSession, refreshSession } = await import("../src/lib/auth-session");
 const { syncAuthStoreFromStorage, useAuthStore } = await import("../src/stores/auth-store");
@@ -268,5 +270,48 @@ describe("session refresh failures", () => {
 
     useAuthStore.getState().setBootstrapping();
     expect(useAuthStore.getState().status).toBe("authenticated");
+  });
+
+  test("extractBearerToken parses bearer headers and resolveUnauthorizedRetryToken avoids guest and staggered refreshes", async () => {
+    expect(extractBearerToken("Bearer abc-123")).toBe("abc-123");
+    expect(extractBearerToken(null)).toBeNull();
+
+    let refreshCalls = 0;
+    globalThis.fetch = mock(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith("/auth/refresh")) {
+        refreshCalls += 1;
+        return jsonResponse(200, { accessToken: "refreshed-token" });
+      }
+      if (url.endsWith("/auth/me")) return jsonResponse(200, me);
+      throw new Error(`Unexpected request: ${url}`);
+    });
+
+    // Guest 401 must not trigger /auth/refresh.
+    useAuthStore.getState().setSignedOut();
+    await expect(
+      resolveUnauthorizedRetryToken(null, "SABR", "/sabr/playback/v1"),
+    ).resolves.toBeNull();
+    expect(refreshCalls).toBe(0);
+
+    // Staggered concurrent 401 after another request already updated the store must reuse store token.
+    useAuthStore.getState().setSession("new-token", me);
+    await expect(
+      resolveUnauthorizedRetryToken("old-token", "SABR", "/sabr/playback/v1"),
+    ).resolves.toBe("new-token");
+    expect(refreshCalls).toBe(0);
+
+    // Matching stale token triggers /auth/refresh once.
+    await expect(
+      resolveUnauthorizedRetryToken("new-token", "SABR", "/sabr/playback/v1"),
+    ).resolves.toBe("refreshed-token");
+    expect(refreshCalls).toBe(1);
+
+    // Mid-flight sign-out with failed token does not trigger /auth/refresh.
+    useAuthStore.getState().setSignedOut();
+    await expect(
+      resolveUnauthorizedRetryToken("refreshed-token", "SABR", "/sabr/playback/v1"),
+    ).resolves.toBeNull();
+    expect(refreshCalls).toBe(1);
   });
 });

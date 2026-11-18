@@ -1,7 +1,10 @@
 import { siBilibili, siNiconico, siYoutube } from "simple-icons";
 import type { SearchPanelState } from "../hooks/use-search-panel";
 import { useSettings } from "../hooks/use-settings";
+import { useTwitchEnabled } from "../hooks/use-twitch";
+import { TWITCH_SEARCH_OPTION } from "../lib/service-options";
 import { m } from "../paraglide/messages.js";
+import { useUiStore } from "../stores/ui-store";
 import { ConfirmModal } from "./confirm-modal";
 import { SearchOverlayList } from "./search-overlay-list";
 import { SearchPanelVideos } from "./search-panel-videos";
@@ -15,6 +18,10 @@ const services = [
 
 export function SearchPanel({ state, onClose }: { state: SearchPanelState; onClose: () => void }) {
   const { settings } = useSettings();
+  const twitchEnabled = useTwitchEnabled();
+  const twitchSelected = useUiStore((store) => store.searchTwitch);
+  const setSearchTwitch = useUiStore((store) => store.setSearchTwitch);
+  const twitch = twitchEnabled && twitchSelected;
   const loading = state.showHistory ? state.history.query.isLoading : state.suggestions.isFetching;
   const error = state.showHistory ? state.history.query.isError : state.suggestions.isError;
   return (
@@ -28,14 +35,29 @@ export function SearchPanel({ state, onClose }: { state: SearchPanelState; onClo
             key={service.id}
             type="button"
             aria-label={service.label}
-            aria-pressed={state.service === service.id}
-            onClick={() => state.changeService(service.id)}
-            className={`flex min-h-10 items-center gap-2 rounded-md px-3 text-xs transition-colors ${state.service === service.id ? "bg-surface-strong text-fg" : "text-fg-soft hover:bg-surface-soft"}`}
+            aria-pressed={!twitch && state.service === service.id}
+            onClick={() => {
+              setSearchTwitch(false);
+              state.changeService(service.id);
+            }}
+            className={`flex min-h-10 items-center gap-2 rounded-md px-3 text-xs transition-colors ${!twitch && state.service === service.id ? "bg-surface-strong text-fg" : "text-fg-soft hover:bg-surface-soft"}`}
           >
             <ServiceIcon {...service} />
             {service.label}
           </button>
         ))}
+        {twitchEnabled && (
+          <button
+            type="button"
+            aria-label={TWITCH_SEARCH_OPTION.label}
+            aria-pressed={twitch}
+            onClick={() => setSearchTwitch(true)}
+            className={`flex min-h-10 items-center gap-2 rounded-md px-3 text-xs transition-colors ${twitch ? "bg-surface-strong text-fg" : "text-fg-soft hover:bg-surface-soft"}`}
+          >
+            <ServiceIcon {...TWITCH_SEARCH_OPTION} />
+            {TWITCH_SEARCH_OPTION.label}
+          </button>
+        )}
       </fieldset>
       <div
         className={`grid min-w-0 gap-2 ${settings.hideHomeRecommendations ? "" : "md:grid-cols-2"}`}
@@ -80,7 +102,9 @@ export function SearchPanel({ state, onClose }: { state: SearchPanelState; onClo
             </p>
           )}
         </section>
-        <SearchPanelVideos service={state.service} search={state.query} onClose={onClose} />
+        {!twitch && (
+          <SearchPanelVideos service={state.service} search={state.query} onClose={onClose} />
+        )}
       </div>
       {state.confirmClearOpen && (
         <ConfirmModal

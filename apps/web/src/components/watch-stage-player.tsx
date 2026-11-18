@@ -1,13 +1,16 @@
 import { type MutableRefObject, type ReactNode, useEffect, useRef, useState } from "react";
+import { useEngineHandoff } from "../hooks/use-engine-handoff";
 import type { Provider } from "../lib/provider";
 import { SabrPlaybackRatePreference } from "../lib/sabr-playback-rate-preference";
 import type { SabrPlaybackConfig } from "../lib/sabr-source";
+import { videoJsSourceFor } from "../lib/video-js-source";
 import type { MediaSrc } from "../lib/vidstack";
 import { usePlaybackRateStore } from "../stores/playback-rate-store";
 import type { SponsorBlockSegmentItem, SubtitleItem } from "../types/api";
 import type { CaptionStyles, SettingsItem } from "../types/user";
 import { PlayerPlaybackSpeedDefault } from "./player-defaults";
 import { VideoPlayer } from "./video-player";
+import { VideoJsStagePlayer } from "./videojs-stage-player";
 import { WatchPlayerCrossfade } from "./watch-player-crossfade";
 
 export type WatchStagePlayerProps = {
@@ -36,6 +39,7 @@ export type WatchStagePlayerProps = {
   chaptersVtt?: string;
   playerClassName?: string;
   mediaClassName?: string;
+  ownSkin?: boolean;
   onCaptionStylesChange: (styles: CaptionStyles) => void;
   onVolumeChange: (volume: number, muted: boolean) => void;
   onTimeUpdate: (positionMs: number) => void;
@@ -63,67 +67,94 @@ export function WatchStagePlayer(props: WatchStagePlayerProps) {
       playbackRatePreference.current?.setPreferredRate(settings.defaultPlaybackSpeed);
     }
   }, [settings.defaultPlaybackSpeed]);
-  return (
-    <WatchPlayerCrossfade
-      audioOnly={audioPosterVisible}
-      poster={props.poster}
-      title={props.streamTitle}
-    >
-      <VideoPlayer
-        key={props.playerKey}
-        src={props.manifestSrc}
-        provider={props.provider}
-        sabrConfig={props.sabrConfig}
-        sabrRetryKey={props.sabrRetryKey}
-        sabrPlaybackRatePreference={playbackRatePreference.current}
-        audioOnly={props.audioOnly}
-        title={props.streamTitle}
-        poster={props.poster}
-        streamType={props.isLive ? "live" : "on-demand"}
-        startTime={props.startTime}
-        seekIntervalSeconds={props.seekIntervalSeconds}
-        subtitles={props.subtitles}
-        sponsorBlockSegments={props.sponsorBlockSegments}
-        autoSkipSponsorBlock={Boolean(props.autoSkipSegments)}
-        autoSkipSponsorBlockSegments={props.autoSkipSegments}
-        manualSkipSponsorBlockSegments={props.manualSkipSegments}
-        muteSponsorBlockInsteadOfSkip={settings.sponsorBlockMuteInsteadOfSkip}
-        showCurrentSponsorBlockSegment={settings.sponsorBlockShowCurrentSegment}
-        thumbnailVtt={props.thumbnailVtt}
-        chaptersVtt={props.chaptersVtt}
-        initialVolume={settings.volume}
-        initialMuted={settings.muted}
-        settingsReady={props.settingsReady}
-        autoplay={props.autoplay}
-        originalAudioLocale={props.originalLocale}
-        overlay={
-          <>
-            <PlayerPlaybackSpeedDefault
-              defaultPlaybackSpeed={settings.defaultPlaybackSpeed}
-              preference={playbackRatePreference.current}
-              rememberChanges={!props.sabrConfig}
-            />
-            {props.overlay}
-          </>
-        }
-        captionStyles={settings.captionStyles}
-        onCaptionStylesChange={props.onCaptionStylesChange}
-        onVolumeChange={props.onVolumeChange}
-        onTimeUpdate={props.onTimeUpdate}
-        onPlay={props.onPlay}
-        onPause={props.onPause}
-        onSeeking={props.onSeeking}
-        onSeeked={props.onSeeked}
-        onError={props.onError}
-        onPositionReaderChange={props.onPositionReaderChange}
-        onEnded={props.onEnded}
-        onPreviousVideo={props.onPreviousVideo}
-        onNextVideo={props.onNextVideo}
-        onAudioPosterChange={setAudioPosterVisible}
-        onSeekReady={(seek) => (props.seekRef.current = seek)}
-        className={props.playerClassName}
-        mediaClassName={props.mediaClassName}
+  // An own skin exists only in Video.js: Twitch plays there whatever the engine setting says.
+  const engine = props.ownSkin ? "videojs" : settings.playerEngine;
+  const handoff = useEngineHandoff(
+    engine,
+    props.playerKey,
+    props.isLive ? 0 : props.startTime,
+    props.onTimeUpdate,
+  );
+  const startTime = props.isLive ? props.startTime : handoff.startTime;
+  const videoJs = videoJsSourceFor({
+    engine,
+    source: props.manifestSrc,
+    sabr: Boolean(props.sabrConfig),
+    audioOnly: props.audioOnly,
+  });
+  if (videoJs)
+    return (
+      <VideoJsStagePlayer
+        {...props}
+        startTime={startTime}
+        onTimeUpdate={handoff.onTimeUpdate}
+        source={videoJs}
+        playbackRatePreference={playbackRatePreference.current}
       />
-    </WatchPlayerCrossfade>
+    );
+  return (
+    <>
+      <WatchPlayerCrossfade
+        audioOnly={audioPosterVisible}
+        poster={props.poster}
+        title={props.streamTitle}
+      >
+        <VideoPlayer
+          key={props.playerKey}
+          src={props.manifestSrc}
+          provider={props.provider}
+          sabrConfig={props.sabrConfig}
+          sabrRetryKey={props.sabrRetryKey}
+          sabrPlaybackRatePreference={playbackRatePreference.current}
+          audioOnly={props.audioOnly}
+          title={props.streamTitle}
+          poster={props.poster}
+          streamType={props.isLive ? "live" : "on-demand"}
+          startTime={startTime}
+          seekIntervalSeconds={props.seekIntervalSeconds}
+          subtitles={props.subtitles}
+          sponsorBlockSegments={props.sponsorBlockSegments}
+          autoSkipSponsorBlock={Boolean(props.autoSkipSegments)}
+          autoSkipSponsorBlockSegments={props.autoSkipSegments}
+          manualSkipSponsorBlockSegments={props.manualSkipSegments}
+          muteSponsorBlockInsteadOfSkip={settings.sponsorBlockMuteInsteadOfSkip}
+          showCurrentSponsorBlockSegment={settings.sponsorBlockShowCurrentSegment}
+          thumbnailVtt={props.thumbnailVtt}
+          chaptersVtt={props.chaptersVtt}
+          initialVolume={settings.volume}
+          initialMuted={settings.muted}
+          settingsReady={props.settingsReady}
+          autoplay={props.autoplay}
+          originalAudioLocale={props.originalLocale}
+          overlay={
+            <>
+              <PlayerPlaybackSpeedDefault
+                defaultPlaybackSpeed={settings.defaultPlaybackSpeed}
+                preference={playbackRatePreference.current}
+                rememberChanges={!props.sabrConfig}
+              />
+              {props.overlay}
+            </>
+          }
+          captionStyles={settings.captionStyles}
+          onCaptionStylesChange={props.onCaptionStylesChange}
+          onVolumeChange={props.onVolumeChange}
+          onTimeUpdate={handoff.onTimeUpdate}
+          onPlay={props.onPlay}
+          onPause={props.onPause}
+          onSeeking={props.onSeeking}
+          onSeeked={props.onSeeked}
+          onError={props.onError}
+          onPositionReaderChange={props.onPositionReaderChange}
+          onEnded={props.onEnded}
+          onPreviousVideo={props.onPreviousVideo}
+          onNextVideo={props.onNextVideo}
+          onAudioPosterChange={setAudioPosterVisible}
+          onSeekReady={(seek) => (props.seekRef.current = seek)}
+          className={props.playerClassName}
+          mediaClassName={props.mediaClassName}
+        />
+      </WatchPlayerCrossfade>
+    </>
   );
 }

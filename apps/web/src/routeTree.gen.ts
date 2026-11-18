@@ -31,8 +31,11 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ShortsRouteImport } from './routes/shorts'
+import { Route as SponsorsRouteImport } from './routes/sponsors'
 import { Route as SubscriptionGroupsPreviewRouteImport } from './routes/subscription-groups-preview'
 import { Route as SubscriptionsRouteImport } from './routes/subscriptions'
+import { Route as TwitchRouteImport } from './routes/twitch'
+import { Route as TwitchSessionRouteImport } from './routes/twitch-session'
 import { Route as WatchRouteImport } from './routes/watch'
 import { Route as WatchLaterRouteImport } from './routes/watch-later'
 import { Route as YoutubeSessionRouteImport } from './routes/youtube-session'
@@ -45,8 +48,13 @@ import { Route as PlaylistsIdRouteImport } from './routes/playlists_.$id'
 import { Route as ShortsVideoIdRouteImport } from './routes/shorts_.$videoId'
 import { Route as SubscriptionsChannelsRouteImport } from './routes/subscriptions_.channels'
 import { Route as SubscriptionsGroupsRouteImport } from './routes/subscriptions_.groups'
+import { Route as TwitchSearchRouteImport } from './routes/twitch_.search'
+import { Route as TwitchWatchRouteImport } from './routes/twitch_.watch'
 import { Route as AuthOidcCallbackRouteImport } from './routes/auth.oidc.callback'
 import { Route as ChannelProviderChannelIdRouteImport } from './routes/channel_.$provider.$channelId'
+import { Route as TwitchCategorySlugRouteImport } from './routes/twitch_.category.$slug'
+import { Route as TwitchChannelLoginRouteImport } from './routes/twitch_.channel.$login'
+import { Route as TwitchTagTagRouteImport } from './routes/twitch_.tag.$tag'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -158,6 +166,11 @@ const ShortsRoute = ShortsRouteImport.update({
   path: '/shorts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SponsorsRoute = SponsorsRouteImport.update({
+  id: '/sponsors',
+  path: '/sponsors',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SubscriptionGroupsPreviewRoute =
   SubscriptionGroupsPreviewRouteImport.update({
     id: '/subscription-groups-preview',
@@ -167,6 +180,16 @@ const SubscriptionGroupsPreviewRoute =
 const SubscriptionsRoute = SubscriptionsRouteImport.update({
   id: '/subscriptions',
   path: '/subscriptions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TwitchRoute = TwitchRouteImport.update({
+  id: '/twitch',
+  path: '/twitch',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TwitchSessionRoute = TwitchSessionRouteImport.update({
+  id: '/twitch-session',
+  path: '/twitch-session',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WatchRoute = WatchRouteImport.update({
@@ -229,6 +252,16 @@ const SubscriptionsGroupsRoute = SubscriptionsGroupsRouteImport.update({
   path: '/subscriptions/groups',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TwitchSearchRoute = TwitchSearchRouteImport.update({
+  id: '/twitch_/search',
+  path: '/twitch/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TwitchWatchRoute = TwitchWatchRouteImport.update({
+  id: '/twitch_/watch',
+  path: '/twitch/watch',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthOidcCallbackRoute = AuthOidcCallbackRouteImport.update({
   id: '/auth/oidc/callback',
   path: '/auth/oidc/callback',
@@ -240,6 +273,21 @@ const ChannelProviderChannelIdRoute =
     path: '/channel/$provider/$channelId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const TwitchCategorySlugRoute = TwitchCategorySlugRouteImport.update({
+  id: '/twitch_/category/$slug',
+  path: '/twitch/category/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TwitchChannelLoginRoute = TwitchChannelLoginRouteImport.update({
+  id: '/twitch_/channel/$login',
+  path: '/twitch/channel/$login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TwitchTagTagRoute = TwitchTagTagRouteImport.update({
+  id: '/twitch_/tag/$tag',
+  path: '/twitch/tag/$tag',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -264,8 +312,11 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/shorts': typeof ShortsRoute
+  '/sponsors': typeof SponsorsRoute
   '/subscription-groups-preview': typeof SubscriptionGroupsPreviewRoute
   '/subscriptions': typeof SubscriptionsRoute
+  '/twitch': typeof TwitchRoute
+  '/twitch-session': typeof TwitchSessionRoute
   '/watch': typeof WatchRoute
   '/watch-later': typeof WatchLaterRoute
   '/youtube-session': typeof YoutubeSessionRoute
@@ -277,9 +328,14 @@ export interface FileRoutesByFullPath {
   '/shorts/$videoId': typeof ShortsVideoIdRoute
   '/subscriptions/channels': typeof SubscriptionsChannelsRoute
   '/subscriptions/groups': typeof SubscriptionsGroupsRoute
+  '/twitch/search': typeof TwitchSearchRoute
+  '/twitch/watch': typeof TwitchWatchRoute
   '/import/': typeof ImportIndexRoute
   '/auth/oidc/callback': typeof AuthOidcCallbackRoute
   '/channel/$provider/$channelId': typeof ChannelProviderChannelIdRoute
+  '/twitch/category/$slug': typeof TwitchCategorySlugRoute
+  '/twitch/channel/$login': typeof TwitchChannelLoginRoute
+  '/twitch/tag/$tag': typeof TwitchTagTagRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -303,8 +359,11 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/shorts': typeof ShortsRoute
+  '/sponsors': typeof SponsorsRoute
   '/subscription-groups-preview': typeof SubscriptionGroupsPreviewRoute
   '/subscriptions': typeof SubscriptionsRoute
+  '/twitch': typeof TwitchRoute
+  '/twitch-session': typeof TwitchSessionRoute
   '/watch': typeof WatchRoute
   '/watch-later': typeof WatchLaterRoute
   '/youtube-session': typeof YoutubeSessionRoute
@@ -316,9 +375,14 @@ export interface FileRoutesByTo {
   '/shorts/$videoId': typeof ShortsVideoIdRoute
   '/subscriptions/channels': typeof SubscriptionsChannelsRoute
   '/subscriptions/groups': typeof SubscriptionsGroupsRoute
+  '/twitch/search': typeof TwitchSearchRoute
+  '/twitch/watch': typeof TwitchWatchRoute
   '/import': typeof ImportIndexRoute
   '/auth/oidc/callback': typeof AuthOidcCallbackRoute
   '/channel/$provider/$channelId': typeof ChannelProviderChannelIdRoute
+  '/twitch/category/$slug': typeof TwitchCategorySlugRoute
+  '/twitch/channel/$login': typeof TwitchChannelLoginRoute
+  '/twitch/tag/$tag': typeof TwitchTagTagRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -344,8 +408,11 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/shorts': typeof ShortsRoute
+  '/sponsors': typeof SponsorsRoute
   '/subscription-groups-preview': typeof SubscriptionGroupsPreviewRoute
   '/subscriptions': typeof SubscriptionsRoute
+  '/twitch': typeof TwitchRoute
+  '/twitch-session': typeof TwitchSessionRoute
   '/watch': typeof WatchRoute
   '/watch-later': typeof WatchLaterRoute
   '/youtube-session': typeof YoutubeSessionRoute
@@ -357,9 +424,14 @@ export interface FileRoutesById {
   '/shorts_/$videoId': typeof ShortsVideoIdRoute
   '/subscriptions_/channels': typeof SubscriptionsChannelsRoute
   '/subscriptions_/groups': typeof SubscriptionsGroupsRoute
+  '/twitch_/search': typeof TwitchSearchRoute
+  '/twitch_/watch': typeof TwitchWatchRoute
   '/import/': typeof ImportIndexRoute
   '/auth/oidc/callback': typeof AuthOidcCallbackRoute
   '/channel_/$provider/$channelId': typeof ChannelProviderChannelIdRoute
+  '/twitch_/category/$slug': typeof TwitchCategorySlugRoute
+  '/twitch_/channel/$login': typeof TwitchChannelLoginRoute
+  '/twitch_/tag/$tag': typeof TwitchTagTagRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -386,8 +458,11 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/shorts'
+    | '/sponsors'
     | '/subscription-groups-preview'
     | '/subscriptions'
+    | '/twitch'
+    | '/twitch-session'
     | '/watch'
     | '/watch-later'
     | '/youtube-session'
@@ -399,9 +474,14 @@ export interface FileRouteTypes {
     | '/shorts/$videoId'
     | '/subscriptions/channels'
     | '/subscriptions/groups'
+    | '/twitch/search'
+    | '/twitch/watch'
     | '/import/'
     | '/auth/oidc/callback'
     | '/channel/$provider/$channelId'
+    | '/twitch/category/$slug'
+    | '/twitch/channel/$login'
+    | '/twitch/tag/$tag'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -425,8 +505,11 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/shorts'
+    | '/sponsors'
     | '/subscription-groups-preview'
     | '/subscriptions'
+    | '/twitch'
+    | '/twitch-session'
     | '/watch'
     | '/watch-later'
     | '/youtube-session'
@@ -438,9 +521,14 @@ export interface FileRouteTypes {
     | '/shorts/$videoId'
     | '/subscriptions/channels'
     | '/subscriptions/groups'
+    | '/twitch/search'
+    | '/twitch/watch'
     | '/import'
     | '/auth/oidc/callback'
     | '/channel/$provider/$channelId'
+    | '/twitch/category/$slug'
+    | '/twitch/channel/$login'
+    | '/twitch/tag/$tag'
   id:
     | '__root__'
     | '/'
@@ -465,8 +553,11 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/shorts'
+    | '/sponsors'
     | '/subscription-groups-preview'
     | '/subscriptions'
+    | '/twitch'
+    | '/twitch-session'
     | '/watch'
     | '/watch-later'
     | '/youtube-session'
@@ -478,9 +569,14 @@ export interface FileRouteTypes {
     | '/shorts_/$videoId'
     | '/subscriptions_/channels'
     | '/subscriptions_/groups'
+    | '/twitch_/search'
+    | '/twitch_/watch'
     | '/import/'
     | '/auth/oidc/callback'
     | '/channel_/$provider/$channelId'
+    | '/twitch_/category/$slug'
+    | '/twitch_/channel/$login'
+    | '/twitch_/tag/$tag'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -506,8 +602,11 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   SettingsRoute: typeof SettingsRoute
   ShortsRoute: typeof ShortsRoute
+  SponsorsRoute: typeof SponsorsRoute
   SubscriptionGroupsPreviewRoute: typeof SubscriptionGroupsPreviewRoute
   SubscriptionsRoute: typeof SubscriptionsRoute
+  TwitchRoute: typeof TwitchRoute
+  TwitchSessionRoute: typeof TwitchSessionRoute
   WatchRoute: typeof WatchRoute
   WatchLaterRoute: typeof WatchLaterRoute
   YoutubeSessionRoute: typeof YoutubeSessionRoute
@@ -517,8 +616,13 @@ export interface RootRouteChildren {
   ShortsVideoIdRoute: typeof ShortsVideoIdRoute
   SubscriptionsChannelsRoute: typeof SubscriptionsChannelsRoute
   SubscriptionsGroupsRoute: typeof SubscriptionsGroupsRoute
+  TwitchSearchRoute: typeof TwitchSearchRoute
+  TwitchWatchRoute: typeof TwitchWatchRoute
   AuthOidcCallbackRoute: typeof AuthOidcCallbackRoute
   ChannelProviderChannelIdRoute: typeof ChannelProviderChannelIdRoute
+  TwitchCategorySlugRoute: typeof TwitchCategorySlugRoute
+  TwitchChannelLoginRoute: typeof TwitchChannelLoginRoute
+  TwitchTagTagRoute: typeof TwitchTagTagRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -677,6 +781,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShortsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sponsors': {
+      id: '/sponsors'
+      path: '/sponsors'
+      fullPath: '/sponsors'
+      preLoaderRoute: typeof SponsorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/subscription-groups-preview': {
       id: '/subscription-groups-preview'
       path: '/subscription-groups-preview'
@@ -689,6 +800,20 @@ declare module '@tanstack/react-router' {
       path: '/subscriptions'
       fullPath: '/subscriptions'
       preLoaderRoute: typeof SubscriptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/twitch': {
+      id: '/twitch'
+      path: '/twitch'
+      fullPath: '/twitch'
+      preLoaderRoute: typeof TwitchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/twitch-session': {
+      id: '/twitch-session'
+      path: '/twitch-session'
+      fullPath: '/twitch-session'
+      preLoaderRoute: typeof TwitchSessionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/watch': {
@@ -775,6 +900,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SubscriptionsGroupsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/twitch_/search': {
+      id: '/twitch_/search'
+      path: '/twitch/search'
+      fullPath: '/twitch/search'
+      preLoaderRoute: typeof TwitchSearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/twitch_/watch': {
+      id: '/twitch_/watch'
+      path: '/twitch/watch'
+      fullPath: '/twitch/watch'
+      preLoaderRoute: typeof TwitchWatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/oidc/callback': {
       id: '/auth/oidc/callback'
       path: '/auth/oidc/callback'
@@ -787,6 +926,27 @@ declare module '@tanstack/react-router' {
       path: '/channel/$provider/$channelId'
       fullPath: '/channel/$provider/$channelId'
       preLoaderRoute: typeof ChannelProviderChannelIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/twitch_/category/$slug': {
+      id: '/twitch_/category/$slug'
+      path: '/twitch/category/$slug'
+      fullPath: '/twitch/category/$slug'
+      preLoaderRoute: typeof TwitchCategorySlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/twitch_/channel/$login': {
+      id: '/twitch_/channel/$login'
+      path: '/twitch/channel/$login'
+      fullPath: '/twitch/channel/$login'
+      preLoaderRoute: typeof TwitchChannelLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/twitch_/tag/$tag': {
+      id: '/twitch_/tag/$tag'
+      path: '/twitch/tag/$tag'
+      fullPath: '/twitch/tag/$tag'
+      preLoaderRoute: typeof TwitchTagTagRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -830,8 +990,11 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   SettingsRoute: SettingsRoute,
   ShortsRoute: ShortsRoute,
+  SponsorsRoute: SponsorsRoute,
   SubscriptionGroupsPreviewRoute: SubscriptionGroupsPreviewRoute,
   SubscriptionsRoute: SubscriptionsRoute,
+  TwitchRoute: TwitchRoute,
+  TwitchSessionRoute: TwitchSessionRoute,
   WatchRoute: WatchRoute,
   WatchLaterRoute: WatchLaterRoute,
   YoutubeSessionRoute: YoutubeSessionRoute,
@@ -841,8 +1004,13 @@ const rootRouteChildren: RootRouteChildren = {
   ShortsVideoIdRoute: ShortsVideoIdRoute,
   SubscriptionsChannelsRoute: SubscriptionsChannelsRoute,
   SubscriptionsGroupsRoute: SubscriptionsGroupsRoute,
+  TwitchSearchRoute: TwitchSearchRoute,
+  TwitchWatchRoute: TwitchWatchRoute,
   AuthOidcCallbackRoute: AuthOidcCallbackRoute,
   ChannelProviderChannelIdRoute: ChannelProviderChannelIdRoute,
+  TwitchCategorySlugRoute: TwitchCategorySlugRoute,
+  TwitchChannelLoginRoute: TwitchChannelLoginRoute,
+  TwitchTagTagRoute: TwitchTagTagRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

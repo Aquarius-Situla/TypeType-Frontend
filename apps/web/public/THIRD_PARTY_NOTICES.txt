@@ -19,6 +19,17 @@ F-Droid icon
 https://gitlab.com/fdroid/fdroid-website/-/blob/master/assets/fdroid-logo.svg
 The F-Droid logo is available under CC BY-SA 3.0 or GPLv3+.
 
+Loading and error reactions
+---------------------------
+
+The animated reactions in /reactions are third-party GIFs found on KLIPY
+(https://klipy.com), with their backgrounds removed and re-encoded as WebP.
+They show characters that remain the property of their rights holders,
+including Pingu, Scrooge McDuck (Disney), SpongeBob SquarePants (Nickelodeon),
+Pudgy Penguins, Peach and Goma, and Milk and Mocha. The MIT license of this
+project does not cover them. The source of each file is listed in
+THIRD_PARTY_ASSETS.md in the repository.
+
 zip.js
 https://github.com/gildas-lormeau/zip.js
 BSD 3-Clause License
@@ -68,3 +79,49 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+Pre-roll overlay media
+----------------------
+
+The videos played by the optional pre-roll overlay are served from their own
+host; they do not ship with this repository and are not covered by its MIT
+license.
+
+AI disclosure: the voices are synthetic, generated with ElevenLabs (Eleven v4)
+and OpenAI (gpt-audio), and are not the voices of real people. The scripts,
+3D scenes, animation and subtitles were made with the help of AI tools. The
+pictures were rendered in Blender (https://www.blender.org).
+
+Music:
+"Hold on a Sec" - Bryan Teoh. FreePD.com, CC0 (public domain).
+"Fresh Focus" - Kevin MacLeod. FreePD.com, CC0 (public domain).
+"Advertime" - Rafael Krux. FreePD.com, CC0 (public domain).
+"Emotional Blockbuster 2" - Rafael Krux (CinematicWaves.com). FreePD.com, CC0
+(public domain).
+"Calm Sketch for Piano" - Kevin MacLeod (incompetech.com)
+Licensed under Creative Commons: By Attribution 4.0 License
+http://creativecommons.org/licenses/by/4.0/
+"Music for Funeral Home - Part 1" - Kevin MacLeod (incompetech.com)
+Licensed under Creative Commons: By Attribution 4.0 License
+http://creativecommons.org/licenses/by/4.0/
+FreePD.com closed in 2025; its tracks were taken from the archive.org copy
+(item "freepd"). The parts heard are cut, looped, filtered and faded.
+
+Sound effects:
+BigSoundBank (https://bigsoundbank.com) - Joseph Sardin, CC0 (public domain):
+Typewriter, Punch, Kiss, Kisses, Sliding rope, Mouth noises, Squeaking parquet,
+Steps in the mud, Suction cup on plastic, Sucker, Straw suction, Eat a rusk,
+Apple crunched, Squeaker toy, Boing cartoon, Balloon against wall, Fall of
+stone, Tic tac mechanical alarm clock, Nocturnal insect, Computer 2
+(ventilation), Countryside, Robin #4, Outdoor pool atmosphere, Mower, Field
+cricket, Birds waking #3, Door knock, Dig with a shovel, Rain on concrete,
+Thunder, Cup on a table, Hot water in mug, Frying pan 2, Broken glass of
+champagne, Airplane pass #5, Explosion far away #1, Gasoline fire #1, Big
+branching fire #1, Evacuation alarm #1, Electronic alarm (buzzer) #1, Strong
+wind #1 and #2, Explosion #1 and #2, Bottle clink, Bottle of beer opening #1,
+Gavel 1 blow, Gavel 3 blows, Crowd of 50-60 people, Newspaper manipulations,
+Chair, Man cough, Message, Old squeaky stroller, Man footsteps on the wooden
+floor, Adhesive tape, Tinnitus, Glass burst, Door slamming, Whoosh, Firecracker
+with wick.
+Kenney (https://kenney.nl) - "Impact Sounds" 1.0, CC0 (public domain).
+The heart monitor, muzak, jingles and small cartoon effects were synthesized.

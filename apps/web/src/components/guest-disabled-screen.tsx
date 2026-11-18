@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useRegisterStatus } from "../hooks/use-register-status";
 import { m } from "../paraglide/messages.js";
 import { AuthBackdrop } from "./auth-backdrop";
+import { ReactionGif } from "./reaction-gif";
 
 export function GuestDisabledScreen() {
   const registerStatus = useRegisterStatus();
@@ -10,12 +11,10 @@ export function GuestDisabledScreen() {
   );
   return (
     <AuthBackdrop contentClassName="flex min-h-screen flex-col items-center justify-center gap-5 px-5 py-8 sm:gap-6">
-      <img
-        src="/guest-disabled-bird.gif"
-        width="498"
-        height="311"
-        alt=""
-        className="relative z-10 w-full max-w-[min(30rem,calc(100vw-2.5rem))] rounded-2xl shadow-2xl"
+      <ReactionGif
+        kind="guestDisabled"
+        size={400}
+        className="relative z-10 h-auto w-full max-w-[min(18rem,calc(100vw-2.5rem))]"
       />
       <div className="relative z-10 flex max-w-md flex-col items-center gap-2 text-center drop-shadow-[0_1px_18px_rgba(0,0,0,0.26)] dark:drop-shadow-[0_1px_18px_rgba(0,0,0,0.75)]">
         <p className="text-xl font-semibold tracking-tight text-fg sm:text-2xl dark:text-white">

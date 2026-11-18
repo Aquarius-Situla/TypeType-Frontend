@@ -21,6 +21,8 @@ import { VideoPlayerLayout } from "./video-player-layout";
 import { VideoPlayerPlaybackTools } from "./video-player-playback-tools";
 import { VideoPlayerTracks } from "./video-player-tracks";
 import type { VideoPlayerProps } from "./video-player-types";
+import { VidstackPlayerEngine } from "./vidstack-player-engine";
+import { VidstackPlayerMedia } from "./vidstack-player-media";
 import { VolumeRestorer } from "./volume-restorer";
 
 patchVidstackProviderLoaders();
@@ -106,7 +108,7 @@ export function VideoPlayer({
       src={activeSrc}
       viewType={viewType}
       streamType={streamType}
-      currentTime={startTime > 0 ? startTime / 1000 : undefined}
+      currentTime={!sabrConfig && startTime > 0 ? startTime / 1000 : undefined}
       logLevel="warn"
       crossOrigin
       playsInline
@@ -120,6 +122,7 @@ export function VideoPlayer({
       onError={sabrConfig ? undefined : handleError}
       aria-busy={sabrState.seeking}
       data-sabr-seeking={sabrState.seeking ? "true" : undefined}
+      data-player-root=""
     >
       <MediaProvider
         loaders={sabrConfig ? SABR_VIDEO_PROVIDER_LOADERS : BILIBILI_FLV_VIDEO_PROVIDER_LOADERS}
@@ -128,89 +131,92 @@ export function VideoPlayer({
       >
         <VideoPlayerTracks subtitles={subtitles} chaptersVtt={chaptersVtt} />
       </MediaProvider>
-      {sabrConfig && (
-        <SabrMsePlayer
-          config={sabrConfig}
-          retryKey={sabrRetryKey}
-          playbackRatePreference={sabrPlaybackRatePreference}
-          video={sabrState.video}
-          startTime={startTime}
-          autoplay={autoplay}
+      <VidstackPlayerMedia>
+        {sabrConfig && (
+          <SabrMsePlayer
+            config={sabrConfig}
+            retryKey={sabrRetryKey}
+            playbackRatePreference={sabrPlaybackRatePreference}
+            video={sabrState.video}
+            startTime={startTime}
+            autoplay={autoplay}
+            initialVolume={initialVolume}
+            initialMuted={initialMuted}
+            settingsReady={settingsReady}
+            onVolumeChange={onVolumeChange}
+            onError={onError ?? (() => undefined)}
+            onSeekStateChange={sabrState.setSeeking}
+            onModeSwitchChange={sabrState.setModeSwitching}
+            onSeekReady={onSeekReady ?? (() => undefined)}
+            onPositionReaderChange={onPositionReaderChange ?? (() => undefined)}
+          />
+        )}
+        {audioPosterVisible && (
+          <AudioOnlyPoster poster={poster} title={title} media={sabrState.media} />
+        )}
+        {audioOnly && <AudioCenterToggle video={sabrState.video} />}
+        <MediaProgressEvents
+          suppressPlaybackEvents={sabrState.seeking}
+          onTimeUpdate={onTimeUpdate}
+          onPlay={onPlay}
+          onPause={onPause}
+          onSeeking={onSeeking}
+          onSeeked={onSeeked}
+          onEnded={handleEnded}
+          onPositionReaderChange={onPositionReaderChange}
+        />
+        {overlay}
+        <VideoPlayerLayout
+          audioOnly={audioOnly}
+          hideCinemaMode={hideCinemaMode}
+          layoutMode={layoutMode}
+          audioUsesVideoProvider={audioOnly && viewType === "video"}
+          sabr={Boolean(sabrConfig)}
+          sabrVideo={sabrState.video}
+          seeking={sabrState.seeking}
+          thumbnailVtt={thumbnailVtt}
+          originalAudioLocale={originalAudioLocale}
+          onPreviousVideo={onPreviousVideo}
+          onNextVideo={onNextVideo}
+        />
+        {!sabrConfig && <PlayerSeeker startTime={startTime} />}
+        {!sabrConfig && <FragmentBoundarySeeker intervalSeconds={seekIntervalSeconds} />}
+        <VolumeRestorer
           initialVolume={initialVolume}
           initialMuted={initialMuted}
           settingsReady={settingsReady}
           onVolumeChange={onVolumeChange}
-          onError={onError ?? (() => undefined)}
-          onSeekStateChange={sabrState.setSeeking}
-          onModeSwitchChange={sabrState.setModeSwitching}
-          onSeekReady={onSeekReady ?? (() => undefined)}
-          onPositionReaderChange={onPositionReaderChange ?? (() => undefined)}
         />
-      )}
-      {audioPosterVisible && (
-        <AudioOnlyPoster poster={poster} title={title} media={sabrState.media} />
-      )}
-      {audioOnly && <AudioCenterToggle video={sabrState.video} />}
-      <MediaProgressEvents
-        suppressPlaybackEvents={sabrState.seeking}
-        onTimeUpdate={onTimeUpdate}
-        onPlay={onPlay}
-        onPause={onPause}
-        onSeeking={onSeeking}
-        onSeeked={onSeeked}
-        onEnded={handleEnded}
-        onPositionReaderChange={onPositionReaderChange}
-      />
-      {overlay}
-      <VideoPlayerLayout
-        audioOnly={audioOnly}
-        hideCinemaMode={hideCinemaMode}
-        layoutMode={layoutMode}
-        audioUsesVideoProvider={audioOnly && viewType === "video"}
-        sabr={Boolean(sabrConfig)}
-        sabrVideo={sabrState.video}
-        seeking={sabrState.seeking}
-        thumbnailVtt={thumbnailVtt}
-        originalAudioLocale={originalAudioLocale}
-        onPreviousVideo={onPreviousVideo}
-        onNextVideo={onNextVideo}
-      />
-      {!sabrConfig && <PlayerSeeker startTime={startTime} />}
-      {!sabrConfig && <FragmentBoundarySeeker intervalSeconds={seekIntervalSeconds} />}
-      <VolumeRestorer
-        initialVolume={initialVolume}
-        initialMuted={initialMuted}
-        settingsReady={settingsReady}
-        onVolumeChange={onVolumeChange}
-      />
-      {captionStyles && onCaptionStylesChange && (
-        <CaptionStyleRestorer
-          captionStyles={captionStyles}
-          settingsReady={settingsReady}
-          onChange={onCaptionStylesChange}
+        {captionStyles && onCaptionStylesChange && (
+          <CaptionStyleRestorer
+            captionStyles={captionStyles}
+            settingsReady={settingsReady}
+            onChange={onCaptionStylesChange}
+          />
+        )}
+        <MediaSessionSync
+          title={title}
+          artwork={poster}
+          canSeek={canSeek}
+          isLive={streamType === "live"}
+          sabrVideo={sabrState.video}
+          onPreviousTrack={onPreviousVideo}
+          onNextTrack={onNextVideo}
         />
-      )}
-      <MediaSessionSync
-        title={title}
-        artwork={poster}
-        canSeek={canSeek}
-        isLive={streamType === "live"}
-        sabrVideo={sabrState.video}
-        onPreviousTrack={onPreviousVideo}
-        onNextTrack={onNextVideo}
-      />
-      <VideoPlayerPlaybackTools
-        canSeek={canSeek}
-        audioOnly={audioOnly}
-        sabrVideo={sabrState.video}
-        segments={sponsorBlockSegments}
-        autoSkipSegments={autoSkipSponsorBlockSegments}
-        manualSkipSegments={manualSkipSponsorBlockSegments}
-        autoSkip={autoSkipSponsorBlock}
-        mutedSkip={muteSponsorBlockInsteadOfSkip}
-        showCurrent={showCurrentSponsorBlockSegment}
-      />
-      {onSeekReady && <SeekBridge onSeekReady={onSeekReady} />}
+        <VidstackPlayerEngine sabrVideo={sabrConfig ? sabrState.video : null}>
+          <VideoPlayerPlaybackTools
+            canSeek={canSeek}
+            audioOnly={audioOnly}
+            segments={sponsorBlockSegments}
+            autoSkipSegments={autoSkipSponsorBlockSegments}
+            manualSkipSegments={manualSkipSponsorBlockSegments}
+            autoSkip={autoSkipSponsorBlock}
+            mutedSkip={muteSponsorBlockInsteadOfSkip}
+            showCurrent={showCurrentSponsorBlockSegment}
+          />
+        </VidstackPlayerEngine>
+        {onSeekReady && <SeekBridge onSeekReady={onSeekReady} />}
+      </VidstackPlayerMedia>
     </MediaPlayer>
   );
 }
