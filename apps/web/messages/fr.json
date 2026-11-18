@@ -2227,6 +2227,8 @@
   "settings_watched_threshold_percent": "{percent} %",
   "settings_hide_watched_title": "Vidéos vues",
   "settings_hide_watched_description": "Masquer les vidéos déjà vues dans le fil des abonnements.",
+  "settings_hide_search_shorts_title": "Shorts dans la recherche",
+  "settings_hide_search_shorts_description": "Masquer les Shorts dans les résultats de recherche. La page Shorts reste disponible.",
   "settings_mini_player_title": "Mini-lecteur",
   "settings_mini_player_description": "Continuer la lecture dans un petit lecteur quand vous quittez la page de lecture."
 }

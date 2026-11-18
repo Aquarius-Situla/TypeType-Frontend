@@ -125,3 +125,12 @@ export function activeSearchFilterOptions(
   const values = new Set(sanitizeSearchFilters(groups, selected));
   return groups.flatMap((group) => group.options.filter((option) => values.has(option.value)));
 }
+
+// Hidden results can leave a page empty while later pages still have some: only the last page can say there are none.
+export function searchHasNoResults(
+  shownItems: number,
+  hasNextPage: boolean,
+  isFetchingNextPage: boolean,
+): boolean {
+  return shownItems === 0 && !hasNextPage && !isFetchingNextPage;
+}

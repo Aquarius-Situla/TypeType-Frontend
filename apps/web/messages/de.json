@@ -2227,6 +2227,8 @@
   "settings_watched_threshold_percent": "{percent} %",
   "settings_hide_watched_title": "Gesehene Videos",
   "settings_hide_watched_description": "Bereits gesehene Videos im Abo-Feed ausblenden.",
+  "settings_hide_search_shorts_title": "Shorts in der Suche",
+  "settings_hide_search_shorts_description": "Shorts in den Suchergebnissen ausblenden. Die Shorts-Seite bleibt verfügbar.",
   "settings_mini_player_title": "Miniplayer",
   "settings_mini_player_description": "Beim Verlassen der Wiedergabeseite in einem kleinen Player weiterspielen."
 }
