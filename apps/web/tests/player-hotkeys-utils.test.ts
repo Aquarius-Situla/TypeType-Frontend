@@ -2,6 +2,7 @@ import { expect, test } from "bun:test";
 import {
   blocksPlayerShortcut,
   isInteractiveTarget,
+  isMouseClickPastTap,
   isPlaybackToggleShortcut,
   keyboardSeekOffset,
   nextKeyboardRate,
@@ -118,4 +119,11 @@ test("a player button keeps the shortcuts, fields and menus do not", () => {
     if (htmlDescriptor) Object.defineProperty(globalThis, "HTMLElement", htmlDescriptor);
     else Reflect.deleteProperty(globalThis, "HTMLElement");
   }
+});
+
+test("a mouse click too long for the player's tap is still a click", () => {
+  expect(isMouseClickPastTap("mouse", 251, 250)).toBe(true);
+  expect(isMouseClickPastTap("mouse", 250, 250)).toBe(false);
+  expect(isMouseClickPastTap("mouse", 400, undefined)).toBe(false);
+  expect(isMouseClickPastTap("touch", 400, 250)).toBe(false);
 });

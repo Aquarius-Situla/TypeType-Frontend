@@ -14,6 +14,8 @@ export type PlayerEngine = {
   play: () => void;
   pause: () => void;
   togglePaused: () => void;
+  // How long a mouse press still counts as a click for the player's own tap gesture, when it has a limit.
+  mouseTapMaxMs?: number;
   seek: (seconds: number) => void;
   setPlaybackRate: (rate: number) => void;
   setVolume: (volume: number) => void;

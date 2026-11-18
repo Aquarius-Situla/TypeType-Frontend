@@ -96,6 +96,14 @@ export function isFastForwardPointer(event: PointerEvent): boolean {
   return event.pointerType === "touch" || event.pointerType === "pen";
 }
 
+export function isMouseClickPastTap(
+  pointerType: string,
+  pressedMs: number,
+  tapMaxMs: number | undefined,
+): boolean {
+  return pointerType === "mouse" && tapMaxMs !== undefined && pressedMs > tapMaxMs;
+}
+
 const DRAG_THRESHOLD = 12;
 
 export function exceededDragThreshold(dx: number, dy: number): boolean {

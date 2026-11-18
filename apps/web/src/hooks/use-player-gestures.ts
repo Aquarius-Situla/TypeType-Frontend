@@ -5,6 +5,7 @@ import {
   exceededDragThreshold,
   isFastForwardPointer,
   isInteractiveTarget,
+  isMouseClickPastTap,
 } from "../components/player-hotkeys-utils";
 import { usePlayerEngine } from "../lib/player-engine";
 import { useHoldFastForward } from "./use-hold-fast-forward";
@@ -20,6 +21,7 @@ export function usePlayerGestures(canSeek: boolean, enabled = true) {
   const startXRef = useRef(0);
   const startYRef = useRef(0);
   const startTimeRef = useRef(0);
+  const pressedAtRef = useRef(0);
   const scrubbingRef = useRef(false);
   const targetRef = useRef(0);
   const lastSeekRef = useRef(0);
@@ -42,6 +44,7 @@ export function usePlayerGestures(canSeek: boolean, enabled = true) {
       startXRef.current = event.clientX;
       startYRef.current = event.clientY;
       startTimeRef.current = engine.currentTime();
+      pressedAtRef.current = Date.now();
       suppressTapRef.current = false;
       start(event.pointerType === "mouse" ? MOUSE_HOLD_DELAY_MS : undefined);
     }
@@ -80,6 +83,17 @@ export function usePlayerGestures(canSeek: boolean, enabled = true) {
       if (wasScrubbing || wasHolding) {
         suppressTapRef.current = true;
         if (event.pointerType === "mouse") consumePointerEvent(event);
+      } else if (
+        event.type === "pointerup" &&
+        isMouseClickPastTap(
+          event.pointerType,
+          Date.now() - pressedAtRef.current,
+          engine.mouseTapMaxMs,
+        )
+      ) {
+        // Too long for the player's tap, too short for the hold: it is still a click.
+        consumePointerEvent(event);
+        engine.togglePaused();
       }
     }
 
