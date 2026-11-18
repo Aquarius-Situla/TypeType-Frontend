@@ -31,6 +31,7 @@ export type VideoJsVideoPlayerProps = VideoPlayerProps & {
   source: VideoJsSource;
   defaultPlaybackSpeed?: number;
   ownSkin?: boolean;
+  liveRecording?: boolean;
 };
 
 const SKIN_STYLE = {
@@ -62,6 +63,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
   const [root, setRoot] = useState<HTMLDivElement | null>(null);
   const { policyMuted, saveVolume } = usePolicyMutedSave(props.onVolumeChange);
   const live = streamType === "live";
+  const followsLiveEdge = live && !props.liveRecording;
   const Player = live ? VideoJsLivePlayer : VideoPlayer;
   const captionStyles = props.captionStyles;
   useEffect(() => {
@@ -104,7 +106,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
     className: props.mediaClassName ?? "h-full w-full",
     onLoadedMetadata: () => {
       const element = videoRef.current;
-      if (element && !sabr && !live && startTime > 0 && element.currentTime < 1)
+      if (element && !sabr && !followsLiveEdge && startTime > 0 && element.currentTime < 1)
         element.currentTime = startTime / 1000;
     },
     onTimeUpdate: () => props.onTimeUpdate?.(positionMs()),
@@ -131,7 +133,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
                 <VideoJsMedia
                   source={source}
                   provider={props.provider}
-                  live={live}
+                  live={followsLiveEdge}
                   liveLatency={Boolean(props.ownSkin)}
                   startTime={startTime}
                   subtitles={props.subtitles}
@@ -149,7 +151,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
                 <VideoJsKeyboardFeedback video={video} />
                 <VideoJsCaptionsHotkey />
                 <VideoJsSingleSubtitle video={video} />
-                {live && (
+                {followsLiveEdge && (
                   <VideoJsLiveStallWatchdog
                     video={videoRef}
                     onStall={() => props.onError?.(positionMs())}

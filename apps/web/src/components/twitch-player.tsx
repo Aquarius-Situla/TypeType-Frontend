@@ -1,4 +1,4 @@
-import { type ReactNode, useMemo, useRef, useState } from "react";
+import { type MutableRefObject, type ReactNode, useMemo, useRef, useState } from "react";
 import { usePersistentWatchPlayer } from "../hooks/use-persistent-watch-player";
 import { useSettings } from "../hooks/use-settings";
 import { useVolumeSync } from "../hooks/use-volume-sync";
@@ -29,6 +29,9 @@ type Props = TwitchPlayerEvents & {
   // The audio rendition of the same broadcast, played instead of src when audio only is on.
   audioSrc?: string;
   live: boolean;
+  // A live page playing the recording of its broadcast: the live controls over a seekable playlist.
+  recording?: boolean;
+  seekRef?: MutableRefObject<((seconds: number) => void) | null>;
   title: string;
   poster?: string;
   mp4?: boolean;
@@ -45,6 +48,8 @@ export function TwitchPlayer({
   src: videoSrc,
   audioSrc,
   live,
+  recording = false,
+  seekRef: outerSeekRef,
   title,
   poster,
   mp4 = false,
@@ -60,7 +65,8 @@ export function TwitchPlayer({
   eventsRef.current = events;
   const { settings, update, settingsReady } = useSettings();
   const onVolumeChange = useVolumeSync(update.mutate, settings);
-  const seekRef = useRef<((seconds: number) => void) | null>(null);
+  const ownSeekRef = useRef<((seconds: number) => void) | null>(null);
+  const seekRef = outerSeekRef ?? ownSeekRef;
   const streamId = twitchStreamId(target);
   const chatLogin = live && "c" in target ? target.c : null;
   const vodId = target.v;
@@ -71,7 +77,7 @@ export function TwitchPlayer({
   const positionMs = useRef<number | null>(null);
   const [switched, setSwitched] = useState({ audioOnly, atMs: null as number | null });
   if (switched.audioOnly !== audioOnly) setSwitched({ audioOnly, atMs: positionMs.current });
-  const resumeAt = live ? startTime : (switched.atMs ?? startTime);
+  const resumeAt = live && !recording ? startTime : (switched.atMs ?? startTime);
   const playerProps = useMemo<WatchStagePlayerProps>(
     () => ({
       audioOnly,
@@ -83,11 +89,12 @@ export function TwitchPlayer({
       provider: "unknown",
       sabrConfig: null,
       isLive: live,
+      liveRecording: recording,
       startTime: resumeAt,
       chaptersVtt,
       settings,
       settingsReady,
-      autoplay: settings.autoplayOnOpen,
+      autoplay: recording || settings.autoplayOnOpen,
       originalLocale: null,
       overlay: chatLogin ? (
         <>
@@ -126,6 +133,8 @@ export function TwitchPlayer({
       src,
       mp4,
       live,
+      recording,
+      seekRef,
       audioOnly,
       resumeAt,
       chaptersVtt,

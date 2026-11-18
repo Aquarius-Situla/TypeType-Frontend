@@ -23,6 +23,7 @@ export type WatchStagePlayerProps = {
   provider: Provider;
   sabrConfig: SabrPlaybackConfig | null;
   isLive: boolean;
+  liveRecording?: boolean;
   startTime: number;
   seekIntervalSeconds?: number;
   subtitles?: SubtitleItem[];

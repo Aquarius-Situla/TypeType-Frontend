@@ -27,6 +27,7 @@ export function VideoJsStagePlayer(props: Props) {
         title={props.streamTitle}
         poster={props.poster}
         streamType={props.isLive ? "live" : "on-demand"}
+        liveRecording={props.liveRecording}
         startTime={props.startTime}
         subtitles={props.subtitles}
         sponsorBlockSegments={props.sponsorBlockSegments}

@@ -44,10 +44,13 @@ function nextResumedStart(
   previous: PersistentWatchPlayerEntry | null,
   owner: PlayerOwner,
   streamId: string,
+  playerKey: string,
   requested: number,
   replayingEnded: boolean,
 ): ResumedStart | null {
   if (!previous || previous.streamId !== streamId || replayingEnded) return null;
+  // Another source of the same stream, as a live and its recording, starts where it was asked.
+  if (previous.props.playerKey !== playerKey) return null;
   if (previous.owner !== owner) return { requested, kept: previous.props.startTime };
   return previous.resumedStart?.requested === requested ? previous.resumedStart : null;
 }
@@ -65,6 +68,7 @@ export const usePersistentWatchPlayerStore = create<PersistentWatchPlayerStore>(
         previous,
         owner,
         streamId,
+        props.playerKey,
         props.startTime,
         replayingEnded,
       );

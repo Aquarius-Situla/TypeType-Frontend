@@ -1,7 +1,12 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { formatDuration } from "../lib/format";
-import { REWIND_MIN_BEHIND_MS, rewindRangeMs, rewindTarget } from "../lib/twitch-rewind";
+import {
+  REWIND_MIN_BEHIND_MS,
+  rewindRangeMs,
+  rewindSliderValue,
+  rewindTarget,
+} from "../lib/twitch-rewind";
 import { m } from "../paraglide/messages.js";
 import { useTwitchRewindStore } from "../stores/twitch-rewind-store";
 
@@ -17,27 +22,45 @@ function useNow(active: boolean): number {
   return now;
 }
 
-// The live edge sits at the right end; releasing the slider further back opens the past broadcast there, whose
-// page has the full timeline and a way back to the live.
+export function useReturnToLive(): () => void {
+  const login = useTwitchRewindStore((state) => state.login);
+  const navigate = useNavigate();
+  return () => {
+    if (login) void navigate({ to: "/twitch/watch", search: { c: login }, replace: true });
+  };
+}
+
+// The whole broadcast on one slider, the live edge at its right end. Going back keeps the live page and its chat and
+// plays the recording; coming close to the edge again returns to the live.
 export function VideoJsLiveRewind() {
   const archive = useTwitchRewindStore((state) => state.archive);
+  const login = useTwitchRewindStore((state) => state.login);
+  const rewinding = useTwitchRewindStore((state) => state.rewinding);
+  const positionMs = useTwitchRewindStore((state) => state.positionMs);
+  const seek = useTwitchRewindStore((state) => state.seek);
   const navigate = useNavigate();
+  const returnToLive = useReturnToLive();
   const now = useNow(archive !== null);
   const [dragMs, setDragMs] = useState<number | null>(null);
-  if (!archive) return null;
+  if (!archive || !login) return null;
   const rangeMs = rewindRangeMs(archive.startedAt, now);
   if (rangeMs <= REWIND_MIN_BEHIND_MS) return null;
-  const valueMs = dragMs ?? rangeMs;
-  const behind = Math.round((rangeMs - valueMs) / 1000);
+  const valueMs = rewindSliderValue(dragMs, rewinding, positionMs, rangeMs);
+  const behind = Math.max(0, Math.round((rangeMs - valueMs) / 1000));
   const commit = () => {
     if (dragMs === null) return;
     const target = rewindTarget(dragMs, rangeMs);
     setDragMs(null);
-    if (target !== null)
+    if (target === null) {
+      if (rewinding) returnToLive();
+    } else if (rewinding) {
+      seek?.(target / 1000);
+    } else {
       void navigate({
         to: "/twitch/watch",
-        search: { v: archive.id, t: Math.floor(target / 1000) },
+        search: { c: login, t: Math.floor(target / 1000) },
       });
+    }
   };
   return (
     <div className="mx-2 flex min-w-0 flex-1 items-center gap-2">
@@ -57,7 +80,7 @@ export function VideoJsLiveRewind() {
         onBlur={commit}
         className="h-1 w-full min-w-0 cursor-pointer accent-[#9146ff]"
       />
-      {dragMs !== null && behind > 0 && (
+      {(dragMs !== null || rewinding) && behind > 0 && (
         <span className="shrink-0 text-white text-xs tabular-nums">-{formatDuration(behind)}</span>
       )}
     </div>

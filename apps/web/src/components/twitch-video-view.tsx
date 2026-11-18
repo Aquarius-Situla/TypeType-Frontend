@@ -1,6 +1,7 @@
-import { type RefObject, useRef, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { type RefObject, useEffect, useRef, useState } from "react";
 import { useServerResumeRetry } from "../hooks/use-server-resume-retry";
-import { useTwitchVideoPlayback } from "../hooks/use-twitch";
+import { useTwitchChannel, useTwitchVideoPlayback } from "../hooks/use-twitch";
 import { useTwitchChaptersVtt } from "../hooks/use-twitch-chapters-vtt";
 import { useTwitchVodProgress } from "../hooks/use-twitch-vod-progress";
 import { TWITCH_STAGE_SIZE } from "../lib/twitch-stage-size";
@@ -60,16 +61,38 @@ function ResumablePlayer({
   );
 }
 
+const CHANNEL_CHECK_MS = 60_000;
+
+// The recording of a running live opens in the live page, which plays it with the live controls and chat.
+function useRunningLiveRedirect(
+  id: string,
+  video: TwitchVideoPlayback["video"] | undefined,
+  startAtSeconds?: number,
+) {
+  const navigate = useNavigate();
+  const login = video?.recording ? video.owner.login : "";
+  const channel = useTwitchChannel(login, CHANNEL_CHECK_MS);
+  const progress = useTwitchVodProgress(id, video?.lengthSeconds ?? 0, true);
+  const running = Boolean(login) && channel.data?.live?.archive?.id === id;
+  const seconds = startAtSeconds ?? (progress.ready ? Math.floor(progress.startTime / 1000) : null);
+  useEffect(() => {
+    if (running && seconds !== null)
+      void navigate({ to: "/twitch/watch", search: { c: login, t: seconds }, replace: true });
+  }, [login, navigate, running, seconds]);
+  return Boolean(login) && (channel.isLoading || running);
+}
+
 export function TwitchVideoView({ id, startAtSeconds }: { id: string; startAtSeconds?: number }) {
   const { data, isLoading, error } = useTwitchVideoPlayback(id);
   const resume = useServerResumeRetry();
   const [seconds, setSeconds] = useState(0);
   const positionRef = useRef<number | null>(null);
+  const redirecting = useRunningLiveRedirect(id, data?.video, startAtSeconds);
   return (
     <TwitchWatchLayout
       chat={data && <TwitchVodChat videoId={id} login={data.video.owner.login} seconds={seconds} />}
     >
-      <TwitchWatchStage loading={isLoading} error={error} ready={data !== undefined}>
+      <TwitchWatchStage loading={isLoading || redirecting} error={error} ready={data !== undefined}>
         {data && (
           <>
             <ResumablePlayer

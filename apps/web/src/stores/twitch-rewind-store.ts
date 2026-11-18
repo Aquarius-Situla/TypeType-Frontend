@@ -3,13 +3,28 @@ import { create } from "zustand";
 type Archive = { id: string; startedAt: string };
 
 type TwitchRewindStore = {
-  // The past broadcast the open live is recording, or null on a channel that keeps none.
+  // The channel of the open live, and the past broadcast it is recording (null when it keeps none).
+  login: string | null;
   archive: Archive | null;
-  setArchive: (archive: Archive | null) => void;
+  // Set while the live page plays that recording behind the live edge.
+  rewinding: boolean;
+  positionMs: number;
+  seek: ((seconds: number) => void) | null;
+  setChannel: (login: string | null, archive: Archive | null) => void;
+  startRewind: (seek: (seconds: number) => void) => void;
+  setPosition: (positionMs: number) => void;
+  stopRewind: () => void;
 };
 
-// Twitch lists only the last seconds of a live; going further back opens the past broadcast it is recording.
+// Twitch lists only the last seconds of a live; going further back plays the past broadcast it is recording.
 export const useTwitchRewindStore = create<TwitchRewindStore>()((set) => ({
+  login: null,
   archive: null,
-  setArchive: (archive) => set({ archive }),
+  rewinding: false,
+  positionMs: 0,
+  seek: null,
+  setChannel: (login, archive) => set({ login, archive }),
+  startRewind: (seek) => set({ rewinding: true, seek }),
+  setPosition: (positionMs) => set({ positionMs }),
+  stopRewind: () => set({ rewinding: false, seek: null }),
 }));

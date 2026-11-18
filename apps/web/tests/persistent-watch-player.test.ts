@@ -166,3 +166,23 @@ test("same owner switching streamId resets ended state", () => {
 
   store.close(owner);
 });
+
+test("another source of the same stream starts at its own time", () => {
+  const liveOwner = Symbol("live-page");
+  const rewindOwner = Symbol("rewind-player");
+  const store = usePersistentWatchPlayerStore.getState();
+  const source = (playerKey: string, startTime: number) =>
+    ({ ...props, playerKey, startTime }) as WatchStagePlayerProps;
+
+  store.register(liveOwner, "twitch-live", source("live#0", 0), true, "/twitch/watch?c=a");
+  store.register(
+    rewindOwner,
+    "twitch-live",
+    source("vod#0", 90_000),
+    true,
+    "/twitch/watch?c=a&t=90",
+  );
+
+  expect(usePersistentWatchPlayerStore.getState().entry?.props.startTime).toBe(90_000);
+  store.close(rewindOwner);
+});

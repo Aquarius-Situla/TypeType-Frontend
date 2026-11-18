@@ -7,7 +7,7 @@ import { TwitchWatchMessage } from "../components/twitch-watch-stage";
 import { useTwitchEnabled } from "../hooks/use-twitch";
 import { m } from "../paraglide/messages.js";
 
-// t opens a past broadcast at that second, as the live rewind does.
+// t opens a past broadcast at that second, or rewinds the running live of c to it.
 type WatchSearch = { c?: string; v?: string; clip?: string; t?: number };
 
 function validateSearch(search: Record<string, unknown>): WatchSearch {
@@ -32,7 +32,7 @@ function TwitchWatchPage() {
   return (
     <div className="pt-2 sm:pt-4">
       {c ? (
-        <TwitchLiveView key={c} login={c} />
+        <TwitchLiveView key={c} login={c} rewindSeconds={t} />
       ) : v ? (
         <TwitchVideoView key={v} id={v} startAtSeconds={t} />
       ) : clip ? (
