@@ -91,3 +91,18 @@ test("names a video the provider no longer serves and lets a playlist skip it", 
   expect(isPermanentlyUnavailableError(busy)).toBe(false);
   expect(isPermanentlyUnavailableError(new Error("offline"))).toBe(false);
 });
+
+test("says busy only when the server refuses for load", () => {
+  const preparing = new ApiError("No compatible stream", 503, "no_playable_streams", null, 15_000);
+  const token = new ApiError(
+    "The token service could not get a YouTube token",
+    503,
+    "token_service_unavailable",
+  );
+  const paced = new ApiError("busy", 503, "provider_paced", null, 2_000);
+
+  expect(streamRetryNotice(preparing, true)).toBe("Still preparing this video. Retrying…");
+  expect(streamRetryNotice(token, true)).toContain("token container");
+  expect(resolveStreamErrorMessage(token)).toContain("token container");
+  expect(streamRetryNotice(paced, true)).toBe("The video service is busy. Retrying…");
+});

@@ -1849,6 +1849,8 @@
   "ui_youtube_device_sign_in_failed": "Could not start the YouTube sign-in",
   "ui_error_temporarily_unavailable": "The video service is temporarily unavailable. Try again in a moment.",
   "ui_error_temporarily_unavailable_retrying": "The video service is busy. Retrying…",
+  "ui_error_token_service_unavailable": "This instance cannot get a YouTube token right now. If it lasts, check that its token container can reach YouTube.",
+  "ui_notice_preparing_retrying": "Still preparing this video. Retrying…",
   "device_link_title": "Connect a TV",
   "device_link_subtitle": "Sign your TypeType TV in with this account.",
   "device_link_code_label": "Code shown on your TV",

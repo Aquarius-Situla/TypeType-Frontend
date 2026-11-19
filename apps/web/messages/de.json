@@ -1849,6 +1849,8 @@
   "ui_youtube_device_sign_in_failed": "Die YouTube-Anmeldung konnte nicht gestartet werden",
   "ui_error_temporarily_unavailable": "Der Videodienst ist vorübergehend nicht verfügbar. Versuche es gleich noch einmal.",
   "ui_error_temporarily_unavailable_retrying": "Der Videodienst ist ausgelastet. Neuer Versuch…",
+  "ui_error_token_service_unavailable": "Diese Instanz bekommt gerade kein YouTube-Token. Wenn das anhält, prüfe, ob ihr Token-Container YouTube erreicht.",
+  "ui_notice_preparing_retrying": "Das Video wird noch vorbereitet. Neuer Versuch…",
   "device_link_title": "Fernseher verbinden",
   "device_link_subtitle": "Melde dein TypeType TV mit diesem Konto an.",
   "device_link_code_label": "Code auf deinem Fernseher",
