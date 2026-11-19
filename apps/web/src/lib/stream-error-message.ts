@@ -2,6 +2,8 @@ import { m } from "../paraglide/messages.js";
 import { ApiError } from "./api";
 import { isTemporaryApiError } from "./api-retry";
 
+const OVERLOAD_CODES = new Set(["provider_rate_limited", "provider_paced", "rate_limited"]);
+
 const PERMANENT_CODES = new Set([
   "content_unavailable",
   "private_content",
@@ -27,6 +29,8 @@ export function resolveStreamErrorMessage(error: unknown): string | null {
     case "provider_paced":
     case "upstream_timeout":
       return m.ui_error_temporarily_unavailable();
+    case "token_service_unavailable":
+      return m.ui_error_token_service_unavailable();
     case "provider_data_missing":
     case "media_handle_unavailable":
       return m.ui_error_stream_unavailable();
@@ -44,9 +48,15 @@ export function isPermanentlyUnavailableError(error: unknown): boolean {
   return error instanceof ApiError && PERMANENT_CODES.has(error.code ?? "");
 }
 
+// "Busy" only when the server refuses for load; a video still being prepared or a token container that cannot
+// reach YouTube is not an overload, and the second one needs its owner to look at it.
 export function streamRetryNotice(error: unknown, retrying: boolean): string | undefined {
-  if (!retrying || !isTemporaryApiError(error)) return undefined;
-  return m.ui_error_temporarily_unavailable_retrying();
+  if (!retrying || !(error instanceof ApiError) || !isTemporaryApiError(error)) return undefined;
+  if (error.code === "token_service_unavailable") return m.ui_error_token_service_unavailable();
+  if (error.status === 429 || OVERLOAD_CODES.has(error.code ?? "")) {
+    return m.ui_error_temporarily_unavailable_retrying();
+  }
+  return m.ui_notice_preparing_retrying();
 }
 
 function isProviderAccessBlockedMessage(message: string): boolean {

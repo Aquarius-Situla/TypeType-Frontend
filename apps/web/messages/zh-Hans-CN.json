@@ -1849,6 +1849,8 @@
   "ui_youtube_device_sign_in_failed": "无法开始 YouTube 登录",
   "ui_error_temporarily_unavailable": "视频服务暂不可用，请稍后再试",
   "ui_error_temporarily_unavailable_retrying": "视频服务繁忙，正在重试…",
+  "ui_error_token_service_unavailable": "此实例暂时无法获取 YouTube 令牌。如果持续出现，请检查其 token 容器能否访问 YouTube。",
+  "ui_notice_preparing_retrying": "视频仍在准备中，正在重试…",
   "device_link_title": "连接电视",
   "device_link_subtitle": "用此账号登录你的 TypeType TV",
   "device_link_code_label": "电视上显示的代码",

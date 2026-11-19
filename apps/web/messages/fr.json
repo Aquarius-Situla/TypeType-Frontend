@@ -1849,6 +1849,8 @@
   "ui_youtube_device_sign_in_failed": "Impossible de démarrer la connexion YouTube",
   "ui_error_temporarily_unavailable": "Le service vidéo est temporairement indisponible. Réessayez dans un instant.",
   "ui_error_temporarily_unavailable_retrying": "Le service vidéo est saturé. Nouvelle tentative…",
+  "ui_error_token_service_unavailable": "Cette instance n’arrive pas à obtenir de jeton YouTube pour le moment. Si cela dure, vérifiez que son conteneur token peut joindre YouTube.",
+  "ui_notice_preparing_retrying": "La vidéo est encore en préparation. Nouvelle tentative…",
   "device_link_title": "Connecter une TV",
   "device_link_subtitle": "Connecte ta TypeType TV avec ce compte.",
   "device_link_code_label": "Code affiché sur ta TV",
