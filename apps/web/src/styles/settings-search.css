@@ -1,0 +1,5 @@
+[data-settings-hit] {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+  border-radius: 4px;
+}

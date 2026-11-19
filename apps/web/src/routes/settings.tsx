@@ -14,11 +14,12 @@ import {
   Shield,
   SlidersHorizontal,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SectionShell, type SectionShellItem } from "../components/section-shell";
 import { useAuth } from "../hooks/use-auth";
 import { useInstance } from "../hooks/use-instance";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
+import { searchSettings } from "../lib/settings-search";
 import {
   getStoredSettingsSection,
   isSettingsSection,
@@ -37,6 +38,12 @@ import { SettingsNotifications } from "../settings/settings-notifications";
 import { SettingsPlayback } from "../settings/settings-playback";
 import { SettingsPrivacy } from "../settings/settings-privacy";
 import { SettingsRss } from "../settings/settings-rss";
+import {
+  SettingsSearchField,
+  SettingsSearchResults,
+  useRevealSetting,
+} from "../settings/settings-search";
+import { settingsSearchEntries } from "../settings/settings-search-index";
 import { SettingsService } from "../settings/settings-service";
 import { SettingsVideoPreferences } from "../settings/settings-video-preferences";
 
@@ -171,6 +178,17 @@ function SettingsPage() {
     rememberSettingsSection(activeSection);
   }, [activeSection]);
 
+  const [query, setQuery] = useState("");
+  const [reveal, setReveal] = useState<string | null>(null);
+  const entries = useMemo(() => settingsSearchEntries(items), [items]);
+  const results = useMemo(() => searchSettings(entries, query), [entries, query]);
+  useRevealSetting(reveal, () => setReveal(null));
+  const open = (entry: (typeof results)[number]) => {
+    setQuery("");
+    if (entry.title !== entry.sectionLabel) setReveal(entry.title);
+    navigate({ search: { section: entry.section } });
+  };
+
   return (
     <SectionShell
       title={m.settings_title()}
@@ -178,6 +196,18 @@ function SettingsPage() {
       items={items}
       active={activeSection}
       onSelect={(next) => navigate({ search: { section: next } })}
+      search={
+        <SettingsSearchField
+          query={query}
+          onQuery={setQuery}
+          onOpenFirst={() => results[0] && open(results[0])}
+        />
+      }
+      results={
+        query.trim() ? (
+          <SettingsSearchResults query={query.trim()} results={results} onOpen={open} />
+        ) : undefined
+      }
     >
       {activeSection === "playback" && <SettingsPlayback />}
       {activeSection === "video" && <SettingsVideoPreferences />}

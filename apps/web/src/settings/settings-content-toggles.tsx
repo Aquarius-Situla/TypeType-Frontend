@@ -58,7 +58,7 @@ type ToggleOption = {
   area?: string;
 };
 
-function watchOptions(): ToggleOption[] {
+export function watchOptions(): ToggleOption[] {
   return [
     {
       key: "autoplay",
@@ -78,7 +78,7 @@ function watchOptions(): ToggleOption[] {
   ];
 }
 
-function discoveryOptions(): ToggleOption[] {
+export function discoveryOptions(): ToggleOption[] {
   return [
     {
       key: "deArrowEnabled",
