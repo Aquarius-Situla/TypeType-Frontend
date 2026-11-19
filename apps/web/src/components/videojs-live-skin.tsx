@@ -64,7 +64,7 @@ export function VideoJsLiveSkin({
       <Controls.Root>
         <Controls.Content
           data-skin-bottom=""
-          className={`absolute inset-x-0 bottom-0 z-20 flex items-center gap-1 bg-linear-to-t from-black/80 to-transparent px-2 pt-8 pb-2 contrast-more:from-black/95 [@media(prefers-reduced-transparency:reduce)]:bg-black/90 ${SKIN_HIDDEN_WHEN_IDLE}`}
+          className={`@container absolute inset-x-0 bottom-0 z-20 flex flex-wrap items-center gap-1 bg-linear-to-t from-black/80 to-transparent px-2 pt-8 pb-2 contrast-more:from-black/95 [@media(prefers-reduced-transparency:reduce)]:bg-black/90 ${SKIN_HIDDEN_WHEN_IDLE}`}
         >
           <Controls.Group className="flex min-w-0 items-center">
             <span data-skin-transport="" className="flex items-center">
@@ -73,8 +73,8 @@ export function VideoJsLiveSkin({
             <SkinVolume pill={false} />
             <LiveBadge />
           </Controls.Group>
-          <div className="flex min-w-0 flex-1 items-center">{flat && <VideoJsLiveRewind />}</div>
-          <Controls.Group data-skin-right="" className="flex items-center">
+          {flat && <VideoJsLiveRewind />}
+          <Controls.Group data-skin-right="" className="ml-auto flex items-center">
             <span ref={setBarSlot} className="flex items-center" />
             <VideoJsSettingsMenu speed={false} latency={flat} />
             <SkinCinemaButton />
