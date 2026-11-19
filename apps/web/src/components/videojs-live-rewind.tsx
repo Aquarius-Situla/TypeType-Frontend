@@ -30,7 +30,8 @@ export function useReturnToLive(): () => void {
   };
 }
 
-// The whole broadcast on one slider, the live edge at its right end. Going back keeps the live page and its chat and
+// The whole broadcast on one slider, the live edge at its right end. A narrow player gives it its own row above the
+// buttons, as a VOD progress bar has, instead of the space left between them. Going back keeps the live page and its chat and
 // plays the recording; coming close to the edge again returns to the live.
 export function VideoJsLiveRewind() {
   const archive = useTwitchRewindStore((state) => state.archive);
@@ -63,7 +64,7 @@ export function VideoJsLiveRewind() {
     }
   };
   return (
-    <div className="mx-2 flex min-w-0 flex-1 items-center gap-2">
+    <div className="mx-2 flex min-w-0 flex-1 items-center gap-2 @max-2xl:order-first @max-2xl:mx-1 @max-2xl:basis-full">
       <input
         type="range"
         min={0}
