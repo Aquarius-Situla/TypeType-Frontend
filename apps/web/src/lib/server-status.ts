@@ -20,6 +20,7 @@ export type ServerStatus = {
   notice: ServerNotice | null;
   bootId: string | null;
   resumes: number;
+  resumedAt: number | null;
 };
 
 export const INITIAL_SERVER_STATUS: ServerStatus = {
@@ -28,6 +29,7 @@ export const INITIAL_SERVER_STATUS: ServerStatus = {
   notice: null,
   bootId: null,
   resumes: 0,
+  resumedAt: null,
 };
 
 const KINDS = new Set<string>(["restart", "update", "maintenance"]);
@@ -57,16 +59,22 @@ export function isServerAvailable(status: ServerStatus): boolean {
   return status.connected && status.phase === "online";
 }
 
-export function serverGreeted(status: ServerStatus, hello: ServerHello): ServerStatus {
+export function serverGreeted(
+  status: ServerStatus,
+  hello: ServerHello,
+  now = Date.now(),
+): ServerStatus {
   const restarting = hello.notice?.kind === "restart";
   const recovered =
     status.phase !== "online" || (status.bootId !== null && status.bootId !== hello.bootId);
+  const resumed = !restarting && recovered;
   return {
     connected: true,
     bootId: hello.bootId,
     notice: hello.notice,
     phase: restarting ? "restarting" : "online",
-    resumes: !restarting && recovered ? status.resumes + 1 : status.resumes,
+    resumes: resumed ? status.resumes + 1 : status.resumes,
+    resumedAt: resumed ? now : status.resumedAt,
   };
 }
 
@@ -89,7 +97,7 @@ export function serverLossConfirmed(status: ServerStatus): ServerStatus {
 
 // The event stream answered but no hello came through: a proxy that buffers the stream holds it back. Every other
 // request reaches the server, so the loss is over, and players that failed on it get their resume.
-export function serverReached(status: ServerStatus): ServerStatus {
+export function serverReached(status: ServerStatus, now = Date.now()): ServerStatus {
   if (status.connected) return status;
   const wasUnreachable = status.phase === "unreachable";
   return {
@@ -97,5 +105,6 @@ export function serverReached(status: ServerStatus): ServerStatus {
     connected: true,
     phase: wasUnreachable ? "online" : status.phase,
     resumes: wasUnreachable ? status.resumes + 1 : status.resumes,
+    resumedAt: wasUnreachable ? now : status.resumedAt,
   };
 }

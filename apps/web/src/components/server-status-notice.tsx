@@ -1,37 +1,30 @@
 import { CircleCheck, LoaderCircle, Wrench } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useReducer } from "react";
 import { useServerEvents } from "../hooks/use-server-events";
-import type { ServerNotice, ServerPhase } from "../lib/server-status";
-import { m } from "../paraglide/messages.js";
+import {
+  backNoticeRemaining,
+  type ServerNoticeVariant,
+  serverNoticeText,
+} from "../lib/server-notice-text";
 import { useServerStatusStore } from "../stores/server-status-store";
 
-const BACK_VISIBLE_MS = 3_000;
-
-function noticeText(phase: ServerPhase, notice: ServerNotice | null): string | null {
-  if (phase === "unreachable") return m.server_notice_unreachable();
-  if (phase === "restarting") return m.server_notice_restarting();
-  if (notice?.kind === "update") return m.server_notice_update();
-  if (notice?.kind === "maintenance") return m.server_notice_maintenance();
-  return null;
-}
-
 function useBackOnline(): boolean {
-  const resumes = useServerStatusStore((state) => state.resumes);
-  const [back, setBack] = useState(false);
+  const resumedAt = useServerStatusStore((state) => state.resumedAt);
+  const [, expire] = useReducer((count: number) => count + 1, 0);
+  const remaining = backNoticeRemaining(resumedAt, Date.now());
   useEffect(() => {
-    if (resumes === 0) return;
-    setBack(true);
-    const timer = setTimeout(() => setBack(false), BACK_VISIBLE_MS);
+    if (remaining === 0) return;
+    const timer = setTimeout(expire, remaining);
     return () => clearTimeout(timer);
-  }, [resumes]);
-  return back;
+  }, [remaining]);
+  return remaining > 0;
 }
 
-export function ServerStatusNotice({ variant }: { variant: "page" | "player" }) {
+export function ServerStatusNotice({ variant }: { variant: ServerNoticeVariant }) {
   const phase = useServerStatusStore((state) => state.phase);
   const notice = useServerStatusStore((state) => state.notice);
   const back = useBackOnline();
-  const text = noticeText(phase, notice) ?? (back ? m.server_notice_back() : null);
+  const text = serverNoticeText(phase, notice, variant, back);
   if (!text) return null;
   const waiting = phase !== "online";
   const placement =
