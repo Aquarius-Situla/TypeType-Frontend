@@ -10,6 +10,7 @@ import { useWebVttUrl } from "../hooks/use-web-vtt-url";
 import { attachBilibiliDash } from "../lib/dash-bilibili-behaviour";
 import { registerDashPlayer } from "../lib/dash-player-registration";
 import { buildDashStreamingSettings } from "../lib/dash-streaming-settings";
+import { HLS_BUFFER_LIMITS } from "../lib/hls-buffer-limits";
 import { liveLatencyConfig } from "../lib/live-latency";
 import { normalizeTrackOnLoad } from "../lib/normalize-text-track";
 import { HLS_OUTAGE_LOAD_POLICIES } from "../lib/playback-outage-policy";
@@ -111,6 +112,7 @@ export function VideoJsMedia({
       type: source.type ?? "application/x-mpegurl",
       engine: {
         hlsJs: {
+          ...HLS_BUFFER_LIMITS,
           ...HLS_OUTAGE_LOAD_POLICIES,
           ...(live && liveLatency ? liveLatencyConfig(lowLatency) : {}),
           startPosition: live ? -1 : startRef.current / 1000,
