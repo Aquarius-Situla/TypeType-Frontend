@@ -10,8 +10,7 @@ function needsMetadata(video: PlaylistVideoItem): boolean {
     video.thumbnail === "" ||
     video.duration <= 0 ||
     video.channelName === "" ||
-    video.channelUrl === "" ||
-    video.channelAvatar === ""
+    video.channelUrl === ""
   );
 }
 
