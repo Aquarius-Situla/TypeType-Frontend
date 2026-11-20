@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { GripVertical, X } from "lucide-react";
-import type { DragEvent } from "react";
+import { type DragEvent, useState } from "react";
 import { useDeArrowBranding } from "../hooks/use-dearrow";
 import { useWatchedThreshold } from "../hooks/use-watched-threshold";
 import { formatDuration, formatViews } from "../lib/format";
 import { proxyImage } from "../lib/proxy";
+import { thumbnailCandidates } from "../lib/thumbnail-fallback";
 import { isVideoWatched } from "../lib/watch-progress";
 import { watchRouteSearch } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
@@ -27,7 +28,11 @@ export function PlaylistVideoRow({ video, onRemove, reorderable, listId, onDragS
   const rawThumbnail = video.thumbnail.trim();
   const fallbackThumbnail = rawThumbnail.length > 0 ? proxyImage(rawThumbnail) : "";
   const branding = useDeArrowBranding(video.url, video.title, fallbackThumbnail, video.duration);
-  const thumbnail = branding.thumbnail || null;
+  const [failedThumbnails, setFailedThumbnails] = useState<string[]>([]);
+  const thumbnail =
+    thumbnailCandidates(video.url, branding.thumbnail).find(
+      (url) => !failedThumbnails.includes(url),
+    ) ?? null;
   const watchedThreshold = useWatchedThreshold();
   const watched =
     watchedThreshold > 0
@@ -68,6 +73,7 @@ export function PlaylistVideoRow({ video, onRemove, reorderable, listId, onDragS
               className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 ${watched ? "grayscale opacity-60" : ""}`}
               loading="lazy"
               decoding="async"
+              onError={() => setFailedThumbnails((failed) => [...failed, thumbnail])}
             />
           )}
           {watched && (
