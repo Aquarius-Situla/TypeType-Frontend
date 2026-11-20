@@ -29,8 +29,10 @@ import { usePlayerAccessibilityStore } from "../stores/player-accessibility-stor
 import { AudioSeekBackward10Icon, AudioSeekForward10Icon } from "./audio-control-icons";
 import { VideoJsLoadingMascot } from "./videojs-loading-mascot";
 
+// Video.js rewrites the time slider on every frame. Idle controls leave the layout once faded out: kept with
+// opacity 0, that per-frame restyling made WebKit's memory grow by about 70 MB a minute until iOS reloaded the tab.
 export const SKIN_HIDDEN_WHEN_IDLE =
-  "transition-[opacity,translate] duration-100 ease-out will-change-[opacity,translate] motion-reduce:transition-none [&:not([data-visible]):not(:has(:focus-visible))]:pointer-events-none [&:not([data-visible]):not(:has(:focus-visible))]:translate-y-1 [&:not([data-visible]):not(:has(:focus-visible))]:opacity-0 [&:not([data-visible]):not(:has(:focus-visible))]:duration-300";
+  "transition-[opacity,translate,display] transition-discrete duration-100 ease-out will-change-[opacity,translate] motion-reduce:transition-none starting:translate-y-1 starting:opacity-0 [&:not([data-visible]):not(:has(:focus-visible))]:pointer-events-none [&:not([data-visible]):not(:has(:focus-visible))]:translate-y-1 [&:not([data-visible]):not(:has(:focus-visible))]:opacity-0 [&:not([data-visible]):not(:has(:focus-visible))]:duration-300 [&:not([data-visible]):not(:has(:focus-visible))]:hidden";
 
 const ICON = "size-5";
 
