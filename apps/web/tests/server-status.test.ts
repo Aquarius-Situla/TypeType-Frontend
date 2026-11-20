@@ -50,6 +50,8 @@ test("an announced restart waits, then the new boot resumes once", () => {
   const back = serverGreeted(stillStopping, { bootId: "b", notice: null });
   expect(back.phase).toBe("online");
   expect(back.resumes).toBe(1);
+  expect(back.resumedAt).not.toBeNull();
+  expect(serverGreeted(back, { bootId: "b", notice: null }).resumedAt).toBe(back.resumedAt);
   expect(back.notice).toBeNull();
 });
 
