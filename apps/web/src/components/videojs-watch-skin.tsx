@@ -1,6 +1,7 @@
 import { Controls, ErrorDialog, Gesture, Hotkey, Time } from "@videojs/react";
 import { type CSSProperties, createContext, type ReactNode, useContext, useState } from "react";
 import { PlayerBarSlotContext } from "../hooks/use-player-bar-slot";
+import type { VideoLoadingOrientation } from "../lib/loading-mascot";
 import { BAR_PILL } from "../lib/videojs-menu-classes";
 import type { SponsorBlockSegmentItem } from "../types/api";
 import type { CaptionStyles } from "../types/user";
@@ -39,6 +40,7 @@ export type WatchSkinOptions = {
   flat?: boolean;
   // Audio only drops the picture controls and puts 10 second seeks around play, like the Vidstack audio layout.
   audioOnly?: boolean;
+  orientation?: VideoLoadingOrientation;
 };
 
 export const WatchSkinOptionsContext = createContext<WatchSkinOptions>({
@@ -63,7 +65,7 @@ export function VideoJsWatchSkin({
   const [barSlot, setBarSlot] = useState<HTMLElement | null>(null);
   const group = options.flat ? FLAT_GROUP : BAR_PILL;
   return (
-    <SkinFrame style={style} autoplay={options.autoplay}>
+    <SkinFrame style={style} autoplay={options.autoplay} orientation={options.orientation}>
       <PlayerBarSlotContext.Provider value={barSlot}>{children}</PlayerBarSlotContext.Provider>
       <SkinPoster />
       <Controls.Root>
