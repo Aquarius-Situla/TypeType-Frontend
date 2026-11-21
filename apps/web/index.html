@@ -12,19 +12,6 @@
     <meta name="apple-mobile-web-app-title" content="TypeType" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <script>
-      // Same list as `loading` in src/lib/reaction-gifs.ts: one of them is drawn at each start, and
-      // asked for here so it is on its way before the page body and the app scripts are read.
-      {
-        const gifs = ["/loader-mascot.gif", "/reactions/loading-1.webp", "/reactions/loading-2.webp"];
-        window.__appLoaderGif = gifs[Math.floor(Math.random() * gifs.length)];
-        const preload = document.createElement("link");
-        preload.rel = "preload";
-        preload.as = "image";
-        preload.href = window.__appLoaderGif;
-        document.head.appendChild(preload);
-      }
-    </script>
-    <script>
       (() => {
         const STORAGE_KEY = "typed-theme";
         const DARK = "dark";
@@ -64,6 +51,18 @@
         if (meta) {
           meta.setAttribute("content", resolved === LIGHT ? "#f4f4f5" : "#09090b");
         }
+
+        // Same normal loading mascot as `loadingMascotSrc("normal", resolved)` in src/lib/loading-mascot.ts.
+        const loaderGifs = {
+          dark: "/loading/normal/loading-dark.gif",
+          light: "/loading/normal/loading-light.gif",
+        };
+        window.__appLoaderGif = loaderGifs[resolved];
+        const preload = document.createElement("link");
+        preload.rel = "preload";
+        preload.as = "image";
+        preload.href = window.__appLoaderGif;
+        document.head.appendChild(preload);
       })();
     </script>
     <script>
@@ -109,14 +108,14 @@
       #app-loader {
         position: fixed;
         inset: 0;
-        background: #09090b;
+        background: #15181f;
         display: flex;
         align-items: center;
         justify-content: center;
         z-index: 9999;
       }
       html[data-theme="light"] #app-loader {
-        background: var(--color-app, #fafafa);
+        background: #fdfefe;
       }
       .loading-mascot {
         object-fit: contain;
@@ -125,7 +124,7 @@
   </head>
   <body>
     <div id="app-loader">
-      <img id="app-loader-gif" class="loading-mascot" width="160" height="160" alt="" />
+      <img id="app-loader-gif" class="loading-mascot" width="160" height="149" alt="" />
     </div>
     <script>
       {

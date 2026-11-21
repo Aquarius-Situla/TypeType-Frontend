@@ -6,6 +6,7 @@ import { useTwitchChaptersVtt } from "../hooks/use-twitch-chapters-vtt";
 import { useTwitchVodProgress } from "../hooks/use-twitch-vod-progress";
 import { TWITCH_STAGE_SIZE } from "../lib/twitch-stage-size";
 import type { TwitchVideoPlayback } from "../types/twitch";
+import { LoadingMascot } from "./loading-mascot";
 import { TwitchPlayer } from "./twitch-player";
 import { TwitchVodChat } from "./twitch-vod-chat";
 import { TwitchWatchHeading } from "./twitch-watch-heading";
@@ -36,7 +37,11 @@ function ResumablePlayer({
   const progress = useTwitchVodProgress(id, data.video.lengthSeconds, data.video.recording);
   const chaptersVtt = useTwitchChaptersVtt(id, data.video.lengthSeconds);
   if (!progress.ready)
-    return <div className={`animate-pulse rounded-xl bg-surface-strong ${TWITCH_STAGE_SIZE}`} />;
+    return (
+      <div className={`overflow-hidden rounded-xl ${TWITCH_STAGE_SIZE}`}>
+        <LoadingMascot variant="video-landscape" surface="fill" />
+      </div>
+    );
   return (
     <TwitchPlayer
       target={{ v: id }}
