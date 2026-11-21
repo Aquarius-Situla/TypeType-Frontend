@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 import { useVideoJsWheelVolume } from "../hooks/use-videojs-wheel-volume";
+import type { VideoLoadingOrientation } from "../lib/loading-mascot";
 import { BAR_BUTTON, BAR_PILL } from "../lib/videojs-menu-classes";
 import { m } from "../paraglide/messages.js";
 import { usePlayerAccessibilityStore } from "../stores/player-accessibility-store";
@@ -141,9 +142,19 @@ export function SkinFullscreenButton() {
   );
 }
 
-type SkinFrameProps = { children: ReactNode; style?: CSSProperties; autoplay?: boolean };
+type SkinFrameProps = {
+  children: ReactNode;
+  style?: CSSProperties;
+  autoplay?: boolean;
+  orientation?: VideoLoadingOrientation;
+};
 
-export function SkinFrame({ children, style, autoplay = false }: SkinFrameProps) {
+export function SkinFrame({
+  children,
+  style,
+  autoplay = false,
+  orientation = "landscape",
+}: SkinFrameProps) {
   const announcements = usePlayerAccessibilityStore((state) => state.announcements);
   return (
     <Container
@@ -151,7 +162,7 @@ export function SkinFrame({ children, style, autoplay = false }: SkinFrameProps)
       className="relative block overflow-hidden rounded-(--media-border-radius) bg-black text-white outline-none [&_video]:rounded-[inherit] focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-inset fullscreen:rounded-none"
     >
       {children}
-      <VideoJsLoadingMascot autoplay={autoplay} />
+      <VideoJsLoadingMascot autoplay={autoplay} orientation={orientation} />
       <Title
         className={`media-title pointer-events-none absolute inset-x-0 top-0 z-10 truncate bg-linear-to-b from-black/70 to-transparent px-4 pt-3 pb-8 contrast-more:from-black/95 [@media(prefers-reduced-transparency:reduce)]:bg-black/90 text-sm font-medium text-white ${SKIN_HIDDEN_WHEN_IDLE}`}
       />

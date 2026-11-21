@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { SabrPlaybackRatePreference } from "../lib/sabr-playback-rate-preference";
 import type { VideoJsSource } from "../lib/video-js-source";
 import { LazyVideoJsVideoPlayer } from "./lazy-videojs-video-player";
+import { LoadingMascot } from "./loading-mascot";
 import type { ShortsVideoPlayerProps } from "./shorts-video-player";
 import { VideoJsTrackDefaults } from "./videojs-watch-defaults";
 
@@ -13,12 +14,13 @@ type Props = ShortsVideoPlayerProps & {
 
 export function VideoJsShortsPlayer(props: Props) {
   return (
-    <Suspense fallback={<div aria-hidden="true" className="h-full w-full bg-black" />}>
+    <Suspense fallback={<LoadingMascot variant="video-portrait" surface="fill" />}>
       <LazyVideoJsVideoPlayer
         source={props.source}
         src={props.src ?? ""}
         sabrConfig={props.config}
         sabrPlaybackRatePreference={props.playbackRate}
+        layoutMode="shorts"
         title={props.title}
         poster={props.poster}
         subtitles={props.subtitles}

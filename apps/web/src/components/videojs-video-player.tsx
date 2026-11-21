@@ -4,6 +4,7 @@ import { type CSSProperties, useCallback, useEffect, useRef, useState } from "re
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { usePolicyMutedSave } from "../hooks/use-policy-muted-save";
 import { applyCaptionStyles } from "../lib/caption-styles";
+import type { VideoLoadingOrientation } from "../lib/loading-mascot";
 import { type PlayerKeySignal, PlayerKeySignalContext } from "../lib/player-key-signal";
 import type { VideoJsSource } from "../lib/video-js-source";
 import { AudioCenterToggle } from "./audio-center-toggle";
@@ -70,6 +71,8 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
     if (root && captionStyles) applyCaptionStyles(root, captionStyles);
   }, [root, captionStyles]);
   const Skin = live ? VideoJsLiveSkin : VideoJsWatchSkin;
+  const orientation: VideoLoadingOrientation =
+    props.layoutMode === "shorts" ? "portrait" : "landscape";
   const watchOptions = {
     segments: props.sponsorBlockSegments,
     danmaku: props.provider === "bilibili" || props.provider === "nicovideo",
@@ -80,6 +83,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
     onNext: props.onNextVideo,
     audioOnly: Boolean(props.audioOnly),
     flat: Boolean(props.ownSkin),
+    orientation,
   };
   const keySignal = useRef<PlayerKeySignal>({ key: "", at: Number.NEGATIVE_INFINITY });
   const { onPositionReaderChange } = props;
@@ -147,7 +151,7 @@ export default function VideoJsVideoPlayer(props: VideoJsVideoPlayerProps) {
                   mutedFallback={Boolean(props.ownSkin)}
                   policyMuted={policyMuted}
                 />
-                <VideoJsRecoveryCover />
+                <VideoJsRecoveryCover orientation={orientation} />
                 <VideoJsKeyboardFeedback video={video} />
                 <VideoJsCaptionsHotkey />
                 <VideoJsSingleSubtitle video={video} />
