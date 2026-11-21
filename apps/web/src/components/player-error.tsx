@@ -1,6 +1,6 @@
 import { useRouter } from "@tanstack/react-router";
 import { m } from "../paraglide/messages.js";
-import { ReactionGif } from "./reaction-gif";
+import { FailMascot } from "./fail-mascot";
 
 type Props = {
   onRetry: () => void;
@@ -14,7 +14,7 @@ export function PlayerError({ onRetry }: Props) {
       role="alert"
       className="flex aspect-video w-full min-h-0 flex-col items-center justify-start gap-3 overflow-y-auto sm:justify-center bg-app px-4 py-3"
     >
-      <ReactionGif kind="playbackError" size={80} className="size-12 shrink-0 sm:size-20" />
+      <FailMascot className="w-24 shrink-0 sm:w-36" />
       <div className="flex flex-col items-center gap-1.5">
         <p className="text-white text-base font-semibold tracking-tight">
           {m.ui_playback_failed()}

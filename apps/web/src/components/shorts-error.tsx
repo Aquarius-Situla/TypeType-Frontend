@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { m } from "../paraglide/messages.js";
+import { FailMascot } from "./fail-mascot";
 import { ReactionGif } from "./reaction-gif";
 import { YoutubeIcon } from "./youtube-icon";
 
@@ -30,7 +31,9 @@ export function ShortsError({
           >
             <ReactionGif kind="youtubeReconnect" size={112} className="size-28" />
           </Link>
-        ) : null}
+        ) : (
+          <FailMascot className="w-36 shrink-0 sm:w-44" />
+        )}
         <p className="text-sm text-fg">{message}</p>
         <div className="flex items-center gap-2">
           {youtubeSessionReturnTo ? (

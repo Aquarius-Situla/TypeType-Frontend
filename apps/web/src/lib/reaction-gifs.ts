@@ -1,20 +1,6 @@
-// The animated reactions of the loading and error screens (animated WebP: soft cut-out edges). Each situation has several: a screen
+// The animated reactions of the error screens (animated WebP: soft cut-out edges). Each situation has several: a screen
 // draws one at random when it shows, never the one it showed last, so they take turns.
 const REACTIONS = {
-  loading: ["/loader-mascot.gif", "/reactions/loading-1.webp", "/reactions/loading-2.webp"],
-  videoError: [
-    "/reactions/video-error-1.webp",
-    "/reactions/video-error-2.webp",
-    "/reactions/video-error-3.webp",
-  ],
-  playbackError: [
-    "/reactions/playback-error-1.webp",
-    "/reactions/playback-error-2.webp",
-    "/reactions/playback-error-3.webp",
-    "/reactions/playback-error-4.webp",
-    "/reactions/playback-error-5.webp",
-    "/reactions/playback-error-6.webp",
-  ],
   youtubeReconnect: [
     "/reactions/youtube-reconnect-1.webp",
     "/reactions/youtube-reconnect-2.webp",

@@ -16,7 +16,7 @@ trademark rules; the repository's MIT license does not relicense these files.
 The remaining brand marks come from the `simple-icons` package or the TypeType
 and PipePipe project assets already present in the web application.
 
-## Loading and error reactions
+## Error reactions
 
 The animated reactions in `apps/web/public/reactions/` are third-party GIFs
 found on [KLIPY](https://klipy.com). Their backgrounds were removed (partly
@@ -27,17 +27,6 @@ not cover these files. A rights holder who wants one removed can open an issue.
 
 | File | Source | Shows |
 |---|---|---|
-| `loading-1.webp` | [klipy.com/gifs/penguin-cartoon](https://klipy.com/gifs/penguin-cartoon) | A cartoon penguin eating popcorn |
-| `loading-2.webp` | [klipy.com/gifs/pingu-pingu-dance](https://klipy.com/gifs/pingu-pingu-dance) | Pingu |
-| `video-error-1.webp` | [klipy.com/gifs/pingu-penguin-22](https://klipy.com/gifs/pingu-penguin-22) | Pingu |
-| `video-error-2.webp` | [klipy.com/gifs/peachandgoma-iloveyou-1](https://klipy.com/gifs/peachandgoma-iloveyou-1) | Peach and Goma |
-| `video-error-3.webp` | [klipy.com/gifs/pingu-shocked-4](https://klipy.com/gifs/pingu-shocked-4) | Pingu |
-| `playback-error-1.webp` | [klipy.com/gifs/sad-sigh-1](https://klipy.com/gifs/sad-sigh-1) | A blue cartoon cat |
-| `playback-error-2.webp` | [klipy.com/gifs/milk-and-mocha-bears-sigh](https://klipy.com/gifs/milk-and-mocha-bears-sigh) | Milk and Mocha |
-| `playback-error-3.webp` | [klipy.com/gifs/cartoon-sad-1](https://klipy.com/gifs/cartoon-sad-1) | A cartoon bear |
-| `playback-error-4.webp` | [klipy.com/gifs/twitter-sad-7](https://klipy.com/gifs/twitter-sad-7) | A cartoon panda |
-| `playback-error-5.webp` | [klipy.com/gifs/sad-i-cry](https://klipy.com/gifs/sad-i-cry) | A cartoon cat |
-| `playback-error-6.webp` | [klipy.com/gifs/roof-crying](https://klipy.com/gifs/roof-crying) | A cartoon cat |
 | `youtube-reconnect-1.webp` | [klipy.com/gifs/fire-relax-2](https://klipy.com/gifs/fire-relax-2) | Pudgy Penguins |
 | `youtube-reconnect-2.webp` | [klipy.com/gifs/still-waiting-late-1](https://klipy.com/gifs/still-waiting-late-1) | Pudgy Penguins |
 | `youtube-reconnect-3.webp` | [klipy.com/gifs/milk-and-mocha-wait-cZL](https://klipy.com/gifs/milk-and-mocha-wait-cZL) | Milk and Mocha |
@@ -53,9 +42,6 @@ not cover these files. A rights holder who wants one removed can open an issue.
 | `guest-disabled-1.webp` | [klipy.com/gifs/normies-pixels-41](https://klipy.com/gifs/normies-pixels-41) | A pixel "closed" sign |
 | `guest-disabled-2.webp` | [klipy.com/gifs/pengu-pudgy-195](https://klipy.com/gifs/pengu-pudgy-195) | Pudgy Penguins |
 | `guest-disabled-3.webp` | [klipy.com/gifs/open-closed-1](https://klipy.com/gifs/open-closed-1) | SpongeBob SquarePants (Nickelodeon) |
-
-`apps/web/public/loader-mascot.gif` is the loader GIF that was already in the
-repository, with its black background removed.
 
 # Third-party code
 
