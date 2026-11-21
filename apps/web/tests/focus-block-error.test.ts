@@ -19,10 +19,10 @@ test("normalizes focus channel URLs consistently with backend keys", () => {
 });
 
 test("parses structured focus block errors and cooling-off hours", () => {
-  const challenge = new ApiError(
-    "Focus mode blocks videos outside your study group",
+  const blocked = new ApiError(
+    "Focus mode restricts videos outside your study group",
     403,
-    "focus_challenge_required",
+    "focus_channel_blocked",
     "req-1",
     null,
     {
@@ -32,8 +32,8 @@ test("parses structured focus block errors and cooling-off hours", () => {
       videoTitle: "iPhone Review",
     },
   );
-  expect(parseFocusBlockError(challenge)).toEqual({
-    code: "focus_challenge_required",
+  expect(parseFocusBlockError(blocked)).toEqual({
+    code: "focus_channel_blocked",
     channelUrl: "https://www.youtube.com/channel/UCgeekerwan",
     channelName: "Geekerwan",
     channelAvatarUrl: "https://img/avatar.jpg",

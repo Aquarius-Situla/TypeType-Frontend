@@ -7,11 +7,7 @@ import { remainingCoolingOffHours } from "../lib/focus-block-error";
 import { m } from "../paraglide/messages.js";
 
 type Props = {
-  code:
-    | "focus_challenge_required"
-    | "focus_channel_blocked"
-    | "focus_study_pending"
-    | "focus_entertainment_blocked";
+  code: "focus_channel_blocked" | "focus_study_pending" | "focus_entertainment_blocked";
   channelUrl?: string;
   channelName?: string;
   channelAvatarUrl?: string;
@@ -40,15 +36,13 @@ export function FocusBlockedCard({
   const effectiveCode = (() => {
     if (addedResult?.status === "pending") return "focus_study_pending";
     if (addedResult?.status === "active") return "focus_study_active";
-    if (cancelledPending && code === "focus_study_pending") return "focus_challenge_required";
+    if (cancelledPending && code === "focus_study_pending") return "focus_channel_blocked";
     return code;
   })();
   const effectiveUnlockAt = addedResult?.unlockAt ?? unlockAt;
 
   const canAddStudy =
-    (effectiveCode === "focus_challenge_required" || effectiveCode === "focus_channel_blocked") &&
-    channelUrl.length > 0 &&
-    hasStudyGroup;
+    effectiveCode === "focus_channel_blocked" && channelUrl.length > 0 && hasStudyGroup;
   const canCancelPending =
     effectiveCode === "focus_study_pending" && channelUrl.length > 0 && hasStudyGroup;
 

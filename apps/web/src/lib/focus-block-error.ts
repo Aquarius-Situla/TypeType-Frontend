@@ -12,7 +12,7 @@ const YOUTUBE_CHANNEL_TABS = new Set([
 ]);
 
 export type FocusBlockInfo = {
-  code: "focus_challenge_required" | "focus_study_pending" | "focus_entertainment_blocked";
+  code: "focus_channel_blocked" | "focus_study_pending" | "focus_entertainment_blocked";
   channelUrl: string;
   channelName: string;
   channelAvatarUrl: string;
@@ -56,7 +56,7 @@ function numberDetail(details: Record<string, unknown> | null, key: string): num
 export function parseFocusBlockError(error: unknown): FocusBlockInfo | null {
   if (!(error instanceof ApiError) || error.status !== 403) return null;
   if (
-    error.code !== "focus_challenge_required" &&
+    error.code !== "focus_channel_blocked" &&
     error.code !== "focus_study_pending" &&
     error.code !== "focus_entertainment_blocked"
   ) {

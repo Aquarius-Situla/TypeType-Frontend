@@ -12,12 +12,12 @@ export type FocusSettings = {
   timezone: string | null;
   transitionDays: number;
   archiveDays: number;
+  strictBlocking: boolean;
   grayscaleThumbnails: boolean;
   startedAt: number | null;
   disableAt: number | null;
   entertainmentShare: number;
   active: boolean;
-  focusAiEnabled: boolean;
   studyChannelKeys: string[];
 };
 
@@ -29,6 +29,7 @@ export type FocusSettingsRequest = {
   timezone?: string | null;
   transitionDays?: number;
   archiveDays?: number;
+  strictBlocking?: boolean;
   grayscaleThumbnails?: boolean;
 };
 

@@ -88,7 +88,9 @@ export function SettingsFocus() {
   return (
     <section className="flex flex-col gap-3">
       <p className={SECTION_LABEL}>{m.settings_focus_label()}</p>
-      <p className="px-1 text-sm text-fg-soft">{m.focus_intro_strict()}</p>
+      <p className="px-1 text-sm text-fg-soft">
+        {settings.strictBlocking ? m.focus_intro_strict() : m.focus_intro()}
+      </p>
       <div className="divide-y divide-border border-y border-border">
         <SelectRow
           label={m.focus_group()}
@@ -112,6 +114,18 @@ export function SettingsFocus() {
           disabled={locked || noGroups}
           onChange={(value) => change({ studyGroupId: value })}
         />
+        <div className={ROW}>
+          <div className="typetype-adaptive-label flex min-w-0 flex-1 flex-col gap-1">
+            <span className="text-sm text-fg">{m.focus_strict_blocking()}</span>
+            <span className="text-xs text-fg-soft">{m.focus_strict_blocking_hint()}</span>
+          </div>
+          <ToggleSwitch
+            checked={settings.strictBlocking}
+            disabled={locked}
+            ariaLabel={m.focus_strict_blocking()}
+            onClick={() => change({ strictBlocking: !settings.strictBlocking })}
+          />
+        </div>
         <SelectRow
           label={m.focus_transition()}
           value={String(settings.transitionDays)}
