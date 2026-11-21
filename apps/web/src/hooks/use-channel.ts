@@ -106,7 +106,14 @@ export function useChannel(
   const meta = currentMeta ?? cachedMeta;
   const avatarUrl = meta?.avatarUrl ?? "";
   const videos = pages.flatMap((p) =>
-    p.videos.map((v) => (v.channelAvatar || !avatarUrl ? v : { ...v, channelAvatar: avatarUrl })),
+    p.videos.map((v) => {
+      if (v.channelUrl && (v.channelAvatar || !avatarUrl)) return v;
+      return {
+        ...v,
+        ...(v.channelAvatar || !avatarUrl ? {} : { channelAvatar: avatarUrl }),
+        ...(v.channelUrl || !channelUrl ? {} : { channelUrl }),
+      };
+    }),
   );
 
   useEffect(() => {
