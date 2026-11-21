@@ -14,9 +14,13 @@ function settings(patch: Partial<FocusSettings>): FocusSettings {
     timezone: null,
     transitionDays: 60,
     archiveDays: 7,
+    grayscaleThumbnails: true,
     startedAt: now,
     disableAt: null,
     entertainmentShare: 1,
+    active: true,
+    focusAiEnabled: false,
+    studyChannelKeys: [],
     ...patch,
   };
 }

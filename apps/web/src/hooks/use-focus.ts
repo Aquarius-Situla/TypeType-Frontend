@@ -1,6 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type FocusSettingsRequest, fetchFocus, saveFocus } from "../lib/api-focus";
-import { SUBSCRIPTION_FEED_KEY } from "../lib/subscription-queries";
+import {
+  addFocusStudyChannel,
+  type FocusSettingsRequest,
+  type FocusStudyChannelRequest,
+  fetchFocus,
+  removeFocusStudyChannel,
+  saveFocus,
+} from "../lib/api-focus";
+import { invalidateSubscriptionQueries, SUBSCRIPTION_FEED_KEY } from "../lib/subscription-queries";
 import { useAuth } from "./use-auth";
 import { HOME_RECOMMENDATIONS_KEY } from "./use-recommender";
 
@@ -21,7 +28,38 @@ export function useFocus() {
       client.invalidateQueries({ queryKey: HOME_RECOMMENDATIONS_KEY });
       client.invalidateQueries({ queryKey: SUBSCRIPTION_FEED_KEY });
       client.invalidateQueries({ queryKey: ["channel"] });
+      client.invalidateQueries({ queryKey: ["stream"] });
     },
   });
   return { query, save };
+}
+
+export function useAddFocusStudyChannel() {
+  const { me } = useAuth();
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (request: FocusStudyChannelRequest) => addFocusStudyChannel(request),
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: [...FOCUS_KEY, me?.id] });
+      void invalidateSubscriptionQueries(client, "subscriptions");
+      client.invalidateQueries({ queryKey: HOME_RECOMMENDATIONS_KEY });
+      client.invalidateQueries({ queryKey: ["channel"] });
+      client.invalidateQueries({ queryKey: ["stream"] });
+    },
+  });
+}
+
+export function useRemoveFocusStudyChannel() {
+  const { me } = useAuth();
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (channelUrl: string) => removeFocusStudyChannel(channelUrl),
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: [...FOCUS_KEY, me?.id] });
+      void invalidateSubscriptionQueries(client, "subscriptions");
+      client.invalidateQueries({ queryKey: HOME_RECOMMENDATIONS_KEY });
+      client.invalidateQueries({ queryKey: ["channel"] });
+      client.invalidateQueries({ queryKey: ["stream"] });
+    },
+  });
 }
