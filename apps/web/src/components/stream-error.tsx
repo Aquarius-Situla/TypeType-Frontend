@@ -1,11 +1,13 @@
 import { Link, useRouter } from "@tanstack/react-router";
 import { useAuth } from "../hooks/use-auth";
 import { familyListBlockedMessage } from "../lib/allow-list-error";
+import type { FocusBlockInfo } from "../lib/focus-block-error";
 import { parseGeoRestriction } from "../lib/geo-restriction";
 import { isMemberOnlyMessage } from "../lib/member-only";
 import { type VideoAvailability, videoAvailabilityCopy } from "../lib/video-availability";
 import { m } from "../paraglide/messages.js";
 import { FlagIcon } from "./flag-icon";
+import { FocusBlockedCard } from "./focus-blocked-card";
 import { ReactionGif } from "./reaction-gif";
 import { VideoAvailabilityPoster } from "./video-availability-poster";
 import { YoutubeIcon } from "./youtube-icon";
@@ -17,6 +19,7 @@ type Props = {
   youtubeSessionReturnTo?: string;
   youtubeSessionAction?: "connect" | "reconnect";
   familyListBlocked?: boolean;
+  focusBlock?: FocusBlockInfo | null;
   availability?: VideoAvailability;
   poster?: string;
 };
@@ -28,6 +31,7 @@ export function StreamError({
   youtubeSessionReturnTo,
   youtubeSessionAction,
   familyListBlocked: familyListBlockedOverride,
+  focusBlock,
   availability,
   poster,
 }: Props) {
@@ -86,6 +90,16 @@ export function StreamError({
             {notice && <p className="text-center text-sm text-fg-soft">{notice}</p>}
           </div>
         </>
+      )}
+      {focusBlock && (
+        <FocusBlockedCard
+          code={focusBlock.code}
+          channelUrl={focusBlock.channelUrl}
+          channelName={focusBlock.channelName}
+          channelAvatarUrl={focusBlock.channelAvatarUrl}
+          unlockAt={focusBlock.unlockAt}
+          darkSurface
+        />
       )}
       <div className="flex flex-wrap justify-center gap-3">
         {onRetry && !availability && (

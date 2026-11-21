@@ -23,6 +23,9 @@ type ChannelMeta = {
   verification: ChannelVerification | null;
   hasCourses?: boolean;
   focusArchiveDays?: number | null;
+  focusBlocked?: boolean;
+  focusStudyUnlockAt?: number | null;
+  focusBlockCode?: string | null;
 };
 
 type ChannelPage = {
@@ -80,6 +83,9 @@ export function useChannel(
               verification: res.verification ?? null,
               hasCourses: res.hasCourses === true,
               focusArchiveDays: res.focusArchiveDays ?? null,
+              focusBlocked: res.focusBlocked === true,
+              focusStudyUnlockAt: res.focusStudyUnlockAt ?? null,
+              focusBlockCode: res.focusBlockCode ?? null,
             }
           : null,
         videos: res.videos.map(mapVideoItem),

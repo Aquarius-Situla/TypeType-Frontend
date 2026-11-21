@@ -11,6 +11,7 @@ import { familyListBlockedMessage, isChannelNotAllowedError } from "../lib/allow
 import { ApiError } from "../lib/api";
 import { youtubeSessionActionForError } from "../lib/api-youtube-session";
 import { isEmbeddedFrame, resolveEmbedAccess } from "../lib/embed-access";
+import { parseFocusBlockError } from "../lib/focus-block-error";
 import { parseStartTime } from "../lib/parse-start-time";
 import { selectProgressiveWatchStream } from "../lib/progressive-watch-stream";
 import { proxyImage } from "../lib/proxy";
@@ -99,6 +100,7 @@ function EmbedPage() {
     const youtubeSessionAction = youtubeSessionActionForError(activeError);
     const needsYoutubeSession = youtubeSessionAction !== null;
     const familyListBlocked = isChannelNotAllowedError(activeError);
+    const focusBlock = parseFocusBlockError(activeError);
     const streamErrorMessage = isStreamUnavailableError(activeError)
       ? m.ui_this_video_is_currently_unavailable()
       : resolveStreamErrorMessage(activeError);
@@ -109,11 +111,15 @@ function EmbedPage() {
         ).message
       : familyListBlocked
         ? familyListBlockedMessage()
-        : needsYoutubeSession
-          ? youtubeSessionAction === "reconnect"
-            ? m.ui_reconnect_youtube_to_access_this_video()
-            : m.ui_connect_youtube_to_access_this_video()
-          : (streamErrorMessage ?? m.ui_failed_to_load_stream());
+        : focusBlock
+          ? focusBlock.code === "focus_entertainment_blocked"
+            ? m.focus_blocked_entertainment()
+            : m.focus_blocked_outside_study()
+          : needsYoutubeSession
+            ? youtubeSessionAction === "reconnect"
+              ? m.ui_reconnect_youtube_to_access_this_video()
+              : m.ui_connect_youtube_to_access_this_video()
+            : (streamErrorMessage ?? m.ui_failed_to_load_stream());
     return (
       <EmbedError
         message={message}
@@ -122,7 +128,7 @@ function EmbedPage() {
         poster={availabilityPoster}
         watchUrl={needsYoutubeSession ? watchUrl : undefined}
         onRetry={
-          availability || needsYoutubeSession || familyListBlocked
+          availability || needsYoutubeSession || familyListBlocked || focusBlock
             ? undefined
             : () => {
                 void streamQuery.refetch();

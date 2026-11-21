@@ -7,6 +7,7 @@ import { useSubscriptions } from "../hooks/use-subscriptions";
 import { isChannelNotAllowedError } from "../lib/allow-list-error";
 import type { ChannelSort } from "../lib/api-discovery";
 import type { ChannelTab } from "../lib/channel-route-url";
+import { parseFocusBlockError } from "../lib/focus-block-error";
 import { detectProvider } from "../lib/provider";
 import { videoProgressUrl } from "../lib/video-progress";
 import { m } from "../paraglide/messages.js";
@@ -17,6 +18,7 @@ import { ChannelPlaylistsSection } from "./channel-playlists-section";
 import { ChannelPodcastsSection } from "./channel-podcasts-section";
 import { ChannelPostsSection } from "./channel-posts-section";
 import { FamilyListEmptyState } from "./family-list-empty-state";
+import { FocusBlockedCard } from "./focus-blocked-card";
 import { PageSpinner } from "./page-spinner";
 import { ScrollSentinel } from "./scroll-sentinel";
 import { VideoCard } from "./video-card";
@@ -96,6 +98,18 @@ export function ChannelPageContent({ sourceUrl, sort, searchQuery, tab, onNaviga
         />
       );
     }
+    const focusBlock = parseFocusBlockError(error);
+    if (focusBlock) {
+      return (
+        <FocusBlockedCard
+          code={focusBlock.code}
+          channelUrl={focusBlock.channelUrl || sourceUrl}
+          channelName={focusBlock.channelName}
+          channelAvatarUrl={focusBlock.channelAvatarUrl}
+          unlockAt={focusBlock.unlockAt}
+        />
+      );
+    }
     return <ChannelLoadError fetching={isFetching} onRetry={() => void refetch()} />;
   }
   if (meta && isChannelIdentityBlocked({ url: sourceUrl, name: meta.name })) {
@@ -127,51 +141,67 @@ export function ChannelPageContent({ sourceUrl, sort, searchQuery, tab, onNaviga
           {m.channel_focus_banner({ days: meta.focusArchiveDays })}
         </p>
       )}
-      {tab === "videos" && (
-        <ChannelPodcastsSection channelUrl={sourceUrl} channelAvatar={meta?.avatarUrl} />
-      )}
-      <ChannelFilterBar
-        sort={sort}
-        query={searchQuery}
-        tab={tab}
-        tabsAvailable={tabsAvailable}
-        searchAvailable={searchAvailable}
-        isBilibili={isBilibili}
-        postsAvailable={provider === "youtube"}
-        coursesAvailable={meta?.hasCourses === true || tab === "courses"}
-        onSearch={searchChannel}
-        onTabChange={selectTab}
-        onSortChange={selectSort}
-      />
-      {tab === "playlists" || tab === "courses" ? (
-        <ChannelPlaylistsSection key={tab} channelUrl={sourceUrl} tab={tab} />
-      ) : tab === "posts" && provider === "youtube" ? (
-        <ChannelPostsSection channelUrl={sourceUrl} />
+      {meta?.focusBlocked ? (
+        <FocusBlockedCard
+          code={
+            meta.focusBlockCode === "focus_study_pending"
+              ? "focus_study_pending"
+              : "focus_channel_blocked"
+          }
+          channelUrl={sourceUrl}
+          channelName={meta.name}
+          channelAvatarUrl={meta.avatarUrl}
+          unlockAt={meta.focusStudyUnlockAt}
+        />
       ) : (
         <>
-          {isReplacingVideos ? (
-            <VideoGridSkeleton idPrefix="channel-replace" />
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8">
-              {visibleVideos.map((v, index) => (
-                <div
-                  key={v.id}
-                  className="animate-card-pop-in"
-                  style={{ animationDelay: `${Math.min(index * 45, 270)}ms` }}
-                >
-                  <VideoCard
-                    stream={v}
-                    progressMs={progressByUrl.get(videoProgressUrl(v))?.position}
-                  />
-                </div>
-              ))}
-            </div>
+          {tab === "videos" && (
+            <ChannelPodcastsSection channelUrl={sourceUrl} channelAvatar={meta?.avatarUrl} />
           )}
-          {isFetchingNextPage && <VideoGridSkeleton idPrefix="channel-next" />}
-          <ScrollSentinel
-            onIntersect={fetchNextPage}
-            enabled={hasNextPage && !isFetchingNextPage && !isReplacingVideos}
+          <ChannelFilterBar
+            sort={sort}
+            query={searchQuery}
+            tab={tab}
+            tabsAvailable={tabsAvailable}
+            searchAvailable={searchAvailable}
+            isBilibili={isBilibili}
+            postsAvailable={provider === "youtube"}
+            coursesAvailable={meta?.hasCourses === true || tab === "courses"}
+            onSearch={searchChannel}
+            onTabChange={selectTab}
+            onSortChange={selectSort}
           />
+          {tab === "playlists" || tab === "courses" ? (
+            <ChannelPlaylistsSection key={tab} channelUrl={sourceUrl} tab={tab} />
+          ) : tab === "posts" && provider === "youtube" ? (
+            <ChannelPostsSection channelUrl={sourceUrl} />
+          ) : (
+            <>
+              {isReplacingVideos ? (
+                <VideoGridSkeleton idPrefix="channel-replace" />
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8">
+                  {visibleVideos.map((v, index) => (
+                    <div
+                      key={v.id}
+                      className="animate-card-pop-in"
+                      style={{ animationDelay: `${Math.min(index * 45, 270)}ms` }}
+                    >
+                      <VideoCard
+                        stream={v}
+                        progressMs={progressByUrl.get(videoProgressUrl(v))?.position}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+              {isFetchingNextPage && <VideoGridSkeleton idPrefix="channel-next" />}
+              <ScrollSentinel
+                onIntersect={fetchNextPage}
+                enabled={hasNextPage && !isFetchingNextPage && !isReplacingVideos}
+              />
+            </>
+          )}
         </>
       )}
     </div>

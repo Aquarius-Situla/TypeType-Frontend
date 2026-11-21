@@ -3,6 +3,7 @@ import { isStreamUnavailableError } from "../hooks/use-stream";
 import { familyListBlockedMessage, isChannelNotAllowedError } from "../lib/allow-list-error";
 import { ApiError } from "../lib/api";
 import { youtubeSessionActionForError } from "../lib/api-youtube-session";
+import { type FocusBlockInfo, parseFocusBlockError } from "../lib/focus-block-error";
 import {
   isPermanentlyUnavailableError,
   resolveStreamErrorMessage,
@@ -34,6 +35,7 @@ export function WatchStreamError({ error, publicParam, list, shuffle, poster, on
   const youtubeSessionAction = youtubeSessionActionForError(error);
   const needsYoutubeSession = youtubeSessionAction !== null;
   const familyListBlocked = isChannelNotAllowedError(error);
+  const focusBlock: FocusBlockInfo | null = parseFocusBlockError(error);
   const youtubeSessionReturnTo = needsYoutubeSession
     ? youtubeSessionReturnToForWatch(publicParam, list, shuffle)
     : undefined;
@@ -45,11 +47,13 @@ export function WatchStreamError({ error, publicParam, list, shuffle, poster, on
         .message
     : familyListBlocked
       ? familyListBlockedMessage()
-      : needsYoutubeSession
-        ? youtubeSessionAction === "reconnect"
-          ? m.ui_reconnect_youtube_to_access_this_video()
-          : m.ui_connect_youtube_to_access_this_video()
-        : (streamErrorMessage ?? m.ui_failed_to_load_stream());
+      : focusBlock
+        ? focusBlock.videoTitle || m.focus_blocked_title()
+        : needsYoutubeSession
+          ? youtubeSessionAction === "reconnect"
+            ? m.ui_reconnect_youtube_to_access_this_video()
+            : m.ui_connect_youtube_to_access_this_video()
+          : (streamErrorMessage ?? m.ui_failed_to_load_stream());
 
   return (
     <>
@@ -65,9 +69,14 @@ export function WatchStreamError({ error, publicParam, list, shuffle, poster, on
         message={message}
         notice={skipInPlaylist && skipping ? m.ui_skipping_to_next_video() : undefined}
         familyListBlocked={familyListBlocked}
+        focusBlock={focusBlock}
         availability={availability ?? undefined}
         poster={poster}
-        onRetry={availability || needsYoutubeSession || familyListBlocked ? undefined : onRetry}
+        onRetry={
+          availability || needsYoutubeSession || familyListBlocked || focusBlock
+            ? undefined
+            : onRetry
+        }
         youtubeSessionReturnTo={youtubeSessionReturnTo}
         youtubeSessionAction={youtubeSessionAction ?? undefined}
       />

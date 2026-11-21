@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { memo } from "react";
 import { useClientLocale } from "../hooks/use-client-locale";
 import { useDeArrowBranding } from "../hooks/use-dearrow";
+import { useFocusVisualFilter } from "../hooks/use-focus-visual-filter";
 import { useWatchedThreshold } from "../hooks/use-watched-threshold";
 import { formatDuration, formatPublishedDate, formatViews } from "../lib/format";
 import { relatedVideoThumbnailClassName } from "../lib/layout-preferences";
@@ -41,6 +42,8 @@ function RelatedCardComponent({ stream, relatedStreams, size = "default", progre
   const progressSeconds = Math.max(0, progressMs / 1_000);
   const watched =
     !stream.isLive && isVideoWatched(progressSeconds, stream.duration, watchedThreshold);
+  const { shouldGrayscaleChannel } = useFocusVisualFilter();
+  const focusGrayscale = shouldGrayscaleChannel(stream.channelUrl);
 
   return (
     <article className="watch-related-card relative flex gap-2 group">
@@ -54,7 +57,9 @@ function RelatedCardComponent({ stream, relatedStreams, size = "default", progre
         <img
           src={thumbnail}
           alt={title}
-          className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 ${watched ? "grayscale opacity-60" : ""}`}
+          className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 ${
+            watched ? "grayscale opacity-60" : focusGrayscale ? "grayscale" : ""
+          }`}
           loading="lazy"
           decoding="async"
         />
