@@ -28,6 +28,16 @@ describe("message catalog validation", () => {
     ).toEqual(["empty message value for greeting", "message value must be text for title"]);
   });
 
+  test("checks only the translated entries of a partial catalog", () => {
+    expect(
+      validateMessageCatalog(
+        source,
+        { $schema: source.$schema, greeting: "Bonjour", title: " ", extra: "Unexpected" },
+        { partial: true },
+      ),
+    ).toEqual(["placeholder mismatch for greeting"]);
+  });
+
   test("rejects missing, unknown and mismatched catalog entries", () => {
     expect(
       validateMessageCatalog(source, {

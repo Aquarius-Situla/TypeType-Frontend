@@ -14,6 +14,10 @@ const toPosix = (file) => path.relative(root, file).replaceAll("\\", "/");
 const messagesDir = path.join(root, "apps/web/messages");
 const sourceDir = path.join(root, "apps/web/src");
 const sourceLocale = JSON.parse(fs.readFileSync(path.join(messagesDir, "en.json"), "utf8"));
+const registeredLocales = new Set(
+  JSON.parse(fs.readFileSync(path.join(root, "apps/web/project.inlang/settings.json"), "utf8"))
+    .locales,
+);
 const sourceMessageKeys = Object.keys(sourceLocale).filter((key) => key !== "$schema");
 const failures = [];
 
@@ -24,7 +28,11 @@ function addFailure(file, line, message) {
 for (const fileName of fs.readdirSync(messagesDir).filter((name) => name.endsWith(".json"))) {
   const file = path.join(messagesDir, fileName);
   const locale = JSON.parse(fs.readFileSync(file, "utf8"));
-  for (const failure of validateMessageCatalog(sourceLocale, locale)) addFailure(file, 1, failure);
+  // Weblate adds a language before it is fully translated, and against the main catalog: it only ships
+  // once listed in settings.json, so until then only its translated entries are checked.
+  const partial = !registeredLocales.has(fileName.replace(/\.json$/, ""));
+  for (const failure of validateMessageCatalog(sourceLocale, locale, { partial }))
+    addFailure(file, 1, failure);
 }
 
 const visibleAttributes =
