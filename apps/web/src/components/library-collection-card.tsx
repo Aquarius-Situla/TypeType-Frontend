@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useFocusVisualFilter } from "../hooks/use-focus-visual-filter";
 import { m } from "../paraglide/messages.js";
 
 type Props = {
@@ -7,6 +8,7 @@ type Props = {
   title: string;
   count: number;
   thumbnail?: string;
+  channelUrl?: string;
 };
 
 function EmptyLibraryIcon() {
@@ -30,9 +32,11 @@ function EmptyLibraryIcon() {
   );
 }
 
-export function LibraryCollectionCard({ kind, title, count, thumbnail }: Props) {
+export function LibraryCollectionCard({ kind, title, count, thumbnail, channelUrl }: Props) {
   const [failedThumbnail, setFailedThumbnail] = useState<string | null>(null);
   const showThumbnail = Boolean(thumbnail) && failedThumbnail !== thumbnail;
+  const { shouldGrayscaleChannel } = useFocusVisualFilter();
+  const focusGrayscale = showThumbnail && shouldGrayscaleChannel(channelUrl);
   const label = count === 1 ? m.ui_video_count({ count }) : m.ui_videos_count({ count });
   const body = (
     <div className="flex flex-col gap-2 group">
@@ -41,7 +45,7 @@ export function LibraryCollectionCard({ kind, title, count, thumbnail }: Props) 
           <img
             src={thumbnail}
             alt={title}
-            className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+            className={`h-full w-full object-cover transition-transform duration-200 group-hover:scale-105 ${focusGrayscale ? "grayscale" : ""}`}
             loading="lazy"
             decoding="async"
             onError={() => setFailedThumbnail(thumbnail ?? null)}

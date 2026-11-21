@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useFocusVisualFilter } from "../hooks/use-focus-visual-filter";
 import { proxyImage } from "../lib/proxy";
 import { m } from "../paraglide/messages.js";
 import type { PlaylistItem } from "../types/playlist";
@@ -58,10 +59,13 @@ function EmptyIcon() {
 }
 
 function ThumbnailContent({ playlist }: { playlist: PlaylistItem }) {
-  const rawThumbnail = playlist.videos?.[0]?.thumbnail?.trim() ?? "";
+  const firstVideo = playlist.videos?.[0];
+  const rawThumbnail = firstVideo?.thumbnail?.trim() ?? "";
   const thumbnail = rawThumbnail ? proxyImage(rawThumbnail) : "";
   const [failedThumbnail, setFailedThumbnail] = useState<string | null>(null);
   const showThumbnail = thumbnail !== "" && failedThumbnail !== thumbnail;
+  const { shouldGrayscaleChannel } = useFocusVisualFilter();
+  const focusGrayscale = showThumbnail && shouldGrayscaleChannel(firstVideo?.channelUrl);
   const count = playlist.videoCount ?? playlist.videos?.length ?? 0;
   const label = count === 1 ? m.ui_video_count({ count }) : m.ui_videos_count({ count });
   return (
@@ -70,7 +74,7 @@ function ThumbnailContent({ playlist }: { playlist: PlaylistItem }) {
         <img
           src={thumbnail}
           alt={playlist.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+          className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 ${focusGrayscale ? "grayscale" : ""}`}
           loading="lazy"
           decoding="async"
           onError={() => setFailedThumbnail(thumbnail)}

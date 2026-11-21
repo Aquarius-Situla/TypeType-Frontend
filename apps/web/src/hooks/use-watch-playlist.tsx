@@ -44,6 +44,7 @@ export function useWatchPlaylist(
   collections?: StreamCollectionItem[],
   parts?: StreamPartItem[],
   defaultAudioOnlyEnabled = false,
+  channelUrl?: string,
 ): WatchPlaylist {
   const navigate = useNavigate();
   const { filter } = useBlockedFilter();
@@ -67,12 +68,12 @@ export function useWatchPlaylist(
       ? `collection:${collection.id}`
       : undefined;
   const audioOnly = usePlaylistAudioOnly(audioOnlyPlaylistId, defaultAudioOnlyEnabled);
-  const collectionVideos = streamCollectionPlaylistItems(collection);
-  const collectionSections = streamCollectionSectionGroups(collection).map((sec) => ({
+  const collectionVideos = streamCollectionPlaylistItems(collection, channelUrl);
+  const collectionSections = streamCollectionSectionGroups(collection, channelUrl).map((sec) => ({
     ...sec,
     videos: filter(sec.videos),
   }));
-  const partVideos = streamPartPlaylistItems(parts);
+  const partVideos = streamPartPlaylistItems(parts, channelUrl);
   const name = isManaged
     ? (managedPlaylist.data?.name ?? "")
     : (publicPlaylist.data?.pages[0]?.playlist.title ??
@@ -86,7 +87,8 @@ export function useWatchPlaylist(
     title: item.title,
     thumbnail: item.thumbnail,
     channelName: item.channelName,
-    channelUrl: item.channelUrl,
+    channelUrl:
+      item.channelUrl || (isBilibiliCollectionUrl(publicListUrl) ? channelUrl : undefined),
   }));
   const publicHasCurrent = publicItems.some(
     (video) => toPublicWatchParam(video.url) === currentParam,

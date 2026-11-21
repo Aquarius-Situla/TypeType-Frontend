@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Play } from "lucide-react";
 import type { DragEvent } from "react";
 import { useDeArrowBranding } from "../hooks/use-dearrow";
+import { useFocusVisualFilter } from "../hooks/use-focus-visual-filter";
 import { proxyImage } from "../lib/proxy";
 import { toPublicWatchParam } from "../lib/watch-url";
 import type { WatchPlaylistItem } from "../types/playlist";
@@ -33,6 +34,8 @@ export function WatchPlaylistRow({
   onMove,
 }: Props) {
   const branding = useDeArrowBranding(video.url, video.title, proxyImage(video.thumbnail));
+  const { shouldGrayscaleChannel } = useFocusVisualFilter();
+  const focusGrayscale = shouldGrayscaleChannel(video.channelUrl);
   return (
     <>
       <WatchPlaylistHandle
@@ -57,7 +60,7 @@ export function WatchPlaylistRow({
             <img
               src={branding.thumbnail}
               alt=""
-              className="h-full w-full object-cover"
+              className={`h-full w-full object-cover ${focusGrayscale ? "grayscale" : ""}`}
               loading="lazy"
               decoding="async"
             />

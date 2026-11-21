@@ -10,12 +10,14 @@ export class ApiError extends Error {
   code: string | null;
   requestId: string | null;
   retryAfterMs: number | null;
+  details: Record<string, unknown> | null;
   constructor(
     message: string,
     status: number,
     code: string | null = null,
     requestId: string | null = null,
     retryAfterMs: number | null = null,
+    details: Record<string, unknown> | null = null,
   ) {
     super(message);
     this.name = "ApiError";
@@ -23,6 +25,7 @@ export class ApiError extends Error {
     this.code = code;
     this.requestId = requestId;
     this.retryAfterMs = retryAfterMs;
+    this.details = details;
   }
 }
 
@@ -73,12 +76,17 @@ export function apiErrorFromResponse(response: Response, body: unknown): ApiErro
     body && typeof body === "object" && "requestId" in body && typeof body.requestId === "string"
       ? body.requestId
       : null;
+  const details =
+    body && typeof body === "object" && !Array.isArray(body)
+      ? (body as Record<string, unknown>)
+      : null;
   return new ApiError(
     toErrorMessage(response.status, response.statusText, body),
     response.status,
     toErrorCode(body),
     extractRequestId(response.headers) ?? bodyRequestId,
     parseRetryAfterMs(response.headers.get("Retry-After")),
+    details,
   );
 }
 

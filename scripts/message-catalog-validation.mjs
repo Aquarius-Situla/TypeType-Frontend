@@ -2,14 +2,14 @@ function placeholders(value) {
   return [...value.matchAll(/\{([A-Za-z0-9_.-]+)\}/g)].map((match) => match[1]).sort();
 }
 
-export function validateMessageCatalog(sourceLocale, locale) {
+export function validateMessageCatalog(sourceLocale, locale, { partial = false } = {}) {
   const failures = [];
   const expectedKeys = Object.keys(sourceLocale).sort();
   const actualKeys = Object.keys(locale).sort();
 
   for (const key of expectedKeys) {
     if (!(key in locale)) {
-      failures.push(`missing message key ${key}`);
+      if (!partial) failures.push(`missing message key ${key}`);
       continue;
     }
 
@@ -19,7 +19,7 @@ export function validateMessageCatalog(sourceLocale, locale) {
       continue;
     }
     if (value.trim().length === 0) {
-      failures.push(`empty message value for ${key}`);
+      if (!partial) failures.push(`empty message value for ${key}`);
       continue;
     }
     if (key === "$schema" && value !== sourceLocale[key]) {
@@ -31,6 +31,7 @@ export function validateMessageCatalog(sourceLocale, locale) {
     }
   }
 
+  if (partial) return failures;
   for (const key of actualKeys) {
     if (!(key in sourceLocale)) failures.push(`unknown message key ${key}`);
   }

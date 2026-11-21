@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useFocusVisualFilter } from "../hooks/use-focus-visual-filter";
 import { playlistSearch } from "../lib/playlist-url";
 import { proxyImage } from "../lib/proxy";
 import { m } from "../paraglide/messages.js";
@@ -6,9 +7,12 @@ import type { PublicPlaylistInfo } from "../types/playlist";
 
 type Props = {
   playlist: PublicPlaylistInfo;
+  channelUrl?: string;
 };
 
-export function PublicPlaylistCard({ playlist }: Props) {
+export function PublicPlaylistCard({ playlist, channelUrl }: Props) {
+  const { shouldGrayscaleChannel } = useFocusVisualFilter();
+  const focusGrayscale = Boolean(channelUrl) && shouldGrayscaleChannel(channelUrl);
   const count =
     playlist.streamCount === 1
       ? m.ui_video_count({ count: playlist.streamCount })
@@ -29,7 +33,7 @@ export function PublicPlaylistCard({ playlist }: Props) {
         <img
           src={proxyImage(playlist.thumbnailUrl)}
           alt={playlist.title}
-          className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+          className={`h-full w-full object-cover transition-transform duration-200 group-hover:scale-105 ${focusGrayscale ? "grayscale" : ""}`}
           loading="lazy"
           decoding="async"
         />

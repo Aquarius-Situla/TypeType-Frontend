@@ -105,12 +105,14 @@ function PlaylistsPage() {
             title={m.portability_category_favorites()}
             count={visibleFavorites.length}
             thumbnail={visibleFavorites[0]?.thumbnail}
+            channelUrl={visibleFavorites[0]?.channelUrl}
           />
           <LibraryCollectionCard
             kind="watch-later"
             title={m.portability_category_watch_later()}
             count={visibleWatchLater.length}
             thumbnail={visibleWatchLater[0]?.thumbnail}
+            channelUrl={visibleWatchLater[0]?.channelUrl}
           />
           {visiblePlaylists.map((playlist, index) => (
             <div

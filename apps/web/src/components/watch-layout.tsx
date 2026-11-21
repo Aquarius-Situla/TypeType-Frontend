@@ -73,6 +73,7 @@ export function WatchLayout({
     stream.collections,
     stream.parts,
     settings.audioOnlyPlayback,
+    stream.channelUrl,
   );
   const queue = useWatchQueue(stream, currentParam);
   const sidePanel = queue.panel ?? playlist.panel;

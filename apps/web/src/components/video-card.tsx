@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { memo, useCallback, useEffect, useRef } from "react";
 import { useClientLocale } from "../hooks/use-client-locale";
 import { useDeArrowBranding } from "../hooks/use-dearrow";
+import { useFocusVisualFilter } from "../hooks/use-focus-visual-filter";
 import { useVideoCardPreview } from "../hooks/use-video-card-preview";
 import { useVideoCardPreflight } from "../hooks/use-video-card-sabr-preflight";
 import { useWatchedThreshold } from "../hooks/use-watched-threshold";
@@ -53,6 +54,8 @@ function VideoCardComponent({
   const progressSeconds = Math.max(0, progressMs / 1_000);
   const watched =
     !stream.isLive && isVideoWatched(progressSeconds, stream.duration, watchedThreshold);
+  const { shouldGrayscaleChannel } = useFocusVisualFilter();
+  const focusGrayscale = shouldGrayscaleChannel(stream.channelUrl);
   const watchSearch = watchListSearch(stream.id, listId);
   const { schedule, cancel, focus, commit } = useVideoCardPreflight(stream, progressMs);
   const handleOpen = useCallback(() => {
@@ -103,7 +106,9 @@ function VideoCardComponent({
       >
         <div className="relative aspect-video overflow-hidden rounded-xl bg-surface-strong sm:rounded-lg">
           <div
-            className={`absolute inset-0 transition-opacity ${watched ? "grayscale opacity-60" : ""}`}
+            className={`absolute inset-0 transition-opacity ${
+              watched ? "grayscale opacity-60" : focusGrayscale ? "grayscale" : ""
+            }`}
           >
             <img
               src={thumbnail}
