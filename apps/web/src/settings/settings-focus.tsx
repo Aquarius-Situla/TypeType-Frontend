@@ -5,13 +5,13 @@ import type { FocusSchedule, FocusSettings, FocusSettingsRequest } from "../lib/
 import { clientTimezone } from "../lib/client-timezone";
 import { focusStatus } from "../lib/focus-status";
 import { m } from "../paraglide/messages.js";
-import { ROW } from "./settings-toggle-switch";
+import { ROW, ToggleSwitch } from "./settings-toggle-switch";
 
 const SECTION_LABEL = "px-1 text-xs font-medium text-fg-soft uppercase tracking-wider";
 const SELECT =
   "typetype-adaptive-control h-9 w-full max-w-full rounded-sm border border-border-strong bg-app px-2.5 text-sm text-fg disabled:opacity-50 sm:w-56";
 const BUTTON = "h-9 rounded-sm px-4 text-sm font-medium transition-colors disabled:opacity-50";
-const PRIMARY = `${BUTTON} bg-accent text-white hover:bg-accent-strong`;
+const PRIMARY = `${BUTTON} bg-fg text-app hover:bg-fg-strong`;
 const TRANSITION_DAYS = [30, 60, 90];
 const ARCHIVE_DAYS = [3, 7, 14, 30];
 
@@ -88,13 +88,18 @@ export function SettingsFocus() {
   return (
     <section className="flex flex-col gap-3">
       <p className={SECTION_LABEL}>{m.settings_focus_label()}</p>
-      <p className="px-1 text-sm text-fg-soft">{m.focus_intro()}</p>
+      <p className="px-1 text-sm text-fg-soft">
+        {settings.strictBlocking ? m.focus_intro_strict() : m.focus_intro()}
+      </p>
       <div className="divide-y divide-border border-y border-border">
         <SelectRow
           label={m.focus_group()}
           hint={noGroups ? m.focus_no_groups() : undefined}
           value={settings.entertainmentGroupId ?? ""}
-          options={[{ value: "", label: m.focus_group_none() }, ...groupOptions]}
+          options={[
+            { value: "", label: m.focus_group_none() },
+            ...groupOptions.filter((option) => option.value !== settings.studyGroupId),
+          ]}
           disabled={locked || noGroups}
           onChange={(value) => change({ entertainmentGroupId: value || null })}
         />
@@ -109,6 +114,18 @@ export function SettingsFocus() {
           disabled={locked || noGroups}
           onChange={(value) => change({ studyGroupId: value })}
         />
+        <div className={ROW}>
+          <div className="typetype-adaptive-label flex min-w-0 flex-1 flex-col gap-1">
+            <span className="text-sm text-fg">{m.focus_strict_blocking()}</span>
+            <span className="text-xs text-fg-soft">{m.focus_strict_blocking_hint()}</span>
+          </div>
+          <ToggleSwitch
+            checked={settings.strictBlocking}
+            disabled={locked}
+            ariaLabel={m.focus_strict_blocking()}
+            onClick={() => change({ strictBlocking: !settings.strictBlocking })}
+          />
+        </div>
         <SelectRow
           label={m.focus_transition()}
           value={String(settings.transitionDays)}
@@ -139,6 +156,18 @@ export function SettingsFocus() {
             change({ schedule: value as FocusSchedule, timezone: clientTimezone() })
           }
         />
+        <div className={ROW}>
+          <div className="typetype-adaptive-label flex min-w-0 flex-1 flex-col gap-1">
+            <span className="text-sm text-fg">{m.focus_grayscale_thumbnails()}</span>
+            <span className="text-xs text-fg-soft">{m.focus_grayscale_thumbnails_hint()}</span>
+          </div>
+          <ToggleSwitch
+            checked={settings.grayscaleThumbnails}
+            disabled={locked}
+            ariaLabel={m.focus_grayscale_thumbnails()}
+            onClick={() => change({ grayscaleThumbnails: !settings.grayscaleThumbnails })}
+          />
+        </div>
         <div className={ROW}>
           <div className="typetype-adaptive-label flex min-w-0 flex-1 flex-col gap-1">
             <span className="text-sm text-fg">{statusText(settings)}</span>
@@ -172,7 +201,14 @@ function FocusAction({
       <button
         type="button"
         disabled={busy || !settings.entertainmentGroupId}
-        onClick={() => onRun({ enabled: true })}
+        onClick={() =>
+          onRun({
+            enabled: true,
+            ...(settings.schedule === "weekdays"
+              ? { timezone: settings.timezone ?? clientTimezone() }
+              : {}),
+          })
+        }
         className={PRIMARY}
       >
         {m.focus_turn_on()}

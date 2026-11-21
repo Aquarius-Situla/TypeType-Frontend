@@ -64,7 +64,9 @@ export function useGroupActions(enabled: boolean): GroupActions {
             ? m.sg_duplicate_name()
             : cause instanceof ApiError && cause.code === "subscription_group_invalid_name"
               ? m.sg_invalid_name()
-              : m.sg_save_error(),
+              : cause instanceof ApiError && cause.code === "focus_entertainment_conflict"
+                ? m.focus_entertainment_conflict()
+                : m.sg_save_error(),
       );
     } finally {
       await invalidateSubscriptionQueries(client, change);

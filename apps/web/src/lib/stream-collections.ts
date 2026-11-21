@@ -9,6 +9,7 @@ import { toPublicWatchParam } from "./watch-url";
 
 export function streamCollectionPlaylistItems(
   collection: StreamCollectionItem | undefined,
+  channelUrl?: string,
 ): WatchPlaylistItem[] {
   if (!collection) return [];
 
@@ -24,6 +25,7 @@ export function streamCollectionPlaylistItems(
         url,
         title: episode.title,
         thumbnail: proxyImage(episode.thumbnailUrl),
+        ...(channelUrl ? { channelUrl } : {}),
       });
     }
   }
@@ -38,6 +40,7 @@ export type StreamCollectionSectionGroup = {
 
 export function streamCollectionSectionGroups(
   collection: StreamCollectionItem | undefined,
+  channelUrl?: string,
 ): StreamCollectionSectionGroup[] {
   if (!collection) return [];
 
@@ -54,6 +57,7 @@ export function streamCollectionSectionGroups(
             url,
             title: episode.title,
             thumbnail: proxyImage(episode.thumbnailUrl),
+            ...(channelUrl ? { channelUrl } : {}),
           };
         })
         .filter((item): item is WatchPlaylistItem => item !== null),

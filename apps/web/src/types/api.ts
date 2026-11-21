@@ -235,6 +235,9 @@ export type ChannelResponse = {
   verification?: ChannelVerification | null;
   hasCourses?: boolean;
   focusArchiveDays?: number | null;
+  focusBlocked?: boolean;
+  focusStudyUnlockAt?: number | null;
+  focusBlockCode?: string | null;
 };
 
 export type PodcastItem = {

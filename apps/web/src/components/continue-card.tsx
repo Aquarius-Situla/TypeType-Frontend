@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useClientLocale } from "../hooks/use-client-locale";
 import { useDeArrowBranding } from "../hooks/use-dearrow";
+import { useFocusVisualFilter } from "../hooks/use-focus-visual-filter";
 import { formatDuration, formatPublishedDate, formatViews } from "../lib/format";
 import { proxyImage } from "../lib/proxy";
 import { watchRouteSearch } from "../lib/watch-url";
@@ -30,6 +31,8 @@ export function ContinueCard({ item }: ContinueCardProps) {
   const thumbnail = branding.thumbnail;
   const publishedText = formatPublishedDate(item.publishedAt, undefined, locale);
   const viewsText = item.viewCount === undefined ? "" : formatViews(item.viewCount);
+  const { shouldGrayscaleChannel } = useFocusVisualFilter();
+  const focusGrayscale = shouldGrayscaleChannel(item.channelUrl);
   const metaText = [viewsText, publishedText].filter(Boolean).join(" · ");
   const menuStream: VideoStream = {
     id: item.url,
@@ -59,7 +62,7 @@ export function ContinueCard({ item }: ContinueCardProps) {
           <img
             src={thumbnail}
             alt={branding.title}
-            className="h-full w-full object-cover"
+            className={`h-full w-full object-cover ${focusGrayscale ? "grayscale" : ""}`}
             loading="lazy"
             decoding="async"
           />

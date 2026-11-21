@@ -72,9 +72,11 @@ function sectionRows(): Record<SettingsSection, Row[]> {
     focus: [
       { title: m.focus_group() },
       { title: m.focus_study_group() },
+      { title: m.focus_strict_blocking() },
       { title: m.focus_transition() },
       { title: m.focus_archive() },
       { title: m.focus_schedule() },
+      { title: m.focus_grayscale_thumbnails() },
     ],
     rss: [{ title: m.ui_private_rss_link() }],
     about: [],

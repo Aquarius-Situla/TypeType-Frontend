@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { useDeArrowBranding } from "../hooks/use-dearrow";
+import { useFocusVisualFilter } from "../hooks/use-focus-visual-filter";
 import { useWatchedThreshold } from "../hooks/use-watched-threshold";
 import { formatDuration } from "../lib/format";
 import { proxyImage } from "../lib/proxy";
@@ -28,6 +29,8 @@ function formatWatchedAt(timestamp: number): string {
 export function HistoryCard({ item, onRemove }: HistoryCardProps) {
   const watchedThreshold = useWatchedThreshold();
   const watched = isVideoWatched(item.progress, item.duration, watchedThreshold);
+  const { shouldGrayscaleChannel } = useFocusVisualFilter();
+  const focusGrayscale = shouldGrayscaleChannel(item.channelUrl);
   const branding = useDeArrowBranding(
     item.url,
     item.title,
@@ -43,7 +46,9 @@ export function HistoryCard({ item, onRemove }: HistoryCardProps) {
             <img
               src={branding.thumbnail}
               alt={branding.title}
-              className={`h-full w-full object-cover transition-transform duration-200 group-hover:scale-105 ${watched ? "grayscale opacity-60" : ""}`}
+              className={`h-full w-full object-cover transition-transform duration-200 group-hover:scale-105 ${
+                watched ? "grayscale opacity-60" : focusGrayscale ? "grayscale" : ""
+              }`}
               loading="lazy"
               decoding="async"
             />

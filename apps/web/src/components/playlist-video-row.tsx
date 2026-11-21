@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { GripVertical, X } from "lucide-react";
 import { type DragEvent, useState } from "react";
 import { useDeArrowBranding } from "../hooks/use-dearrow";
+import { useFocusVisualFilter } from "../hooks/use-focus-visual-filter";
 import { useWatchedThreshold } from "../hooks/use-watched-threshold";
 import { formatDuration, formatViews } from "../lib/format";
 import { proxyImage } from "../lib/proxy";
@@ -46,6 +47,8 @@ export function PlaylistVideoRow({ video, onRemove, reorderable, listId, onDragS
   const channelUrl = rawChannelUrl;
   const channelAvatar = rawChannelAvatar;
   const views = rawViews;
+  const { shouldGrayscaleChannel } = useFocusVisualFilter();
+  const focusGrayscale = shouldGrayscaleChannel(rawChannelUrl);
   const menuStream: VideoStream = {
     id: video.url,
     title: video.title,
@@ -70,7 +73,9 @@ export function PlaylistVideoRow({ video, onRemove, reorderable, listId, onDragS
             <img
               src={thumbnail}
               alt={branding.title}
-              className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 ${watched ? "grayscale opacity-60" : ""}`}
+              className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 ${
+                watched ? "grayscale opacity-60" : focusGrayscale ? "grayscale" : ""
+              }`}
               loading="lazy"
               decoding="async"
               onError={() => setFailedThumbnails((failed) => [...failed, thumbnail])}

@@ -2,7 +2,10 @@ import type { WatchPlaylistItem } from "../types/playlist";
 import type { StreamPartItem } from "../types/stream-parts";
 import { proxyImage } from "./proxy";
 
-export function streamPartPlaylistItems(parts: StreamPartItem[] | undefined): WatchPlaylistItem[] {
+export function streamPartPlaylistItems(
+  parts: StreamPartItem[] | undefined,
+  channelUrl?: string,
+): WatchPlaylistItem[] {
   if (!parts?.length) return [];
 
   const seen = new Set<string>();
@@ -16,6 +19,7 @@ export function streamPartPlaylistItems(parts: StreamPartItem[] | undefined): Wa
       url,
       title: part.title,
       thumbnail: proxyImage(part.thumbnailUrl),
+      ...(channelUrl ? { channelUrl } : {}),
     });
   }
   return items;
