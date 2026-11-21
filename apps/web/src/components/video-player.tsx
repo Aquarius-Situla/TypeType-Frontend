@@ -122,6 +122,7 @@ export function VideoPlayer({
       onError={sabrConfig ? undefined : handleError}
       aria-busy={sabrState.seeking}
       data-sabr-seeking={sabrState.seeking ? "true" : undefined}
+      data-custom-loading-mascot={!audioOnly ? "true" : undefined}
       data-player-root=""
     >
       <MediaProvider
@@ -168,6 +169,7 @@ export function VideoPlayer({
         {overlay}
         <VideoPlayerLayout
           audioOnly={audioOnly}
+          autoplay={autoplay}
           hideCinemaMode={hideCinemaMode}
           layoutMode={layoutMode}
           audioUsesVideoProvider={audioOnly && viewType === "video"}
