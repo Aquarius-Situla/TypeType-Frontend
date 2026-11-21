@@ -79,7 +79,7 @@ export function StreamError({
           )}
           <div className="flex flex-col items-center gap-1.5">
             <p className="text-base font-semibold tracking-tight text-white">
-              {m.ui_couldn_t_load_this_video()}
+              {focusBlock ? m.focus_blocked_title() : m.ui_couldn_t_load_this_video()}
             </p>
             <div className="flex items-center gap-2">
               {countryCode && (
