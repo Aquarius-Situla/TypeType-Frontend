@@ -16,6 +16,11 @@
   animation: var(--media-buffering-animation, vds-buffering-spin 1s linear infinite);
 }
 
+[data-media-player][data-custom-loading-mascot="true"]
+  :where(.vds-buffering-icon, .vds-buffering-spinner) {
+  display: none;
+}
+
 [data-media-player][data-sabr-seeking="true"]
   .vds-video-layout[data-sm]
   .vds-controls
