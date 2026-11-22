@@ -1,5 +1,4 @@
-import { DollarSign } from "lucide-react";
-import { siDiscord, siGithub, siLemmy } from "simple-icons";
+import { siDiscord, siGithub, siGithubsponsors, siLemmy } from "simple-icons";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { DISCORD_INVITE_URL } from "../lib/discord";
 import { LEMMY_COMMUNITY_URL } from "../lib/lemmy";
@@ -28,7 +27,7 @@ export function AppFooter() {
         rel="noreferrer"
         className="inline-flex items-center gap-1.5 text-fg-muted hover:text-fg"
       >
-        <ServiceIcon path={siLemmy.path} color="currentColor" label="Lemmy" />
+        <ServiceIcon path={siLemmy.path} color="currentColor" label="Lemmy" className="text-fg" />
         Lemmy
       </a>
       <a
@@ -37,7 +36,7 @@ export function AppFooter() {
         rel="noreferrer"
         className="inline-flex items-center gap-1.5 text-fg-muted hover:text-fg"
       >
-        <ServiceIcon path={siDiscord.path} color="currentColor" label="Discord" />
+        <ServiceIcon path={siDiscord.path} color={`#${siDiscord.hex}`} label="Discord" />
         Discord
       </a>
       <a
@@ -46,7 +45,11 @@ export function AppFooter() {
         rel="noreferrer"
         className="inline-flex items-center gap-1.5 text-accent hover:text-accent-strong"
       >
-        <DollarSign size={13} />
+        <ServiceIcon
+          path={siGithubsponsors.path}
+          color={`#${siGithubsponsors.hex}`}
+          label="GitHub Sponsors"
+        />
         {m.shell_support_typetype()}
       </a>
     </footer>

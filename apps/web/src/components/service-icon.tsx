@@ -2,9 +2,10 @@ type Props = {
   path: string;
   color: string;
   label: string;
+  className?: string;
 };
 
-export function ServiceIcon({ path, color, label }: Props) {
+export function ServiceIcon({ path, color, label, className }: Props) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -14,6 +15,7 @@ export function ServiceIcon({ path, color, label }: Props) {
       fill={color}
       role="img"
       aria-label={label}
+      className={className}
     >
       <path d={path} />
     </svg>

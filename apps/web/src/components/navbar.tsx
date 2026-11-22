@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { DollarSign, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
-import { siDiscord, siLemmy } from "simple-icons";
+import { siDiscord, siGithubsponsors, siLemmy } from "simple-icons";
 import { useAuth } from "../hooks/use-auth";
 import { useAuthToasts } from "../hooks/use-auth-toasts";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
@@ -95,7 +95,11 @@ export function Navbar() {
             title={m.shell_support_typetype()}
             className={COMMUNITY_LINK}
           >
-            <DollarSign size={15} />
+            <ServiceIcon
+              path={siGithubsponsors.path}
+              color={`#${siGithubsponsors.hex}`}
+              label="GitHub Sponsors"
+            />
             <span className="hidden sm:inline">{m.shell_support()}</span>
           </a>
           <a
@@ -106,7 +110,12 @@ export function Navbar() {
             title="Lemmy"
             className={COMMUNITY_LINK}
           >
-            <ServiceIcon path={siLemmy.path} color="currentColor" label="Lemmy" />
+            <ServiceIcon
+              path={siLemmy.path}
+              color="currentColor"
+              label="Lemmy"
+              className="text-fg"
+            />
             <span className="hidden sm:inline">Lemmy</span>
           </a>
           <a
@@ -117,7 +126,7 @@ export function Navbar() {
             title="Discord"
             className={COMMUNITY_LINK}
           >
-            <ServiceIcon path={siDiscord.path} color="currentColor" label="Discord" />
+            <ServiceIcon path={siDiscord.path} color={`#${siDiscord.hex}`} label="Discord" />
             <span className="hidden sm:inline">Discord</span>
           </a>
           <NavbarPlayerEngineSwitch />
