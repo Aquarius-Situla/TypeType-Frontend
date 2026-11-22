@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useId, useRef, useState } from "react";
+import { useState } from "react";
 import { useAddFocusStudyChannel, useFocus, useRemoveFocusStudyChannel } from "../hooks/use-focus";
 import { useSubscriptions } from "../hooks/use-subscriptions";
 import { ApiError } from "../lib/api";
 import { remainingCoolingOffHours } from "../lib/focus-block-error";
 import { m } from "../paraglide/messages.js";
+import { AddStudyConfirmDialog } from "./focus-add-study-dialog";
 
 type Props = {
   code: "focus_channel_blocked" | "focus_study_pending" | "focus_entertainment_blocked";
@@ -160,76 +161,5 @@ export function FocusBlockedCard({
         />
       )}
     </div>
-  );
-}
-
-function AddStudyConfirmDialog({
-  channelName,
-  alreadySubscribed,
-  onConfirm,
-  onCancel,
-}: {
-  channelName: string;
-  alreadySubscribed: boolean;
-  onConfirm: () => void;
-  onCancel: () => void;
-}) {
-  const dialog = useRef<HTMLDialogElement>(null);
-  const cancelRef = useRef<HTMLButtonElement>(null);
-  const titleId = useId();
-  const descriptionId = useId();
-
-  useEffect(() => {
-    const previousFocus = document.activeElement;
-    const element = dialog.current;
-    element?.showModal();
-    cancelRef.current?.focus();
-    return () => {
-      element?.close();
-      if (previousFocus instanceof HTMLElement) previousFocus.focus();
-    };
-  }, []);
-
-  return (
-    <dialog
-      ref={dialog}
-      aria-labelledby={titleId}
-      aria-describedby={descriptionId}
-      onCancel={(event) => {
-        event.preventDefault();
-        onCancel();
-      }}
-      className="m-auto w-[min(28rem,90vw)] rounded-lg border border-border-strong bg-surface p-5 text-left text-fg backdrop:bg-black/60"
-    >
-      <h2 id={titleId} className="text-base font-semibold">
-        {m.focus_add_study_confirm_title()}
-      </h2>
-      <p id={descriptionId} className="mt-2 text-sm leading-relaxed text-fg-muted">
-        {alreadySubscribed
-          ? channelName
-            ? m.focus_add_study_only_confirm_description_named({ channel: channelName })
-            : m.focus_add_study_only_confirm_description()
-          : channelName
-            ? m.focus_add_study_confirm_description_named({ channel: channelName })
-            : m.focus_add_study_confirm_description()}
-      </p>
-      <div className="mt-5 flex justify-end gap-2">
-        <button
-          ref={cancelRef}
-          type="button"
-          onClick={onCancel}
-          className="cursor-pointer rounded-md border border-border-strong px-4 py-1.5 text-sm font-medium text-fg transition-colors hover:bg-surface-strong"
-        >
-          {m.portability_cancel()}
-        </button>
-        <button
-          type="button"
-          onClick={onConfirm}
-          className="cursor-pointer rounded-md bg-fg px-4 py-1.5 text-sm font-medium text-app transition-colors hover:bg-fg-strong"
-        >
-          {m.focus_add_study_confirm_action()}
-        </button>
-      </div>
-    </dialog>
   );
 }
