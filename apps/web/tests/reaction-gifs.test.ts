@@ -1,4 +1,4 @@
-import { expect, test } from "bun:test";
+﻿import { expect, test } from "bun:test";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { pickReaction, type ReactionKind, reactionsFor } from "../src/lib/reaction-gifs";
@@ -14,13 +14,14 @@ const PUBLIC = join(import.meta.dir, "..", "public");
 
 test("every reaction is a file the app ships", () => {
   for (const kind of KINDS) {
-    expect(reactionsFor(kind).length).toBeGreaterThan(1);
+    expect(reactionsFor(kind).length).toBeGreaterThan(0);
     for (const src of reactionsFor(kind)) expect(existsSync(join(PUBLIC, src))).toBe(true);
   }
 });
 
-test("a screen never shows the same reaction twice in a row", () => {
+test("a screen never shows the same reaction twice in a row when multiple exist", () => {
   for (const kind of KINDS) {
+    if (reactionsFor(kind).length <= 1) continue;
     let before = pickReaction(kind);
     for (let draw = 0; draw < 40; draw += 1) {
       const next = pickReaction(kind);
@@ -31,7 +32,9 @@ test("a screen never shows the same reaction twice in a row", () => {
 });
 
 test("every reaction of a kind comes up", () => {
-  const seen = new Set<string>();
-  for (let draw = 0; draw < 200; draw += 1) seen.add(pickReaction("youtubeReconnect"));
-  expect(seen.size).toBe(reactionsFor("youtubeReconnect").length);
+  for (const kind of KINDS) {
+    const seen = new Set<string>();
+    for (let draw = 0; draw < 40; draw += 1) seen.add(pickReaction(kind));
+    expect(seen.size).toBe(reactionsFor(kind).length);
+  }
 });

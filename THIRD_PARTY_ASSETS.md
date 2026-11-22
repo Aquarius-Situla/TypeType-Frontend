@@ -27,18 +27,6 @@ not cover these files. A rights holder who wants one removed can open an issue.
 
 | File | Source | Shows |
 |---|---|---|
-| `youtube-reconnect-1.webp` | [klipy.com/gifs/fire-relax-2](https://klipy.com/gifs/fire-relax-2) | Pudgy Penguins |
-| `youtube-reconnect-2.webp` | [klipy.com/gifs/still-waiting-late-1](https://klipy.com/gifs/still-waiting-late-1) | Pudgy Penguins |
-| `youtube-reconnect-3.webp` | [klipy.com/gifs/milk-and-mocha-wait-cZL](https://klipy.com/gifs/milk-and-mocha-wait-cZL) | Milk and Mocha |
-| `youtube-reconnect-4.webp` | [klipy.com/gifs/pingu-waiting](https://klipy.com/gifs/pingu-waiting) | Pingu |
-| `family-list-blocked-1.webp` | [klipy.com/gifs/cat-no-JqK](https://klipy.com/gifs/cat-no-JqK) | A cat |
-| `family-list-blocked-2.webp` | [klipy.com/gifs/pingu-angry-1](https://klipy.com/gifs/pingu-angry-1) | Pingu |
-| `members-only-1.webp` | [klipy.com/gifs/cat-mochi-4](https://klipy.com/gifs/cat-mochi-4) | A cartoon cat |
-| `members-only-2.webp` | [klipy.com/gifs/scrooge-mcduck-money-2](https://klipy.com/gifs/scrooge-mcduck-money-2) | Scrooge McDuck (Disney) |
-| `members-only-3.webp` | [klipy.com/gifs/je-ne-suis-pas-radin](https://klipy.com/gifs/je-ne-suis-pas-radin) | Scrooge McDuck (Disney) |
-| `not-found-1.webp` | [klipy.com/gifs/duck-cute-3](https://klipy.com/gifs/duck-cute-3) | A cartoon duck |
-| `not-found-2.webp` | [klipy.com/gifs/confused-penguin-2](https://klipy.com/gifs/confused-penguin-2) | Pudgy Penguins |
-| `not-found-3.webp` | [klipy.com/gifs/pingu-pingu-camera-1](https://klipy.com/gifs/pingu-pingu-camera-1) | Pingu |
 | `guest-disabled-1.webp` | [klipy.com/gifs/normies-pixels-41](https://klipy.com/gifs/normies-pixels-41) | A pixel "closed" sign |
 | `guest-disabled-2.webp` | [klipy.com/gifs/pengu-pudgy-195](https://klipy.com/gifs/pengu-pudgy-195) | Pudgy Penguins |
 | `guest-disabled-3.webp` | [klipy.com/gifs/open-closed-1](https://klipy.com/gifs/open-closed-1) | SpongeBob SquarePants (Nickelodeon) |

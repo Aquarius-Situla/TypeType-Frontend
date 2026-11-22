@@ -10,6 +10,7 @@ import {
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ChannelLoadError } from "../src/components/channel-load-error";
+import { DownloaderStorageError } from "../src/components/downloader-storage-error";
 import { EmbedError } from "../src/components/embed-error";
 import { FailMascot } from "../src/components/fail-mascot";
 import { PlayerError } from "../src/components/player-error";
@@ -57,7 +58,7 @@ test("uses Tyme fail mascot on error screens while preserving specialized reacti
     renderToStaticMarkup(
       createElement(EmbedError, { message: "Blocked", familyListBlocked: true }),
     ),
-  ).toContain("/reactions/family-list-blocked-");
+  ).toContain("/reactions/family-list-blocked.webp");
 
   const playerHtml = await renderInRouter(createElement(PlayerError, { onRetry: () => undefined }));
   expect(playerHtml).toContain(expectedSrc);
@@ -85,5 +86,7 @@ test("uses Tyme fail mascot on error screens while preserving specialized reacti
       youtubeSessionReturnTo: "/shorts",
     }),
   );
-  expect(shortsReconnectHtml).toContain("/reactions/youtube-reconnect-");
+  expect(shortsReconnectHtml).toContain("/reactions/youtube-reconnect.webp");
+
+  expect(renderToStaticMarkup(createElement(DownloaderStorageError))).toContain(expectedSrc);
 });

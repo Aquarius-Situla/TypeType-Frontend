@@ -1,26 +1,10 @@
-// The animated reactions of the error screens (animated WebP: soft cut-out edges). Each situation has several: a screen
-// draws one at random when it shows, never the one it showed last, so they take turns.
+﻿// The Tyme reactions shown on error and block screens (transparent WebP). Multi-variant kinds
+// rotate without repeating the previous asset.
 const REACTIONS = {
-  youtubeReconnect: [
-    "/reactions/youtube-reconnect-1.webp",
-    "/reactions/youtube-reconnect-2.webp",
-    "/reactions/youtube-reconnect-3.webp",
-    "/reactions/youtube-reconnect-4.webp",
-  ],
-  familyListBlocked: [
-    "/reactions/family-list-blocked-1.webp",
-    "/reactions/family-list-blocked-2.webp",
-  ],
-  membersOnly: [
-    "/reactions/members-only-1.webp",
-    "/reactions/members-only-2.webp",
-    "/reactions/members-only-3.webp",
-  ],
-  notFound: [
-    "/reactions/not-found-1.webp",
-    "/reactions/not-found-2.webp",
-    "/reactions/not-found-3.webp",
-  ],
+  youtubeReconnect: ["/reactions/youtube-reconnect.webp"],
+  familyListBlocked: ["/reactions/family-list-blocked.webp"],
+  membersOnly: ["/reactions/members-only.webp"],
+  notFound: ["/reactions/not-found.webp"],
   guestDisabled: [
     "/reactions/guest-disabled-1.webp",
     "/reactions/guest-disabled-2.webp",

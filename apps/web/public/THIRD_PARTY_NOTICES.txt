@@ -25,8 +25,7 @@ Error reactions
 The animated reactions in /reactions are third-party GIFs found on KLIPY
 (https://klipy.com), with their backgrounds removed and re-encoded as WebP.
 They show characters that remain the property of their rights holders,
-including Pingu, Scrooge McDuck (Disney), SpongeBob SquarePants (Nickelodeon),
-Pudgy Penguins, and Milk and Mocha. The MIT license of this
+including SpongeBob SquarePants (Nickelodeon) and Pudgy Penguins. The MIT license of this
 project does not cover them. The source of each file is listed in
 THIRD_PARTY_ASSETS.md in the repository.
 
