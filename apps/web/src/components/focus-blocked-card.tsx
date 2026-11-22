@@ -1,11 +1,14 @@
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { type ReactElement, useState } from "react";
 import { useAddFocusStudyChannel, useFocus, useRemoveFocusStudyChannel } from "../hooks/use-focus";
+import { useFocusAllowOncePrompt } from "../hooks/use-focus-allow-once";
 import { useSubscriptions } from "../hooks/use-subscriptions";
 import { ApiError } from "../lib/api";
 import { remainingCoolingOffHours } from "../lib/focus-block-error";
 import { m } from "../paraglide/messages.js";
 import { AddStudyConfirmDialog } from "./focus-add-study-dialog";
+import { FocusAllowOnceDialog } from "./focus-allow-once-dialog";
+import { FocusBlockedActions } from "./focus-blocked-actions";
 
 type Props = {
   code: "focus_channel_blocked" | "focus_study_pending" | "focus_entertainment_blocked";
@@ -13,6 +16,8 @@ type Props = {
   channelName?: string;
   channelAvatarUrl?: string;
   unlockAt?: number | null;
+  videoUrl?: string;
+  onAllowOnceSuccess?: () => void;
   darkSurface?: boolean;
 };
 
@@ -22,14 +27,17 @@ export function FocusBlockedCard({
   channelName = "",
   channelAvatarUrl = "",
   unlockAt = null,
+  videoUrl,
+  onAllowOnceSuccess,
   darkSurface = false,
-}: Props) {
+}: Props): ReactElement {
   const { query: focusQuery } = useFocus();
   const { isSubscribed } = useSubscriptions();
   const addStudyChannel = useAddFocusStudyChannel();
   const removeStudyChannel = useRemoveFocusStudyChannel();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [cancelledPending, setCancelledPending] = useState(false);
+
   const hasStudyGroup = Boolean(focusQuery.data?.studyGroupId);
   const alreadySubscribed = channelUrl.length > 0 && isSubscribed(channelUrl);
   const addedResult = addStudyChannel.data;
@@ -46,31 +54,24 @@ export function FocusBlockedCard({
     effectiveCode === "focus_channel_blocked" && channelUrl.length > 0 && hasStudyGroup;
   const canCancelPending =
     effectiveCode === "focus_study_pending" && channelUrl.length > 0 && hasStudyGroup;
+  const allowOnce = useFocusAllowOncePrompt(videoUrl, effectiveCode, onAllowOnceSuccess);
 
   const description = (() => {
-    if (effectiveCode === "focus_entertainment_blocked") {
-      return m.focus_blocked_entertainment();
-    }
+    if (effectiveCode === "focus_entertainment_blocked") return m.focus_blocked_entertainment();
     if (effectiveCode === "focus_study_pending" && effectiveUnlockAt) {
       return m.focus_blocked_pending({ hours: remainingCoolingOffHours(effectiveUnlockAt) });
     }
-    if (effectiveCode === "focus_study_active") {
-      return m.focus_blocked_study_active();
-    }
-    if (!hasStudyGroup && channelUrl) {
-      return m.focus_blocked_no_study_group();
-    }
+    if (effectiveCode === "focus_study_active") return m.focus_blocked_study_active();
+    if (!hasStudyGroup && channelUrl) return m.focus_blocked_no_study_group();
     return m.focus_blocked_outside_study();
   })();
 
   const activeError = addStudyChannel.error ?? removeStudyChannel.error;
-  const errorMessage = (() => {
-    if (!activeError) return null;
-    if (activeError instanceof ApiError && activeError.code === "focus_entertainment_conflict") {
-      return m.focus_entertainment_conflict();
-    }
-    return m.ui_action_failed();
-  })();
+  const errorMessage = !activeError
+    ? null
+    : activeError instanceof ApiError && activeError.code === "focus_entertainment_conflict"
+      ? m.focus_entertainment_conflict()
+      : m.ui_action_failed();
 
   const containerClass = darkSurface
     ? "flex max-w-md flex-col items-center gap-3 rounded-lg border border-white/15 bg-white/5 px-5 py-4 text-center"
@@ -80,20 +81,12 @@ export function FocusBlockedCard({
     setConfirmOpen(false);
     setCancelledPending(false);
     removeStudyChannel.reset();
-    addStudyChannel.mutate({
-      channelUrl,
-      name: channelName,
-      avatarUrl: channelAvatarUrl,
-    });
+    addStudyChannel.mutate({ channelUrl, name: channelName, avatarUrl: channelAvatarUrl });
   }
 
   function handleCancelPending() {
     addStudyChannel.reset();
-    removeStudyChannel.mutate(channelUrl, {
-      onSuccess: () => {
-        setCancelledPending(true);
-      },
-    });
+    removeStudyChannel.mutate(channelUrl, { onSuccess: () => setCancelledPending(true) });
   }
 
   return (
@@ -106,37 +99,24 @@ export function FocusBlockedCard({
         )}
         <p className={`text-sm ${darkSurface ? "text-white/80" : "text-fg-soft"}`}>{description}</p>
       </div>
-      {canAddStudy && (
-        <button
-          type="button"
-          disabled={addStudyChannel.isPending}
-          onClick={() => setConfirmOpen(true)}
-          className={`cursor-pointer rounded-md px-4 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
-            darkSurface
-              ? "bg-white text-zinc-950 hover:bg-zinc-200"
-              : "bg-fg text-app hover:bg-fg-strong"
-          }`}
-        >
-          {addStudyChannel.isPending
-            ? m.ui_adding()
-            : alreadySubscribed
-              ? m.focus_add_study_channel_only()
-              : m.focus_add_study_channel()}
-        </button>
-      )}
-      {canCancelPending && (
-        <button
-          type="button"
-          disabled={removeStudyChannel.isPending}
-          onClick={handleCancelPending}
-          className={`cursor-pointer rounded-md border px-4 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
-            darkSurface
-              ? "border-white/25 text-white hover:bg-white/10"
-              : "border-border-strong text-fg hover:bg-surface-strong"
-          }`}
-        >
-          {removeStudyChannel.isPending ? m.ui_saving() : m.focus_cancel_study_channel()}
-        </button>
+      <FocusBlockedActions
+        darkSurface={darkSurface}
+        canAddStudy={canAddStudy}
+        addingStudy={addStudyChannel.isPending}
+        alreadySubscribed={alreadySubscribed}
+        onRequestAddStudy={() => setConfirmOpen(true)}
+        canCancelPending={canCancelPending}
+        cancellingPending={removeStudyChannel.isPending}
+        onCancelPending={handleCancelPending}
+        canAllowOnce={allowOnce.visible}
+        allowOnceExhausted={allowOnce.exhausted}
+        requestingAllowOnce={allowOnce.requesting}
+        onRequestAllowOnce={allowOnce.openChallenge}
+      />
+      {allowOnce.visible && allowOnce.exhausted && (
+        <p className={`text-xs ${darkSurface ? "text-white/50" : "text-fg-soft"}`}>
+          {m.focus_allow_once_remaining({ count: 0 })}
+        </p>
       )}
       {!hasStudyGroup && effectiveCode !== "focus_entertainment_blocked" && (
         <Link
@@ -147,9 +127,9 @@ export function FocusBlockedCard({
           {m.focus_open_settings()}
         </Link>
       )}
-      {errorMessage && (
+      {(errorMessage || (!allowOnce.challenge && allowOnce.errorMessage)) && (
         <p role="alert" className="text-xs text-danger-strong">
-          {errorMessage}
+          {errorMessage ?? allowOnce.errorMessage}
         </p>
       )}
       {confirmOpen && (
@@ -158,6 +138,16 @@ export function FocusBlockedCard({
           alreadySubscribed={alreadySubscribed}
           onConfirm={handleConfirmAdd}
           onCancel={() => setConfirmOpen(false)}
+        />
+      )}
+      {allowOnce.challenge && (
+        <FocusAllowOnceDialog
+          challenge={allowOnce.challenge}
+          remainingToday={allowOnce.remainingToday}
+          submitting={allowOnce.submitting}
+          errorMessage={allowOnce.errorMessage}
+          onSubmit={allowOnce.submitCode}
+          onCancel={allowOnce.dismiss}
         />
       )}
     </div>
