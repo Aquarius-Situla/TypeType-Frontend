@@ -48,7 +48,7 @@ export function AppFooter() {
         <ServiceIcon
           path={siGithubsponsors.path}
           color={`#${siGithubsponsors.hex}`}
-          label="GitHub Sponsors"
+          label={m.shell_support_typetype()}
         />
         {m.shell_support_typetype()}
       </a>

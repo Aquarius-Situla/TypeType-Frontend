@@ -98,7 +98,7 @@ export function Navbar() {
             <ServiceIcon
               path={siGithubsponsors.path}
               color={`#${siGithubsponsors.hex}`}
-              label="GitHub Sponsors"
+              label={m.shell_support_typetype()}
             />
             <span className="hidden sm:inline">{m.shell_support()}</span>
           </a>
