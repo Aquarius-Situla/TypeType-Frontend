@@ -13,3 +13,36 @@ test("the watch shell and the other video surfaces share the dark tokens", () =>
   const layout = read("../src/styles/interface-layout.css");
   expect(layout).toMatch(/\.watch-page-shell-dark,\s*\.dark-surface\s*\{[^}]*--color-app:/);
 });
+
+test("video surfaces set the dark zinc scale back, so the ambient light glass stays dark in the light theme", () => {
+  const theme = read("../src/styles/theme.css");
+  const layout = read("../src/styles/interface-layout.css");
+  const block = layout.match(/\.watch-page-shell-dark,\s*\.dark-surface\s*\{([^}]*)\}/)?.[1] ?? "";
+  const light = theme.match(/\[data-theme="light"\]\s*\{([^}]*)\}/)?.[1] ?? "";
+  for (const shade of [
+    "50",
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900",
+    "950",
+  ]) {
+    const inverted = light.match(new RegExp(`--color-zinc-${shade}:\\s*([^;]+);`))?.[1];
+    expect(inverted).toBeDefined();
+    expect(block).toMatch(new RegExp(`--color-zinc-${shade}:\\s*[^;]+;`));
+  }
+  expect(block).toContain("--color-zinc-950: oklch(14.1%");
+  expect(block).toContain("--color-zinc-50: oklch(98.5%");
+});
+
+test("the page behind the ambient light stays dark on the watch page", () => {
+  const ambient = read("../src/styles/ambient-light.css");
+  expect(ambient).toMatch(
+    /html\[data-ambient-light\]:has\(\.watch-page-shell-dark\)\s*\{[^}]*background-color/,
+  );
+});
