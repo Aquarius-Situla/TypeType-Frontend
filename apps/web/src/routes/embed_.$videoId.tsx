@@ -124,6 +124,7 @@ function EmbedPage() {
       <EmbedError
         message={message}
         familyListBlocked={familyListBlocked}
+        focusBlocked={Boolean(focusBlock)}
         availability={availability ?? undefined}
         poster={availabilityPoster}
         watchUrl={needsYoutubeSession ? watchUrl : undefined}

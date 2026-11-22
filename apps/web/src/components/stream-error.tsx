@@ -9,6 +9,7 @@ import { m } from "../paraglide/messages.js";
 import { FailMascot } from "./fail-mascot";
 import { FlagIcon } from "./flag-icon";
 import { FocusBlockedCard } from "./focus-blocked-card";
+import { FocusDenyMascot } from "./focus-deny-mascot";
 import { ReactionGif } from "./reaction-gif";
 import { VideoAvailabilityPoster } from "./video-availability-poster";
 import { YoutubeIcon } from "./youtube-icon";
@@ -57,6 +58,8 @@ export function StreamError({
         size={220}
         className="size-[220px]"
       />
+    ) : focusBlock ? (
+      <FocusDenyMascot className="w-44 shrink-0 sm:w-52" />
     ) : (
       <FailMascot className="w-56 shrink-0 sm:w-64" />
     );

@@ -5,6 +5,7 @@ import { type VideoAvailability, videoAvailabilityCopy } from "../lib/video-avai
 import { m } from "../paraglide/messages.js";
 import { FailMascot } from "./fail-mascot";
 import { FlagIcon } from "./flag-icon";
+import { FocusDenyMascot } from "./focus-deny-mascot";
 import { ReactionGif } from "./reaction-gif";
 import { VideoAvailabilityPoster } from "./video-availability-poster";
 
@@ -18,6 +19,7 @@ type EmbedErrorProps = {
   heading?: string;
   image?: string;
   familyListBlocked?: boolean;
+  focusBlocked?: boolean;
   availability?: VideoAvailability;
   poster?: string;
   watchUrl?: string;
@@ -29,6 +31,7 @@ export function EmbedError({
   heading,
   image,
   familyListBlocked: familyListBlockedOverride,
+  focusBlocked = false,
   availability,
   poster,
   watchUrl,
@@ -44,6 +47,7 @@ export function EmbedError({
     : isMemberOnly
       ? "membersOnly"
       : null;
+  const showFocusDeny = !image && !reactionKind && focusBlocked;
   const headingText =
     heading ??
     availabilityCopy?.heading ??
@@ -67,6 +71,8 @@ export function EmbedError({
               src={image}
               className="size-[140px]"
             />
+          ) : showFocusDeny ? (
+            <FocusDenyMascot className="w-36 shrink-0 sm:w-44" />
           ) : (
             <FailMascot className="w-40 shrink-0 sm:w-48" />
           )}

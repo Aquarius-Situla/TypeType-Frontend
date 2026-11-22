@@ -5,6 +5,7 @@ import { useSubscriptions } from "../hooks/use-subscriptions";
 import { ApiError } from "../lib/api";
 import { remainingCoolingOffHours } from "../lib/focus-block-error";
 import { m } from "../paraglide/messages.js";
+import { FocusDenyMascot } from "./focus-deny-mascot";
 
 type Props = {
   code: "focus_channel_blocked" | "focus_study_pending" | "focus_entertainment_blocked";
@@ -73,7 +74,7 @@ export function FocusBlockedCard({
 
   const containerClass = darkSurface
     ? "flex max-w-md flex-col items-center gap-3 rounded-lg border border-white/15 bg-white/5 px-5 py-4 text-center"
-    : "flex flex-col items-start gap-3 rounded-lg border border-border bg-surface p-4";
+    : "flex flex-col items-start gap-4 rounded-lg border border-border bg-surface p-4 sm:flex-row sm:items-center";
 
   function handleConfirmAdd() {
     setConfirmOpen(false);
@@ -97,60 +98,65 @@ export function FocusBlockedCard({
 
   return (
     <div className={containerClass}>
-      <div className="flex flex-col gap-1">
-        {channelName && (
-          <p className={`text-sm font-medium ${darkSurface ? "text-white" : "text-fg"}`}>
-            {channelName}
+      {!darkSurface && <FocusDenyMascot className="w-28 shrink-0 sm:w-32" />}
+      <div className={darkSurface ? "contents" : "flex flex-col items-start gap-3"}>
+        <div className="flex flex-col gap-1">
+          {channelName && (
+            <p className={`text-sm font-medium ${darkSurface ? "text-white" : "text-fg"}`}>
+              {channelName}
+            </p>
+          )}
+          <p className={`text-sm ${darkSurface ? "text-white/80" : "text-fg-soft"}`}>
+            {description}
+          </p>
+        </div>
+        {canAddStudy && (
+          <button
+            type="button"
+            disabled={addStudyChannel.isPending}
+            onClick={() => setConfirmOpen(true)}
+            className={`cursor-pointer rounded-md px-4 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
+              darkSurface
+                ? "bg-white text-zinc-950 hover:bg-zinc-200"
+                : "bg-fg text-app hover:bg-fg-strong"
+            }`}
+          >
+            {addStudyChannel.isPending
+              ? m.ui_adding()
+              : alreadySubscribed
+                ? m.focus_add_study_channel_only()
+                : m.focus_add_study_channel()}
+          </button>
+        )}
+        {canCancelPending && (
+          <button
+            type="button"
+            disabled={removeStudyChannel.isPending}
+            onClick={handleCancelPending}
+            className={`cursor-pointer rounded-md border px-4 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
+              darkSurface
+                ? "border-white/25 text-white hover:bg-white/10"
+                : "border-border-strong text-fg hover:bg-surface-strong"
+            }`}
+          >
+            {removeStudyChannel.isPending ? m.ui_saving() : m.focus_cancel_study_channel()}
+          </button>
+        )}
+        {!hasStudyGroup && effectiveCode !== "focus_entertainment_blocked" && (
+          <Link
+            to="/settings"
+            search={{ section: "focus" }}
+            className={`text-xs underline underline-offset-2 ${darkSurface ? "text-white/80 hover:text-white" : "text-fg hover:text-fg-strong"}`}
+          >
+            {m.focus_open_settings()}
+          </Link>
+        )}
+        {errorMessage && (
+          <p role="alert" className="text-xs text-danger-strong">
+            {errorMessage}
           </p>
         )}
-        <p className={`text-sm ${darkSurface ? "text-white/80" : "text-fg-soft"}`}>{description}</p>
       </div>
-      {canAddStudy && (
-        <button
-          type="button"
-          disabled={addStudyChannel.isPending}
-          onClick={() => setConfirmOpen(true)}
-          className={`cursor-pointer rounded-md px-4 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
-            darkSurface
-              ? "bg-white text-zinc-950 hover:bg-zinc-200"
-              : "bg-fg text-app hover:bg-fg-strong"
-          }`}
-        >
-          {addStudyChannel.isPending
-            ? m.ui_adding()
-            : alreadySubscribed
-              ? m.focus_add_study_channel_only()
-              : m.focus_add_study_channel()}
-        </button>
-      )}
-      {canCancelPending && (
-        <button
-          type="button"
-          disabled={removeStudyChannel.isPending}
-          onClick={handleCancelPending}
-          className={`cursor-pointer rounded-md border px-4 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
-            darkSurface
-              ? "border-white/25 text-white hover:bg-white/10"
-              : "border-border-strong text-fg hover:bg-surface-strong"
-          }`}
-        >
-          {removeStudyChannel.isPending ? m.ui_saving() : m.focus_cancel_study_channel()}
-        </button>
-      )}
-      {!hasStudyGroup && effectiveCode !== "focus_entertainment_blocked" && (
-        <Link
-          to="/settings"
-          search={{ section: "focus" }}
-          className={`text-xs underline underline-offset-2 ${darkSurface ? "text-white/80 hover:text-white" : "text-fg hover:text-fg-strong"}`}
-        >
-          {m.focus_open_settings()}
-        </Link>
-      )}
-      {errorMessage && (
-        <p role="alert" className="text-xs text-danger-strong">
-          {errorMessage}
-        </p>
-      )}
       {confirmOpen && (
         <AddStudyConfirmDialog
           channelName={channelName}
