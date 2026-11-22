@@ -25,3 +25,9 @@ test("parses several emotes in one comment", () => {
   const tokens = parseDanmakuRichText("[doge] et [妙啊]");
   expect(tokens.map((token) => token.type)).toEqual(["emote", "text", "emote"]);
 });
+
+test("video ids in danmaku become video tokens next to emotes", () => {
+  const tokens = parseDanmakuRichText("[doge]看BV17x411w7KC");
+  expect(tokens.map((token) => token.type)).toEqual(["emote", "text", "video"]);
+  expect(tokens[2]).toMatchObject({ raw: "BV17x411w7KC", start: 7 });
+});

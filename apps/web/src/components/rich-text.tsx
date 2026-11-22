@@ -6,7 +6,10 @@ import {
   type RichTextNode,
   sameVideoTimestampSeconds,
 } from "../lib/rich-text";
+import { splitVideoIds } from "../lib/video-id-mentions";
+import { watchServiceId } from "../lib/watch-url";
 import { ExternalLinkModal } from "./external-link-modal";
+import { VideoIdLink } from "./video-id-mention";
 
 type RichTextProps = {
   text: string;
@@ -18,6 +21,23 @@ export function RichText({ text, videoUrl, onSeekTimestamp }: RichTextProps) {
   const [pendingUrl, setPendingUrl] = useState<string | null>(null);
   const openInternal = useInternalLink();
   const nodes = parseRichTextMarkup(text);
+  // Bilibili and NicoNico viewers name other videos by their bare id; elsewhere such words are left alone.
+  const linkVideoIds = videoUrl !== undefined && watchServiceId(videoUrl, 0) !== 0;
+
+  function renderPlainText(value: string, key: string): ReactNode[] {
+    if (!linkVideoIds) return [<span key={key}>{value}</span>];
+    return splitVideoIds(value).map((part) =>
+      part.type === "text" ? (
+        <span key={`${key}-${part.start}`}>{part.value}</span>
+      ) : (
+        <VideoIdLink
+          key={`${key}-${part.start}`}
+          mention={part}
+          onOpen={(url) => openInternal(url, setPendingUrl)}
+        />
+      ),
+    );
+  }
 
   function renderNodes(
     children: RichTextNode[],
@@ -32,7 +52,7 @@ export function RichText({ text, videoUrl, onSeekTimestamp }: RichTextProps) {
       if (insideLink) return [<span key={key}>{node.value}</span>];
       return parseTextSegments(node.value, `${key}-`).map((segment) =>
         segment.type === "text" ? (
-          <span key={segment.id}>{segment.value}</span>
+          renderPlainText(segment.value, segment.id)
         ) : segment.type === "url" ? (
           <a
             key={segment.id}

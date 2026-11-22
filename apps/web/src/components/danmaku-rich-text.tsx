@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { parseDanmakuRichText } from "../lib/danmaku-rich-text";
 import { proxyImage } from "../lib/proxy";
+import { VideoIdTitle } from "./video-id-mention";
 
 const NO_FAILED_EMOTES: ReadonlySet<string> = new Set();
 
@@ -13,6 +14,8 @@ export function DanmakuRichText({ text, fontSize }: { text: string; fontSize: nu
       {tokens.map((token) =>
         token.type === "text" ? (
           <span key={`text-${token.start}`}>{token.text}</span>
+        ) : token.type === "video" ? (
+          <VideoIdTitle key={`video-${token.start}`} mention={token} />
         ) : failed.has(token.src) ? (
           <span key={`failed-${token.start}`}>{token.code}</span>
         ) : (
