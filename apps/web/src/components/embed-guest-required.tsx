@@ -1,5 +1,5 @@
 import { m } from "../paraglide/messages.js";
-import { ReactionGif } from "./reaction-gif";
+import { FocusDenyMascot } from "./focus-deny-mascot";
 
 type EmbedGuestRequiredProps = {
   watchUrl: string;
@@ -8,7 +8,7 @@ type EmbedGuestRequiredProps = {
 export function EmbedGuestRequired({ watchUrl }: EmbedGuestRequiredProps) {
   return (
     <div className="w-full h-full bg-black flex flex-col items-center justify-center gap-5 px-4">
-      <ReactionGif kind="guestDisabled" size={140} className="size-[140px]" />
+      <FocusDenyMascot className="w-36 shrink-0 sm:w-44" />
       <div className="flex flex-col items-center gap-1.5">
         <p className="text-white text-base font-semibold tracking-tight">
           {m.ui_embed_unavailable()}

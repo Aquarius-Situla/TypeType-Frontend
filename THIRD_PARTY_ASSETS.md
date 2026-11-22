@@ -16,21 +16,6 @@ trademark rules; the repository's MIT license does not relicense these files.
 The remaining brand marks come from the `simple-icons` package or the TypeType
 and PipePipe project assets already present in the web application.
 
-## Error reactions
-
-The animated reactions in `apps/web/public/reactions/` are third-party GIFs
-found on [KLIPY](https://klipy.com). Their backgrounds were removed (partly
-with the BiRefNet segmentation model) and they were re-encoded as animated
-WebP; nothing else was changed. The characters and pictures remain the
-property of their respective rights holders; the repository's MIT license does
-not cover these files. A rights holder who wants one removed can open an issue.
-
-| File | Source | Shows |
-|---|---|---|
-| `guest-disabled-1.webp` | [klipy.com/gifs/normies-pixels-41](https://klipy.com/gifs/normies-pixels-41) | A pixel "closed" sign |
-| `guest-disabled-2.webp` | [klipy.com/gifs/pengu-pudgy-195](https://klipy.com/gifs/pengu-pudgy-195) | Pudgy Penguins |
-| `guest-disabled-3.webp` | [klipy.com/gifs/open-closed-1](https://klipy.com/gifs/open-closed-1) | SpongeBob SquarePants (Nickelodeon) |
-
 # Third-party code
 
 The ambient light (`apps/web/src/lib/ambient-light.ts` and

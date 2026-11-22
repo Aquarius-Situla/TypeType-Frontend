@@ -11,8 +11,10 @@ import {
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { EmbedError } from "../src/components/embed-error";
+import { EmbedGuestRequired } from "../src/components/embed-guest-required";
 import { FocusBlockedCard } from "../src/components/focus-blocked-card";
 import { FocusDenyMascot } from "../src/components/focus-deny-mascot";
+import { GuestDisabledScreen } from "../src/components/guest-disabled-screen";
 import { StreamError } from "../src/components/stream-error";
 import {
   allFocusDenyMascotPaths,
@@ -95,4 +97,12 @@ test("uses FocusDenyMascot on Watch, Embed, and Channel focus block screens", as
     }),
   );
   expect(darkCardHtml).not.toContain("/focus/");
+
+  const embedGuestHtml = renderToStaticMarkup(
+    createElement(EmbedGuestRequired, { watchUrl: "https://example.com/watch?v=1" }),
+  );
+  expect(embedGuestHtml).toContain(expectedSrc);
+
+  const guestDisabledHtml = await renderInApp(createElement(GuestDisabledScreen));
+  expect(guestDisabledHtml).toContain(expectedSrc);
 });

@@ -1,15 +1,9 @@
-﻿import { expect, test } from "bun:test";
+import { expect, test } from "bun:test";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { pickReaction, type ReactionKind, reactionsFor } from "../src/lib/reaction-gifs";
 
-const KINDS: ReactionKind[] = [
-  "youtubeReconnect",
-  "familyListBlocked",
-  "membersOnly",
-  "notFound",
-  "guestDisabled",
-];
+const KINDS: ReactionKind[] = ["youtubeReconnect", "familyListBlocked", "membersOnly", "notFound"];
 const PUBLIC = join(import.meta.dir, "..", "public");
 
 test("every reaction is a file the app ships", () => {

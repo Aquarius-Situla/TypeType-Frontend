@@ -1,15 +1,10 @@
-﻿// The Tyme reactions shown on error and block screens (transparent WebP). Multi-variant kinds
+// The Tyme reactions shown on error and block screens (transparent WebP). Multi-variant kinds
 // rotate without repeating the previous asset.
 const REACTIONS = {
   youtubeReconnect: ["/reactions/youtube-reconnect.webp"],
   familyListBlocked: ["/reactions/family-list-blocked.webp"],
   membersOnly: ["/reactions/members-only.webp"],
   notFound: ["/reactions/not-found.webp"],
-  guestDisabled: [
-    "/reactions/guest-disabled-1.webp",
-    "/reactions/guest-disabled-2.webp",
-    "/reactions/guest-disabled-3.webp",
-  ],
 } as const satisfies Record<string, readonly string[]>;
 
 export type ReactionKind = keyof typeof REACTIONS;
