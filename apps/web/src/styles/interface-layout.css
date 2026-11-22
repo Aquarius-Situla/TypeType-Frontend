@@ -2,9 +2,9 @@
   --typetype-sidebar-width: 12rem;
 }
 
-/* Video surfaces stay dark in both themes: the watch page shell, players, embeds and overlays over a video. The light
-   theme inverts the zinc scale, so it is set back here too: the ambient light glass and zinc utilities stay dark. */
-.watch-page-shell-dark,
+/* Players, embeds and overlays over a video stay dark in both themes. The light theme inverts the zinc scale, so it is
+   set back here too. The watch page itself follows the theme and only takes the darker video palette in dark mode. */
+:root:not([data-theme="light"]) .watch-page-shell-dark,
 .dark-surface {
   --color-app: #0f0f0f;
   --color-surface: #181818;

@@ -3,10 +3,6 @@ html[data-ambient-light] {
   background-color: var(--color-zinc-950);
 }
 
-html[data-ambient-light]:has(.watch-page-shell-dark) {
-  background-color: #0f0f0f;
-}
-
 html[data-ambient-light] body,
 html[data-ambient-light] #root,
 html[data-ambient-light] .typetype-shell {

@@ -9,15 +9,20 @@ test("utilities read the theme tokens, so a dark video surface can override them
   expect(theme).not.toContain("@theme inline");
 });
 
-test("the watch shell and the other video surfaces share the dark tokens", () => {
+test("video surfaces always share the dark tokens, the watch shell only in the dark theme", () => {
   const layout = read("../src/styles/interface-layout.css");
-  expect(layout).toMatch(/\.watch-page-shell-dark,\s*\.dark-surface\s*\{[^}]*--color-app:/);
+  expect(layout).toMatch(
+    /:root:not\(\[data-theme="light"\]\) \.watch-page-shell-dark,\s*\.dark-surface\s*\{[^}]*--color-app:/,
+  );
 });
 
 test("video surfaces set the dark zinc scale back, so the ambient light glass stays dark in the light theme", () => {
   const theme = read("../src/styles/theme.css");
   const layout = read("../src/styles/interface-layout.css");
-  const block = layout.match(/\.watch-page-shell-dark,\s*\.dark-surface\s*\{([^}]*)\}/)?.[1] ?? "";
+  const block =
+    layout.match(
+      /:root:not\(\[data-theme="light"\]\) \.watch-page-shell-dark,\s*\.dark-surface\s*\{([^}]*)\}/,
+    )?.[1] ?? "";
   const light = theme.match(/\[data-theme="light"\]\s*\{([^}]*)\}/)?.[1] ?? "";
   for (const shade of [
     "50",
@@ -40,9 +45,7 @@ test("video surfaces set the dark zinc scale back, so the ambient light glass st
   expect(block).toContain("--color-zinc-50: oklch(98.5%");
 });
 
-test("the page behind the ambient light stays dark on the watch page", () => {
+test("the page behind the ambient light follows the theme on the watch page", () => {
   const ambient = read("../src/styles/ambient-light.css");
-  expect(ambient).toMatch(
-    /html\[data-ambient-light\]:has\(\.watch-page-shell-dark\)\s*\{[^}]*background-color/,
-  );
+  expect(ambient).not.toContain(":has(.watch-page-shell-dark)");
 });
