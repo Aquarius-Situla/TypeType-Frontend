@@ -127,7 +127,7 @@ export function WatchPageSkeleton({
       <div className={classes.containerClass}>
         <div className={classes.playerWrapClass}>
           <div className={classes.playerBoxClass}>
-            <div className="aspect-video w-full overflow-hidden bg-black flex items-center justify-center">
+            <div className="flex aspect-video w-full items-center justify-center overflow-hidden bg-[#fdfefe] dark:bg-[#15181f]">
               <WatchLoadingIndicator notice={notice} />
             </div>
           </div>
@@ -146,7 +146,7 @@ export function WatchPageSkeleton({
     <div className={classes.containerClass}>
       <div className={classes.playerWrapClass}>
         <div className={classes.playerBoxClass}>
-          <div className="aspect-video w-full overflow-hidden rounded-lg bg-black flex items-center justify-center">
+          <div className="flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg bg-[#fdfefe] dark:bg-[#15181f]">
             <WatchLoadingIndicator notice={notice} />
           </div>
         </div>

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { useSettings } from "../hooks/use-settings";
 import { videoJsSourceFor } from "../lib/video-js-source";
 import { LazyVideoJsVideoPlayer } from "./lazy-videojs-video-player";
+import { LoadingMascot } from "./loading-mascot";
 import { VideoPlayer } from "./video-player";
 import type { VideoPlayerProps } from "./video-player-types";
 
@@ -36,7 +37,7 @@ export function EmbedVideoPlayer({ playerKey, watchUrl, ...props }: Props) {
   return (
     <div className="fixed inset-0 bg-black group">
       {videoJs ? (
-        <Suspense fallback={<div aria-hidden="true" className="h-full w-full bg-black" />}>
+        <Suspense fallback={<LoadingMascot variant="video-landscape" surface="fill" />}>
           <LazyVideoJsVideoPlayer key={playerKey} overlay={overlay} {...props} source={videoJs} />
         </Suspense>
       ) : (
