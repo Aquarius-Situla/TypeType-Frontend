@@ -2258,5 +2258,14 @@
   "focus_add_study_only_confirm_description_named": "将「{channel}」加入学习分组将在 24 小时冷静期后生效，生效前仍无法观看视频，期间可随时取消。",
   "focus_add_study_confirm_action": "确认加入",
   "focus_open_settings": "前往专注设置",
-  "focus_entertainment_conflict": "专注生效期间，不能将娱乐分组中的频道移入学习分组。"
+  "focus_entertainment_conflict": "专注生效期间，不能将娱乐分组中的频道移入学习分组。",
+  "focus_allow_once": "允许一次",
+  "focus_allow_once_title": "临时放行此视频",
+  "focus_allow_once_description": "请按原样手动输入下方一长串确认字符，通过后仅临时允许观看当前视频。",
+  "focus_allow_once_input_label": "确认字符",
+  "focus_allow_once_input_placeholder": "区分大小写，输入上方一模一样的字符",
+  "focus_allow_once_confirm": "确认放行",
+  "focus_allow_once_remaining": "今日剩余次数：{count}",
+  "focus_allow_once_invalid": "输入字符与上方不一致或已过期，请重新输入。",
+  "focus_allow_once_exhausted": "今日允许一次次数已用完。"
 }

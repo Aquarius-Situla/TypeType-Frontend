@@ -2258,5 +2258,14 @@
   "focus_add_study_only_confirm_description_named": "Adding {channel} to your study group takes effect after a 24-hour cooling-off period. You can cancel before it unlocks.",
   "focus_add_study_confirm_action": "Confirm",
   "focus_open_settings": "Open Focus settings",
-  "focus_entertainment_conflict": "Entertainment channels cannot be added to your study group while Focus is active."
+  "focus_entertainment_conflict": "Entertainment channels cannot be added to your study group while Focus is active.",
+  "focus_allow_once": "Allow once",
+  "focus_allow_once_title": "Allow this video once",
+  "focus_allow_once_description": "Type the exact confirmation string below to temporarily watch this video.",
+  "focus_allow_once_input_label": "Confirmation string",
+  "focus_allow_once_input_placeholder": "Type the exact characters above (case-sensitive)",
+  "focus_allow_once_confirm": "Verify & watch",
+  "focus_allow_once_remaining": "Remaining today: {count}",
+  "focus_allow_once_invalid": "Confirmation string does not match or expired. Try again.",
+  "focus_allow_once_exhausted": "Daily allow-once limit reached."
 }

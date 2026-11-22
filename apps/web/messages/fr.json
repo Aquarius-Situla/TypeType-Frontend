@@ -2258,5 +2258,14 @@
   "focus_add_study_only_confirm_description_named": "L'ajout de {channel} au groupe d'étude prendra effet après un délai de réflexion de 24 heures. Vous pouvez annuler d'ici là.",
   "focus_add_study_confirm_action": "Confirmer",
   "focus_open_settings": "Ouvrir les réglages Focus",
-  "focus_entertainment_conflict": "Les chaînes de divertissement ne peuvent pas rejoindre le groupe d'étude pendant le Focus."
+  "focus_entertainment_conflict": "Les chaînes de divertissement ne peuvent pas rejoindre le groupe d'étude pendant le Focus.",
+  "focus_allow_once": "Autoriser une fois",
+  "focus_allow_once_title": "Autoriser cette vidéo une fois",
+  "focus_allow_once_description": "Saisissez exactement la chaîne affichée ci-dessous pour regarder temporairement cette vidéo.",
+  "focus_allow_once_input_label": "Chaîne de confirmation",
+  "focus_allow_once_input_placeholder": "Saisir exactement la suite ci-dessus (sensible à la casse)",
+  "focus_allow_once_confirm": "Confirmer",
+  "focus_allow_once_remaining": "Restant aujourd'hui : {count}",
+  "focus_allow_once_invalid": "La chaîne ne correspond pas ou a expiré.",
+  "focus_allow_once_exhausted": "Limite quotidienne atteinte."
 }
