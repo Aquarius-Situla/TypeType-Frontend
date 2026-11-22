@@ -120,7 +120,7 @@ const DEFAULTS: SettingsItem = {
   captionStyles: EMPTY_CAPTION_STYLES,
   seekbarIcon: "typetype",
   seekbarIconUrl: "",
-  playerEngine: "vidstack",
+  playerEngine: "videojs",
   hideWatchedSubscriptionVideos: false,
   watchedThresholdPercent: 0,
   miniPlayerEnabled: true,
