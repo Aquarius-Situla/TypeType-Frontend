@@ -12,7 +12,7 @@ export function PlayerError({ onRetry }: Props) {
   return (
     <div
       role="alert"
-      className="flex aspect-video w-full min-h-0 flex-col items-center justify-start gap-3 overflow-y-auto sm:justify-center bg-app px-4 py-3"
+      className="dark-surface flex aspect-video w-full min-h-0 flex-col items-center justify-start gap-3 overflow-y-auto sm:justify-center bg-app px-4 py-3"
     >
       <ReactionGif kind="playbackError" size={80} className="size-12 shrink-0 sm:size-20" />
       <div className="flex flex-col items-center gap-1.5">

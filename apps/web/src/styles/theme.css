@@ -1,6 +1,6 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
-@theme inline {
+@theme {
   --color-app: var(--color-zinc-950);
   --color-surface: var(--color-zinc-900);
   --color-surface-strong: var(--color-zinc-800);

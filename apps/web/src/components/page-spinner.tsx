@@ -10,7 +10,7 @@ export function PageSpinner({ fullScreen = true }: Props) {
   const size = fullScreen ? 120 : 88;
   const wrapperClass = fullScreen
     ? "fixed inset-0 z-50 flex items-center justify-center bg-app"
-    : "flex h-full w-full items-center justify-center bg-app";
+    : "dark-surface flex h-full w-full items-center justify-center bg-app";
 
   // While the startup screen is still up, it stands in for this spinner.
   useLayoutEffect(() => (fullScreen ? holdAppLoader() : undefined), [fullScreen]);

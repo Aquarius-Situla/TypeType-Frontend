@@ -60,7 +60,7 @@ export function StreamError({
   );
 
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center gap-5 bg-app px-4">
+    <div className="dark-surface fixed inset-0 flex flex-col items-center justify-center gap-5 bg-app px-4">
       {availability ? (
         <VideoAvailabilityPoster availability={availability} message={message} poster={poster} />
       ) : (

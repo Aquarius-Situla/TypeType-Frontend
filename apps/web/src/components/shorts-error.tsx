@@ -19,7 +19,7 @@ export function ShortsError({
   youtubeSessionReturnTo,
 }: Props) {
   return (
-    <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/80 p-5">
+    <div className="dark-surface absolute inset-0 z-20 flex items-center justify-center bg-black/80 p-5">
       <div className="flex max-w-sm flex-col items-center gap-3 text-center">
         {youtubeSessionAction === "reconnect" && youtubeSessionReturnTo ? (
           <Link

@@ -248,7 +248,7 @@ function RootLayoutContent() {
 
   if (embedPage) {
     return (
-      <div className="fixed inset-0 bg-black">
+      <div className="dark-surface fixed inset-0 bg-black">
         <Outlet />
       </div>
     );

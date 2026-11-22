@@ -2,7 +2,9 @@
   --typetype-sidebar-width: 12rem;
 }
 
-.watch-page-shell-dark {
+/* Video surfaces stay dark in both themes: the watch page shell, players, embeds and overlays over a video. */
+.watch-page-shell-dark,
+.dark-surface {
   --color-app: #0f0f0f;
   --color-surface: #181818;
   --color-surface-strong: #272727;
