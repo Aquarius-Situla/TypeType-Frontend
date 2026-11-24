@@ -1,5 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo } from "react";
+import {
+  type UseQueryResult,
+  useMutation,
+  useQueries,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { useCallback, useMemo } from "react";
 import { fetchProgress, fetchProgressBatch, updateProgress } from "../lib/api-collections";
 import { debugConsole } from "../lib/debug-console";
 import {
@@ -14,7 +20,12 @@ import {
   progressCacheScope,
   saveLocalProgress,
 } from "../lib/local-progress";
-import { progressItemsByUrl, updateProgressItems, videoProgressUrl } from "../lib/video-progress";
+import {
+  progressChunks,
+  progressItemsByUrl,
+  updateProgressItems,
+  videoProgressUrl,
+} from "../lib/video-progress";
 import { reconcileProgressItem } from "../lib/watch-resume";
 import { useAuthStore } from "../stores/auth-store";
 import type { VideoStream } from "../types/stream";
@@ -75,47 +86,81 @@ export function useProgress(videoUrl: string) {
   });
 }
 
-export function useVideoProgressMap(streams: VideoStream[]): Map<string, ProgressItem> {
+export type VideoProgress = {
+  byUrl: Map<string, ProgressItem>;
+  pending: ReadonlySet<string>;
+};
+
+async function loadProgressChunk(
+  videoUrls: string[],
+  isAuthed: boolean,
+  userId: string | null | undefined,
+  localCacheAvailable: boolean,
+): Promise<ProgressItem[]> {
+  const localMap = localCacheAvailable
+    ? getBatchLocalProgress(videoUrls, userId)
+    : new Map<string, ProgressItem>();
+  if (!isAuthed) return Array.from(localMap.values());
+  if (!userId || useAuthStore.getState().me?.id !== userId) {
+    return Array.from(localMap.values());
+  }
+  try {
+    const serverItems = await fetchProgressBatch(videoUrls);
+    if (useAuthStore.getState().me?.id !== userId) {
+      return Array.from(localMap.values());
+    }
+    const merged = new Map(localMap);
+    for (const item of serverItems) {
+      const loc = localMap.get(item.videoUrl);
+      const { chosen, shouldSyncLocal } = reconcileProgressItem(loc, item);
+      merged.set(item.videoUrl, chosen);
+      if (shouldSyncLocal) {
+        saveLocalProgress(item.videoUrl, chosen.position, chosen.updatedAt, userId);
+      }
+    }
+    return Array.from(merged.values());
+  } catch {
+    return Array.from(localMap.values());
+  }
+}
+
+export function useVideoProgress(streams: VideoStream[]): VideoProgress {
   const { authReady, isAuthed, me } = useAuth();
   const userId = isAuthed ? me?.id : null;
   const queryScope = progressCacheScope(userId);
   const localCacheAvailable = authReady && (!isAuthed || Boolean(userId));
-  const videoUrls = useMemo(() => [...new Set(streams.map(videoProgressUrl))].sort(), [streams]);
-  const query = useQuery({
-    queryKey: ["progress-batch", queryScope, videoUrls],
-    queryFn: async () => {
-      const localMap = localCacheAvailable
-        ? getBatchLocalProgress(videoUrls, userId)
-        : new Map<string, ProgressItem>();
-      if (!isAuthed) return Array.from(localMap.values());
-      if (!userId || useAuthStore.getState().me?.id !== userId) {
-        return Array.from(localMap.values());
-      }
-      try {
-        const serverItems = await fetchProgressBatch(videoUrls);
-        if (useAuthStore.getState().me?.id !== userId) {
-          return Array.from(localMap.values());
-        }
-        const merged = new Map(localMap);
-        for (const item of serverItems) {
-          const loc = localMap.get(item.videoUrl);
-          const { chosen, shouldSyncLocal } = reconcileProgressItem(loc, item);
-          merged.set(item.videoUrl, chosen);
-          if (shouldSyncLocal) {
-            saveLocalProgress(item.videoUrl, chosen.position, chosen.updatedAt, userId);
-          }
-        }
-        return Array.from(merged.values());
-      } catch {
-        return Array.from(localMap.values());
-      }
-    },
-    enabled: authReady && (!isAuthed || Boolean(userId)) && videoUrls.length > 0,
-    staleTime: 30_000,
-    refetchOnReconnect: true,
-    refetchOnWindowFocus: false,
+  const chunks = useMemo(() => progressChunks(streams.map(videoProgressUrl)), [streams]);
+  return useQueries({
+    queries: chunks.map((videoUrls) => ({
+      queryKey: ["progress-batch", queryScope, videoUrls],
+      queryFn: () => loadProgressChunk(videoUrls, isAuthed, userId, localCacheAvailable),
+      enabled: localCacheAvailable,
+      staleTime: 30_000,
+      refetchOnReconnect: true,
+      refetchOnWindowFocus: false,
+    })),
+    combine: useCallback(
+      (results: UseQueryResult<ProgressItem[]>[]) => combineProgress(chunks, results),
+      [chunks],
+    ),
   });
-  return useMemo(() => progressItemsByUrl(query.data ?? []), [query.data]);
+}
+
+function combineProgress(
+  chunks: string[][],
+  results: UseQueryResult<ProgressItem[]>[],
+): VideoProgress {
+  const items: ProgressItem[] = [];
+  const pending = new Set<string>();
+  results.forEach((result, index) => {
+    if (result.data) items.push(...result.data);
+    else for (const videoUrl of chunks[index] ?? []) pending.add(videoUrl);
+  });
+  return { byUrl: progressItemsByUrl(items), pending };
+}
+
+export function useVideoProgressMap(streams: VideoStream[]): Map<string, ProgressItem> {
+  return useVideoProgress(streams).byUrl;
 }
 
 export function useSaveProgress(videoUrl: string) {

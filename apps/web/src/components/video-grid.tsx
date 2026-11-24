@@ -4,6 +4,7 @@ import { useSettings } from "../hooks/use-settings";
 import { videoGridClassName } from "../lib/layout-preferences";
 import { videoProgressUrl } from "../lib/video-progress";
 import type { VideoStream } from "../types/stream";
+import type { ProgressItem } from "../types/user";
 import { SelectableCardOverlay } from "./selectable-card-overlay";
 import { VideoCard } from "./video-card";
 
@@ -19,7 +20,10 @@ type VideoGridProps = {
   onCardImpression?: (stream: VideoStream) => void;
   listId?: string;
   selection?: VideoGridSelection;
+  progressByUrl?: Map<string, ProgressItem>;
 };
+
+const NO_STREAMS: VideoStream[] = [];
 
 export function VideoGrid({
   streams,
@@ -27,6 +31,7 @@ export function VideoGrid({
   onCardImpression,
   listId,
   selection,
+  progressByUrl: knownProgress,
 }: VideoGridProps) {
   const { settings } = useSettings();
   const unique = useMemo(() => {
@@ -39,7 +44,8 @@ export function VideoGrid({
     }
     return result;
   }, [streams]);
-  const progressByUrl = useVideoProgressMap(unique);
+  const fetchedProgress = useVideoProgressMap(knownProgress ? NO_STREAMS : unique);
+  const progressByUrl = knownProgress ?? fetchedProgress;
   return (
     <div className={videoGridClassName(settings.videoGridColumns)}>
       {unique.map((stream, index) => (

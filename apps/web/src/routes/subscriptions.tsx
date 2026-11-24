@@ -10,6 +10,7 @@ import { Toast } from "../components/toast";
 import { VideoGrid } from "../components/video-grid";
 import { VideoGridSkeleton } from "../components/video-grid-skeleton";
 import { useBlockedFilter } from "../hooks/use-blocked-filter";
+import { useFeedAutoLoad } from "../hooks/use-feed-auto-load";
 import { canMarkWatched, useMarkVideosWatched } from "../hooks/use-mark-videos-watched";
 import { streamQueryOptions } from "../hooks/use-stream";
 import { useSubscriptionFeed } from "../hooks/use-subscription-feed";
@@ -45,7 +46,8 @@ function SubscriptionsPage() {
   } = useSubscriptionFeed(group, order);
   const { filter } = useBlockedFilter();
   const unblocked = useMemo(() => filter(streams), [filter, streams]);
-  const visible = useUnwatchedStreams(unblocked);
+  const { streams: visible, progressByUrl, settled } = useUnwatchedStreams(unblocked);
+  const autoLoad = useFeedAutoLoad(unblocked.length, visible.length, settled);
   const [selecting, setSelecting] = useState(false);
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set());
   const [toast, setToast] = useState<string | null>(null);
@@ -187,6 +189,7 @@ function SubscriptionsPage() {
           )}
           <VideoGrid
             streams={visible}
+            progressByUrl={progressByUrl}
             selection={
               selecting
                 ? {
@@ -214,9 +217,29 @@ function SubscriptionsPage() {
               </button>
             </div>
           )}
+          {hasNextPage && !autoLoad.active && !isFetchingNextPage && !isFetchNextPageError && (
+            <div className="flex justify-center py-4">
+              <button
+                type="button"
+                onClick={() => {
+                  autoLoad.resume();
+                  void fetchNextPage();
+                }}
+                className="min-h-9 border border-border-strong px-3 text-fg hover:bg-surface"
+              >
+                {m.ui_load_more()}
+              </button>
+            </div>
+          )}
           <ScrollSentinel
             onIntersect={fetchNextPage}
-            enabled={hasNextPage && !isFetchingNextPage && !isFetchNextPageError}
+            enabled={
+              hasNextPage &&
+              !isFetchingNextPage &&
+              !isFetchNextPageError &&
+              settled &&
+              autoLoad.active
+            }
           />
         </>
       )}
