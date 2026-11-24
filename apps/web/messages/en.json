@@ -2246,7 +2246,7 @@
   "focus_blocked_title": "Paused by Focus mode",
   "focus_blocked_outside_study": "This channel is outside your active study group while Focus is running.",
   "focus_blocked_no_study_group": "Select a study group in Focus settings to allow educational channels.",
-  "focus_blocked_entertainment": "This video is hidden by your Focus fade and archive limits.",
+  "focus_blocked_entertainment": "This video is older than your Focus archive window.",
   "focus_blocked_pending": "Added to your study group. Unlocks in about {hours} h.",
   "focus_blocked_study_active": "Added to your study group and active now.",
   "focus_add_study_channel": "Subscribe & add to study group",

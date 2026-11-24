@@ -2246,7 +2246,7 @@
   "focus_blocked_title": "已被专注模式拦截",
   "focus_blocked_outside_study": "该频道不在你当前生效的学习分组中，专注期间暂不可观看。",
   "focus_blocked_no_study_group": "请先在专注设置中选择一个学习分组，再添加允许观看的学习频道。",
-  "focus_blocked_entertainment": "该视频已被专注模式的淡出与近期归档规则隐藏。",
+  "focus_blocked_entertainment": "该视频早于专注模式的近期归档范围。",
   "focus_blocked_pending": "已提交加入学习分组，将在约 {hours} 小时后解锁。",
   "focus_blocked_study_active": "已加入学习分组并即时生效。",
   "focus_add_study_channel": "订阅并加入学习分组",

@@ -2246,7 +2246,7 @@
   "focus_blocked_title": "Durch Fokus-Modus blockiert",
   "focus_blocked_outside_study": "Dieser Kanal gehört während des Fokus nicht zu deiner aktiven Lerngruppe.",
   "focus_blocked_no_study_group": "Wähle zuerst eine Lerngruppe in den Fokus-Einstellungen.",
-  "focus_blocked_entertainment": "Dieses Video wird durch die Fokus-Ausblendung und das Archivlimit verborgen.",
+  "focus_blocked_entertainment": "Dieses Video ist älter als dein Fokus-Archivzeitraum.",
   "focus_blocked_pending": "Zur Lerngruppe hinzugefügt. Freischaltung in ca. {hours} h.",
   "focus_blocked_study_active": "Zur Lerngruppe hinzugefügt und jetzt aktiv.",
   "focus_add_study_channel": "Abonnieren & zur Lerngruppe hinzufügen",

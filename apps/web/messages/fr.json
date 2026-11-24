@@ -2246,7 +2246,7 @@
   "focus_blocked_title": "Bloqué par le mode Focus",
   "focus_blocked_outside_study": "Cette chaîne ne fait pas partie de votre groupe d'étude actif pendant le Focus.",
   "focus_blocked_no_study_group": "Sélectionnez d'abord un groupe d'étude dans les réglages Focus.",
-  "focus_blocked_entertainment": "Cette vidéo est masquée par la limite d'archive et d'estompage Focus.",
+  "focus_blocked_entertainment": "Cette vidéo est plus ancienne que votre fenêtre d'archive Focus.",
   "focus_blocked_pending": "Ajoutée au groupe d'étude. Déblocage dans environ {hours} h.",
   "focus_blocked_study_active": "Ajoutée au groupe d'étude et active maintenant.",
   "focus_add_study_channel": "S'abonner et ajouter au groupe d'étude",
