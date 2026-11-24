@@ -1,3 +1,4 @@
+import type { QueryClient } from "@tanstack/react-query";
 import { API_BASE as BASE } from "./env";
 import { detectProvider } from "./provider";
 
@@ -36,4 +37,9 @@ export function sabrBootstrapQueryKey(
 ): readonly ["stream-bootstrap", string, string] {
   const scope = authenticated && ownerId ? `auth:${ownerId}` : authenticated ? "auth" : "anon";
   return ["stream-bootstrap", url, scope];
+}
+
+export function clearInactiveStreamCache(client: QueryClient, url: string): void {
+  client.removeQueries({ queryKey: ["stream", url], type: "inactive" });
+  client.removeQueries({ queryKey: ["stream-bootstrap", url], type: "inactive" });
 }

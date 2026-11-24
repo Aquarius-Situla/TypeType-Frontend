@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Suspense, useEffect, useRef } from "react";
 import { BiliBiliSessionGateProvider } from "../components/bilibili-session-gate";
@@ -8,6 +9,7 @@ import { WatchPageSkeleton } from "../components/watch-page-skeleton";
 import { WatchStreamError } from "../components/watch-stream-error";
 import { useAuth } from "../hooks/use-auth";
 import { useDocumentTitle } from "../hooks/use-document-title";
+import { useFocus } from "../hooks/use-focus";
 import { useHistory } from "../hooks/use-history";
 import { useInstance } from "../hooks/use-instance";
 import { useLoadedComponent } from "../hooks/use-loaded-component";
@@ -15,6 +17,7 @@ import { useProgress } from "../hooks/use-progress";
 import { useSettings } from "../hooks/use-settings";
 import { useSabrBootstrap, useStream } from "../hooks/use-stream";
 import { bilibiliSessionReturnToForWatch } from "../lib/bilibili-session-route";
+import { parseFocusBlockError } from "../lib/focus-block-error";
 import { parseStartTime } from "../lib/parse-start-time";
 import { preloadPlaybackRuntime } from "../lib/playback-runtime-preload";
 import { beginPlaybackTrace, playbackTraceEvent } from "../lib/playback-trace";
@@ -22,6 +25,7 @@ import { selectProgressiveWatchStream } from "../lib/progressive-watch-stream";
 import { proxyImage } from "../lib/proxy";
 import { hasSabrPlayback } from "../lib/stream-delivery";
 import { streamRetryNotice } from "../lib/stream-error-message";
+import { clearInactiveStreamCache } from "../lib/stream-request";
 import { videoAvailabilityCopy } from "../lib/video-availability";
 import { isShortFormContentHidden } from "../lib/video-visibility";
 import { resolveWatchStartTime, shouldWaitForWatchProgress } from "../lib/watch-resume";
@@ -48,6 +52,10 @@ function WatchPage() {
   const publicParam = toPublicWatchParam(sourceUrl);
   const shortShareUrl = isYoutubeShortShareUrl(v);
   const { authReady, isAuthed } = useAuth();
+  const queryClient = useQueryClient();
+  const { query: focusQuery } = useFocus();
+  const strictFocusRef = useRef(false);
+  strictFocusRef.current = Boolean(focusQuery.data?.active && focusQuery.data?.strictBlocking);
   const { isPending: instancePending } = useInstance();
   const { settings, settingsReady } = useSettings();
   const WatchLayout = useLoadedComponent(LazyWatchLayout);
@@ -86,12 +94,16 @@ function WatchPage() {
   const availabilityPoster = proxyImage(
     previewStream?.rawThumbnail ?? youtubeThumbnailUrl(publicParam) ?? "",
   );
-  const activeStream = selectProgressiveWatchStream(
-    streamQuery.isPlaceholderData ? undefined : streamQuery.data,
-    bootstrap.data,
-    publicParam,
-    previewRelated,
-  );
+  const focusBlockError =
+    parseFocusBlockError(streamQuery.error) ?? parseFocusBlockError(bootstrap.error);
+  const activeStream = focusBlockError
+    ? undefined
+    : selectProgressiveWatchStream(
+        streamQuery.isPlaceholderData ? undefined : streamQuery.data,
+        bootstrap.data,
+        publicParam,
+        previewRelated,
+      );
   const shortContentHidden =
     activeStream !== undefined && isShortFormContentHidden(activeStream, settings.hideShorts);
   useDocumentTitle(activeStream?.title ?? previewStream?.title);
@@ -131,7 +143,12 @@ function WatchPage() {
     beginPlaybackTrace(sourceUrl, "watch_route");
     playbackTraceEvent("route_enter", { path: "/watch" });
     void preloadPlaybackRuntime(sourceUrl);
-  }, [sourceUrl]);
+    return () => {
+      if (strictFocusRef.current) {
+        queueMicrotask(() => clearInactiveStreamCache(queryClient, sourceUrl));
+      }
+    };
+  }, [queryClient, sourceUrl]);
 
   useEffect(() => {
     if (v.trim() && publicParam !== v.trim() && (!shortShareUrl || list || shuffle)) {
@@ -178,7 +195,11 @@ function WatchPage() {
   if (!activeStream && pending) return loadingPage;
 
   if (!activeStream) {
-    const activeError = streamQuery.error ?? bootstrap.error;
+    const activeError =
+      (parseFocusBlockError(streamQuery.error) ? streamQuery.error : null) ??
+      (parseFocusBlockError(bootstrap.error) ? bootstrap.error : null) ??
+      streamQuery.error ??
+      bootstrap.error;
     return (
       <WatchStreamError
         error={activeError}
@@ -258,7 +279,10 @@ function WatchPage() {
             list={list}
             shuffle={shuffle}
             streamLoadedAt={streamQuery.isPlaceholderData ? 0 : streamQuery.dataUpdatedAt}
-            onStreamExpired={() => void streamQuery.refetch()}
+            onStreamExpired={() => {
+              void streamQuery.refetch();
+              void bootstrap.refetch();
+            }}
           />
         </Suspense>
       )}

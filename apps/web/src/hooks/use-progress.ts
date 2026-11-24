@@ -20,6 +20,7 @@ import {
   progressCacheScope,
   saveLocalProgress,
 } from "../lib/local-progress";
+import { clearInactiveStreamCache } from "../lib/stream-request";
 import {
   progressChunks,
   progressItemsByUrl,
@@ -190,6 +191,7 @@ export function useSaveProgress(videoUrl: string) {
           updateHistoryPageProgress(data, videoUrl, position),
         );
       }
+      clearInactiveStreamCache(qc, videoUrl);
     },
     mutationFn: ({ position, keepalive }: { position: number; keepalive: boolean }) => {
       const auth = useAuthStore.getState();
@@ -198,6 +200,7 @@ export function useSaveProgress(videoUrl: string) {
       return token ? updateProgress(videoUrl, position, keepalive) : Promise.resolve();
     },
     onSuccess: (_, { position }) => {
+      clearInactiveStreamCache(qc, videoUrl);
       const auth = useAuthStore.getState();
       if (!authReady || !isAuthed || !userId || auth.me?.id !== userId || !auth.token) return;
       const next: ProgressItem = {

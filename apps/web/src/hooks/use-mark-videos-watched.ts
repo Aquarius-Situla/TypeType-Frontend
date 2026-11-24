@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateProgressMany } from "../lib/api-collections";
 import { saveLocalProgress } from "../lib/local-progress";
+import { clearInactiveStreamCache } from "../lib/stream-request";
 import { videoProgressUrl } from "../lib/video-progress";
 import type { VideoStream } from "../types/stream";
 import { useAuth } from "./use-auth";
@@ -29,9 +30,14 @@ export function useMarkVideosWatched() {
       for (const mark of marks) saveLocalProgress(mark.url, mark.position, savedAt, userId);
       return marks.length;
     },
-    onSettled: () => {
+    onSettled: (_data, _error, { streams }) => {
       void queryClient.invalidateQueries({ queryKey: ["progress-batch"] });
       void queryClient.invalidateQueries({ queryKey: ["progress"] });
+      for (const stream of streams) {
+        if (canMarkWatched(stream)) {
+          clearInactiveStreamCache(queryClient, videoProgressUrl(stream));
+        }
+      }
     },
   });
 }

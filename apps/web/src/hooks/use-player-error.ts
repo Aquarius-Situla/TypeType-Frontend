@@ -133,6 +133,7 @@ export function usePlayerError(
         setRetryKey((k) => k + 1);
         return;
       }
+      freshnessRef.current?.refresh();
       recordClientEvent("player.sabr_failed", { video: debugVideo });
       setPlayerFailed(true);
     } else if (hlsEnabled && !hlsFailed) {
