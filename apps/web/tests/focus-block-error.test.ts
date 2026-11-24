@@ -39,6 +39,44 @@ test("parses structured focus block errors and cooling-off hours", () => {
     channelAvatarUrl: "https://img/avatar.jpg",
     videoTitle: "iPhone Review",
     unlockAt: null,
+    allowOnceKind: null,
+    aiReviewEligible: false,
+    aiRejected: false,
+    aiRejectionExpiresAt: null,
+    allowOnceCooldownMs: null,
+    allowOncePendingUnlockAt: null,
+  });
+
+  const rewatchRejected = new ApiError(
+    "Already watched",
+    403,
+    "focus_entertainment_rewatch_blocked",
+    "req-3",
+    null,
+    {
+      channelUrl: "https://www.youtube.com/channel/UCfun",
+      videoTitle: "Funny Clip",
+      allowOnceKind: "entertainment_rewatch",
+      aiReviewEligible: true,
+      aiRejected: true,
+      aiRejectionExpiresAt: 1_900_000_000_000,
+      allowOnceCooldownMs: 3_600_000,
+      allowOncePendingUnlockAt: 1_800_000_999_000,
+    },
+  );
+  expect(parseFocusBlockError(rewatchRejected)).toEqual({
+    code: "focus_entertainment_rewatch_blocked",
+    channelUrl: "https://www.youtube.com/channel/UCfun",
+    channelName: "",
+    channelAvatarUrl: "",
+    videoTitle: "Funny Clip",
+    unlockAt: null,
+    allowOnceKind: "entertainment_rewatch",
+    aiReviewEligible: true,
+    aiRejected: true,
+    aiRejectionExpiresAt: 1_900_000_000_000,
+    allowOnceCooldownMs: 3_600_000,
+    allowOncePendingUnlockAt: 1_800_000_999_000,
   });
 
   const pending = new ApiError("Cooling off", 403, "focus_study_pending", "req-2", null, {
