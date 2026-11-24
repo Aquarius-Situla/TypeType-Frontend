@@ -1,12 +1,8 @@
-export function FrenchFlag() {
-  return (
-    <span
-      className="grid h-4 w-6 shrink-0 grid-cols-3 overflow-hidden rounded-[2px] ring-1 ring-black/15"
-      aria-hidden="true"
-    >
-      <span className="bg-[#1b4fa3]" />
-      <span className="bg-white" />
-      <span className="bg-[#e33a3a]" />
-    </span>
-  );
+import { FlagImage } from "./flag-image";
+
+const FRENCH_FLAG_SVG =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 16"><rect width="24" height="16" fill="#1b4fa3"/><rect x="8" width="16" height="16" fill="#ffffff"/><rect x="16" width="8" height="16" fill="#e33a3a"/></svg>';
+
+export function FrenchFlag(): React.JSX.Element {
+  return <FlagImage svg={FRENCH_FLAG_SVG} />;
 }
