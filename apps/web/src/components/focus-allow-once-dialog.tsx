@@ -6,6 +6,7 @@ import { FocusAllowOnceForm } from "./focus-allow-once-form";
 type Props = {
   challenge: FocusAllowOnceChallengeResponse;
   remainingToday: number;
+  cooldownMs?: number;
   submitting: boolean;
   errorMessage: string | null;
   onSubmit: (code: string) => void;
@@ -15,6 +16,7 @@ type Props = {
 export function FocusAllowOnceDialog({
   challenge,
   remainingToday,
+  cooldownMs = 0,
   submitting,
   errorMessage,
   onSubmit,
@@ -55,6 +57,7 @@ export function FocusAllowOnceDialog({
         key={challenge.challengeId}
         challengeText={challenge.challengeText}
         remainingToday={remainingToday}
+        cooldownMs={cooldownMs}
         submitting={submitting}
         errorMessage={errorMessage}
         onSubmit={onSubmit}

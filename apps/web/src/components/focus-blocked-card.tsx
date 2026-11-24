@@ -1,24 +1,32 @@
 import { Link } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
 import { useAddFocusStudyChannel, useFocus, useRemoveFocusStudyChannel } from "../hooks/use-focus";
-import { useFocusAllowOncePrompt } from "../hooks/use-focus-allow-once";
+import {
+  type FocusAllowOncePromptState,
+  useFocusAllowOncePrompt,
+} from "../hooks/use-focus-allow-once";
 import { useSubscriptions } from "../hooks/use-subscriptions";
 import { ApiError } from "../lib/api";
 import { remainingCoolingOffHours } from "../lib/focus-block-error";
 import { m } from "../paraglide/messages.js";
-import { FocusDenyMascot } from "./focus-deny-mascot";
 import { AddStudyConfirmDialog } from "./focus-add-study-dialog";
 import { FocusAllowOnceDialog } from "./focus-allow-once-dialog";
 import { FocusBlockedActions } from "./focus-blocked-actions";
+import { FocusDenyMascot } from "./focus-deny-mascot";
 
 type Props = {
-  code: "focus_channel_blocked" | "focus_study_pending" | "focus_entertainment_blocked";
+  code:
+    | "focus_channel_blocked"
+    | "focus_study_pending"
+    | "focus_entertainment_blocked"
+    | "focus_entertainment_rewatch_blocked";
   channelUrl?: string;
   channelName?: string;
   channelAvatarUrl?: string;
   unlockAt?: number | null;
   videoUrl?: string;
   onAllowOnceSuccess?: () => void;
+  allowOnceState?: FocusAllowOncePromptState;
   darkSurface?: boolean;
 };
 
@@ -30,6 +38,7 @@ export function FocusBlockedCard({
   unlockAt = null,
   videoUrl,
   onAllowOnceSuccess,
+  allowOnceState,
   darkSurface = false,
 }: Props): ReactElement {
   const { query: focusQuery } = useFocus();
@@ -55,10 +64,18 @@ export function FocusBlockedCard({
     effectiveCode === "focus_channel_blocked" && channelUrl.length > 0 && hasStudyGroup;
   const canCancelPending =
     effectiveCode === "focus_study_pending" && channelUrl.length > 0 && hasStudyGroup;
-  const allowOnce = useFocusAllowOncePrompt(videoUrl, effectiveCode, onAllowOnceSuccess);
+  const fallbackAllowOnce = useFocusAllowOncePrompt({
+    videoUrl: allowOnceState ? undefined : videoUrl,
+    effectiveCode,
+    onSuccess: onAllowOnceSuccess,
+  });
+  const allowOnce = allowOnceState ?? fallbackAllowOnce;
 
   const description = (() => {
     if (effectiveCode === "focus_entertainment_blocked") return m.focus_blocked_entertainment();
+    if (effectiveCode === "focus_entertainment_rewatch_blocked") {
+      return m.focus_blocked_entertainment_rewatch();
+    }
     if (effectiveCode === "focus_study_pending" && effectiveUnlockAt) {
       return m.focus_blocked_pending({ hours: remainingCoolingOffHours(effectiveUnlockAt) });
     }
@@ -77,6 +94,11 @@ export function FocusBlockedCard({
   const containerClass = darkSurface
     ? "flex max-w-md flex-col items-center gap-3 rounded-lg border border-white/15 bg-white/5 px-5 py-4 text-center"
     : "flex flex-col items-start gap-4 rounded-lg border border-border bg-surface p-4 sm:flex-row sm:items-center";
+
+  const hideSettingsLink =
+    hasStudyGroup ||
+    effectiveCode === "focus_entertainment_blocked" ||
+    effectiveCode === "focus_entertainment_rewatch_blocked";
 
   function handleConfirmAdd() {
     setConfirmOpen(false);
@@ -115,15 +137,18 @@ export function FocusBlockedCard({
           onCancelPending={handleCancelPending}
           canAllowOnce={allowOnce.visible}
           allowOnceExhausted={allowOnce.exhausted}
+          allowOncePending={Boolean(allowOnce.pendingUnlockAt)}
+          cancellingAllowOnce={allowOnce.cancellingPending}
           requestingAllowOnce={allowOnce.requesting}
           onRequestAllowOnce={allowOnce.openChallenge}
+          onCancelAllowOnce={allowOnce.cancelPending}
         />
-        {allowOnce.visible && allowOnce.exhausted && (
+        {allowOnce.visible && allowOnce.exhausted && !allowOnce.pendingUnlockAt && (
           <p className={`text-xs ${darkSurface ? "text-white/50" : "text-fg-soft"}`}>
             {m.focus_allow_once_remaining({ count: 0 })}
           </p>
         )}
-        {!hasStudyGroup && effectiveCode !== "focus_entertainment_blocked" && (
+        {!hideSettingsLink && (
           <Link
             to="/settings"
             search={{ section: "focus" }}
@@ -150,6 +175,7 @@ export function FocusBlockedCard({
         <FocusAllowOnceDialog
           challenge={allowOnce.challenge}
           remainingToday={allowOnce.remainingToday}
+          cooldownMs={allowOnce.cooldownMs}
           submitting={allowOnce.submitting}
           errorMessage={allowOnce.errorMessage}
           onSubmit={allowOnce.submitCode}

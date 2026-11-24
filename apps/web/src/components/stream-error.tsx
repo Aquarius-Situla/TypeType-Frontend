@@ -1,4 +1,5 @@
 import { Link, useRouter } from "@tanstack/react-router";
+import type { ReactElement } from "react";
 import { useAuth } from "../hooks/use-auth";
 import { familyListBlockedMessage } from "../lib/allow-list-error";
 import type { FocusBlockInfo } from "../lib/focus-block-error";
@@ -8,8 +9,7 @@ import { type VideoAvailability, videoAvailabilityCopy } from "../lib/video-avai
 import { m } from "../paraglide/messages.js";
 import { FailMascot } from "./fail-mascot";
 import { FlagIcon } from "./flag-icon";
-import { FocusBlockedCard } from "./focus-blocked-card";
-import { FocusDenyMascot } from "./focus-deny-mascot";
+import { FocusWatchScreen } from "./focus-watch-screen";
 import { ReactionGif } from "./reaction-gif";
 import { VideoAvailabilityPoster } from "./video-availability-poster";
 import { YoutubeIcon } from "./youtube-icon";
@@ -40,11 +40,23 @@ export function StreamError({
   onFocusAllowOnceSuccess,
   availability,
   poster,
-}: Props) {
+}: Props): ReactElement {
   const router = useRouter();
   const { canGlobalBlock } = useAuth();
   const availabilityCopy = availability ? videoAvailabilityCopy(availability, message) : null;
   const displayedMessage = availabilityCopy?.message ?? message;
+
+  if (focusBlock && !availability) {
+    return (
+      <FocusWatchScreen
+        focusBlock={focusBlock}
+        message={displayedMessage}
+        videoUrl={focusVideoUrl}
+        onSuccess={onFocusAllowOnceSuccess}
+      />
+    );
+  }
+
   const countryCode = parseGeoRestriction(displayedMessage);
   const isMemberOnly = availability === "members_only" || isMemberOnlyMessage(displayedMessage);
   const familyListBlocked = familyListBlockedOverride ?? message === familyListBlockedMessage();
@@ -62,8 +74,6 @@ export function StreamError({
         size={220}
         className="size-[220px]"
       />
-    ) : focusBlock ? (
-      <FocusDenyMascot className="w-44 shrink-0 sm:w-52" />
     ) : (
       <FailMascot className="w-56 shrink-0 sm:w-64" />
     );
@@ -88,7 +98,7 @@ export function StreamError({
           )}
           <div className="flex flex-col items-center gap-1.5">
             <p className="text-base font-semibold tracking-tight text-white">
-              {focusBlock ? m.focus_blocked_title() : m.ui_couldn_t_load_this_video()}
+              {m.ui_couldn_t_load_this_video()}
             </p>
             <div className="flex items-center gap-2">
               {countryCode && (
@@ -99,18 +109,6 @@ export function StreamError({
             {notice && <p className="text-center text-sm text-fg-soft">{notice}</p>}
           </div>
         </>
-      )}
-      {focusBlock && (
-        <FocusBlockedCard
-          code={focusBlock.code}
-          channelUrl={focusBlock.channelUrl}
-          channelName={focusBlock.channelName}
-          channelAvatarUrl={focusBlock.channelAvatarUrl}
-          unlockAt={focusBlock.unlockAt}
-          videoUrl={focusVideoUrl}
-          onAllowOnceSuccess={onFocusAllowOnceSuccess}
-          darkSurface
-        />
       )}
       <div className="flex flex-wrap justify-center gap-3">
         {onRetry && !availability && (

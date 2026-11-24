@@ -12,8 +12,11 @@ type Props = {
   onCancelPending: () => void;
   canAllowOnce: boolean;
   allowOnceExhausted: boolean;
+  allowOncePending?: boolean;
+  cancellingAllowOnce?: boolean;
   requestingAllowOnce: boolean;
   onRequestAllowOnce: () => void;
+  onCancelAllowOnce?: () => void;
 };
 
 export function FocusBlockedActions({
@@ -27,8 +30,11 @@ export function FocusBlockedActions({
   onCancelPending,
   canAllowOnce,
   allowOnceExhausted,
+  allowOncePending = false,
+  cancellingAllowOnce = false,
   requestingAllowOnce,
   onRequestAllowOnce,
+  onCancelAllowOnce,
 }: Props): ReactElement | null {
   if (!canAddStudy && !canCancelPending && !canAllowOnce) return null;
 
@@ -72,7 +78,17 @@ export function FocusBlockedActions({
           {cancellingPending ? m.ui_saving() : m.focus_cancel_study_channel()}
         </button>
       )}
-      {canAllowOnce && (
+      {canAllowOnce && allowOncePending && (
+        <button
+          type="button"
+          disabled={cancellingAllowOnce}
+          onClick={onCancelAllowOnce}
+          className={secondaryClass}
+        >
+          {cancellingAllowOnce ? m.ui_saving() : m.focus_allow_once_cancel_wait()}
+        </button>
+      )}
+      {canAllowOnce && !allowOncePending && (
         <button
           type="button"
           disabled={allowOnceExhausted || requestingAllowOnce}

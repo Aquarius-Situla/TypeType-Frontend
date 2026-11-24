@@ -1,10 +1,11 @@
 import { type FormEvent, type ReactElement, useEffect, useRef, useState } from "react";
-import { isAllowOnceExhausted } from "../lib/focus-allow-once";
+import { formatCooldownMinutes, isAllowOnceExhausted } from "../lib/focus-allow-once";
 import { m } from "../paraglide/messages.js";
 
 type Props = {
   challengeText: string;
   remainingToday: number;
+  cooldownMs?: number;
   submitting: boolean;
   errorMessage: string | null;
   onSubmit: (code: string) => void;
@@ -14,6 +15,7 @@ type Props = {
 export function FocusAllowOnceForm({
   challengeText,
   remainingToday,
+  cooldownMs = 0,
   submitting,
   errorMessage,
   onSubmit,
@@ -23,6 +25,7 @@ export function FocusAllowOnceForm({
   const [code, setCode] = useState("");
   const exhausted = isAllowOnceExhausted(remainingToday);
   const canSubmit = !exhausted && !submitting && code.trim().length > 0;
+  const cooldownMinutes = formatCooldownMinutes(cooldownMs);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -86,6 +89,11 @@ export function FocusAllowOnceForm({
           {submitting ? m.ui_saving() : m.focus_allow_once_confirm()}
         </button>
       </div>
+      {cooldownMinutes > 0 && (
+        <p className="text-xs leading-relaxed text-fg-muted">
+          {m.focus_allow_once_cooldown_notice({ minutes: cooldownMinutes })}
+        </p>
+      )}
       <p className="text-xs text-fg-soft">
         {m.focus_allow_once_remaining({ count: remainingToday })}
       </p>
