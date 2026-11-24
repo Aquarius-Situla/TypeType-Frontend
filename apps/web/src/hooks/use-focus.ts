@@ -9,8 +9,11 @@ import {
 import { useContext } from "react";
 import {
   addFocusStudyChannel,
+  cancelFocusAllowOncePending,
+  type FocusAllowOnceCancelResponse,
   type FocusAllowOnceChallengeRequest,
   type FocusAllowOnceChallengeResponse,
+  type FocusAllowOnceKind,
   type FocusAllowOnceVerifyRequest,
   type FocusAllowOnceVerifyResponse,
   type FocusSettings,
@@ -29,6 +32,27 @@ import { HOME_RECOMMENDATIONS_KEY } from "./use-recommender";
 
 const FOCUS_KEY = ["focus"];
 const NO_PROVIDER_QUERY_CLIENT = new QueryClient();
+
+function applyAllowOnceQuota(
+  prev: FocusSettings | undefined,
+  kind: FocusAllowOnceKind | undefined,
+  remainingToday: number,
+  dailyLimit: number,
+): FocusSettings | undefined {
+  if (!prev) return prev;
+  if (kind === "entertainment_rewatch") {
+    return {
+      ...prev,
+      rewatchAllowOnceRemainingToday: remainingToday,
+      rewatchAllowOnceDailyLimit: dailyLimit,
+    };
+  }
+  return {
+    ...prev,
+    allowOnceRemainingToday: remainingToday,
+    allowOnceDailyLimit: dailyLimit,
+  };
+}
 
 export function useFocus() {
   const { authReady, isAuthed, me } = useAuth();
@@ -51,6 +75,7 @@ export function useFocus() {
         client.invalidateQueries({ queryKey: SUBSCRIPTION_FEED_KEY });
         client.invalidateQueries({ queryKey: ["channel"] });
         client.invalidateQueries({ queryKey: ["stream"] });
+        client.invalidateQueries({ queryKey: ["stream-bootstrap"] });
       },
     },
     client,
@@ -69,6 +94,7 @@ export function useAddFocusStudyChannel() {
       client.invalidateQueries({ queryKey: HOME_RECOMMENDATIONS_KEY });
       client.invalidateQueries({ queryKey: ["channel"] });
       client.invalidateQueries({ queryKey: ["stream"] });
+      client.invalidateQueries({ queryKey: ["stream-bootstrap"] });
     },
   });
 }
@@ -84,6 +110,7 @@ export function useRemoveFocusStudyChannel() {
       client.invalidateQueries({ queryKey: HOME_RECOMMENDATIONS_KEY });
       client.invalidateQueries({ queryKey: ["channel"] });
       client.invalidateQueries({ queryKey: ["stream"] });
+      client.invalidateQueries({ queryKey: ["stream-bootstrap"] });
     },
   });
 }
@@ -98,15 +125,14 @@ export function useRequestFocusAllowOnceChallenge(): UseMutationResult<
   return useMutation({
     mutationFn: (request: FocusAllowOnceChallengeRequest) =>
       requestFocusAllowOnceChallenge({ timezone: clientTimezone(), ...request }),
-    onSuccess: (challenge) => {
+    onSuccess: (challenge, request) => {
       client.setQueryData<FocusSettings>([...FOCUS_KEY, me?.id], (prev) =>
-        prev
-          ? {
-              ...prev,
-              allowOnceRemainingToday: challenge.remainingToday,
-              allowOnceDailyLimit: challenge.dailyLimit,
-            }
-          : prev,
+        applyAllowOnceQuota(
+          prev,
+          challenge.kind ?? request.kind,
+          challenge.remainingToday,
+          challenge.dailyLimit,
+        ),
       );
     },
     onError: () => {
@@ -125,15 +151,32 @@ export function useVerifyFocusAllowOnce(): UseMutationResult<
   return useMutation({
     mutationFn: (request: FocusAllowOnceVerifyRequest) =>
       verifyFocusAllowOnce({ timezone: clientTimezone(), ...request }),
+    onSuccess: (result, request) => {
+      client.setQueryData<FocusSettings>([...FOCUS_KEY, me?.id], (prev) =>
+        applyAllowOnceQuota(
+          prev,
+          result.kind ?? request.kind,
+          result.remainingToday,
+          result.dailyLimit,
+        ),
+      );
+      client.invalidateQueries({ queryKey: [...FOCUS_KEY, me?.id] });
+    },
+  });
+}
+
+export function useCancelFocusAllowOncePending(): UseMutationResult<
+  FocusAllowOnceCancelResponse,
+  Error,
+  string
+> {
+  const { me } = useAuth();
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (videoUrl: string) => cancelFocusAllowOncePending(videoUrl, clientTimezone()),
     onSuccess: (result) => {
       client.setQueryData<FocusSettings>([...FOCUS_KEY, me?.id], (prev) =>
-        prev
-          ? {
-              ...prev,
-              allowOnceRemainingToday: result.remainingToday,
-              allowOnceDailyLimit: result.dailyLimit,
-            }
-          : prev,
+        applyAllowOnceQuota(prev, result.kind, result.remainingToday, result.dailyLimit),
       );
       client.invalidateQueries({ queryKey: [...FOCUS_KEY, me?.id] });
     },

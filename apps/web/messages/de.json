@@ -2268,5 +2268,17 @@
   "focus_allow_once_confirm": "Bestätigen",
   "focus_allow_once_remaining": "Heute noch übrig: {count}",
   "focus_allow_once_invalid": "Die Zeichenfolge stimmt nicht überein oder ist abgelaufen.",
-  "focus_allow_once_exhausted": "Tageslimit erreicht."
+  "focus_allow_once_exhausted": "Tageslimit erreicht.",
+  "focus_blocked_entertainment_rewatch": "Du hast dieses Unterhaltungsvideo bereits gesehen. Erneutes Ansehen ist im Fokus-Modus pausiert.",
+  "focus_ai_question_outside": "Tyme möchte wissen, warum du dieses Video ansehen möchtest",
+  "focus_ai_question_rewatch": "Tyme möchte wissen, warum du dieses Video erneut ansehen möchtest",
+  "focus_ai_reason_placeholder": "Erkläre kurz deinen Grund…",
+  "focus_ai_submit": "Absenden",
+  "focus_ai_submitting": "Tyme denkt nach…",
+  "focus_ai_rejected": "Tyme hat deine Anfrage abgelehnt",
+  "focus_ai_unavailable_title": "Tyme macht eine Pause",
+  "focus_ai_unavailable": "Tyme macht gerade eine Pause und kann deinen Grund nicht prüfen.",
+  "focus_allow_once_cancel_wait": "Doch nicht ansehen",
+  "focus_allow_once_cooling_countdown": "Wartezeit: {time}",
+  "focus_allow_once_cooldown_notice": "Nach der Bestätigung wird die Wiedergabe in ca. {minutes} Min. freigeschaltet. Du kannst vorher jederzeit ohne Abzug abbrechen."
 }

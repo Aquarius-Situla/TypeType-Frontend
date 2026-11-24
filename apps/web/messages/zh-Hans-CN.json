@@ -2268,5 +2268,17 @@
   "focus_allow_once_confirm": "确认放行",
   "focus_allow_once_remaining": "今日剩余次数：{count}",
   "focus_allow_once_invalid": "输入字符与上方不一致或已过期，请重新输入。",
-  "focus_allow_once_exhausted": "今日允许一次次数已用完。"
+  "focus_allow_once_exhausted": "今日允许一次次数已用完。",
+  "focus_blocked_entertainment_rewatch": "你已经看过这个娱乐分组视频，专注期间重看需要确认。",
+  "focus_ai_question_outside": "Tyme 想知道你为什么要观看这个视频",
+  "focus_ai_question_rewatch": "Tyme 想知道你为什么重新观看这个视频",
+  "focus_ai_reason_placeholder": "写下你想观看的理由…",
+  "focus_ai_submit": "提交",
+  "focus_ai_submitting": "Tyme 正在思考…",
+  "focus_ai_rejected": "Tyme 驳回了你的请求",
+  "focus_ai_unavailable_title": "Tyme 去休息了",
+  "focus_ai_unavailable": "Tyme 去休息了，暂时无法审核你的理由。",
+  "focus_allow_once_cancel_wait": "不看了",
+  "focus_allow_once_cooling_countdown": "还需冷静 {time}",
+  "focus_allow_once_cooldown_notice": "验证通过后需冷静约 {minutes} 分钟才会解锁，期间可随时点「不看了」取消且不扣次数。"
 }

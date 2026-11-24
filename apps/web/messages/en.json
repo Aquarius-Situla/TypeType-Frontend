@@ -2268,5 +2268,17 @@
   "focus_allow_once_confirm": "Verify & watch",
   "focus_allow_once_remaining": "Remaining today: {count}",
   "focus_allow_once_invalid": "Confirmation string does not match or expired. Try again.",
-  "focus_allow_once_exhausted": "Daily allow-once limit reached."
+  "focus_allow_once_exhausted": "Daily allow-once limit reached.",
+  "focus_blocked_entertainment_rewatch": "You already watched this entertainment video. Rewatching is paused during Focus mode.",
+  "focus_ai_question_outside": "Tyme wants to know why you want to watch this video",
+  "focus_ai_question_rewatch": "Tyme wants to know why you want to rewatch this video",
+  "focus_ai_reason_placeholder": "Explain why you want to watch this video...",
+  "focus_ai_submit": "Submit",
+  "focus_ai_submitting": "Tyme is thinking...",
+  "focus_ai_rejected": "Tyme rejected your request",
+  "focus_ai_unavailable_title": "Tyme is taking a break",
+  "focus_ai_unavailable": "Tyme is taking a break right now and cannot review your reason.",
+  "focus_allow_once_cancel_wait": "Never mind",
+  "focus_allow_once_cooling_countdown": "Cooling off: {time}",
+  "focus_allow_once_cooldown_notice": "After verifying, playback unlocks in about {minutes} min. You can cancel anytime without using a pass."
 }

@@ -2268,5 +2268,17 @@
   "focus_allow_once_confirm": "Confirmer",
   "focus_allow_once_remaining": "Restant aujourd'hui : {count}",
   "focus_allow_once_invalid": "La chaîne ne correspond pas ou a expiré.",
-  "focus_allow_once_exhausted": "Limite quotidienne atteinte."
+  "focus_allow_once_exhausted": "Limite quotidienne atteinte.",
+  "focus_blocked_entertainment_rewatch": "Vous avez déjà regardé cette vidéo de divertissement. Le visionnage répété est en pause pendant le mode Focus.",
+  "focus_ai_question_outside": "Tyme aimerait savoir pourquoi vous voulez regarder cette vidéo",
+  "focus_ai_question_rewatch": "Tyme aimerait savoir pourquoi vous voulez revoir cette vidéo",
+  "focus_ai_reason_placeholder": "Expliquez votre raison…",
+  "focus_ai_submit": "Envoyer",
+  "focus_ai_submitting": "Tyme réfléchit…",
+  "focus_ai_rejected": "Tyme a refusé votre demande",
+  "focus_ai_unavailable_title": "Tyme fait une pause",
+  "focus_ai_unavailable": "Tyme fait une pause pour le moment et ne peut pas examiner votre demande.",
+  "focus_allow_once_cancel_wait": "Laisser tomber",
+  "focus_allow_once_cooling_countdown": "Temps de réflexion : {time}",
+  "focus_allow_once_cooldown_notice": "Après vérification, la lecture sera débloquée dans environ {minutes} min. Vous pouvez annuler à tout moment sans déduire de passe."
 }
