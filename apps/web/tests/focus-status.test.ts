@@ -21,6 +21,8 @@ function settings(patch: Partial<FocusSettings>): FocusSettings {
     entertainmentShare: 1,
     active: true,
     studyChannelKeys: [],
+    allowOnceRemainingToday: 3,
+    allowOnceDailyLimit: 3,
     ...patch,
   };
 }

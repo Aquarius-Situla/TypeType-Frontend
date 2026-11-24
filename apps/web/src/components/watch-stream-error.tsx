@@ -9,6 +9,7 @@ import {
   resolveStreamErrorMessage,
 } from "../lib/stream-error-message";
 import { resolveVideoAvailability, videoAvailabilityCopy } from "../lib/video-availability";
+import { toWatchSourceUrl } from "../lib/watch-url";
 import { youtubeSessionReturnToForWatch } from "../lib/youtube-session-route";
 import { m } from "../paraglide/messages.js";
 import { PlaylistSkipUnavailable } from "./playlist-skip-unavailable";
@@ -17,13 +18,22 @@ import { StreamError } from "./stream-error";
 type Props = {
   error: unknown;
   publicParam: string;
+  videoUrl?: string;
   list?: string;
   shuffle?: string;
   poster?: string;
   onRetry: () => void;
 };
 
-export function WatchStreamError({ error, publicParam, list, shuffle, poster, onRetry }: Props) {
+export function WatchStreamError({
+  error,
+  publicParam,
+  videoUrl,
+  list,
+  shuffle,
+  poster,
+  onRetry,
+}: Props) {
   const [skipping, setSkipping] = useState(false);
   const skipInPlaylist = Boolean(list) && isPermanentlyUnavailableError(error);
   const genericExtractorError =
@@ -70,6 +80,8 @@ export function WatchStreamError({ error, publicParam, list, shuffle, poster, on
         notice={skipInPlaylist && skipping ? m.ui_skipping_to_next_video() : undefined}
         familyListBlocked={familyListBlocked}
         focusBlock={focusBlock}
+        focusVideoUrl={videoUrl ?? toWatchSourceUrl(publicParam)}
+        onFocusAllowOnceSuccess={onRetry}
         availability={availability ?? undefined}
         poster={poster}
         onRetry={

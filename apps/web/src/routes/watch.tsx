@@ -183,6 +183,7 @@ function WatchPage() {
       <WatchStreamError
         error={activeError}
         publicParam={publicParam}
+        videoUrl={sourceUrl}
         list={list}
         shuffle={shuffle}
         poster={availabilityPoster}

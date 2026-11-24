@@ -2259,5 +2259,14 @@
   "focus_add_study_only_confirm_description_named": "Das Hinzufügen von {channel} zur Lerngruppe wird nach einer 24-stündigen Wartezeit wirksam. Bis dahin kannst du jederzeit abbrechen.",
   "focus_add_study_confirm_action": "Bestätigen",
   "focus_open_settings": "Fokus-Einstellungen öffnen",
-  "focus_entertainment_conflict": "Unterhaltungskanäle können im aktiven Fokus nicht zur Lerngruppe hinzugefügt werden."
+  "focus_entertainment_conflict": "Unterhaltungskanäle können im aktiven Fokus nicht zur Lerngruppe hinzugefügt werden.",
+  "focus_allow_once": "Einmal erlauben",
+  "focus_allow_once_title": "Dieses Video einmal erlauben",
+  "focus_allow_once_description": "Gib exakt die unten stehende Zeichenfolge ein, um dieses Video vorübergehend anzusehen.",
+  "focus_allow_once_input_label": "Bestätigungszeichenfolge",
+  "focus_allow_once_input_placeholder": "Zeichenfolge exakt eingeben (Groß-/Kleinschreibung beachten)",
+  "focus_allow_once_confirm": "Bestätigen",
+  "focus_allow_once_remaining": "Heute noch übrig: {count}",
+  "focus_allow_once_invalid": "Die Zeichenfolge stimmt nicht überein oder ist abgelaufen.",
+  "focus_allow_once_exhausted": "Tageslimit erreicht."
 }

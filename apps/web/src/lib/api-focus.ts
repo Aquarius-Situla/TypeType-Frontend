@@ -19,6 +19,8 @@ export type FocusSettings = {
   entertainmentShare: number;
   active: boolean;
   studyChannelKeys: string[];
+  allowOnceRemainingToday: number;
+  allowOnceDailyLimit: number;
 };
 
 export type FocusSettingsRequest = {
@@ -45,10 +47,37 @@ export type FocusStudyChannelResponse = {
   unlockAt: number | null;
 };
 
+export type FocusAllowOnceChallengeRequest = {
+  videoUrl: string;
+  timezone?: string | null;
+};
+
+export type FocusAllowOnceChallengeResponse = {
+  challengeId: string;
+  challengeText: string;
+  expiresAt: number;
+  remainingToday: number;
+  dailyLimit: number;
+};
+
+export type FocusAllowOnceVerifyRequest = {
+  challengeId: string;
+  videoUrl: string;
+  code: string;
+  timezone?: string | null;
+};
+
+export type FocusAllowOnceVerifyResponse = {
+  remainingToday: number;
+  dailyLimit: number;
+  expiresAt: number;
+};
+
 const FOCUS_URL = `${API_BASE}/focus`;
 
-export function fetchFocus(signal?: AbortSignal): Promise<FocusSettings> {
-  return authedJson(FOCUS_URL, { signal });
+export function fetchFocus(signal?: AbortSignal, timezone?: string | null): Promise<FocusSettings> {
+  const url = timezone ? `${FOCUS_URL}?timezone=${encodeURIComponent(timezone)}` : FOCUS_URL;
+  return authedJson(url, { signal });
 }
 
 export function saveFocus(request: FocusSettingsRequest): Promise<FocusSettings> {
@@ -77,4 +106,24 @@ export async function removeFocusStudyChannel(channelUrl: string): Promise<void>
   if (!response.ok) {
     throw apiErrorFromResponse(response, await response.json().catch(() => null));
   }
+}
+
+export function requestFocusAllowOnceChallenge(
+  request: FocusAllowOnceChallengeRequest,
+): Promise<FocusAllowOnceChallengeResponse> {
+  return authedJson(`${FOCUS_URL}/allow-once/challenge`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(request),
+  });
+}
+
+export function verifyFocusAllowOnce(
+  request: FocusAllowOnceVerifyRequest,
+): Promise<FocusAllowOnceVerifyResponse> {
+  return authedJson(`${FOCUS_URL}/allow-once/verify`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(request),
+  });
 }

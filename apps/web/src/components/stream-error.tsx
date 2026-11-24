@@ -22,6 +22,8 @@ type Props = {
   youtubeSessionAction?: "connect" | "reconnect";
   familyListBlocked?: boolean;
   focusBlock?: FocusBlockInfo | null;
+  focusVideoUrl?: string;
+  onFocusAllowOnceSuccess?: () => void;
   availability?: VideoAvailability;
   poster?: string;
 };
@@ -34,6 +36,8 @@ export function StreamError({
   youtubeSessionAction,
   familyListBlocked: familyListBlockedOverride,
   focusBlock,
+  focusVideoUrl,
+  onFocusAllowOnceSuccess,
   availability,
   poster,
 }: Props) {
@@ -103,6 +107,8 @@ export function StreamError({
           channelName={focusBlock.channelName}
           channelAvatarUrl={focusBlock.channelAvatarUrl}
           unlockAt={focusBlock.unlockAt}
+          videoUrl={focusVideoUrl}
+          onAllowOnceSuccess={onFocusAllowOnceSuccess}
           darkSurface
         />
       )}
