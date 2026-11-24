@@ -1833,6 +1833,7 @@
   "subscriptions_feed_newest_first": "最新优先",
   "subscriptions_feed_oldest_first": "最早优先",
   "subscriptions_select": "选择",
+  "subscriptions_hide_watched": "隐藏已看视频",
   "subscriptions_selected_count": "已选择 {count} 个",
   "subscriptions_select_all": "全选",
   "subscriptions_marked_watched": "已标记为已看：{count}",

@@ -1831,6 +1831,7 @@
   "subscriptions_feed_newest_first": "Plus récentes d'abord",
   "subscriptions_feed_oldest_first": "Plus anciennes d'abord",
   "subscriptions_select": "Sélectionner",
+  "subscriptions_hide_watched": "Masquer les vidéos vues",
   "subscriptions_selected_count": "Sélection : {count}",
   "subscriptions_select_all": "Tout sélectionner",
   "subscriptions_marked_watched": "Marquées comme vues : {count}",

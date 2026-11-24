@@ -1831,6 +1831,7 @@
   "subscriptions_feed_newest_first": "Newest first",
   "subscriptions_feed_oldest_first": "Oldest first",
   "subscriptions_select": "Select",
+  "subscriptions_hide_watched": "Hide watched",
   "subscriptions_selected_count": "{count} selected",
   "subscriptions_select_all": "Select all",
   "subscriptions_marked_watched": "Marked as watched: {count}",

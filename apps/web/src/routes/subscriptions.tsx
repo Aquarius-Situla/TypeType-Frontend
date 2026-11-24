@@ -5,6 +5,7 @@ import { ScrollSentinel } from "../components/scroll-sentinel";
 import { SubscriptionFeedOrderSelect } from "../components/subscription-feed-order";
 import { SubscriptionFeedSelection } from "../components/subscription-feed-selection";
 import { SubscriptionGroupFilter } from "../components/subscription-group-filter";
+import { SubscriptionWatchedToggle } from "../components/subscription-watched-toggle";
 import { SubscriptionsHeader } from "../components/subscriptions-header";
 import { Toast } from "../components/toast";
 import { VideoGrid } from "../components/video-grid";
@@ -140,6 +141,7 @@ function SubscriptionsPage() {
             })
           }
         />
+        <SubscriptionWatchedToggle />
         {visible.length > 0 && (
           <SubscriptionFeedSelection
             selecting={selecting}
