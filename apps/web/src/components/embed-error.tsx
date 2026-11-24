@@ -3,7 +3,9 @@ import { parseGeoRestriction } from "../lib/geo-restriction";
 import { isMemberOnlyMessage } from "../lib/member-only";
 import { type VideoAvailability, videoAvailabilityCopy } from "../lib/video-availability";
 import { m } from "../paraglide/messages.js";
+import { FailMascot } from "./fail-mascot";
 import { FlagIcon } from "./flag-icon";
+import { FocusDenyMascot } from "./focus-deny-mascot";
 import { ReactionGif } from "./reaction-gif";
 import { VideoAvailabilityPoster } from "./video-availability-poster";
 
@@ -17,6 +19,7 @@ type EmbedErrorProps = {
   heading?: string;
   image?: string;
   familyListBlocked?: boolean;
+  focusBlocked?: boolean;
   availability?: VideoAvailability;
   poster?: string;
   watchUrl?: string;
@@ -28,6 +31,7 @@ export function EmbedError({
   heading,
   image,
   familyListBlocked: familyListBlockedOverride,
+  focusBlocked = false,
   availability,
   poster,
   watchUrl,
@@ -38,13 +42,12 @@ export function EmbedError({
   const isMemberOnly = availability === "members_only" || isMemberOnlyMessage(displayedMessage);
   const familyListBlocked = familyListBlockedOverride ?? message === familyListBlockedMessage();
   const playbackFailed = message === playbackFailedMessage();
-  const reactionKind = playbackFailed
-    ? "playbackError"
-    : familyListBlocked
-      ? "familyListBlocked"
-      : isMemberOnly
-        ? "membersOnly"
-        : "videoError";
+  const reactionKind = familyListBlocked
+    ? "familyListBlocked"
+    : isMemberOnly
+      ? "membersOnly"
+      : null;
+  const showFocusDeny = !image && !reactionKind && focusBlocked;
   const headingText =
     heading ??
     availabilityCopy?.heading ??
@@ -61,7 +64,18 @@ export function EmbedError({
         />
       ) : (
         <>
-          <ReactionGif kind={reactionKind} size={140} src={image} className="size-[140px]" />
+          {image || reactionKind ? (
+            <ReactionGif
+              kind={reactionKind ?? "familyListBlocked"}
+              size={140}
+              src={image}
+              className="size-[140px]"
+            />
+          ) : showFocusDeny ? (
+            <FocusDenyMascot className="w-36 shrink-0 sm:w-44" />
+          ) : (
+            <FailMascot className="w-40 shrink-0 sm:w-48" />
+          )}
           <div className="flex flex-col items-center gap-1.5">
             <p className="text-white text-base font-semibold tracking-tight">{headingText}</p>
             <div className="flex items-center gap-2">

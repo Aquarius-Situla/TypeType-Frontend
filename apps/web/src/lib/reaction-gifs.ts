@@ -1,45 +1,10 @@
-// The animated reactions of the loading and error screens (animated WebP: soft cut-out edges). Each situation has several: a screen
-// draws one at random when it shows, never the one it showed last, so they take turns.
+// The Tyme reactions shown on error and block screens (transparent WebP). Multi-variant kinds
+// rotate without repeating the previous asset.
 const REACTIONS = {
-  loading: ["/loader-mascot.gif", "/reactions/loading-1.webp", "/reactions/loading-2.webp"],
-  videoError: [
-    "/reactions/video-error-1.webp",
-    "/reactions/video-error-2.webp",
-    "/reactions/video-error-3.webp",
-  ],
-  playbackError: [
-    "/reactions/playback-error-1.webp",
-    "/reactions/playback-error-2.webp",
-    "/reactions/playback-error-3.webp",
-    "/reactions/playback-error-4.webp",
-    "/reactions/playback-error-5.webp",
-    "/reactions/playback-error-6.webp",
-  ],
-  youtubeReconnect: [
-    "/reactions/youtube-reconnect-1.webp",
-    "/reactions/youtube-reconnect-2.webp",
-    "/reactions/youtube-reconnect-3.webp",
-    "/reactions/youtube-reconnect-4.webp",
-  ],
-  familyListBlocked: [
-    "/reactions/family-list-blocked-1.webp",
-    "/reactions/family-list-blocked-2.webp",
-  ],
-  membersOnly: [
-    "/reactions/members-only-1.webp",
-    "/reactions/members-only-2.webp",
-    "/reactions/members-only-3.webp",
-  ],
-  notFound: [
-    "/reactions/not-found-1.webp",
-    "/reactions/not-found-2.webp",
-    "/reactions/not-found-3.webp",
-  ],
-  guestDisabled: [
-    "/reactions/guest-disabled-1.webp",
-    "/reactions/guest-disabled-2.webp",
-    "/reactions/guest-disabled-3.webp",
-  ],
+  youtubeReconnect: ["/reactions/youtube-reconnect.webp"],
+  familyListBlocked: ["/reactions/family-list-blocked.webp"],
+  membersOnly: ["/reactions/members-only.webp"],
+  notFound: ["/reactions/not-found.webp"],
 } as const satisfies Record<string, readonly string[]>;
 
 export type ReactionKind = keyof typeof REACTIONS;

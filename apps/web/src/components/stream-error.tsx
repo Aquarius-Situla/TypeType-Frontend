@@ -6,8 +6,10 @@ import { parseGeoRestriction } from "../lib/geo-restriction";
 import { isMemberOnlyMessage } from "../lib/member-only";
 import { type VideoAvailability, videoAvailabilityCopy } from "../lib/video-availability";
 import { m } from "../paraglide/messages.js";
+import { FailMascot } from "./fail-mascot";
 import { FlagIcon } from "./flag-icon";
 import { FocusBlockedCard } from "./focus-blocked-card";
+import { FocusDenyMascot } from "./focus-deny-mascot";
 import { ReactionGif } from "./reaction-gif";
 import { VideoAvailabilityPoster } from "./video-availability-poster";
 import { YoutubeIcon } from "./youtube-icon";
@@ -43,21 +45,24 @@ export function StreamError({
   const isMemberOnly = availability === "members_only" || isMemberOnlyMessage(displayedMessage);
   const familyListBlocked = familyListBlockedOverride ?? message === familyListBlockedMessage();
   const youtubeSessionReconnect = youtubeSessionAction === "reconnect";
-  const errorImage = (
-    <ReactionGif
-      kind={
-        youtubeSessionReconnect
-          ? "youtubeReconnect"
-          : familyListBlocked
-            ? "familyListBlocked"
-            : isMemberOnly
-              ? "membersOnly"
-              : "videoError"
-      }
-      size={220}
-      className="size-[220px]"
-    />
-  );
+  const errorImage =
+    youtubeSessionReconnect || familyListBlocked || isMemberOnly ? (
+      <ReactionGif
+        kind={
+          youtubeSessionReconnect
+            ? "youtubeReconnect"
+            : familyListBlocked
+              ? "familyListBlocked"
+              : "membersOnly"
+        }
+        size={220}
+        className="size-[220px]"
+      />
+    ) : focusBlock ? (
+      <FocusDenyMascot className="w-44 shrink-0 sm:w-52" />
+    ) : (
+      <FailMascot className="w-56 shrink-0 sm:w-64" />
+    );
 
   return (
     <div className="dark-surface fixed inset-0 flex flex-col items-center justify-center gap-5 bg-app px-4">

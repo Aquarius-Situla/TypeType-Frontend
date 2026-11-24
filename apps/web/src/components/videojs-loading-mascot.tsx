@@ -1,45 +1,64 @@
-import { selectPlayback, usePlayer } from "@videojs/react";
-import { useEffect, useState } from "react";
-import { ReactionGif } from "./reaction-gif";
+import { selectPlayback, selectTime, usePlayer } from "@videojs/react";
+import type { JSX } from "react";
+import { usePlayerLoadingMascot } from "../hooks/use-player-loading-mascot";
+import { type VideoLoadingOrientation, videoLoadingVariant } from "../lib/loading-mascot";
+import { LoadingMascot } from "./loading-mascot";
 
-// A short wait hides the mascot for stalls the eye would not notice anyway.
-const STALL_DELAY_MS = 400;
-const NEXT_MASCOT_MS = 4000;
-
-// Until the first frame plays, the mascot covers the poster, like the loading screens of the rest of the app; later
-// stalls show it over the last frame. SABR starts playback itself, so the player reads as paused until that first
-// frame: an intended autoplay counts as starting. A long wait takes turns through the loading reactions.
-export function VideoJsLoadingMascot({ autoplay = false }: { autoplay?: boolean }) {
+// Until the first frame plays, Tyme covers the poster, like the loading screens of the rest of the app; later
+// stalls or timeline seeks use the same ring spinner style as the Vidstack player. SABR starts playback itself, so
+// the player reads as paused until that first frame: an intended autoplay counts as starting.
+export function VideoJsLoadingMascot({
+  autoplay = false,
+  orientation = "landscape",
+}: {
+  autoplay?: boolean;
+  orientation?: VideoLoadingOrientation;
+}): JSX.Element | null {
   const playback = usePlayer(selectPlayback);
-  const starting = Boolean(
-    playback && !playback.started && (autoplay || playback.autoplaying || !playback.paused),
-  );
-  const stalled = Boolean(playback?.started && playback.waiting && !playback.paused);
-  const [late, setLate] = useState(false);
-  const [turn, setTurn] = useState(0);
-  const visible = starting || late;
+  const time = usePlayer(selectTime);
+  const phase = usePlayerLoadingMascot({
+    started: Boolean(playback?.started),
+    paused: playback?.paused ?? true,
+    waiting: Boolean(playback?.waiting),
+    autoplaying: Boolean(playback?.autoplaying),
+    autoplay: Boolean(playback) && autoplay,
+    seeking: Boolean(time?.seeking),
+  });
 
-  useEffect(() => {
-    if (!stalled) {
-      setLate(false);
-      return;
-    }
-    const timer = window.setTimeout(() => setLate(true), STALL_DELAY_MS);
-    return () => window.clearTimeout(timer);
-  }, [stalled]);
+  if (!phase) return null;
+  if (phase === "starting") {
+    return (
+      <div className="pointer-events-none absolute inset-0 z-10">
+        <LoadingMascot variant={videoLoadingVariant(orientation)} surface="fill" />
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    if (!visible) return;
-    const timer = window.setInterval(() => setTurn((value) => value + 1), NEXT_MASCOT_MS);
-    return () => window.clearInterval(timer);
-  }, [visible]);
-
-  if (!visible) return null;
   return (
     <div
-      className={`pointer-events-none absolute inset-0 z-10 grid place-content-center ${starting ? "bg-black" : ""}`}
+      data-buffering=""
+      className="pointer-events-none absolute inset-0 z-10 [--media-brand:var(--video-brand,#f5f5f5)] [--media-buffering-size:64px] sm:[--media-buffering-size:96px]"
     >
-      <ReactionGif key={turn} kind="loading" size={96} className="loading-mascot size-24" />
+      <div className="vds-buffering-indicator">
+        <svg
+          width={96}
+          height={96}
+          fill="none"
+          viewBox="0 0 120 120"
+          aria-hidden="true"
+          className="vds-buffering-spinner"
+        >
+          <circle cx="60" cy="60" r="54" stroke="currentColor" className="vds-buffering-track" />
+          <circle
+            cx="60"
+            cy="60"
+            r="54"
+            stroke="currentColor"
+            pathLength={100}
+            className="vds-buffering-track-fill"
+          />
+        </svg>
+      </div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useAdBreak } from "../hooks/use-ad-break";
 import { usePersistentWatchPlayer } from "../hooks/use-persistent-watch-player";
 import { detectProvider } from "../lib/provider";
-import { PageSpinner } from "./page-spinner";
+import { LoadingMascot } from "./loading-mascot";
 import { PlayerError } from "./player-error";
 import { WatchMeta } from "./watch-meta";
 import { WatchStageOverlays } from "./watch-stage-overlays";
@@ -110,8 +110,8 @@ export function WatchStage({
   };
   const persistent = usePersistentWatchPlayer(stream.id, playerProps, !navigating && !playerFailed);
   const localPlayer = navigating ? (
-    <div className="flex aspect-video w-full items-center justify-center bg-black">
-      <PageSpinner fullScreen={false} />
+    <div className="flex aspect-video w-full items-center justify-center overflow-hidden bg-black">
+      <LoadingMascot variant="video-landscape" surface="fill" />
     </div>
   ) : playerFailed ? (
     <div className="flex aspect-video w-full items-center justify-center bg-black">

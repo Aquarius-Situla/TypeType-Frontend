@@ -24,12 +24,14 @@ import { QualitySelector } from "./quality-selector";
 import { SabrCurrentTime } from "./sabr-current-time";
 import { ShortsPlayerLayout } from "./shorts-player-layout";
 import { UnifiedTimeSlider } from "./unified-time-slider";
+import { VidstackLoadingMascot } from "./vidstack-loading-mascot";
 import { WebFullscreenControl } from "./web-fullscreen-control";
 
 const SMALL_LAYOUT_HEIGHT = 380;
 
 type Props = {
   audioOnly?: boolean;
+  autoplay?: boolean;
   hideCinemaMode?: boolean;
   layoutMode?: "default" | "shorts";
   audioUsesVideoProvider?: boolean;
@@ -44,6 +46,7 @@ type Props = {
 
 export function VideoPlayerLayout({
   audioOnly = false,
+  autoplay = false,
   hideCinemaMode = false,
   layoutMode = "default",
   audioUsesVideoProvider = false,
@@ -67,6 +70,7 @@ export function VideoPlayerLayout({
       <ShortsPlayerLayout
         sabr={sabr}
         video={sabrVideo}
+        autoplay={autoplay}
         seeking={seeking}
         originalAudioLocale={originalAudioLocale}
       />
@@ -151,6 +155,7 @@ export function VideoPlayerLayout({
       smallLayoutWhen={({ height }) => height < SMALL_LAYOUT_HEIGHT}
       translations={translations}
       slots={{
+        bufferingIndicator: <VidstackLoadingMascot orientation="landscape" autoplay={autoplay} />,
         currentTime: sabr ? (
           <SabrCurrentTime transitioning={seeking} video={sabrVideo} />
         ) : undefined,

@@ -7,15 +7,23 @@ import { FormatSelector } from "./format-selector";
 import { PlayerVolumeControl } from "./player-volume-control";
 import { QualitySelector } from "./quality-selector";
 import { UnifiedTimeSlider } from "./unified-time-slider";
+import { VidstackLoadingMascot } from "./vidstack-loading-mascot";
 
 type Props = {
   sabr: boolean;
   video: HTMLVideoElement | null;
+  autoplay?: boolean;
   seeking: boolean;
   originalAudioLocale?: string | null;
 };
 
-export function ShortsPlayerLayout({ sabr, video, seeking, originalAudioLocale }: Props) {
+export function ShortsPlayerLayout({
+  sabr,
+  video,
+  autoplay = false,
+  seeking,
+  originalAudioLocale,
+}: Props) {
   const { locale } = useInterfaceLocale();
 
   return (
@@ -29,6 +37,7 @@ export function ShortsPlayerLayout({ sabr, video, seeking, originalAudioLocale }
       menuContainer="body"
       menuGroup="bottom"
       slots={{
+        bufferingIndicator: <VidstackLoadingMascot orientation="portrait" autoplay={autoplay} />,
         timeSlider: (
           <UnifiedTimeSlider
             sabr={sabr}

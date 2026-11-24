@@ -4,7 +4,7 @@ import { detectProvider } from "../lib/provider";
 import { shortsPlaybackSourceKind, shortsPlaybackState } from "../lib/shorts-playback-state";
 import { resolveManifestSrc } from "../lib/stream-src";
 import { m } from "../paraglide/messages.js";
-import { PageSpinner } from "./page-spinner";
+import { LoadingMascot } from "./loading-mascot";
 import { ShortsActions } from "./shorts-actions";
 import { ShortsCommentsSheetSlot } from "./shorts-comments-sheet-slot";
 import { ShortsError } from "./shorts-error";
@@ -121,8 +121,8 @@ export function ShortsPlayerStage({
             }
           >
             {state === "loading" && (
-              <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/70">
-                <PageSpinner fullScreen={false} />
+              <div className="absolute inset-0 z-20 flex items-center justify-center">
+                <LoadingMascot variant="video-portrait" surface="fill" />
               </div>
             )}
             {state !== "loading" && state !== "ready" && (

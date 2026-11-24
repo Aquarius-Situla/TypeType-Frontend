@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { SabrPlaybackRatePreference } from "../lib/sabr-playback-rate-preference";
 import type { VideoJsSource } from "../lib/video-js-source";
 import { LazyVideoJsVideoPlayer } from "./lazy-videojs-video-player";
+import { LoadingMascot } from "./loading-mascot";
 import type { WatchStagePlayerProps } from "./watch-stage-player";
 
 type Props = WatchStagePlayerProps & {
@@ -11,7 +12,7 @@ type Props = WatchStagePlayerProps & {
 
 export function VideoJsStagePlayer(props: Props) {
   return (
-    <Suspense fallback={<div aria-hidden="true" className="h-full w-full bg-black" />}>
+    <Suspense fallback={<LoadingMascot variant="video-landscape" surface="fill" />}>
       <LazyVideoJsVideoPlayer
         key={props.playerKey}
         source={props.source}

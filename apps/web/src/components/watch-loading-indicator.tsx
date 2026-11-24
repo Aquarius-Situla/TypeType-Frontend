@@ -1,17 +1,18 @@
-import { PageSpinner } from "./page-spinner";
+import type { JSX } from "react";
+import { LoadingMascot } from "./loading-mascot";
 
 type Props = {
   notice?: string;
 };
 
-export function WatchLoadingIndicator({ notice }: Props) {
-  if (!notice) return <PageSpinner fullScreen={false} />;
+export function WatchLoadingIndicator({ notice }: Props): JSX.Element {
+  if (!notice) return <LoadingMascot variant="video-landscape" surface="fill" />;
   return (
     <div className="relative h-full w-full">
-      <PageSpinner fullScreen={false} />
+      <LoadingMascot variant="video-landscape" surface="fill" />
       <p
         role="status"
-        className="absolute inset-x-0 bottom-4 px-4 text-center text-fg-muted text-sm"
+        className="absolute inset-x-0 bottom-4 z-10 px-4 text-center text-fg-muted text-sm"
       >
         {notice}
       </p>
