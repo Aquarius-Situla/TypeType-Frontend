@@ -148,7 +148,7 @@ export function SkinFrame({ children, style, autoplay = false }: SkinFrameProps)
   return (
     <Container
       style={style}
-      className="relative block overflow-hidden rounded-(--media-border-radius) bg-black text-white outline-none [&_video]:rounded-[inherit] focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-inset fullscreen:rounded-none"
+      className="relative block overflow-hidden rounded-(--media-border-radius) bg-black text-white outline-none [&_video]:rounded-[inherit] focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-white fullscreen:rounded-none"
     >
       {children}
       <VideoJsLoadingMascot autoplay={autoplay} />
