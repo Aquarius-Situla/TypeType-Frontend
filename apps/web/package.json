@@ -14,7 +14,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.107.1",
     "@tanstack/react-router": "^1.170.46",
-    "@typetype/mse": "0.1.81",
+    "@typetype/mse": "0.1.82",
     "@videojs/dash-video": "10.3.0",
     "@videojs/hlsjs-video": "10.3.0",
     "@videojs/media": "10.3.0",
