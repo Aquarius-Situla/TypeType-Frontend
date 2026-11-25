@@ -9,7 +9,7 @@ import { useSabrQualitySwitch } from "../hooks/use-sabr-quality-switch";
 import { extractBearerToken, resolveUnauthorizedRetryToken } from "../lib/authed";
 import { recordClientEvent } from "../lib/client-debug-log";
 import { toAbsoluteApiUrl } from "../lib/env";
-import { addPlaybackTraceHeader } from "../lib/playback-trace";
+import { addPlaybackTraceHeader, currentPlaybackTraceContext } from "../lib/playback-trace";
 import {
   confirmAutoplayOnPlaying,
   guardAutoplay,
@@ -27,6 +27,7 @@ import {
   registerSabrVideoHandoffPositionCapture as registerPosition,
 } from "../lib/sabr-video-handoff-events";
 import { followSabrEngineSeeks, registerSabrVidstackControls } from "../lib/sabr-vidstack-bridge";
+import { reportStartup } from "../lib/startup-report";
 import { useAuthStore } from "../stores/auth-store";
 import type { SabrMsePlayerProps } from "./sabr-mse-player-types";
 export function SabrMsePlayer({
@@ -122,6 +123,11 @@ export function SabrMsePlayer({
       },
     });
     const stopPlaybackTrace = observeSabrMsePlayback(video, config.videoId, engine, reportError);
+    const stopStartupReport = reportStartup(
+      video,
+      config.videoId,
+      currentPlaybackTraceContext()?.traceId,
+    );
     engineRef.current = engine;
     qualityRef.current = initialConfig;
     let engineLoaded = false;
@@ -217,6 +223,7 @@ export function SabrMsePlayer({
       offSeekTargets();
       captureCleanupPosition(video, videoHandoffRef.current, config.videoId);
       stopPlaybackTrace();
+      stopStartupReport();
       unguardAutoplay();
       unregisterControls();
       unregisterMediaElementObservers();
