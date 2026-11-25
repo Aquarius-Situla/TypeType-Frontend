@@ -1,12 +1,8 @@
-export function GermanFlag() {
-  return (
-    <span
-      className="grid h-4 w-6 shrink-0 grid-rows-3 overflow-hidden rounded-[2px] ring-1 ring-black/15"
-      aria-hidden="true"
-    >
-      <span className="bg-[#1f1f1f]" />
-      <span className="bg-[#d21f26]" />
-      <span className="bg-[#f5c542]" />
-    </span>
-  );
+import { FlagImage } from "./flag-image";
+
+const GERMAN_FLAG_SVG =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 3" preserveAspectRatio="none"><rect width="3" height="3" fill="#1f1f1f"/><rect y="1" width="3" height="2" fill="#d21f26"/><rect y="2" width="3" height="1" fill="#f5c542"/></svg>';
+
+export function GermanFlag(): React.JSX.Element {
+  return <FlagImage svg={GERMAN_FLAG_SVG} />;
 }
