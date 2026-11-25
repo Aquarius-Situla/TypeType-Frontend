@@ -7,14 +7,19 @@ import { isUpcomingStream } from "../lib/upcoming-stream";
 import { useAuthStore } from "../stores/auth-store";
 import type { VideoStream } from "../types/stream";
 import type { SettingsItem } from "../types/user";
-import { streamQueryOptions } from "./use-stream";
+import { sabrBootstrapQueryOptions, streamQueryOptions } from "./use-stream";
 
 const PREFLIGHT_DELAY_MS = 600;
 const PROVIDER_PREFLIGHT_DELAY_MS = 250;
+// The bootstrap starts the playback session on the server, so a hover this long has the video ready before the
+// click; a pointer only passing over the card asks for nothing.
+const SESSION_WARM_DELAY_MS = 120;
 
 export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
   const queryClient = useQueryClient();
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const warmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const warmedRef = useRef(false);
   const activeControllerRef = useRef<AbortController | null>(null);
   const committedRef = useRef(false);
   const prewarmedRef = useRef(false);
@@ -90,6 +95,16 @@ export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
       });
   }, [progressMs, queryClient, sabrEnabled, stream.id]);
 
+  const warmSession = useCallback(() => {
+    if (!sabrEnabled || warmedRef.current || committedRef.current) return;
+    if (!takeHoverPreflight()) return;
+    warmedRef.current = true;
+    void preloadPlaybackRuntime(stream.id).catch(() => undefined);
+    void queryClient
+      .prefetchQuery(sabrBootstrapQueryOptions(stream.id, Boolean(useAuthStore.getState().token)))
+      .finally(releaseHoverPreflight);
+  }, [queryClient, sabrEnabled, stream.id]);
+
   const prefetchLive = useCallback(
     (preview: boolean) => {
       if (!prefetchableLive) return;
@@ -118,16 +133,34 @@ export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
       return;
     }
     if (!sabrEnabled || committedRef.current || prewarmedRef.current) return;
+    if (warmTimerRef.current === null && !warmedRef.current) {
+      warmTimerRef.current = setTimeout(() => {
+        warmTimerRef.current = null;
+        warmSession();
+      }, SESSION_WARM_DELAY_MS);
+    }
     timerRef.current = setTimeout(() => {
       timerRef.current = null;
       preflight();
     }, PREFLIGHT_DELAY_MS);
-  }, [prefetchLive, prefetchableLive, preflight, prewarmProvider, providerPrewarm, sabrEnabled]);
+  }, [
+    prefetchLive,
+    prefetchableLive,
+    preflight,
+    prewarmProvider,
+    providerPrewarm,
+    sabrEnabled,
+    warmSession,
+  ]);
 
   const cancel = useCallback(() => {
     if (timerRef.current !== null) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
+    }
+    if (warmTimerRef.current !== null) {
+      clearTimeout(warmTimerRef.current);
+      warmTimerRef.current = null;
     }
     if (!committedRef.current) {
       activeControllerRef.current?.abort();
@@ -172,10 +205,13 @@ export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
   useEffect(
     () => () => {
       if (timerRef.current !== null) clearTimeout(timerRef.current);
+      if (warmTimerRef.current !== null) clearTimeout(warmTimerRef.current);
       if (!committedRef.current) activeControllerRef.current?.abort();
     },
     [],
   );
 
-  return { schedule, cancel, focus, commit };
+  const warmed = useCallback(() => warmedRef.current, []);
+
+  return { schedule, cancel, focus, commit, warmed };
 }
