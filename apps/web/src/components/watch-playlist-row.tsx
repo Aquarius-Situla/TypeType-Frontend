@@ -13,6 +13,8 @@ type Props = {
   index: number;
   total: number;
   isCurrent: boolean;
+  /** False until the current video's first frame: the covers wait so they do not compete with the video. */
+  showThumbnail: boolean;
   reorderable: boolean;
   isMobile: boolean;
   listId?: string;
@@ -26,6 +28,7 @@ export function WatchPlaylistRow({
   index,
   total,
   isCurrent,
+  showThumbnail,
   reorderable,
   isMobile,
   listId,
@@ -56,7 +59,7 @@ export function WatchPlaylistRow({
         className="flex min-w-0 flex-1 items-center gap-2 py-1.5"
       >
         <div className="relative aspect-video w-20 shrink-0 overflow-hidden rounded bg-surface-strong">
-          {branding.thumbnail && (
+          {showThumbnail && branding.thumbnail && (
             <img
               src={branding.thumbnail}
               alt=""
