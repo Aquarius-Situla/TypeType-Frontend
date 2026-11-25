@@ -2259,5 +2259,9 @@
   "focus_add_study_only_confirm_description_named": "Adding {channel} to your study group takes effect after a 24-hour cooling-off period. You can cancel before it unlocks.",
   "focus_add_study_confirm_action": "Confirm",
   "focus_open_settings": "Open Focus settings",
-  "focus_entertainment_conflict": "Entertainment channels cannot be added to your study group while Focus is active."
+  "focus_entertainment_conflict": "Entertainment channels cannot be added to your study group while Focus is active.",
+  "twitch_language_filter": "Language",
+  "twitch_language_all": "All languages",
+  "twitch_language_count": "{count} languages",
+  "twitch_language_other": "Other"
 }

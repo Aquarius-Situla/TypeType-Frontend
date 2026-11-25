@@ -2259,5 +2259,9 @@
   "focus_add_study_only_confirm_description_named": "Das Hinzufügen von {channel} zur Lerngruppe wird nach einer 24-stündigen Wartezeit wirksam. Bis dahin kannst du jederzeit abbrechen.",
   "focus_add_study_confirm_action": "Bestätigen",
   "focus_open_settings": "Fokus-Einstellungen öffnen",
-  "focus_entertainment_conflict": "Unterhaltungskanäle können im aktiven Fokus nicht zur Lerngruppe hinzugefügt werden."
+  "focus_entertainment_conflict": "Unterhaltungskanäle können im aktiven Fokus nicht zur Lerngruppe hinzugefügt werden.",
+  "twitch_language_filter": "Sprache",
+  "twitch_language_all": "Alle Sprachen",
+  "twitch_language_count": "{count} Sprachen",
+  "twitch_language_other": "Andere"
 }

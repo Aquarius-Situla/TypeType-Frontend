@@ -2259,5 +2259,9 @@
   "focus_add_study_only_confirm_description_named": "将「{channel}」加入学习分组将在 24 小时冷静期后生效，生效前仍无法观看视频，期间可随时取消。",
   "focus_add_study_confirm_action": "确认加入",
   "focus_open_settings": "前往专注设置",
-  "focus_entertainment_conflict": "专注生效期间，不能将娱乐分组中的频道移入学习分组。"
+  "focus_entertainment_conflict": "专注生效期间，不能将娱乐分组中的频道移入学习分组。",
+  "twitch_language_filter": "语言",
+  "twitch_language_all": "所有语言",
+  "twitch_language_count": "{count} 种语言",
+  "twitch_language_other": "其他"
 }

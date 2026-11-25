@@ -2259,5 +2259,9 @@
   "focus_add_study_only_confirm_description_named": "L'ajout de {channel} au groupe d'étude prendra effet après un délai de réflexion de 24 heures. Vous pouvez annuler d'ici là.",
   "focus_add_study_confirm_action": "Confirmer",
   "focus_open_settings": "Ouvrir les réglages Focus",
-  "focus_entertainment_conflict": "Les chaînes de divertissement ne peuvent pas rejoindre le groupe d'étude pendant le Focus."
+  "focus_entertainment_conflict": "Les chaînes de divertissement ne peuvent pas rejoindre le groupe d'étude pendant le Focus.",
+  "twitch_language_filter": "Langue",
+  "twitch_language_all": "Toutes les langues",
+  "twitch_language_count": "{count} langues",
+  "twitch_language_other": "Autre"
 }
