@@ -6,10 +6,10 @@ import type { SettingsItem } from "../types/user";
 import { prewarmSabrPlayback } from "./api-sabr-prewarm";
 import { defaultSabrAudioTrackId, sabrAudioOptions } from "./sabr-audio";
 import {
+  defaultSabrItag,
   resolveSabrPlaybackConfig,
   type SabrPlaybackConfig,
   sabrQualityOptions,
-  startupSabrItag,
 } from "./sabr-source";
 import { resolveWatchStartTime } from "./watch-resume";
 
@@ -28,7 +28,7 @@ export function resolveVideoCardSabrConfig(
   settings: SettingsItem | undefined,
 ): SabrPlaybackConfig | null {
   const qualityOptions = sabrQualityOptions(stream);
-  const defaultItag = startupSabrItag(
+  const defaultItag = defaultSabrItag(
     qualityOptions,
     resolvePreferredSabrQuality(settings?.defaultQuality ?? "1080p"),
   );

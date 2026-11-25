@@ -6,13 +6,11 @@ import {
   resolveSabrPlaybackConfig,
   type SabrPlaybackConfig,
   sabrQualityOptions,
-  startupSabrItag,
 } from "../lib/sabr-source";
 import { useAuthStore } from "../stores/auth-store";
 import { useSabrAudioStore } from "../stores/sabr-audio-store";
 import { useSabrQualityStore } from "../stores/sabr-quality-store";
 import type { VideoStream } from "../types/stream";
-import { useStartupQualityUpgrade } from "./use-startup-quality-upgrade";
 
 export function useSabrPlaybackConfig(
   stream: VideoStream,
@@ -43,12 +41,7 @@ export function useSabrPlaybackConfig(
     () => defaultSabrItag(options, preferredQuality),
     [options, preferredQuality],
   );
-  const startupItag = useMemo(
-    () => startupSabrItag(options, preferredQuality),
-    [options, preferredQuality],
-  );
-  const upgraded = useStartupQualityUpgrade(stream.id);
-  const effectiveItag = selectedItag ?? (upgraded ? defaultItag : startupItag);
+  const effectiveItag = selectedItag ?? defaultItag;
   useEffect(() => {
     if (!enabled || defaultItag === null) return;
     setOptions(stream.id, options, defaultItag);
