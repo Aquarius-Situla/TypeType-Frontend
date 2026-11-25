@@ -13,7 +13,7 @@ const PREFLIGHT_DELAY_MS = 600;
 const PROVIDER_PREFLIGHT_DELAY_MS = 250;
 // The bootstrap starts the playback session on the server, so a hover this long has the video ready before the
 // click; a pointer only passing over the card asks for nothing.
-const SESSION_WARM_DELAY_MS = 120;
+const SESSION_WARM_DELAY_MS = 40;
 
 export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
   const queryClient = useQueryClient();
