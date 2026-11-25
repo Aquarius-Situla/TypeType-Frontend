@@ -95,14 +95,15 @@ export function useVideoCardPreflight(stream: VideoStream, progressMs: number) {
       });
   }, [progressMs, queryClient, sabrEnabled, stream.id]);
 
+  // The bootstrap answers in about a tenth of a second: it does not wait for a preflight slot, which a slow
+  // provider can hold for seconds while the pointer already rests on the next card.
   const warmSession = useCallback(() => {
     if (!sabrEnabled || warmedRef.current || committedRef.current) return;
-    if (!takeHoverPreflight()) return;
     warmedRef.current = true;
     void preloadPlaybackRuntime(stream.id).catch(() => undefined);
     void queryClient
       .prefetchQuery(sabrBootstrapQueryOptions(stream.id, Boolean(useAuthStore.getState().token)))
-      .finally(releaseHoverPreflight);
+      .catch(() => undefined);
   }, [queryClient, sabrEnabled, stream.id]);
 
   const prefetchLive = useCallback(
