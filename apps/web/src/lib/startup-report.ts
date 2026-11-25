@@ -1,3 +1,4 @@
+import { useFirstFrameStore } from "../stores/first-frame-store";
 import { toAbsoluteApiUrl } from "./env";
 
 type Intent = { videoId: string; at: number; warmed: boolean };
@@ -40,6 +41,7 @@ export function reportStartup(
     if (done || video.currentTime <= 0) return;
     done = true;
     stop();
+    useFirstFrameStore.getState().mark(videoId);
     const steps: Record<string, [number, number]> = {};
     for (const entry of performance.getEntriesByType("resource") as PerformanceResourceTiming[]) {
       if (entry.startTime < origin) continue;

@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { useAfterFirstFrame } from "../hooks/use-after-first-frame";
 import { useInfiniteComments } from "../hooks/use-infinite-comments";
 import { useInterfaceLocale } from "../hooks/use-interface-locale";
 import { m } from "../paraglide/messages.js";
@@ -19,8 +20,11 @@ type Props = {
 
 export function WatchComments({ videoUrl, onSeekTimestamp }: Props) {
   const { locale } = useInterfaceLocale();
-  const { data, isFetchingNextPage, hasNextPage, fetchNextPage, isLoading } =
-    useInfiniteComments(videoUrl);
+  const afterFirstFrame = useAfterFirstFrame(videoUrl);
+  const { data, isFetchingNextPage, hasNextPage, fetchNextPage, isLoading } = useInfiniteComments(
+    videoUrl,
+    afterFirstFrame,
+  );
   const [renderCount, setRenderCount] = useState(INITIAL_RENDER_COUNT);
   const [search, setSearch] = useState({ videoUrl, query: "" });
   const searchQuery = search.videoUrl === videoUrl ? search.query : "";

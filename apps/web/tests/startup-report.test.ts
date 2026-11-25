@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { markWatchIntent, reportStartup } from "../src/lib/startup-report";
+import { useFirstFrameStore } from "../src/stores/first-frame-store";
 
 type Sent = { url: string; body: Record<string, unknown> };
 
@@ -58,6 +59,7 @@ describe("startup report", () => {
     expect(sent[0]?.url).toBe("https://example.test/api/metrics/startup");
     expect(sent[0]?.body).toMatchObject({ video: "aqz-KE-bpKQ", origin: "click", warmed: true });
     expect(video.listeners.size).toBe(0);
+    expect(useFirstFrameStore.getState().videoId).toBe("aqz-KE-bpKQ");
   });
 
   test("a video opened by its address counts from the page load", async () => {

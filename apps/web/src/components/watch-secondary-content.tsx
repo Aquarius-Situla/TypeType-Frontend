@@ -71,7 +71,7 @@ export function WatchSecondaryContent({
         <div className={panelClassName}>
           {!isMobile && liveChat}
           {playlistPanel}
-          {hasRelatedStreams && <RelatedVideos streams={relatedStreams} />}
+          {hasRelatedStreams && <RelatedVideos streams={relatedStreams} videoUrl={stream.id} />}
         </div>
         {liveChatOverlay}
       </>
@@ -96,7 +96,7 @@ export function WatchSecondaryContent({
           <div className={panelClassName}>
             {!isMobile && liveChat}
             {playlistPanel}
-            {hasRelatedStreams && <RelatedVideos streams={relatedStreams} />}
+            {hasRelatedStreams && <RelatedVideos streams={relatedStreams} videoUrl={stream.id} />}
           </div>
         )}
       </div>
