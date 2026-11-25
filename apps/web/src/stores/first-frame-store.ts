@@ -5,7 +5,7 @@ type FirstFrameState = {
   mark: (videoId: string) => void;
 };
 
-/** The last YouTube video whose picture started moving: the rest of its page loads after that. */
+/** The last video (by its public watch parameter) whose picture started moving: the rest of its page loads after that. */
 export const useFirstFrameStore = create<FirstFrameState>((set) => ({
   videoId: null,
   mark: (videoId) => set({ videoId }),
