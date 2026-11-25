@@ -12,7 +12,7 @@ type Props = {
   channelName?: string;
   channelAvatarUrl?: string;
   unlockAt?: number | null;
-  darkSurface?: boolean;
+  centered?: boolean;
 };
 
 export function FocusBlockedCard({
@@ -21,7 +21,7 @@ export function FocusBlockedCard({
   channelName = "",
   channelAvatarUrl = "",
   unlockAt = null,
-  darkSurface = false,
+  centered = false,
 }: Props) {
   const { query: focusQuery } = useFocus();
   const { isSubscribed } = useSubscriptions();
@@ -71,8 +71,8 @@ export function FocusBlockedCard({
     return m.ui_action_failed();
   })();
 
-  const containerClass = darkSurface
-    ? "flex max-w-md flex-col items-center gap-3 rounded-lg border border-white/15 bg-white/5 px-5 py-4 text-center"
+  const containerClass = centered
+    ? "flex max-w-md flex-col items-center gap-3 rounded-lg border border-border bg-surface px-5 py-4 text-center"
     : "flex flex-col items-start gap-3 rounded-lg border border-border bg-surface p-4";
 
   function handleConfirmAdd() {
@@ -98,23 +98,15 @@ export function FocusBlockedCard({
   return (
     <div className={containerClass}>
       <div className="flex flex-col gap-1">
-        {channelName && (
-          <p className={`text-sm font-medium ${darkSurface ? "text-white" : "text-fg"}`}>
-            {channelName}
-          </p>
-        )}
-        <p className={`text-sm ${darkSurface ? "text-white/80" : "text-fg-soft"}`}>{description}</p>
+        {channelName && <p className="text-sm font-medium text-fg">{channelName}</p>}
+        <p className="text-sm text-fg-soft">{description}</p>
       </div>
       {canAddStudy && (
         <button
           type="button"
           disabled={addStudyChannel.isPending}
           onClick={() => setConfirmOpen(true)}
-          className={`cursor-pointer rounded-md px-4 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
-            darkSurface
-              ? "bg-white text-zinc-950 hover:bg-zinc-200"
-              : "bg-fg text-app hover:bg-fg-strong"
-          }`}
+          className="cursor-pointer rounded-md bg-fg px-4 py-1.5 text-sm font-medium text-app transition-colors hover:bg-fg-strong disabled:opacity-50"
         >
           {addStudyChannel.isPending
             ? m.ui_adding()
@@ -128,11 +120,7 @@ export function FocusBlockedCard({
           type="button"
           disabled={removeStudyChannel.isPending}
           onClick={handleCancelPending}
-          className={`cursor-pointer rounded-md border px-4 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
-            darkSurface
-              ? "border-white/25 text-white hover:bg-white/10"
-              : "border-border-strong text-fg hover:bg-surface-strong"
-          }`}
+          className="cursor-pointer rounded-md border border-border-strong px-4 py-1.5 text-sm font-medium text-fg transition-colors hover:bg-surface-strong disabled:opacity-50"
         >
           {removeStudyChannel.isPending ? m.ui_saving() : m.focus_cancel_study_channel()}
         </button>
@@ -141,7 +129,7 @@ export function FocusBlockedCard({
         <Link
           to="/settings"
           search={{ section: "focus" }}
-          className={`text-xs underline underline-offset-2 ${darkSurface ? "text-white/80 hover:text-white" : "text-fg hover:text-fg-strong"}`}
+          className="text-xs text-fg underline underline-offset-2 hover:text-fg-strong"
         >
           {m.focus_open_settings()}
         </Link>
