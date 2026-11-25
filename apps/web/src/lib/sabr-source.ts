@@ -89,6 +89,21 @@ export function defaultSabrItag(
   return preferred?.itag ?? options.at(-1)?.itag ?? null;
 }
 
+/** The quality a video starts at: its first segment arrives several times sooner than a 1080p one. */
+const STARTUP_SABR_HEIGHT = 480;
+
+/** The format to start with: the viewer's quality, or the startup one when that is higher. */
+export function startupSabrItag(
+  options: SabrQualityOption[],
+  defaultQuality: string | undefined,
+): number | null {
+  const wanted = defaultQuality ? Number.parseInt(defaultQuality, 10) : 720;
+  const height = Number.isFinite(wanted)
+    ? Math.min(wanted, STARTUP_SABR_HEIGHT)
+    : STARTUP_SABR_HEIGHT;
+  return defaultSabrItag(options, `${height}p`);
+}
+
 export function automaticSabrQuality(
   screenShortSide: number,
   devicePixelRatio: number,
