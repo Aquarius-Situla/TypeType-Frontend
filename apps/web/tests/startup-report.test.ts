@@ -4,17 +4,24 @@ import { useFirstFrameStore } from "../src/stores/first-frame-store";
 
 type Sent = { url: string; body: Record<string, unknown> };
 
-function fakeVideo() {
-  const listeners = new Set<() => void>();
+function fakeVideo(paused = false) {
+  const listeners = new Map<string, Set<() => void>>();
   return {
     currentTime: 0,
-    addEventListener: (_: string, f: () => void) => listeners.add(f),
-    removeEventListener: (_: string, f: () => void) => listeners.delete(f),
+    paused,
+    addEventListener: (type: string, f: () => void) => {
+      if (!listeners.has(type)) listeners.set(type, new Set());
+      listeners.get(type)?.add(f);
+    },
+    removeEventListener: (type: string, f: () => void) => listeners.get(type)?.delete(f),
+    fire(type: string) {
+      for (const f of [...(listeners.get(type) ?? [])]) f();
+    },
     tick(time: number) {
       this.currentTime = time;
-      for (const f of [...listeners]) f();
+      this.fire("timeupdate");
     },
-    listeners,
+    count: () => [...listeners.values()].reduce((total, set) => total + set.size, 0),
   };
 }
 
@@ -51,27 +58,38 @@ describe("startup report", () => {
     const video = fakeVideo();
     reportStartup(video as unknown as HTMLVideoElement, "aqz-KE-bpKQ");
     video.tick(0);
-    expect(video.listeners.size).toBe(1);
+    expect(video.count()).toBe(2);
     video.tick(0.2);
     video.tick(0.4);
     await Bun.sleep(5);
     expect(sent).toHaveLength(1);
     expect(sent[0]?.url).toBe("https://example.test/api/metrics/startup");
-    expect(sent[0]?.body).toMatchObject({ video: "aqz-KE-bpKQ", origin: "click", warmed: true });
-    expect(video.listeners.size).toBe(0);
+    expect(sent[0]?.body).toMatchObject({
+      video: "aqz-KE-bpKQ",
+      origin: "click",
+      warmed: true,
+      waitedForPlay: false,
+    });
+    expect(video.count()).toBe(0);
     expect(useFirstFrameStore.getState().videoId).toBe("aqz-KE-bpKQ");
   });
 
-  test("a video opened by its address counts from the page load", async () => {
+  test("a video opened by its address counts from the page load, once per page", async () => {
     const sent = capture();
-    const video = fakeVideo();
+    const video = fakeVideo(true);
     reportStartup(video as unknown as HTMLVideoElement, "jNQXAC9IVRw");
+    video.fire("canplay");
     video.tick(0.1);
+    const again = fakeVideo();
+    reportStartup(again as unknown as HTMLVideoElement, "jNQXAC9IVRw");
+    again.tick(0.1);
     await Bun.sleep(5);
+    expect(sent).toHaveLength(1);
     expect(sent[0]?.body).toMatchObject({
       video: "jNQXAC9IVRw",
       origin: "page_load",
       warmed: false,
+      waitedForPlay: true,
     });
   });
 });

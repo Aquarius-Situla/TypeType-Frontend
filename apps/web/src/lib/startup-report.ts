@@ -4,6 +4,7 @@ import { toAbsoluteApiUrl } from "./env";
 type Intent = { videoId: string; at: number; warmed: boolean };
 
 let intent: Intent | null = null;
+let pageLoadReported = false;
 
 const STEPS: [string, RegExp][] = [
   ["bootstrap", /\/streams\/youtube\/sabr\/bootstrap\?/],
@@ -26,7 +27,8 @@ export function markWatchIntent(videoUrl: string, warmed: boolean): void {
 
 /**
  * Waits for the first frame of the video, then sends how long it took from the click (or from the page load when
- * the video was opened by its address) with the first request of each step, as the browser timed them.
+ * the video was opened by its address) with the first request of each step, as the browser timed them, and whether
+ * the video was ready but paused, waiting for the viewer to press play (autoplay refused).
  */
 export function reportStartup(
   video: HTMLVideoElement,
@@ -34,13 +36,21 @@ export function reportStartup(
   traceId?: string | null,
 ): () => void {
   const own = intent?.videoId === videoId ? intent : null;
+  // Without a click the start counts from the page load, which only the first player of the page may report: a
+  // player mounted again later on the same page would count the whole visit.
+  if (!own && pageLoadReported) return () => undefined;
   const origin = own?.at ?? 0;
   intent = null;
   let done = false;
+  let waitedForPlay = false;
+  const onCanPlay = () => {
+    waitedForPlay = video.paused;
+  };
   const send = () => {
     if (done || video.currentTime <= 0) return;
     done = true;
     stop();
+    if (!own) pageLoadReported = true;
     useFirstFrameStore.getState().mark(videoId);
     const steps: Record<string, [number, number]> = {};
     for (const entry of performance.getEntriesByType("resource") as PerformanceResourceTiming[]) {
@@ -59,6 +69,7 @@ export function reportStartup(
       origin: own ? "click" : "page_load",
       firstFrameMs: Math.round(performance.now() - origin),
       warmed: own?.warmed ?? false,
+      waitedForPlay,
       trace: traceId ?? "",
       steps,
     });
@@ -72,7 +83,11 @@ export function reportStartup(
       }).catch(() => undefined);
     }
   };
-  const stop = () => video.removeEventListener("timeupdate", send);
+  const stop = () => {
+    video.removeEventListener("timeupdate", send);
+    video.removeEventListener("canplay", onCanPlay);
+  };
+  video.addEventListener("canplay", onCanPlay, { once: true });
   video.addEventListener("timeupdate", send);
   return stop;
 }
