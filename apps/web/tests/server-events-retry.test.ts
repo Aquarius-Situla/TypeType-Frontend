@@ -84,3 +84,23 @@ test("a reconnect that never answers is given up and tried again", async () => {
   await watchUntilHellos(2, seen);
   expect(seen).toEqual(["hello", "lost", "lost", "hello"]);
 }, 25_000);
+
+test("a first connect that holds its headers back is not reported lost", async () => {
+  globalThis.fetch = ((_url: string, init?: RequestInit) =>
+    new Promise((_resolve, reject) => {
+      init?.signal?.addEventListener("abort", () =>
+        reject(new DOMException("aborted", "AbortError")),
+      );
+    })) as unknown as typeof fetch;
+  const seen: string[] = [];
+  const stop = watchServerEvents({
+    onHello: () => seen.push("hello"),
+    onNotice: () => undefined,
+    onCleared: () => undefined,
+    onLost: () => seen.push("lost"),
+    onReachable: () => seen.push("reachable"),
+  });
+  await new Promise((resolve) => setTimeout(resolve, 12_000));
+  stop();
+  expect(seen).toEqual([]);
+}, 20_000);

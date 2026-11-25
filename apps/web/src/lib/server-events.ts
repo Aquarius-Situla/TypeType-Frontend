@@ -57,9 +57,10 @@ async function readServerEvents(
   handlers: ServerEventHandlers,
   signal: AbortSignal,
   stallAfter: (ms: number | null) => void,
+  connectTimeoutMs: number | null,
   opened: () => void,
 ) {
-  stallAfter(CONNECT_TIMEOUT_MS);
+  stallAfter(connectTimeoutMs);
   const response = await fetch(toApiUrl("/server/events"), {
     headers: { Accept: "text/event-stream" },
     signal,
@@ -94,7 +95,9 @@ async function readServerEvents(
 }
 
 // A server without this endpoint answers 404 on the first try: the watch stops and the client behaves as before.
-// Once the stream has opened, a 404 comes from a proxy while the server restarts, so the watch keeps trying.
+// Once the stream has opened, a 404 comes from a proxy while the server restarts, so the watch keeps trying, and a
+// reconnect that never answers is given up. The first connect has no time limit: a server may hold the headers of
+// the stream back, and timing it out would announce a loss that never happened.
 export function watchServerEvents(handlers: ServerEventHandlers): () => void {
   const controller = new AbortController();
   let attempt = 0;
@@ -118,6 +121,7 @@ export function watchServerEvents(handlers: ServerEventHandlers): () => void {
         { ...handlers, onHello: greeted },
         current.signal,
         stallAfter,
+        opened ? CONNECT_TIMEOUT_MS : null,
         () => {
           opened = true;
         },
