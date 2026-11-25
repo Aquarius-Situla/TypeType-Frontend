@@ -1,16 +1,15 @@
-import { Link } from "@tanstack/react-router";
-import { Play, Sparkles } from "lucide-react";
+import { Sparkles, Zap } from "lucide-react";
 import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { siDiscord, siTwitch } from "simple-icons";
+import { siDiscord } from "simple-icons";
 import { useSettings } from "../hooks/use-settings";
-import { useTwitchEnabled } from "../hooks/use-twitch";
 import { DISCORD_INVITE_URL } from "../lib/discord";
 import { m } from "../paraglide/messages.js";
 import { ServiceIcon } from "./service-icon";
 
 // Bump with each release that has something to announce: every viewer sees the new notice once.
-const RELEASE_NOTICE = "1.18";
+const RELEASE_NOTICE = "1.20";
+const GO_SERVER_DOCS_URL = "https://typetype-video.github.io/Docs-TypeType/self-hosting/go-server";
 const SEEN_KEY = "typetype-release-notice";
 const SHOW_DELAY_MS = 2500;
 const ACTION =
@@ -53,8 +52,7 @@ function NoticeRow({ icon, tint, text, action }: RowProps) {
 
 // What the release brings, shown once per release after the page had a moment to settle.
 export function ReleaseNotice() {
-  const { settings, settingsReady, update } = useSettings();
-  const twitchEnabled = useTwitchEnabled();
+  const { settingsReady } = useSettings();
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const confirmRef = useRef<HTMLButtonElement>(null);
@@ -80,7 +78,6 @@ export function ReleaseNotice() {
   }, [open, close]);
 
   if (!open) return null;
-  const classicPlayer = settings.playerEngine !== "videojs";
   return createPortal(
     <div
       role="none"
@@ -118,36 +115,26 @@ export function ReleaseNotice() {
               </a>
             }
           />
-          {twitchEnabled && (
-            <NoticeRow
-              icon={<ServiceIcon path={siTwitch.path} color="currentColor" label="Twitch" />}
-              tint={`#${siTwitch.hex}`}
-              text={m.release_notice_twitch()}
-              action={
-                <Link to="/twitch" onClick={close} className={ACTION}>
-                  {m.release_notice_twitch_action()}
-                </Link>
-              }
-            />
-          )}
           <NoticeRow
-            icon={<Play className="size-4" aria-hidden="true" />}
+            icon={<Zap className="size-4" aria-hidden="true" />}
             tint="var(--color-accent)"
-            text={classicPlayer ? m.release_notice_videojs() : m.release_notice_videojs_active()}
+            text={m.release_notice_go()}
             action={
-              classicPlayer && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    update.mutate({ playerEngine: "videojs" });
-                    close();
-                  }}
-                  className={ACTION}
-                >
-                  {m.release_notice_videojs_action()}
-                </button>
-              )
+              <a
+                href={GO_SERVER_DOCS_URL}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={m.release_notice_go_action_label()}
+                className={ACTION}
+              >
+                {m.release_notice_go_action()}
+              </a>
             }
+          />
+          <NoticeRow
+            icon={<Sparkles className="size-4" aria-hidden="true" />}
+            tint="var(--color-accent)"
+            text={m.release_notice_improvements()}
           />
         </ul>
         <button ref={confirmRef} type="button" onClick={close} className={PRIMARY_ACTION}>
