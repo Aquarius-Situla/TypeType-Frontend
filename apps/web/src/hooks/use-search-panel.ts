@@ -81,6 +81,8 @@ export function useSearchPanel(onClose: () => void, open: boolean, restoreDraft 
   function keyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.nativeEvent.isComposing) return;
     if (event.key === "Escape") {
+      event.preventDefault();
+      event.currentTarget.blur();
       onClose();
       return;
     }

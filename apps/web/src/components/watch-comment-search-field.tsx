@@ -25,6 +25,11 @@ export function WatchCommentSearchField({ query, onSearch }: Props) {
           value={draft}
           maxLength={200}
           onChange={(event) => setDraft(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key !== "Escape" || event.nativeEvent.isComposing) return;
+            event.preventDefault();
+            event.currentTarget.blur();
+          }}
           placeholder={m.watch_comments_search_placeholder()}
           aria-label={m.watch_comments_search_label()}
           className="min-w-0 flex-1 bg-transparent text-sm text-fg outline-none placeholder:text-fg-soft [&::-webkit-search-cancel-button]:hidden"
