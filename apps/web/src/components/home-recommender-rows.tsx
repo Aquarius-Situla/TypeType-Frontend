@@ -4,6 +4,7 @@ import { useAuth } from "../hooks/use-auth";
 import { useVideoProgressMap } from "../hooks/use-progress";
 import { useRecommenderFeedback } from "../hooks/use-recommender-feedback";
 import { useSettings } from "../hooks/use-settings";
+import { visibleHomeRows } from "../lib/home-recommendation-rows";
 import { videoGridClassName } from "../lib/layout-preferences";
 import { spreadCreators } from "../lib/spread-creators";
 import { videoProgressUrl } from "../lib/video-progress";
@@ -24,8 +25,12 @@ type Props = {
   flat?: boolean;
 };
 
-export function HomeRecommenderRows({ rows, streams, flat = false }: Props) {
+export function HomeRecommenderRows({ rows: allRows, streams, flat = false }: Props) {
   const { settings } = useSettings();
+  const rows = useMemo(
+    () => visibleHomeRows(allRows, settings.hideContinueWatching),
+    [allRows, settings.hideContinueWatching],
+  );
   const { me } = useAuth();
   const profileId = me?.id ?? null;
   const { send } = useRecommenderFeedback(false);
