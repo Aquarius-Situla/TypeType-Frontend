@@ -147,7 +147,7 @@ export function Navbar() {
 
         <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
           {canOpenSearch && <NavbarServicePicker compact={isMobile} />}
-          <InterfaceLanguagePicker />
+          {!isAuthed && <InterfaceLanguagePicker />}
           <NavbarNotifications />
           <NavbarAccountControls
             status={status}
