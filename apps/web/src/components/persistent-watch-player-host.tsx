@@ -9,7 +9,6 @@ import {
 } from "../hooks/use-persistent-watch-player";
 import { isPlayerOutsideViewport } from "../lib/compact-player-position";
 import { playerPagePath } from "../lib/persistent-player-navigation";
-import { useMediaRemote } from "../lib/vidstack";
 import { m } from "../paraglide/messages.js";
 import { useUiStore } from "../stores/ui-store";
 import { useWatchLayoutStore } from "../stores/watch-layout-store";
@@ -89,7 +88,6 @@ export function PersistentWatchPlayerHost() {
   const [outsideViewport, setOutsideViewport] = useState(false);
   const [landscapeWatch, setLandscapeWatch] = useState(false);
   const [floatingDismissed, setFloatingDismissed] = useState(false);
-  const remote = useMediaRemote();
   const navigate = useNavigate();
   const watchPage = entry ? pathname === playerPagePath(entry.href) : false;
   const hiddenPage =
@@ -349,9 +347,13 @@ export function PersistentWatchPlayerHost() {
     }
     const vidstackPlayer = frameRef.current?.querySelector("[data-media-player]") ?? null;
     if (vidstackPlayer) {
-      remote.setTarget(vidstackPlayer);
-      // No trigger event: the remote would send the request from the close button, which sits outside the player.
-      remote.pause();
+      // Vidstack is already loaded when its player is on the page; Video.js users never fetch it.
+      void import("../lib/vidstack").then(({ MediaRemoteControl }) => {
+        const remote = new MediaRemoteControl();
+        remote.setTarget(vidstackPlayer);
+        // No trigger event: the remote would send the request from the close button, which sits outside the player.
+        remote.pause();
+      });
     } else {
       frameRef.current?.querySelector("video")?.pause();
     }

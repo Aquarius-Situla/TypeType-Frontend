@@ -1,3 +1,6 @@
+// The yellow of an ad break on the timeline.
+export const AD_BREAK_COLOR = "#ffcc00";
+
 export type SponsorBlockBarRect = {
   top: number;
   left: number;

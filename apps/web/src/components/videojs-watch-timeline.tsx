@@ -1,13 +1,13 @@
 import { Slider, selectTime, TimeSlider, usePlayer } from "@videojs/react";
 import { useState } from "react";
 import { adIsDue, readAdVault } from "../lib/ad-vault";
+import { AD_BREAK_COLOR } from "../lib/sponsorblock-bar-layout";
 import {
   getSponsorBlockCategoryColor,
   getSponsorBlockEndTime,
   getSponsorBlockStartTime,
 } from "../lib/sponsorblock-settings";
 import type { SponsorBlockSegmentItem } from "../types/api";
-import { AD_BREAK_COLOR } from "./sponsorblock-bar";
 
 type LayerProps = { segments: readonly SponsorBlockSegmentItem[]; adBreak: boolean };
 

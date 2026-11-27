@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { sponsorBlockBarPosition } from "../lib/sponsorblock-bar-layout";
+import { AD_BREAK_COLOR, sponsorBlockBarPosition } from "../lib/sponsorblock-bar-layout";
 import {
   getSponsorBlockCategoryColor,
   getSponsorBlockEndTime,
@@ -41,9 +41,6 @@ function SegmentBar({ segment, duration }: SegmentBarProps) {
     />
   );
 }
-
-// The yellow of an ad break on the timeline.
-export const AD_BREAK_COLOR = "#ffcc00";
 
 // `adBreak` marks the ad that plays before the video, at the very start of the timeline.
 type Props = { segments: SponsorBlockSegmentItem[]; adBreak?: boolean };

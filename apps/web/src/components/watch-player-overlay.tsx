@@ -1,4 +1,4 @@
-import type { RefObject } from "react";
+import { lazy, type RefObject, Suspense } from "react";
 import { getOriginalAudioTrackId, getPreferredDefaultAudioTrackId } from "../lib/audio-track";
 import { usePlayerMedia } from "../lib/player-media";
 import type { BulletCommentItem } from "../types/api";
@@ -8,7 +8,10 @@ import { DanmakuAirdropPrompt } from "./danmaku-airdrop-prompt";
 import { DanmakuOverlay } from "./danmaku-overlay";
 import { EndScreenOverlay } from "./end-screen-overlay";
 import { VideoJsWatchDefaults } from "./videojs-watch-defaults";
-import { WatchPlayerDefaults } from "./watch-player-defaults";
+
+const WatchPlayerDefaults = lazy(() =>
+  import("./watch-player-defaults").then((module) => ({ default: module.WatchPlayerDefaults })),
+);
 
 type Props = {
   canLoadBulletComments: boolean;
@@ -58,7 +61,9 @@ export function WatchPlayerOverlay({
       {engine === "videojs" ? (
         <VideoJsWatchDefaults {...defaults} />
       ) : (
-        <WatchPlayerDefaults {...defaults} />
+        <Suspense fallback={null}>
+          <WatchPlayerDefaults {...defaults} />
+        </Suspense>
       )}
     </>
   );

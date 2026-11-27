@@ -19,6 +19,7 @@ export {
   isVideoProvider,
   MediaPlayer,
   MediaProvider,
+  MediaRemoteControl,
   Menu,
   MuteButton,
   Time,
