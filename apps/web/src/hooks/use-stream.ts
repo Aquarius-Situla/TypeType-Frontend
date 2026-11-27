@@ -12,6 +12,7 @@ import {
   sabrBootstrapQueryKey,
   streamQueryKey,
 } from "../lib/stream-request";
+import { preloadLiveMedia } from "../lib/videojs-media-loaders";
 import { useAuthStore } from "../stores/auth-store";
 
 export function streamQueryOptions(
@@ -31,7 +32,10 @@ export function streamQueryOptions(
         signal,
         knownLive,
         preview,
-      ).then((r) => mapStreamResponse(r, url)),
+      ).then((r) => {
+        preloadLiveMedia(r);
+        return mapStreamResponse(r, url);
+      }),
     enabled: enabled && url.startsWith("http"),
     staleTime: 3 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
