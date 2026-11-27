@@ -5,19 +5,19 @@ import { preloadPlaybackRuntime } from "../lib/playback-runtime-preload";
 import { sabrBootstrapQueryOptions, streamQueryOptions } from "./use-stream";
 
 /**
- * A visitor's first page waits for the instance settings before the watch page mounts. Asking
- * for the stream and loading the player code meanwhile, with the same query keys as the watch
- * page, saves those round trips.
+ * The watch page asks for its stream only once its own code is loaded and rendered, and a
+ * visitor's first page also waits for the instance settings. Asking for the stream and loading
+ * the player code as soon as the location changes, with the same query keys as the watch page,
+ * saves those round trips: close to a second on a slow device.
  */
 export function useEarlyWatchStream(
   pathname: string,
   search: Record<string, unknown>,
   authReady: boolean,
   isAuthed: boolean,
-  instanceLoading: boolean,
 ) {
   const queryClient = useQueryClient();
-  const url = earlyWatchStreamUrl(pathname, search, authReady, instanceLoading);
+  const url = earlyWatchStreamUrl(pathname, search, authReady);
 
   useEffect(() => {
     if (url === null) return;
