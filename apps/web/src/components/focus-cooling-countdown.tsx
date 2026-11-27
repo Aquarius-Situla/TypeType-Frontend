@@ -26,7 +26,7 @@ export function FocusCoolingCountdown({ unlockAt, onComplete }: Props): ReactEle
   }, [unlockAt, onComplete]);
 
   return (
-    <p className="font-mono text-sm font-semibold tracking-wider text-white/90">
+    <p className="font-mono text-sm font-semibold tracking-wider text-fg">
       {m.focus_allow_once_cooling_countdown({ time: formatCountdown(remainingMs) })}
     </p>
   );

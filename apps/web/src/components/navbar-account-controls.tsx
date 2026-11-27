@@ -49,7 +49,7 @@ export function NavbarAccountControls({
     if (!isAuthed || isGuest || !me) {
       return (
         <div className="inline-flex items-center gap-2">
-          <ThemeToggleButton />
+          {!isAuthed && <ThemeToggleButton />}
           <a
             href={loginHref()}
             aria-label={m.nav_sign_in()}
@@ -63,7 +63,6 @@ export function NavbarAccountControls({
     }
     return (
       <div className="inline-flex items-center gap-2">
-        <ThemeToggleButton />
         <NavbarProfileMenu me={me} isAdmin={isAdmin} isMobile onSignOut={handleSignOut} />
       </div>
     );
@@ -73,7 +72,6 @@ export function NavbarAccountControls({
     return (
       <div className="hidden sm:inline-flex items-center gap-2">
         <NavbarProfileMenu me={me} isAdmin={isAdmin} isMobile={false} onSignOut={handleSignOut} />
-        <ThemeToggleButton />
       </div>
     );
   }
@@ -84,7 +82,7 @@ export function NavbarAccountControls({
         {statusLabel(status)}
       </span>
       <div className="flex items-center gap-2">
-        <ThemeToggleButton />
+        {!isAuthed && <ThemeToggleButton />}
         <a
           href={loginHref()}
           className="inline-flex h-8 items-center rounded-sm border border-border px-3 text-xs text-fg hover:border-fg-soft"

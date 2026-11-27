@@ -1,8 +1,8 @@
 import { MediaSessionSync } from "./media-session-sync";
 import { PlayerHotkeys } from "./player-hotkeys";
-import { SponsorBlockSkipper } from "./player-internals";
 import { SponsorBlockCurrentSegment } from "./sponsorblock-current-segment";
 import { SponsorBlockSkipNotice } from "./sponsorblock-skip-notice";
+import { SponsorBlockSkipper } from "./sponsorblock-skipper";
 import type { VideoJsVideoPlayerProps } from "./videojs-video-player";
 
 type Props = { player: VideoJsVideoPlayerProps; sabrVideo: HTMLVideoElement | null };

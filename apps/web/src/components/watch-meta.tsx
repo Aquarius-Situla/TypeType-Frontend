@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { WatchAudioOnlyControls } from "../hooks/use-watch-audio-only-playback";
 import type { VideoStream } from "../types/stream";
 import { BiliBiliSessionBanner } from "./bilibili-session-banner";
@@ -11,9 +12,16 @@ type Props = {
   showComments?: boolean;
   onSeekTimestamp?: (seconds: number) => void;
   audioOnly: WatchAudioOnlyControls;
+  beforeComments?: ReactNode;
 };
 
-export function WatchMeta({ stream, showComments = true, onSeekTimestamp, audioOnly }: Props) {
+export function WatchMeta({
+  stream,
+  showComments = true,
+  onSeekTimestamp,
+  audioOnly,
+  beforeComments,
+}: Props) {
   return (
     <>
       <WatchInfo stream={stream} />
@@ -27,6 +35,7 @@ export function WatchMeta({ stream, showComments = true, onSeekTimestamp, audioO
           onSeekTimestamp={onSeekTimestamp}
         />
       )}
+      {beforeComments}
       {showComments && (
         <WatchComments
           key={`comments-${stream.id}`}

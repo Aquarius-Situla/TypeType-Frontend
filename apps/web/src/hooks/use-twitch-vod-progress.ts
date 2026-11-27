@@ -5,8 +5,22 @@ import { useProgress, useSaveProgress } from "./use-progress";
 import { useWatchProgressPersistence } from "./use-watch-progress-persistence";
 import { useWatchedThreshold } from "./use-watched-threshold";
 
-// A past broadcast still recording grows behind the viewer: a position saved from its live sits close to its end
-// and must not count as watched.
+// The resume point waits for the progress fetched on this visit: the cached value alone let an older position from
+// this device overwrite a newer one saved on another. A past broadcast still recording grows behind the viewer: a
+// position saved from its live sits close to its end and must not count as watched.
+export function vodResumeAt(
+  fetched: boolean,
+  positionMs: number,
+  durationSec: number,
+  recording: boolean,
+  watchedThreshold: number,
+): number | null {
+  if (!fetched) return null;
+  return !recording && isVideoWatched(positionMs / 1000, durationSec, watchedThreshold)
+    ? 0
+    : positionMs;
+}
+
 export function useTwitchVodProgress(id: string, durationSec: number, recording = false) {
   const url = twitchVodProgressUrl(id);
   const progress = useProgress(url);
@@ -18,12 +32,14 @@ export function useTwitchVodProgress(id: string, durationSec: number, recording 
     mutate: (position, keepalive) => save.mutate({ position, keepalive }),
   });
   const [resumeAt, setResumeAt] = useState<number | null>(null);
-  if (resumeAt === null && !progress.isLoading) {
-    const position = progress.data?.position ?? 0;
-    setResumeAt(
-      !recording && isVideoWatched(position, durationSec * 1000, watchedThreshold) ? 0 : position,
-    );
-  }
+  const ready = vodResumeAt(
+    progress.isFetchedAfterMount,
+    progress.data?.position ?? 0,
+    durationSec,
+    recording,
+    watchedThreshold,
+  );
+  if (resumeAt === null && ready !== null) setResumeAt(ready);
   return {
     ready: resumeAt !== null,
     startTime: resumeAt ?? 0,

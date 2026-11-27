@@ -121,6 +121,11 @@ export function WatchStage({
     <div aria-hidden="true" className="aspect-video h-full w-full bg-black" />
   );
 
+  const mobileRelated =
+    mobileSecondaryContent && !webFullscreen ? (
+      <div className="mt-6">{mobileSecondaryContent}</div>
+    ) : null;
+
   return (
     <div className={classes.playerWrapClass}>
       <div ref={persistent.anchorRef} className={classes.playerBoxClass}>
@@ -133,11 +138,10 @@ export function WatchStage({
           showComments={!hideComments}
           onSeekTimestamp={(seconds) => seekRef.current?.(seconds)}
           audioOnly={audioOnlyControls}
+          beforeComments={mobileRelated}
         />
       )}
-      {mobileSecondaryContent && !webFullscreen ? (
-        <div className="mt-6">{mobileSecondaryContent}</div>
-      ) : null}
+      {cinemaMode ? mobileRelated : null}
     </div>
   );
 }

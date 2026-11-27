@@ -1,5 +1,6 @@
 import { Check, ChevronDown, FolderPlus } from "lucide-react";
 import { type DragEvent, type UIEvent, useEffect, useRef, useState } from "react";
+import { useAfterFirstFrame } from "../hooks/use-after-first-frame";
 import { useFlipList } from "../hooks/use-flip-list";
 import { useMobile } from "../hooks/use-mobile";
 import { usePlaylistVisibility } from "../hooks/use-playlist-visibility";
@@ -56,6 +57,7 @@ export function WatchPlaylistPanel({
   onReorder,
 }: Props) {
   const isMobile = useMobile();
+  const showThumbnails = useAfterFirstFrame(currentParam);
   const visibility = usePlaylistVisibility(listId);
   const [collapsed, setCollapsed] = useState(isMobile);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -322,6 +324,7 @@ export function WatchPlaylistPanel({
                   index={index}
                   total={displayVideos.length}
                   isCurrent={isCurrent}
+                  showThumbnail={showThumbnails}
                   reorderable={reorderable}
                   isMobile={isMobile}
                   listId={listId}

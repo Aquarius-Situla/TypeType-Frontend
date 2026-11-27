@@ -28,6 +28,7 @@ type Props = {
   onAllowOnceSuccess?: () => void;
   allowOnceState?: FocusAllowOncePromptState;
   darkSurface?: boolean;
+  centered?: boolean;
 };
 
 export function FocusBlockedCard({
@@ -40,6 +41,7 @@ export function FocusBlockedCard({
   onAllowOnceSuccess,
   allowOnceState,
   darkSurface = false,
+  centered = false,
 }: Props): ReactElement {
   const { query: focusQuery } = useFocus();
   const { isSubscribed } = useSubscriptions();
@@ -91,9 +93,12 @@ export function FocusBlockedCard({
       ? m.focus_entertainment_conflict()
       : m.ui_action_failed();
 
+  const isCentered = centered || darkSurface;
   const containerClass = darkSurface
     ? "flex max-w-md flex-col items-center gap-3 rounded-lg border border-white/15 bg-white/5 px-5 py-4 text-center"
-    : "flex flex-col items-start gap-4 rounded-lg border border-border bg-surface p-4 sm:flex-row sm:items-center";
+    : centered
+      ? "flex max-w-md flex-col items-center gap-3 rounded-lg border border-border bg-surface px-5 py-4 text-center"
+      : "flex flex-col items-start gap-4 rounded-lg border border-border bg-surface p-4 sm:flex-row sm:items-center";
 
   const hideSettingsLink =
     hasStudyGroup ||
@@ -114,8 +119,8 @@ export function FocusBlockedCard({
 
   return (
     <div className={containerClass}>
-      {!darkSurface && <FocusDenyMascot className="w-28 shrink-0 sm:w-32" />}
-      <div className={darkSurface ? "contents" : "flex flex-col items-start gap-3"}>
+      {!isCentered && <FocusDenyMascot className="w-28 shrink-0 sm:w-32" />}
+      <div className={isCentered ? "contents" : "flex flex-col items-start gap-3"}>
         <div className="flex flex-col gap-1">
           {channelName && (
             <p className={`text-sm font-medium ${darkSurface ? "text-white" : "text-fg"}`}>
@@ -128,6 +133,7 @@ export function FocusBlockedCard({
         </div>
         <FocusBlockedActions
           darkSurface={darkSurface}
+          centered={isCentered}
           canAddStudy={canAddStudy}
           addingStudy={addStudyChannel.isPending}
           alreadySubscribed={alreadySubscribed}

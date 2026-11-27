@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useMobile } from "../hooks/use-mobile";
 import { useNotifications } from "../hooks/use-notifications";
+import { notificationKey } from "../lib/notification-toast-cursor";
 import { m } from "../paraglide/messages.js";
 import { useUiStore } from "../stores/ui-store";
 import { NotificationBellIcon } from "./notification-bell-icon";
@@ -126,7 +127,7 @@ export function NotificationsDropdown() {
               )}
             {items.map((item) => (
               <NotificationRow
-                key={`${item.type}-${item.video.id}-${item.createdAt}`}
+                key={`${notificationKey(item)}-${item.createdAt}`}
                 item={item}
                 onOpen={close}
               />

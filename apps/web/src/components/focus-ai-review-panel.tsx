@@ -32,10 +32,10 @@ export function FocusAiReviewPanel({
   }
 
   return (
-    <div className="dark-surface fixed inset-0 flex flex-col items-center justify-center gap-5 bg-app px-4">
+    <div className="fixed inset-0 flex flex-col items-center justify-center gap-5 bg-app px-4">
       <FocusQuestionMascot className="w-44 shrink-0 sm:w-52" />
       <div className="flex max-w-md flex-col items-center gap-1.5 text-center">
-        <p className="text-base font-semibold tracking-tight text-white">
+        <p className="text-base font-semibold tracking-tight text-fg">
           {isRewatch ? m.focus_ai_question_rewatch() : m.focus_ai_question_outside()}
         </p>
         {videoTitle && <p className="line-clamp-2 text-xs text-fg-muted">{videoTitle}</p>}
@@ -52,7 +52,7 @@ export function FocusAiReviewPanel({
           maxLength={500}
           placeholder={m.focus_ai_reason_placeholder()}
           onChange={(event) => setReason(event.target.value)}
-          className="w-full resize-none rounded-md border border-white/20 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-white focus:outline-none disabled:opacity-50"
+          className="w-full resize-none rounded-md border border-border-strong bg-surface px-3 py-2 text-sm text-fg placeholder:text-fg-soft focus:border-fg focus:outline-none disabled:opacity-50"
         />
         <div className="flex flex-wrap items-center justify-center gap-3">
           <button
@@ -66,7 +66,7 @@ export function FocusAiReviewPanel({
           <button
             type="submit"
             disabled={!canSubmit}
-            className="cursor-pointer rounded-md bg-white px-5 py-2 text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50"
+            className="cursor-pointer rounded-md bg-fg px-5 py-2 text-sm font-medium text-app transition-colors hover:bg-fg-strong disabled:cursor-not-allowed disabled:opacity-50"
           >
             {submitting ? m.focus_ai_submitting() : m.focus_ai_submit()}
           </button>

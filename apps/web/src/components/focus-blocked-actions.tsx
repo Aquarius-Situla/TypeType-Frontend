@@ -3,6 +3,7 @@ import { m } from "../paraglide/messages.js";
 
 type Props = {
   darkSurface: boolean;
+  centered?: boolean;
   canAddStudy: boolean;
   addingStudy: boolean;
   alreadySubscribed: boolean;
@@ -21,6 +22,7 @@ type Props = {
 
 export function FocusBlockedActions({
   darkSurface,
+  centered = darkSurface,
   canAddStudy,
   addingStudy,
   alreadySubscribed,
@@ -48,7 +50,7 @@ export function FocusBlockedActions({
 
   return (
     <div
-      className={`flex flex-wrap items-center gap-2 ${darkSurface ? "justify-center" : "justify-start"}`}
+      className={`flex flex-wrap items-center gap-2 ${centered ? "justify-center" : "justify-start"}`}
     >
       {canAddStudy && (
         <button

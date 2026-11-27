@@ -7,6 +7,7 @@ import { useVideoCardPreview } from "../hooks/use-video-card-preview";
 import { useVideoCardPreflight } from "../hooks/use-video-card-sabr-preflight";
 import { useWatchedThreshold } from "../hooks/use-watched-threshold";
 import { formatDuration, formatPublishedDate, formatViews } from "../lib/format";
+import { markWatchIntent } from "../lib/startup-report";
 import { isVideoWatched } from "../lib/watch-progress";
 import { watchListSearch } from "../lib/watch-url";
 import { useWatchNavigationStore } from "../stores/watch-navigation-store";
@@ -57,12 +58,13 @@ function VideoCardComponent({
   const { shouldGrayscaleChannel } = useFocusVisualFilter();
   const focusGrayscale = shouldGrayscaleChannel(stream.channelUrl);
   const watchSearch = watchListSearch(stream.id, listId);
-  const { schedule, cancel, focus, commit } = useVideoCardPreflight(stream, progressMs);
+  const { schedule, cancel, focus, commit, warmed } = useVideoCardPreflight(stream, progressMs);
   const handleOpen = useCallback(() => {
+    markWatchIntent(stream.id, warmed());
     commit();
     setNavigation(stream, relatedStreams);
     onOpen?.();
-  }, [commit, onOpen, relatedStreams, setNavigation, stream]);
+  }, [commit, onOpen, relatedStreams, setNavigation, stream, warmed]);
 
   useEffect(() => {
     if (!onImpression || typeof IntersectionObserver === "undefined") return;

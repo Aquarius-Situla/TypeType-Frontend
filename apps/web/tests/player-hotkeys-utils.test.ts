@@ -5,6 +5,7 @@ import {
   isMouseClickPastTap,
   isPlaybackToggleShortcut,
   keyboardSeekOffset,
+  keyboardSeekPercent,
   nextKeyboardRate,
   nextKeyboardSeekTarget,
 } from "../src/components/player-hotkeys-utils";
@@ -126,4 +127,12 @@ test("a mouse click too long for the player's tap is still a click", () => {
   expect(isMouseClickPastTap("mouse", 250, 250)).toBe(false);
   expect(isMouseClickPastTap("mouse", 400, undefined)).toBe(false);
   expect(isMouseClickPastTap("touch", 400, 250)).toBe(false);
+});
+
+test("maps the digit keys to tenths of the video by key position", () => {
+  expect(keyboardSeekPercent("Digit0")).toBe(0);
+  expect(keyboardSeekPercent("Digit5")).toBe(50);
+  expect(keyboardSeekPercent("Numpad9")).toBe(90);
+  expect(keyboardSeekPercent("KeyE")).toBeNull();
+  expect(keyboardSeekPercent("F5")).toBeNull();
 });

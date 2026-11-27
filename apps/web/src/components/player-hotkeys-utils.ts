@@ -52,6 +52,12 @@ export function keyboardSeekOffset(code: string): number | null {
   return null;
 }
 
+// Read by key position like YouTube: the top-row digits type "&é\"'(" without Shift on AZERTY layouts.
+export function keyboardSeekPercent(code: string): number | null {
+  const digit = /^(?:Digit|Numpad)([0-9])$/.exec(code);
+  return digit ? Number(digit[1]) * 10 : null;
+}
+
 const MIN_KEYBOARD_RATE = 0.25;
 const MAX_KEYBOARD_RATE = 4;
 

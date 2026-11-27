@@ -8,6 +8,7 @@ import {
   isPlayerSeekShortcutTarget,
   type KeyboardSeekTarget,
   keyboardSeekOffset,
+  keyboardSeekPercent,
   nextKeyboardRate,
   nextKeyboardSeekTarget,
 } from "../components/player-hotkeys-utils";
@@ -80,6 +81,14 @@ export function usePlayerKeyboard(canSeek: boolean, playbackOnly = false) {
         return;
       }
       if (blocksPlayerShortcut(event.target, engine.element())) return;
+      const seekPercent = keyboardSeekPercent(event.code);
+      if (seekPercent !== null) {
+        const duration = engine.duration();
+        if (!canSeek || !(duration > 0)) return;
+        consumeEvent(event);
+        engine.seek(clampTime((duration * seekPercent) / 100, duration));
+        return;
+      }
       if (event.key === "w" || event.key === "W" || event.code === "KeyW") {
         consumeEvent(event);
         useWatchLayoutStore.getState().toggleWebFullscreen();

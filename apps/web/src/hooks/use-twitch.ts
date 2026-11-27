@@ -16,6 +16,8 @@ import {
   fetchTwitchTagStreams,
   fetchTwitchVideo,
 } from "../lib/api-twitch";
+import { languageQuery } from "../lib/twitch-language";
+import { useTwitchLanguageStore } from "../stores/twitch-language-store";
 import type { TwitchPage, TwitchSearchType } from "../types/twitch";
 import { useAuth } from "./use-auth";
 import { useInstance } from "./use-instance";
@@ -41,16 +43,27 @@ function usePagedTwitch<T>(
   return { ...query, items };
 }
 
-export const useTwitchStreams = () =>
-  usePagedTwitch(["streams"], fetchTwitchStreams, useTwitchEnabled());
+function useLanguageQuery(): string | undefined {
+  return languageQuery(useTwitchLanguageStore((state) => state.languages));
+}
+
+export function useTwitchStreams() {
+  const language = useLanguageQuery();
+  return usePagedTwitch(
+    ["streams", language],
+    (after) => fetchTwitchStreams(after, language),
+    useTwitchEnabled(),
+  );
+}
 
 export const useTwitchGames = () => usePagedTwitch(["games"], fetchTwitchGames, useTwitchEnabled());
 
 export function useTwitchGameStreams(slug: string) {
   const enabled = useTwitchEnabled();
+  const language = useLanguageQuery();
   const query = useInfiniteQuery({
-    queryKey: ["twitch", "game", slug],
-    queryFn: ({ pageParam }) => fetchTwitchGameStreams(slug, pageParam),
+    queryKey: ["twitch", "game", slug, language],
+    queryFn: ({ pageParam }) => fetchTwitchGameStreams(slug, pageParam, language),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) =>
       last.streams.hasMore && last.streams.cursor ? last.streams.cursor : undefined,
@@ -64,8 +77,14 @@ export function useTwitchGameStreams(slug: string) {
   };
 }
 
-export const useTwitchTagStreams = (tag: string) =>
-  usePagedTwitch(["tag", tag], (after) => fetchTwitchTagStreams(tag, after), useTwitchEnabled());
+export function useTwitchTagStreams(tag: string) {
+  const language = useLanguageQuery();
+  return usePagedTwitch(
+    ["tag", tag, language],
+    (after) => fetchTwitchTagStreams(tag, after, language),
+    useTwitchEnabled(),
+  );
+}
 
 export const useTwitchChannelVideos = (login: string) =>
   usePagedTwitch(

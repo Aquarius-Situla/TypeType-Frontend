@@ -1,11 +1,8 @@
-export function EnglishFlag() {
-  return (
-    <span
-      className="relative h-4 w-6 shrink-0 overflow-hidden rounded-[2px] bg-white ring-1 ring-black/15"
-      aria-hidden="true"
-    >
-      <span className="absolute left-0 top-[6px] h-1 w-full bg-[#d62828]" />
-      <span className="absolute left-[10px] top-0 h-full w-1 bg-[#d62828]" />
-    </span>
-  );
+import { FlagImage } from "./flag-image";
+
+const ENGLISH_FLAG_SVG =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 16"><rect width="24" height="16" fill="#ffffff"/><rect y="6" width="24" height="4" fill="#d62828"/><rect x="10" width="4" height="16" fill="#d62828"/></svg>';
+
+export function EnglishFlag(): React.JSX.Element {
+  return <FlagImage svg={ENGLISH_FLAG_SVG} />;
 }

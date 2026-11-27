@@ -61,7 +61,7 @@ function RootLayoutContent() {
     select: (state) => state.matches.some((match) => match.status === "notFound"),
   });
   const pathname = location.pathname;
-  useEarlyWatchStream(pathname, location.search, authReady, isAuthed, instanceLoading);
+  useEarlyWatchStream(pathname, location.search, authReady, isAuthed);
   const pathWithSearch = `${pathname}${location.searchStr}`;
   const hideEverythingPage = pathname === "/hide-everything";
   const shortsPage = pathname === "/shorts";

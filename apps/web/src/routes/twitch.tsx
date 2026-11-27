@@ -4,6 +4,7 @@ import { TwitchGameCard, TwitchStreamCard } from "../components/twitch-cards";
 import { TwitchFollowedChannels, TwitchFollowedVideos } from "../components/twitch-followed-rows";
 import { TwitchDisabled, TwitchGrid } from "../components/twitch-grid";
 import { TwitchIcon } from "../components/twitch-icon";
+import { TwitchLanguageFilter } from "../components/twitch-language-filter";
 import {
   useTwitchAccount,
   useTwitchEnabled,
@@ -96,7 +97,10 @@ function TwitchHome() {
         </section>
       )}
       <section className="flex flex-col gap-3">
-        <h2 className="font-semibold text-fg text-lg">{m.twitch_top_lives()}</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-semibold text-fg text-lg">{m.twitch_top_lives()}</h2>
+          <TwitchLanguageFilter />
+        </div>
         <TwitchGrid
           {...streams}
           hasNextPage={streams.hasNextPage}

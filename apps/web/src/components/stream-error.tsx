@@ -79,7 +79,7 @@ export function StreamError({
     );
 
   return (
-    <div className="dark-surface fixed inset-0 flex flex-col items-center justify-center gap-5 bg-app px-4">
+    <div className="fixed inset-0 flex flex-col items-center justify-center gap-5 bg-app px-4">
       {availability ? (
         <VideoAvailabilityPoster availability={availability} message={message} poster={poster} />
       ) : (
@@ -97,8 +97,8 @@ export function StreamError({
             errorImage
           )}
           <div className="flex flex-col items-center gap-1.5">
-            <p className="text-base font-semibold tracking-tight text-white">
-              {m.ui_couldn_t_load_this_video()}
+            <p className="text-base font-semibold tracking-tight text-fg">
+              {focusBlock ? m.focus_blocked_title() : m.ui_couldn_t_load_this_video()}
             </p>
             <div className="flex items-center gap-2">
               {countryCode && (
@@ -115,7 +115,7 @@ export function StreamError({
           <button
             type="button"
             onClick={onRetry}
-            className="cursor-pointer rounded-md bg-white px-5 py-2 text-sm font-medium text-app transition-colors hover:bg-fg"
+            className="cursor-pointer rounded-md bg-fg px-5 py-2 text-sm font-medium text-app transition-colors hover:bg-fg-strong"
           >
             {m.ui_retry()}
           </button>
@@ -124,7 +124,7 @@ export function StreamError({
           <Link
             to="/youtube-session"
             search={{ returnTo: youtubeSessionReturnTo }}
-            className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-white px-5 py-2 text-sm font-medium text-app transition-colors hover:bg-fg"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-fg px-5 py-2 text-sm font-medium text-app transition-colors hover:bg-fg-strong"
           >
             <YoutubeIcon className="h-4 w-4 text-[#ff0000]" />
             <span>
@@ -138,7 +138,7 @@ export function StreamError({
           <Link
             to="/admin-console"
             search={{ section: "allow-list" }}
-            className="cursor-pointer rounded-md bg-white px-5 py-2 text-sm font-medium text-app transition-colors hover:bg-fg"
+            className="cursor-pointer rounded-md bg-fg px-5 py-2 text-sm font-medium text-app transition-colors hover:bg-fg-strong"
           >
             {m.ui_open_allow_list()}
           </Link>

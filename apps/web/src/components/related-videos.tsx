@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useAfterFirstFrame } from "../hooks/use-after-first-frame";
 import { useBlockedFilter } from "../hooks/use-blocked-filter";
 import { useVideoProgressMap } from "../hooks/use-progress";
 import { useSettings } from "../hooks/use-settings";
@@ -13,6 +14,7 @@ const SKELETON_KEYS = Array.from({ length: 4 }, (_, i) => `rs-${i}`);
 type Props = {
   streams: VideoStream[];
   isLoading?: boolean;
+  videoUrl?: string;
 };
 
 function uniqueStreams(streams: VideoStream[]): VideoStream[] {
@@ -26,17 +28,21 @@ function uniqueStreams(streams: VideoStream[]): VideoStream[] {
   return unique;
 }
 
-export function RelatedVideos({ streams, isLoading = false }: Props) {
+export function RelatedVideos({ streams, isLoading = false, videoUrl = "" }: Props) {
   const { settings } = useSettings();
   const { filter } = useBlockedFilter();
-  const visible = useMemo(() => uniqueStreams(filter(streams)), [filter, streams]);
+  const afterFirstFrame = useAfterFirstFrame(videoUrl);
+  const visible = useMemo(
+    () => (afterFirstFrame ? uniqueStreams(filter(streams)) : []),
+    [afterFirstFrame, filter, streams],
+  );
   const progressByUrl = useVideoProgressMap(visible);
   return (
     <div className="watch-related-list flex flex-col gap-3">
       <div className="watch-related-header">
         <AutoplayToggle />
       </div>
-      {isLoading
+      {isLoading || !afterFirstFrame
         ? SKELETON_KEYS.map((k) => <RelatedCardSkeleton key={k} size={settings.relatedVideoSize} />)
         : visible.map((stream, index) => (
             <div

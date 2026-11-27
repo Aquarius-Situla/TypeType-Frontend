@@ -60,7 +60,7 @@ export function FocusWatchScreen({
   const subMessage = aiReview.phase === "unavailable" ? m.focus_ai_unavailable() : message;
 
   return (
-    <div className="dark-surface fixed inset-0 flex flex-col items-center justify-center gap-5 bg-app px-4">
+    <div className="fixed inset-0 flex flex-col items-center justify-center gap-5 bg-app px-4">
       <div className="flex flex-col items-center gap-2">
         {aiReview.phase === "unavailable" ? (
           <FocusRestMascot className="w-52 shrink-0 sm:w-64" />
@@ -72,7 +72,7 @@ export function FocusWatchScreen({
         )}
       </div>
       <div className="flex flex-col items-center gap-1.5">
-        <p className="text-base font-semibold tracking-tight text-white">{heading}</p>
+        <p className="text-base font-semibold tracking-tight text-fg">{heading}</p>
         <p className="max-w-xs text-center text-sm text-fg-muted">{subMessage}</p>
       </div>
       <FocusBlockedCard
@@ -84,7 +84,7 @@ export function FocusWatchScreen({
         videoUrl={videoUrl}
         onAllowOnceSuccess={onSuccess}
         allowOnceState={allowOnce}
-        darkSurface
+        centered
       />
       <div className="flex flex-wrap justify-center gap-3">
         <button

@@ -5,10 +5,10 @@ import { shouldRunSponsorBlockAutoSkip } from "../lib/sponsorblock-playback-tool
 import { useMediaState } from "../lib/vidstack";
 import type { SponsorBlockSegmentItem } from "../types/api";
 import { PlayerHotkeys } from "./player-hotkeys";
-import { SponsorBlockSkipper } from "./player-internals";
 import { SponsorBlockBar } from "./sponsorblock-bar";
 import { SponsorBlockCurrentSegment } from "./sponsorblock-current-segment";
 import { SponsorBlockSkipNotice } from "./sponsorblock-skip-notice";
+import { SponsorBlockSkipper } from "./sponsorblock-skipper";
 
 type Props = {
   canSeek: boolean;

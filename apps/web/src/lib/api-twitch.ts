@@ -35,17 +35,23 @@ function pageQuery(after?: string, extra: Record<string, string> = {}): string {
 
 const get = <T>(path: string) => requestWithSession<T>(`${BASE}/twitch${path}`);
 
-export const fetchTwitchStreams = (after?: string) =>
-  get<TwitchPage<TwitchStream>>(`/streams?${pageQuery(after)}`);
+const languageParam = (language?: string): Record<string, string> => (language ? { language } : {});
+
+export const fetchTwitchStreams = (after?: string, language?: string) =>
+  get<TwitchPage<TwitchStream>>(`/streams?${pageQuery(after, languageParam(language))}`);
 
 export const fetchTwitchGames = (after?: string) =>
   get<TwitchPage<TwitchGame>>(`/games?${pageQuery(after)}`);
 
-export const fetchTwitchGameStreams = (slug: string, after?: string) =>
-  get<TwitchGameStreams>(`/games/${encodeURIComponent(slug)}/streams?${pageQuery(after)}`);
+export const fetchTwitchGameStreams = (slug: string, after?: string, language?: string) =>
+  get<TwitchGameStreams>(
+    `/games/${encodeURIComponent(slug)}/streams?${pageQuery(after, languageParam(language))}`,
+  );
 
-export const fetchTwitchTagStreams = (tag: string, after?: string) =>
-  get<TwitchPage<TwitchStream>>(`/tags/${encodeURIComponent(tag)}/streams?${pageQuery(after)}`);
+export const fetchTwitchTagStreams = (tag: string, after?: string, language?: string) =>
+  get<TwitchPage<TwitchStream>>(
+    `/tags/${encodeURIComponent(tag)}/streams?${pageQuery(after, languageParam(language))}`,
+  );
 
 export const fetchTwitchVideoChapters = (id: string) =>
   get<TwitchVideoChapter[]>(`/videos/${encodeURIComponent(id)}/chapters`);
