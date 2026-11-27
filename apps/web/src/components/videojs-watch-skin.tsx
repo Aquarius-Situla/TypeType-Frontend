@@ -48,10 +48,10 @@ export const WatchSkinOptionsContext = createContext<WatchSkinOptions>({
 
 const SEEK_JUMP = 10;
 const FLAT_GROUP = "flex items-center";
-const PERCENT_KEYS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"] as const;
 
-// The skin of YouTube, BiliBili and NicoNico videos, built from Video.js primitives. Space, the arrows, j/l, t, w, d
-// and hold to fast forward come from the shared player hotkeys; the skin only adds the Video.js native ones.
+// The skin of YouTube, BiliBili and NicoNico videos, built from Video.js primitives. Space, the arrows, j/l, the
+// digits, t, w, d and hold to fast forward come from the shared player hotkeys; the skin only adds the Video.js
+// native ones.
 export function VideoJsWatchSkin({
   children,
   style,
@@ -144,15 +144,6 @@ export function VideoJsWatchSkin({
       <Hotkey keys="ArrowDown" action="volumeStep" />
       <Hotkey target="document" keys="f" action="toggleFullscreen" />
       <Hotkey target="document" keys="i" action="togglePictureInPicture" />
-      {PERCENT_KEYS.map((key) => (
-        <Hotkey
-          key={key}
-          target="document"
-          keys={key}
-          action="seekToPercent"
-          value={Number(key) * 10}
-        />
-      ))}
       <Gesture type="tap" action="togglePaused" pointer="mouse" region="center" />
       <Gesture type="tap" action="toggleControls" pointer="touch" />
       <Gesture type="doubletap" action="seekStep" value={-SEEK_JUMP} region="left" />
