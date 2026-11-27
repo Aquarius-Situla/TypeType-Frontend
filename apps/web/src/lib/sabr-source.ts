@@ -44,9 +44,21 @@ function qualityLabel(video: VideoStreamItem): string {
   return video.resolution || (video.height > 0 ? `${video.height}p` : `itag ${video.itag}`);
 }
 
-export function sabrQualityOptions(stream: VideoStream): SabrQualityOption[] {
+function displaysHdr(): boolean {
+  return (
+    typeof window !== "undefined" && window.matchMedia?.("(dynamic-range: high)").matches === true
+  );
+}
+
+// The heaviest format of a height wins below: an HDR one, on a screen that cannot show it, would play duller and cost
+// more bytes than its SDR twin.
+export function sabrQualityOptions(
+  stream: VideoStream,
+  hdrDisplay = displaysHdr(),
+): SabrQualityOption[] {
   const grouped = new Map<string, { video: VideoStreamItem; codec: CodecFamily }>();
   for (const video of playableVideos(stream)) {
+    if (!hdrDisplay && video.resolution?.includes("HDR")) continue;
     const codec = codecFamily(video.codec);
     if (!codec) continue;
     const key = `${video.height}:${codec}`;

@@ -30,3 +30,39 @@ test("uses the canonical quality tier for non-standard frame heights", () => {
     else delete (globalThis as { MediaSource?: unknown }).MediaSource;
   }
 });
+
+test("offers HDR formats only on an HDR display", () => {
+  const original = Object.getOwnPropertyDescriptor(globalThis, "MediaSource");
+  Object.defineProperty(globalThis, "MediaSource", {
+    configurable: true,
+    value: { isTypeSupported: () => true },
+  });
+  const format = (itag: number, codec: string, resolution: string, bitrate: number) =>
+    ({
+      itag,
+      codec,
+      mimeType: "video/webm",
+      resolution,
+      width: 3840,
+      height: 2160,
+      fps: 60,
+      bitrate,
+      deliveryMethod: "sabr",
+      sabrSessionUrl: "/api/sabr/playback/video",
+    }) as VideoStreamItem;
+  const stream = {
+    id: "video",
+    videoOnlyStreams: [
+      format(315, "vp9", "2160p60", 26_879_488),
+      format(337, "vp09.02.51.10.01.09.16.09.00", "2160p60 HDR", 29_319_624),
+    ],
+  } as VideoStream;
+
+  try {
+    expect(sabrQualityOptions(stream, false).map((option) => option.itag)).toEqual([315]);
+    expect(sabrQualityOptions(stream, true).map((option) => option.itag)).toEqual([337]);
+  } finally {
+    if (original) Object.defineProperty(globalThis, "MediaSource", original);
+    else delete (globalThis as { MediaSource?: unknown }).MediaSource;
+  }
+});
