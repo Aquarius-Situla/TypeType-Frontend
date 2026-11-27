@@ -2262,5 +2262,8 @@
   "twitch_language_filter": "语言",
   "twitch_language_all": "所有语言",
   "twitch_language_count": "{count} 种语言",
-  "twitch_language_other": "其他"
+  "twitch_language_other": "其他",
+  "notification_twitch_live": "{name} 正在直播",
+  "settings_notifications_twitch_live_label": "Twitch 直播",
+  "settings_notifications_twitch_live_description": "你在 Twitch 上关注的频道开播时通知你。"
 }

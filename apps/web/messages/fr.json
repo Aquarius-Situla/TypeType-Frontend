@@ -2262,5 +2262,8 @@
   "twitch_language_filter": "Langue",
   "twitch_language_all": "Toutes les langues",
   "twitch_language_count": "{count} langues",
-  "twitch_language_other": "Autre"
+  "twitch_language_other": "Autre",
+  "notification_twitch_live": "{name} est en direct",
+  "settings_notifications_twitch_live_label": "Directs Twitch",
+  "settings_notifications_twitch_live_description": "Prévenir quand une chaîne que tu suis sur Twitch passe en direct."
 }

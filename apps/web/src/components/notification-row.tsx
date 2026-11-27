@@ -6,8 +6,9 @@ import { formatPublishedDate } from "../lib/format";
 import { proxyImage } from "../lib/proxy";
 import { watchRouteSearch } from "../lib/watch-url";
 import { m } from "../paraglide/messages.js";
-import type { NotificationItem } from "../types/notifications";
+import type { NotificationItem, SubscriptionNewVideoNotification } from "../types/notifications";
 import { ServiceIcon } from "./service-icon";
+import { TwitchLiveNotificationRow } from "./twitch-live-notification-row";
 import { VideoMembershipBadge } from "./video-membership-badge";
 
 type Props = {
@@ -16,6 +17,18 @@ type Props = {
 };
 
 export function NotificationRow({ item, onOpen }: Props) {
+  if (item.type === "twitch_live_started")
+    return <TwitchLiveNotificationRow item={item} onOpen={onOpen} />;
+  return <VideoNotificationRow item={item} onOpen={onOpen} />;
+}
+
+function VideoNotificationRow({
+  item,
+  onOpen,
+}: {
+  item: SubscriptionNewVideoNotification;
+  onOpen: () => void;
+}) {
   const locale = useClientLocale();
   const videoId = item.video.url.trim().length > 0 ? item.video.url : item.video.id;
   const publishedAt =

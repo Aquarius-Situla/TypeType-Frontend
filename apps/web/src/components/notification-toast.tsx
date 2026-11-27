@@ -14,7 +14,9 @@ type Props = {
 };
 
 function NotificationVisual({ items }: { items: NotificationItem[] }) {
-  const thumbnail = items[0]?.video.thumbnailUrl;
+  const first = items[0];
+  const thumbnail =
+    first?.type === "subscription_new_video" ? first.video.thumbnailUrl : first?.channelAvatarUrl;
   const source = thumbnail ? proxyImage(thumbnail) : "/logo.svg";
   if (items.length === 1) {
     return (
@@ -43,9 +45,16 @@ export function NotificationToast({ items, onOpen, onClose, onPausedChange }: Pr
   if (!first) return null;
   const grouped = items.length > 1;
   const channelCount = new Set(items.map((item) => item.channelUrl || item.channelName)).size;
-  const publishedAt = first.publishedAt ?? first.video.publishedAt ?? first.createdAt;
+  const publishedAt =
+    first.publishedAt ??
+    (first.type === "subscription_new_video" ? first.video.publishedAt : null) ??
+    first.createdAt;
   const publishedText = formatPublishedDate(publishedAt, undefined, locale) || m.ui_just_now();
-  const title = grouped ? m.ui_videos_waiting() : first.video.title;
+  const title = grouped
+    ? m.ui_videos_waiting()
+    : first.type === "twitch_live_started"
+      ? m.notification_twitch_live({ name: first.channelName })
+      : first.video.title;
   const source = grouped
     ? `${channelCount} ${channelCount === 1 ? m.ui_channel() : m.ui_channels()}`
     : first.channelName;

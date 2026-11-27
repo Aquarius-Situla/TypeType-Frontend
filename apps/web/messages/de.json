@@ -2262,5 +2262,8 @@
   "twitch_language_filter": "Sprache",
   "twitch_language_all": "Alle Sprachen",
   "twitch_language_count": "{count} Sprachen",
-  "twitch_language_other": "Andere"
+  "twitch_language_other": "Andere",
+  "notification_twitch_live": "{name} ist live",
+  "settings_notifications_twitch_live_label": "Twitch-Livestreams",
+  "settings_notifications_twitch_live_description": "Benachrichtigen, wenn ein Kanal, dem du auf Twitch folgst, live geht."
 }

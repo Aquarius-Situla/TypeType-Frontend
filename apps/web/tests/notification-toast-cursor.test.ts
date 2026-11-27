@@ -3,6 +3,7 @@ import {
   advanceNotificationToastCursor,
   createNotificationToastCursor,
   findNewNotificationItems,
+  notificationKey,
   parseNotificationToastCursor,
   visibleNotificationToastItems,
 } from "../src/lib/notification-toast-cursor";
@@ -86,6 +87,27 @@ describe("notification toast cursor", () => {
 
     expect(visibleNotificationToastItems([item], false, () => false)).toEqual([]);
     expect(visibleNotificationToastItems([item], true, () => false)).toEqual([item]);
+  });
+
+  test("tells live notifications apart by stream and never hides them as videos", () => {
+    const live = (streamId: string, createdAt: number): NotificationItem => ({
+      type: "twitch_live_started",
+      title: "Speedrun",
+      createdAt,
+      publishedAt: createdAt,
+      channelUrl: "https://www.twitch.tv/runner",
+      channelName: "Runner",
+      channelAvatarUrl: "avatar.jpg",
+      serviceId: -1,
+      serviceName: "Twitch",
+      live: { streamId, login: "runner", category: "Celeste" },
+    });
+    const cursor = createNotificationToastCursor([live("s1", 700)], 0);
+    expect(findNewNotificationItems([live("s1", 700), live("s2", 700)], cursor)).toEqual([
+      live("s2", 700),
+    ]);
+    expect(notificationKey(live("s2", 700))).toBe("twitch_live_started:s2");
+    expect(visibleNotificationToastItems([live("s3", 800)], true, () => true)).toHaveLength(1);
   });
 
   test("rejects malformed persisted cursors", () => {

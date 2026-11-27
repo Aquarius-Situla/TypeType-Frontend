@@ -1,13 +1,13 @@
-import type { NotificationItem } from "../types/notifications";
+import type { NotificationItem, SubscriptionNewVideoNotification } from "../types/notifications";
 
 export type NotificationToastCursor = {
   latestCreatedAt: number;
   keysAtLatest: string[];
 };
 
-function notificationKey(item: NotificationItem): string {
-  const videoId = item.video.url.trim() || item.video.id;
-  return `${item.type}:${videoId}`;
+export function notificationKey(item: NotificationItem): string {
+  if (item.type === "twitch_live_started") return `${item.type}:${item.live.streamId}`;
+  return `${item.type}:${item.video.url.trim() || item.video.id}`;
 }
 
 export function createNotificationToastCursor(
@@ -42,9 +42,10 @@ export function findNewNotificationItems(
 export function visibleNotificationToastItems(
   items: NotificationItem[],
   popupsEnabled: boolean,
-  isHidden: (item: NotificationItem["video"]) => boolean,
+  isHidden: (video: SubscriptionNewVideoNotification["video"]) => boolean,
 ): NotificationItem[] {
-  return popupsEnabled ? items.filter((item) => !isHidden(item.video)) : [];
+  if (!popupsEnabled) return [];
+  return items.filter((item) => item.type !== "subscription_new_video" || !isHidden(item.video));
 }
 
 export function advanceNotificationToastCursor(

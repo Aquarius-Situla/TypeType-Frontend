@@ -113,7 +113,9 @@ export function NotificationToastHost() {
   function openToast() {
     if (items.length === 1) {
       const item = items[0];
-      if (item) {
+      if (item?.type === "twitch_live_started") {
+        void navigate({ to: "/twitch/watch", search: { c: item.live.login } });
+      } else if (item) {
         const videoId = item.video.url.trim() || item.video.id;
         void navigate({ to: "/watch", search: watchRouteSearch(videoId) });
       }

@@ -1,6 +1,6 @@
 import type { VideoItem } from "./api";
 
-type SubscriptionNewVideoNotification = {
+export type SubscriptionNewVideoNotification = {
   type: "subscription_new_video";
   title: string;
   publishedAt?: number | null;
@@ -13,7 +13,20 @@ type SubscriptionNewVideoNotification = {
   video: VideoItem;
 };
 
-export type NotificationItem = SubscriptionNewVideoNotification;
+export type TwitchLiveStartedNotification = {
+  type: "twitch_live_started";
+  title: string;
+  publishedAt?: number | null;
+  createdAt: number;
+  channelUrl: string;
+  channelName: string;
+  channelAvatarUrl: string;
+  serviceId: number;
+  serviceName: string;
+  live: { streamId: string; login: string; category: string };
+};
+
+export type NotificationItem = SubscriptionNewVideoNotification | TwitchLiveStartedNotification;
 
 export type NotificationsPage = {
   items: NotificationItem[];
