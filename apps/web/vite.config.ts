@@ -24,6 +24,18 @@ export default defineConfig(({ mode }) => {
     build: {
       rolldownOptions: {
         output: {
+          // Paraglide compiles one module per message and lucide one per icon: each one shared by two pages became a
+          // file of a few hundred bytes, and a watch page start fetched and preloaded dozens of them.
+          codeSplitting: {
+            groups: [
+              {
+                name: "messages",
+                test: /paraglide[\\/]([^\\/]+[\\/])?messages[\\/]/,
+                minShareCount: 2,
+              },
+              { name: "icons", test: /lucide-react[\\/]/, minShareCount: 2 },
+            ],
+          },
           // Content blockers drop files whose name starts like an advertisement's.
           chunkFileNames: (chunk) => `assets/${chunk.name.replace(/^ad-/, "interlude-")}-[hash].js`,
           assetFileNames: (asset) =>
